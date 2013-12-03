@@ -23,7 +23,7 @@
 #define HSTR_VERSION "0.2"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter history, use UP and DOWN arrow keys to choose an item using ENTER"
+#define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, ENTER to select"
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 #define FILE_HISTORY ".bash_history"
@@ -34,11 +34,29 @@
 #define Y_OFFSET_HISTORY 3
 #define Y_OFFSET_ITEMS 4
 
+#define KEY_TERMINAL_RESIZE 410
+#define KEY_CTRL_A 1
+#define KEY_CTRL_E 5
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+#ifdef DEBUG_KEYS
+#define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key number: '%3d' / Char: '%c'", KEY, KEY)
+#else
+#define LOGKEYS(Y,KEY) ;
+#endif
+
+#ifdef DEBUG_CURPOS
+#define LOGCURSOR(Y) mvprintw(Y, 0, "X/Y: %3d / %3d", getcurx(stdscr), getcury(stdscr))
+#else
+#define LOGCURSOR(Y) ;
+#endif
+
 static char ** selection=NULL;
 static int selectionSize=0;
+static bool terminalHasColors=FALSE;
+
 
 int printPrompt(WINDOW *win) {
 	char hostname[128];
@@ -224,28 +242,48 @@ void highlightSelection(int selectionCursorPosition, int previousSelectionCursor
 	}
 }
 
+void colorStart() {
+	terminalHasColors=has_colors();
+	if(terminalHasColors) {
+		start_color();
+	}
+}
+
+void colorInitPair(short int x, short int y, short int z) {
+	if(terminalHasColors) {
+		init_pair(x, y, z);
+	}
+}
+
+void colorAttron(int c) {
+	if(terminalHasColors) {
+		attron(c);
+	}
+}
+
+void colorAttroff(int c) {
+	if(terminalHasColors) {
+		attroff(c);
+	}
+}
+
 char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 	initscr();
-	if (has_colors() == FALSE) {
-		endwin();
-		printf("Your terminal does not support color\n");
-		exit(1);
-	}
+	colorStart();
 
-	start_color();
-	init_pair(1, COLOR_WHITE, COLOR_BLACK);
-	attron(COLOR_PAIR(1));
+	colorInitPair(1, COLOR_WHITE, COLOR_BLACK);
+	colorAttron(COLOR_PAIR(1));
 	printHistoryLabel(stdscr);
 	printHelpLabel(stdscr);
 	printSelection(stdscr, getMaxHistoryItems(stdscr), NULL, historyFileItemsCount, historyFileItems);
 	int basex = printPrompt(stdscr);
 	int x = basex;
-	attroff(COLOR_PAIR(1));
+	colorAttroff(COLOR_PAIR(1));
 
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-	int y = 1, c, maxHistoryItems;
+	int y = 1, c, maxHistoryItems, cursorX, cursorY;
 	bool done = FALSE;
 	char prefix[500]="";
 	char* result="";
@@ -254,10 +292,13 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 
 		noecho();
 		c = wgetch(stdscr);
-        //mvprintw(Y_OFFSET_HELP, 0, "Key pressed is = %4d Hopefully it can be printed as '%c'", c, c);
 		echo();
 
 		switch (c) {
+		case KEY_TERMINAL_RESIZE:
+		case KEY_CTRL_A:
+		case KEY_CTRL_E:
+			break;
 		case 91:
 			// TODO 91 killed > debug to determine how to distinguish \e and [
 	        //mvprintw(Y_OFFSET_HELP, 0, "91 killed");
@@ -302,21 +343,27 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 			break;
 		case 10:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-		        mvprintw(Y_OFFSET_HELP, 0, "EXIT: %d %d   ",selectionCursorPosition, selectionSize);
 				result=selection[selectionCursorPosition];
 				allocSelection(0);
 			}
 			done = TRUE;
 			break;
 		default:
+			LOGKEYS(Y_OFFSET_HELP,c);
+			LOGCURSOR(Y_OFFSET_HELP);
+
 			if(c!=27) {
 				strcat(prefix, (char*)(&c));
 				wattron(stdscr,A_BOLD);
 				mvprintw(y, basex, "%s", prefix);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
 				wattroff(stdscr,A_BOLD);
 				clrtoeol();
 
 				result = printSelection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+				//wmove(stdscr, cursorX, cursorY);
+				refresh();
 			}
 			break;
 		}
