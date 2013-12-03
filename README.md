@@ -20,22 +20,22 @@ INSTALLATION
 * add hh to $PATH
 * you may also bind hh to a BASH key (e.g. F12) by adding bind to .bashrc:
 
-      bind '"\e[24~":"hh"' 
+    bind '"\e[24~":"hh"' 
 
-    To determine the character sequence emitted by a pressed key in terminal, 
-    type CTRL-v and then press the key. For example, F12 gives "^[[24~" (no quotes). 
-    Replace the "^[" with \e. To clear the line first, add “\C-k \C-u” in front of 
-    the actual command to clear the line first. 
+  To determine the character sequence emitted by a pressed key in terminal, 
+  type CTRL-v and then press the key. For example, F12 gives "^[[24~" (no quotes). 
+  Replace the "^[" with \e. To clear the line first, add “\C-k \C-u” in front of 
+  the actual command to clear the line first. 
 
-      bind '"\e[24~":"\C-kX\C-uhh\n"'
+    bind '"\e[24~":"\C-kX\C-uhh\n"'
 
-    Binding using Ctrl-F12:
+  Binding using Ctrl-F12:
 
-      bind '"\e[24;5~":"\C-kX\C-uhh\n"'
+    bind '"\e[24;5~":"\C-kX\C-uhh\n"'
 
-    Check:
+  Check:
 
-      bind -S
+    bind -S
 
 
 BUGS
