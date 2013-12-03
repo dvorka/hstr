@@ -12,7 +12,7 @@ than Ctrl-R.
 
 DOWNLOAD
 --------
-https://bitbucket.org/dvorka/hstr/downloads  
+https://github.com/dvorka/hstr/releases
 
 
 INSTALLATION
@@ -23,8 +23,8 @@ INSTALLATION
     `bind '"\e[24~":"hh"'` 
 
   To determine the character sequence emitted by a pressed key in terminal, 
-  type CTRL-v and then press the key. For example, F12 gives "^[[24~" (no quotes). 
-  Replace the "^[" with \e. To clear the line first, add “\C-k \C-u” in front of 
+  type CTRL-v and then press the key. For example, F12 gives `^[[24~`. 
+  Replace the `^[` with \e. To clear the line first, add `\C-k \C-u` in front of 
   the actual command to clear the line first. 
 
     `bind '"\e[24~":"\C-kX\C-uhh\n"'`
@@ -40,7 +40,7 @@ INSTALLATION
 
 BUGS
 ----
-https://bitbucket.org/dvorka/hstr/issues/new  
+https://github.com/dvorka/hstr/issues
 
 
 AUTHOR
