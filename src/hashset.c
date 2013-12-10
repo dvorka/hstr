@@ -1,6 +1,3 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
 #include "include/hashset.h"
 
 unsigned int hash( const char *str ) {
@@ -13,14 +10,14 @@ unsigned int hash( const char *str ) {
     return result % TABLE_SIZE;
 }
 
-void hs_init( HashSet * hs ) {
+void hashset_init( HashSet * hs ) {
     int i;
     hs->currentSize = 0;
     for( i = 0; i < TABLE_SIZE; i++ )
         hs->lists[ i ] = NULL;
 }
 
-int hs_contains( const HashSet * hs, const char *key ) {
+int hashset_contains( const HashSet * hs, const char *key ) {
     int listNum = hash( key );
     struct HashNode *ptr = hs->lists[ listNum ];
 
@@ -30,11 +27,11 @@ int hs_contains( const HashSet * hs, const char *key ) {
     return ptr != NULL;
 }
 
-int hs_add( HashSet * hs, const char *key ) {
+int hashset_add( HashSet * hs, const char *key ) {
     struct HashNode *newNode;
     int listNum;
 
-    if( hs_contains( hs, key ) )
+    if( hashset_contains( hs, key ) )
         return 0;
 
     listNum = hash( key );
@@ -54,12 +51,12 @@ int hs_add( HashSet * hs, const char *key ) {
     return 1;
 }
 
-int hs_remove( HashSet * hs, const char *key ) {
+int hashset_remove( HashSet * hs, const char *key ) {
     struct HashNode *curr;
     struct HashNode *prev = NULL;
     int listNum;
 
-    if( !hs_contains( hs, key ) )
+    if( !hashset_contains( hs, key ) )
         return 0;
 
     listNum = hash( key );
@@ -69,12 +66,11 @@ int hs_remove( HashSet * hs, const char *key ) {
         curr = curr->next;
     }
 
-    if( prev == NULL ) // first item
+    if( prev == NULL )
         hs->lists[ listNum ] = curr->next;
-    else      // middle of list
+    else
         prev->next = curr->next;
 
-    // cleanup node curr
     free( curr->key );
     free( curr );
 
@@ -82,11 +78,11 @@ int hs_remove( HashSet * hs, const char *key ) {
     return 1;
 }
 
-int hs_size(const HashSet * hs) {
+int hashset_size(const HashSet * hs) {
     return hs->currentSize;
 }
 
-void hs_print( const HashSet * hs ) {
+void hashset_print( const HashSet * hs ) {
     int i;
     struct HashNode *ptr;
 

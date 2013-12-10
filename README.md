@@ -45,5 +45,4 @@ https://github.com/dvorka/hstr/issues
 AUTHOR
 ------
 martin.dvorak@mindforger.com
-  
-- eof -
+

@@ -9,24 +9,22 @@
 */
 
 #include <curses.h>
-#include <fcntl.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include <sys/ioctl.h>
 #include <termios.h>
 #include <unistd.h>
+
 #include "include/hashset.h"
+#include "include/hstr_utils.h"
+#include "include/hstr_history.h"
 
 #define HSTR_VERSION "0.2"
 
 #define LABEL_HISTORY " HISTORY "
 #define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, ENTER to select"
-#define ENV_VAR_USER "USER"
-#define ENV_VAR_HOME "HOME"
-#define FILE_HISTORY ".bash_history"
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 #define Y_OFFSET_PROMPT 0
@@ -53,12 +51,12 @@
 #define LOGCURSOR(Y) ;
 #endif
 
-static char ** selection=NULL;
+static char **selection=NULL;
 static int selectionSize=0;
 static bool terminalHasColors=FALSE;
 
 
-int printPrompt(WINDOW *win) {
+int print_prompt(WINDOW *win) {
 	char hostname[128];
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
@@ -70,12 +68,12 @@ int printPrompt(WINDOW *win) {
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
 }
 
-void printHelpLabel(WINDOW *win) {
+void print_help_label(WINDOW *win) {
 	mvwprintw(win, Y_OFFSET_HELP, 0, LABEL_HELP);
 	refresh();
 }
 
-void printHistoryLabel(WINDOW *win) {
+void print_history_label(WINDOW *win) {
 	char message[512];
 
 	int width=getmaxx(win);
@@ -98,62 +96,6 @@ int getMaxHistoryItems(WINDOW *win) {
 	return (getmaxy(win)-(Y_OFFSET_ITEMS+2));
 }
 
-char *loadHistoryFile() {
-	char *home = getenv(ENV_VAR_HOME);
-	char *fileName=(char*)malloc(strlen(home)+1+strlen(FILE_HISTORY)+1);
-	strcpy(fileName,home);
-	strcat(fileName,"/");
-	strcat(fileName,FILE_HISTORY);
-
-	if(access(fileName, F_OK) != -1) {
-		char *file_contents;
-		long input_file_size;
-
-		FILE *input_file = fopen(fileName, "rb");
-		fseek(input_file, 0, SEEK_END);
-		input_file_size = ftell(input_file);
-		rewind(input_file);
-		file_contents = malloc((input_file_size + 1) * (sizeof(char)));
-		if(fread(file_contents, sizeof(char), input_file_size, input_file)==-1) {
-			exit(EXIT_FAILURE);
-		}
-		fclose(input_file);
-		file_contents[input_file_size] = 0;
-
-		return file_contents;
-	} else {
-	    fprintf(stderr,"\nHistory file not found: %s\n",fileName);
-	    exit(EXIT_FAILURE);
-	}
-}
-
-int countHistoryLines(char *history) {
-	int i = 0;
-	char *p=strchr(history,'\n');
-	while (p!=NULL) {
-		i++;
-		p=strchr(p+1,'\n');
-	}
-	return i;
-}
-
-char **tokenizeHistory(char *history, int lines) {
-	char **tokens = malloc(sizeof(char*) * lines);
-
-	int i = 0;
-	char *pb=history, *pe;
-	pe=strchr(history, '\n');
-	while(pe!=NULL) {
-		tokens[i]=pb;
-		*pe=0;
-
-		pb=pe+1;
-		pe=strchr(pb, '\n');
-		i++;
-	}
-
-	return tokens;
-}
 
 void allocSelection(int size) {
 	selectionSize=size;
@@ -171,17 +113,17 @@ int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCou
 	int i, selectionCount=0;
 
     HashSet set;
-    hs_init(&set);
+    hashset_init(&set);
 
 	for(i=0; i<historyFileItemsCount && selectionCount<maxSelectionCount; i++) {
-		if(!hs_contains(&set, historyFileItems[i])) {
+		if(!hashset_contains(&set, historyFileItems[i])) {
 			if(prefix==NULL) {
 				selection[selectionCount++]=historyFileItems[i];
-				hs_add(&set, historyFileItems[i]);
+				hashset_add(&set, historyFileItems[i]);
 			} else {
 				if(historyFileItems[i]==strstr(historyFileItems[i], prefix)) {
 					selection[selectionCount++]=historyFileItems[i];
-					hs_add(&set, historyFileItems[i]);
+					hashset_add(&set, historyFileItems[i]);
 				}
 			}
 		}
@@ -189,11 +131,11 @@ int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCou
 
 	if(prefix!=NULL && selectionCount<maxSelectionCount) {
 		for(i=0; i<historyFileItemsCount && selectionCount<maxSelectionCount; i++) {
-			if(!hs_contains(&set, historyFileItems[i])) {
+			if(!hashset_contains(&set, historyFileItems[i])) {
 				char* substring = strstr(historyFileItems[i], prefix);
 				if (substring != NULL && substring!=historyFileItems[i]) {
 					selection[selectionCount++]=historyFileItems[i];
-					hs_add(&set, historyFileItems[i]);
+					hashset_add(&set, historyFileItems[i]);
 				}
 			}
 		}
@@ -273,10 +215,10 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 
 	colorInitPair(1, COLOR_WHITE, COLOR_BLACK);
 	colorAttron(COLOR_PAIR(1));
-	printHistoryLabel(stdscr);
-	printHelpLabel(stdscr);
+	print_history_label(stdscr);
+	print_help_label(stdscr);
 	printSelection(stdscr, getMaxHistoryItems(stdscr), NULL, historyFileItemsCount, historyFileItems);
-	int basex = printPrompt(stdscr);
+	int basex = print_prompt(stdscr);
 	int x = basex;
 	colorAttroff(COLOR_PAIR(1));
 
@@ -373,45 +315,12 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 	return result;
 }
 
-void tiocsti() {
-	char buf[] = "cmd";
-	int i;
-	for (i = 0; i < sizeof buf - 1; i++) {
-		ioctl(0, TIOCSTI, &buf[i]);
-	}
-}
-
-void fillTerminalInput(char* cmd){
-	size_t size = strlen(cmd);
-	int i;
-	char *c;
-	for (i = 0; i < size; i++) {
-		// terminal I/O control, simulate terminal input
-		c=(cmd+i);
-		ioctl(0, TIOCSTI, c);
-	}
-	printf("\n");
-}
-
-void reverseCharPointerArray(char **array, int length) {
-	int i;
-	char * temp;
-    for (i=0; i<length/2; i++) {
-        temp = array[i];
-        array[i] = array[length-i-1];
-        array[length-i-1] = temp;
-    }
-}
-
 void hstr() {
-	char *historyAsString = loadHistoryFile(FILE_HISTORY);
-	int itemsCount = countHistoryLines(historyAsString);
-	char** items = tokenizeHistory(historyAsString, itemsCount);
-	reverseCharPointerArray(items, itemsCount);
-	char* command = selectionLoop(items, itemsCount);
-	fillTerminalInput(command);
-	free(historyAsString);
-	free(items);
+	char** items=get_history_items();
+	int itemsCount=get_history_items_size();
+//	char* command = selectionLoop(items, itemsCount);
+//	fill_terminal_input(command);
+	free_history_items();
 }
 
 int main(int argc, char *argv[]) {

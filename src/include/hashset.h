@@ -1,12 +1,13 @@
-#ifndef HASHSET_H
-#define HASHSET_H 1
+#ifndef _HASHSET_H
+#define _HASHSET_H
 
 #include <stdlib.h>
+#include <stdio.h>
+#include <string.h>
 
 #ifdef __cplusplus
 extern "C" {
 #endif
-
 
 #define TABLE_SIZE 10007
 
@@ -22,12 +23,12 @@ struct HashSetStruct {
 
 typedef struct HashSetStruct HashSet;
 
-void hs_init( HashSet * hs );
-int hs_contains( const HashSet * hs, const char *key );
-int hs_add( HashSet * hs, const char *key );
-int hs_remove( HashSet * hs, const char *key );
-int hs_size( const HashSet * hs );
-void hs_print( const HashSet * hs );
+void hashset_init( HashSet * hs );
+int hashset_contains( const HashSet * hs, const char *key );
+int hashset_add( HashSet * hs, const char *key );
+int hashset_remove( HashSet * hs, const char *key );
+int hashset_size( const HashSet * hs );
+void hashset_print( const HashSet * hs );
 
 
 #ifdef __cplusplus
