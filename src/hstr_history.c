@@ -93,8 +93,14 @@ void free_history_items() {
 #else
 
 
+void flushHistory() {
+	const char* filename = "history";
+	char *const args[1] = {"-a"};
+	execvp(filename, args);
+}
 
 char** get_history_items() {
+	flushHistory();
 	using_history();
 
 	char *historyFile = getenv(ENV_VAR_HISTFILE);
@@ -120,7 +126,11 @@ char** get_history_items() {
 			if(entry!=NULL) {
 				item=malloc(strlen(entry)+1);
 				strcpy(item, entry);
+			} else {
+				item=malloc(2);
+				strcpy(item, " ");
 			}
+			historyItems[i]=item;
 		}
 	} else {
 		historyItemsCount=0;

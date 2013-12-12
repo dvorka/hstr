@@ -116,7 +116,7 @@ int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCou
     hashset_init(&set);
 
 	for(i=0; i<historyFileItemsCount && selectionCount<maxSelectionCount; i++) {
-		if(!hashset_contains(&set, historyFileItems[i])) {
+		if(historyFileItems[i]!=NULL && !hashset_contains(&set, historyFileItems[i])) {
 			if(prefix==NULL) {
 				selection[selectionCount++]=historyFileItems[i];
 				hashset_add(&set, historyFileItems[i]);
@@ -145,7 +145,7 @@ int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCou
 	return selectionCount;
 }
 
-char* printSelection(WINDOW *win, int maxHistoryItems, char *prefix, int historyFileItemsCount, char** historyFileItems) {
+char* print_selection(WINDOW *win, int maxHistoryItems, char *prefix, int historyFileItemsCount, char** historyFileItems) {
 	char* result="";
 	int selectionCount=makeSelection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
 	if (selectionCount > 0) {
@@ -155,10 +155,13 @@ char* printSelection(WINDOW *win, int maxHistoryItems, char *prefix, int history
 	int height=getMaxHistoryItems(win);
 	int i;
 	int y=Y_OFFSET_ITEMS;
+
+	move(Y_OFFSET_ITEMS, 0);
+	wclrtobot(win);
+
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
-			mvwprintw(win, y++, 1, "%s", selection[i]);
-			clrtoeol();
+			mvwprintw(win, y++, 0, " %s", selection[i]);
 			if(prefix!=NULL) {
 				wattron(win,A_BOLD);
 				char *p=strstr(selection[i], prefix);
@@ -167,7 +170,6 @@ char* printSelection(WINDOW *win, int maxHistoryItems, char *prefix, int history
 			}
 		} else {
 			mvwprintw(win, y++, 0, " ");
-			clrtoeol();
 		}
 	}
 	refresh();
@@ -175,7 +177,7 @@ char* printSelection(WINDOW *win, int maxHistoryItems, char *prefix, int history
 	return result;
 }
 
-void highlightSelection(int selectionCursorPosition, int previousSelectionCursorPosition) {
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition) {
 	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 		mvprintw(Y_OFFSET_ITEMS+previousSelectionCursorPosition, 0, " ");
 	}
@@ -184,43 +186,43 @@ void highlightSelection(int selectionCursorPosition, int previousSelectionCursor
 	}
 }
 
-void colorStart() {
+void color_start() {
 	terminalHasColors=has_colors();
 	if(terminalHasColors) {
 		start_color();
 	}
 }
 
-void colorInitPair(short int x, short int y, short int z) {
+void color_init_pair(short int x, short int y, short int z) {
 	if(terminalHasColors) {
 		init_pair(x, y, z);
 	}
 }
 
-void colorAttron(int c) {
+void color_attr_on(int c) {
 	if(terminalHasColors) {
 		attron(c);
 	}
 }
 
-void colorAttroff(int c) {
+void color_attr_off(int c) {
 	if(terminalHasColors) {
 		attroff(c);
 	}
 }
 
-char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
+char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 	initscr();
-	colorStart();
+	color_start();
 
-	colorInitPair(1, COLOR_WHITE, COLOR_BLACK);
-	colorAttron(COLOR_PAIR(1));
+	color_init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	color_attr_on(COLOR_PAIR(1));
 	print_history_label(stdscr);
 	print_help_label(stdscr);
-	printSelection(stdscr, getMaxHistoryItems(stdscr), NULL, historyFileItemsCount, historyFileItems);
+	print_selection(stdscr, getMaxHistoryItems(stdscr), NULL, historyFileItemsCount, historyFileItems);
 	int basex = print_prompt(stdscr);
 	int x = basex;
-	colorAttroff(COLOR_PAIR(1));
+	color_attr_off(COLOR_PAIR(1));
 
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -261,7 +263,9 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 			} else {
 				makeSelection(NULL, historyFileItems, historyFileItemsCount, maxHistoryItems);
 			}
-			result = printSelection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+			result = print_selection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+
+			move(y, basex+strlen(prefix));
 			break;
 		case KEY_UP:
 		case 65:
@@ -271,7 +275,7 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 			} else {
 				previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			}
-			highlightSelection(selectionCursorPosition, previousSelectionCursorPosition);
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
 		case KEY_DOWN:
 		case 66:
@@ -281,7 +285,7 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 			} else {
 				selectionCursorPosition=0;
 			}
-			highlightSelection(selectionCursorPosition, previousSelectionCursorPosition);
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
 		case 10:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
@@ -303,8 +307,8 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 				wattroff(stdscr,A_BOLD);
 				clrtoeol();
 
-				result = printSelection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
-				//wmove(stdscr, cursorX, cursorY);
+				result = print_selection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+				move(cursorY, cursorX);
 				refresh();
 			}
 			break;
@@ -318,8 +322,8 @@ char* selectionLoop(char **historyFileItems, int historyFileItemsCount) {
 void hstr() {
 	char** items=get_history_items();
 	int itemsCount=get_history_items_size();
-//	char* command = selectionLoop(items, itemsCount);
-//	fill_terminal_input(command);
+	char* command = selection_loop(items, itemsCount);
+	fill_terminal_input(command);
 	free_history_items();
 }
 

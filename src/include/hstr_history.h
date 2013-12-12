@@ -9,8 +9,8 @@
 #include <unistd.h>
 #include "hstr_utils.h"
 
-#define GET_HISTORY_FROM_FILE
-//#define GET_HISTORY_USING_LIBRARY
+//#define GET_HISTORY_FROM_FILE
+#define GET_HISTORY_USING_LIBRARY
 
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
