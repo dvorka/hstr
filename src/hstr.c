@@ -92,12 +92,12 @@ void print_history_label(WINDOW *win) {
 	refresh();
 }
 
-int getMaxHistoryItems(WINDOW *win) {
+int get_max_history_items(WINDOW *win) {
 	return (getmaxy(win)-(Y_OFFSET_ITEMS+2));
 }
 
 
-void allocSelection(int size) {
+void alloc_selection(int size) {
 	selectionSize=size;
 	if(selection!=NULL) {
 		free(selection);
@@ -108,8 +108,8 @@ void allocSelection(int size) {
 	}
 }
 
-int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCount, int maxSelectionCount) {
-	allocSelection(sizeof(char*) * maxSelectionCount); // TODO realloc
+int make_selection(char* prefix, char **historyFileItems, int historyFileItemsCount, int maxSelectionCount) {
+	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	int i, selectionCount=0;
 
     HashSet set;
@@ -147,12 +147,12 @@ int makeSelection(char* prefix, char **historyFileItems, int historyFileItemsCou
 
 char* print_selection(WINDOW *win, int maxHistoryItems, char *prefix, int historyFileItemsCount, char** historyFileItems) {
 	char* result="";
-	int selectionCount=makeSelection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
+	int selectionCount=make_selection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
 	if (selectionCount > 0) {
 		result = selection[0];
 	}
 
-	int height=getMaxHistoryItems(win);
+	int height=get_max_history_items(win);
 	int i;
 	int y=Y_OFFSET_ITEMS;
 
@@ -219,7 +219,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 	color_attr_on(COLOR_PAIR(1));
 	print_history_label(stdscr);
 	print_help_label(stdscr);
-	print_selection(stdscr, getMaxHistoryItems(stdscr), NULL, historyFileItemsCount, historyFileItems);
+	print_selection(stdscr, get_max_history_items(stdscr), NULL, historyFileItemsCount, historyFileItems);
 	int basex = print_prompt(stdscr);
 	int x = basex;
 	color_attr_off(COLOR_PAIR(1));
@@ -232,7 +232,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 	char prefix[500]="";
 	char* result="";
 	while (!done) {
-		maxHistoryItems=getMaxHistoryItems(stdscr);
+		maxHistoryItems=get_max_history_items(stdscr);
 
 		noecho();
 		c = wgetch(stdscr);
@@ -259,9 +259,9 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 			}
 
 			if(strlen(prefix)>0) {
-				makeSelection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
+				make_selection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
 			} else {
-				makeSelection(NULL, historyFileItems, historyFileItemsCount, maxHistoryItems);
+				make_selection(NULL, historyFileItems, historyFileItemsCount, maxHistoryItems);
 			}
 			result = print_selection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
 
@@ -290,7 +290,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 		case 10:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				result=selection[selectionCursorPosition];
-				allocSelection(0);
+				alloc_selection(0);
 			}
 			done = TRUE;
 			break;

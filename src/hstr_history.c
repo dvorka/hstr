@@ -3,7 +3,7 @@
 static int historyItemsCount;
 static char** historyItems;
 
-char* getHistoryFile() {
+char* get_history_file() {
 	char *home = getenv(ENV_VAR_HOME);
 	char *fileName = (char*) malloc(
 			strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
@@ -20,7 +20,7 @@ char* getHistoryFile() {
 static char *historyAsString;
 
 char *load_history_file() {
-	char* fileName = getHistoryFile();
+	char* fileName = get_history_file();
 	if(access(fileName, F_OK) != -1) {
 		char *file_contents;
 		long input_file_size;
@@ -93,19 +93,19 @@ void free_history_items() {
 #else
 
 
-void flushHistory() {
+void flush_history() {
 	const char* filename = "history";
 	char *const args[1] = {"-a"};
 	execvp(filename, args);
 }
 
 char** get_history_items() {
-	flushHistory();
+	flush_history();
 	using_history();
 
 	char *historyFile = getenv(ENV_VAR_HISTFILE);
 	if(historyFile==NULL || strlen(historyFile)==0) {
-		historyFile=getHistoryFile();
+		historyFile=get_history_file();
 	}
 
 	if(read_history(historyFile)!=0) {
