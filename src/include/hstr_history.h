@@ -18,8 +18,15 @@
 
 #define FILE_HISTORY ".bash_history"
 
-char** get_history_items();
-int get_history_items_size();
+typedef struct {
+	char **items;
+	int count;
+} HistoryItems;
+
+HistoryItems *get_history_items();
 void free_history_items();
+
+HistoryItems *prioritize_history(HistoryItems *historyFileItems);
+void free_prioritized_history();
 
 #endif

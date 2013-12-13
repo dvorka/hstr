@@ -6,16 +6,8 @@
 #include <string.h>
 #include <stdio.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 void tiocsti();
 void fill_terminal_input(char* cmd);
 void reverse_char_pointer_array(char **array, int length);
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif

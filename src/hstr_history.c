@@ -1,9 +1,9 @@
 #include "include/hstr_history.h"
 
-static int historyItemsCount;
-static char** historyItems;
+static HistoryItems *history;
+static HistoryItems *prioritizedHistory;
 
-char* get_history_file() {
+char *get_history_file() {
 	char *home = getenv(ENV_VAR_HOME);
 	char *fileName = (char*) malloc(
 			strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
@@ -13,6 +13,14 @@ char* get_history_file() {
 	return fileName;
 }
 
+HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
+	return historyFileItems;
+}
+
+void free_prioritized_history() {
+	//free(prioritizedHistory->items);
+	//free(prioritizedHistory);
+}
 
 
 #ifdef GET_HISTORY_FROM_FILE
@@ -20,7 +28,7 @@ char* get_history_file() {
 static char *historyAsString;
 
 char *load_history_file() {
-	char* fileName = get_history_file();
+	char *fileName = get_history_file();
 	if(access(fileName, F_OK) != -1) {
 		char *file_contents;
 		long input_file_size;
@@ -71,7 +79,7 @@ char **get_tokenized_history(char *history, int lines) {
 	return tokens;
 }
 
-char** get_history_items() {
+char **get_history_items() {
 	historyAsString = load_history_file(FILE_HISTORY);
 	historyItemsCount = count_history_lines(historyAsString);
 	historyItems = get_tokenized_history(historyAsString, historyItemsCount);
@@ -94,17 +102,19 @@ void free_history_items() {
 
 
 void flush_history() {
-	const char* filename = "history";
+	const char *filename = "history";
 	char *const args[1] = {"-a"};
 	execvp(filename, args);
 }
 
-char** get_history_items() {
+HistoryItems *get_history_items() {
+	history=(HistoryItems *)malloc(sizeof(HistoryItems));
+
 	flush_history();
 	using_history();
 
 	char *historyFile = getenv(ENV_VAR_HISTFILE);
-	if(historyFile==NULL || strlen(historyFile)==0) {
+	if(!historyFile || strlen(historyFile)==0) {
 		historyFile=get_history_file();
 	}
 
@@ -115,13 +125,13 @@ char** get_history_items() {
 	HISTORY_STATE *historyState=history_get_history_state();
 
 	if(historyState->length > 0) {
-		historyItemsCount=historyState->length;
+		history->count=historyState->length;
+		history->items=(char**)malloc(history->count * sizeof(char*));
 
-		historyItems=(char**)malloc(historyItemsCount*sizeof(char*));
 		HIST_ENTRY **historyList=history_list();
 		int i;
 		char *entry, *item;
-		for(i=0; i<historyItemsCount; i++) {
+		for(i=0; i<history->count; i++) {
 			entry=historyList[i]->line;
 			if(entry!=NULL) {
 				item=malloc(strlen(entry)+1);
@@ -130,22 +140,19 @@ char** get_history_items() {
 				item=malloc(2);
 				strcpy(item, " ");
 			}
-			historyItems[i]=item;
+			history->items[i]=item;
 		}
 	} else {
-		historyItemsCount=0;
-		historyItems=NULL;
+		history->count=0;
+		history->items=NULL;
 	}
 
-	return historyItems;
-}
-
-int get_history_items_size() {
-	return historyItemsCount;
+	return history;
 }
 
 void free_history_items() {
-	free(historyItems);
+	free(history->items);
+	free(history);
 }
 
 

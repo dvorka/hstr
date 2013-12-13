@@ -108,34 +108,34 @@ void alloc_selection(int size) {
 	}
 }
 
-int make_selection(char* prefix, char **historyFileItems, int historyFileItemsCount, int maxSelectionCount) {
+int make_selection(char *prefix, HistoryItems *history, int maxSelectionCount) {
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	int i, selectionCount=0;
 
     HashSet set;
     hashset_init(&set);
 
-	for(i=0; i<historyFileItemsCount && selectionCount<maxSelectionCount; i++) {
-		if(historyFileItems[i]!=NULL && !hashset_contains(&set, historyFileItems[i])) {
+	for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
+		if(history->items[i]!=NULL && !hashset_contains(&set, history->items[i])) {
 			if(prefix==NULL) {
-				selection[selectionCount++]=historyFileItems[i];
-				hashset_add(&set, historyFileItems[i]);
+				selection[selectionCount++]=history->items[i];
+				hashset_add(&set, history->items[i]);
 			} else {
-				if(historyFileItems[i]==strstr(historyFileItems[i], prefix)) {
-					selection[selectionCount++]=historyFileItems[i];
-					hashset_add(&set, historyFileItems[i]);
+				if(history->items[i]==strstr(history->items[i], prefix)) {
+					selection[selectionCount++]=history->items[i];
+					hashset_add(&set, history->items[i]);
 				}
 			}
 		}
 	}
 
 	if(prefix!=NULL && selectionCount<maxSelectionCount) {
-		for(i=0; i<historyFileItemsCount && selectionCount<maxSelectionCount; i++) {
-			if(!hashset_contains(&set, historyFileItems[i])) {
-				char* substring = strstr(historyFileItems[i], prefix);
-				if (substring != NULL && substring!=historyFileItems[i]) {
-					selection[selectionCount++]=historyFileItems[i];
-					hashset_add(&set, historyFileItems[i]);
+		for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
+			if(!hashset_contains(&set, history->items[i])) {
+				char *substring = strstr(history->items[i], prefix);
+				if (substring != NULL && substring!=history->items[i]) {
+					selection[selectionCount++]=history->items[i];
+					hashset_add(&set, history->items[i]);
 				}
 			}
 		}
@@ -145,9 +145,9 @@ int make_selection(char* prefix, char **historyFileItems, int historyFileItemsCo
 	return selectionCount;
 }
 
-char* print_selection(WINDOW *win, int maxHistoryItems, char *prefix, int historyFileItemsCount, char** historyFileItems) {
-	char* result="";
-	int selectionCount=make_selection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
+char *print_selection(WINDOW *win, int maxHistoryItems, char *prefix, HistoryItems *history) {
+	char *result="";
+	int selectionCount=make_selection(prefix, history, maxHistoryItems);
 	if (selectionCount > 0) {
 		result = selection[0];
 	}
@@ -211,7 +211,7 @@ void color_attr_off(int c) {
 	}
 }
 
-char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
+char *selection_loop(HistoryItems *history) {
 	initscr();
 	color_start();
 
@@ -219,7 +219,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 	color_attr_on(COLOR_PAIR(1));
 	print_history_label(stdscr);
 	print_help_label(stdscr);
-	print_selection(stdscr, get_max_history_items(stdscr), NULL, historyFileItemsCount, historyFileItems);
+	print_selection(stdscr, get_max_history_items(stdscr), NULL, history);
 	int basex = print_prompt(stdscr);
 	int x = basex;
 	color_attr_off(COLOR_PAIR(1));
@@ -230,7 +230,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 	int y = 1, c, maxHistoryItems, cursorX, cursorY;
 	bool done = FALSE;
 	char prefix[500]="";
-	char* result="";
+	char *result="";
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
@@ -259,31 +259,35 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 			}
 
 			if(strlen(prefix)>0) {
-				make_selection(prefix, historyFileItems, historyFileItemsCount, maxHistoryItems);
+				make_selection(prefix, history, maxHistoryItems);
 			} else {
-				make_selection(NULL, historyFileItems, historyFileItemsCount, maxHistoryItems);
+				make_selection(NULL, history, maxHistoryItems);
 			}
-			result = print_selection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+			result = print_selection(stdscr, maxHistoryItems, prefix, history);
 
 			move(y, basex+strlen(prefix));
 			break;
 		case KEY_UP:
 		case 65:
-			if(selectionCursorPosition>SELECTION_CURSOR_IN_PROMPT) {
-				previousSelectionCursorPosition=selectionCursorPosition;
+			previousSelectionCursorPosition=selectionCursorPosition;
+			if(selectionCursorPosition>0) {
 				selectionCursorPosition--;
 			} else {
-				previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+				selectionCursorPosition=selectionSize-1;
 			}
 			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
 		case KEY_DOWN:
 		case 66:
-			previousSelectionCursorPosition=selectionCursorPosition;
-			if((selectionCursorPosition+1)<selectionSize) {
-				selectionCursorPosition++;
+			if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
+				selectionCursorPosition=previousSelectionCursorPosition=0;
 			} else {
-				selectionCursorPosition=0;
+				previousSelectionCursorPosition=selectionCursorPosition;
+				if((selectionCursorPosition+1)<selectionSize) {
+					selectionCursorPosition++;
+				} else {
+					selectionCursorPosition=0;
+				}
 			}
 			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
@@ -299,6 +303,8 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 			LOGCURSOR(Y_OFFSET_HELP);
 
 			if(c!=27) {
+				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+
 				strcat(prefix, (char*)(&c));
 				wattron(stdscr,A_BOLD);
 				mvprintw(y, basex, "%s", prefix);
@@ -307,7 +313,7 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 				wattroff(stdscr,A_BOLD);
 				clrtoeol();
 
-				result = print_selection(stdscr, maxHistoryItems, prefix, historyFileItemsCount, historyFileItems);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history);
 				move(cursorY, cursorX);
 				refresh();
 			}
@@ -320,10 +326,11 @@ char* selection_loop(char **historyFileItems, int historyFileItemsCount) {
 }
 
 void hstr() {
-	char** items=get_history_items();
-	int itemsCount=get_history_items_size();
-	char* command = selection_loop(items, itemsCount);
+	HistoryItems *historyFileItems=get_history_items();
+	HistoryItems *history=prioritize_history(historyFileItems);
+	char *command = selection_loop(history);
 	fill_terminal_input(command);
+	free_prioritized_history();
 	free_history_items();
 }
 

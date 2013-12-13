@@ -5,10 +5,6 @@
 #include <stdio.h>
 #include <string.h>
 
-#ifdef __cplusplus
-extern "C" {
-#endif
-
 #define TABLE_SIZE 10007
 
 struct HashNode {
@@ -29,10 +25,5 @@ int hashset_add( HashSet * hs, const char *key );
 int hashset_remove( HashSet * hs, const char *key );
 int hashset_size( const HashSet * hs );
 void hashset_print( const HashSet * hs );
-
-
-#ifdef __cplusplus
-}
-#endif
 
 #endif
