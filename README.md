@@ -1,12 +1,12 @@
 hstr
 ====
 
-BASH History Suggest Box.
+BASH History Suggest Box
 
 DESCRIPTION
 -----------
 A command line utility that brings improved BASH command completion 
-from the history. It aims to make completion easier to use and faster
+from the history. It aims to make completion easier and faster
 than Ctrl-R.
 
 

@@ -20,8 +20,6 @@
 #include "include/hstr_utils.h"
 #include "include/hstr_history.h"
 
-#define HSTR_VERSION "0.3"
-
 #define LABEL_HISTORY " HISTORY "
 #define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, ENTER to select"
 #define SELECTION_CURSOR_IN_PROMPT -1
