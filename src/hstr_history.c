@@ -1,4 +1,12 @@
 #include "include/hstr_history.h"
+#include "include/hashset.h"
+#include "include/hashmap.h"
+#include "include/radixsort.h"
+
+typedef struct {
+	char *item;
+	unsigned rank;
+} RankedHistoryItem;
 
 static HistoryItems *history;
 static HistoryItems *prioritizedHistory;
@@ -13,14 +21,88 @@ char *get_history_file() {
 	return fileName;
 }
 
+#define history_ranking_function(RANK, NEWORDEROCCURENCE) (RANK?RANK+NEWORDEROCCURENCE:NEWORDEROCCURENCE)
+
+void dump_prioritized_history(HistoryItems *ph) {
+	printf("\n\nPrioritized history:");
+	int i;
+	for(i=0; i<ph->count; i++) {
+		if(ph->items[i]!=NULL) {
+			printf("\n%s",ph->items[i]); fflush(stdout);
+		} else {
+			printf("\n %d NULL",i); fflush(stdout);
+		}
+	}
+	printf("\n"); fflush(stdout);
+}
+
 HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
-	return historyFileItems;
+	HashMap rankmap;
+	hashmap_init(&rankmap);
+
+	HashSet blacklist;
+	hashset_init(&blacklist);
+	hashset_add(&blacklist, "ls");
+	hashset_add(&blacklist, "pwd");
+	hashset_add(&blacklist, "cd");
+	hashset_add(&blacklist, "hh");
+
+	RadixSorter rs;
+	radixsort_init(&rs);
+
+	RankedHistoryItem *r;
+	RadixItem *radixItem;
+	int i;
+	for(i=0; i<historyFileItems->count; i++) {
+		if(hashset_contains(&blacklist, historyFileItems->items[i])) {
+			continue;
+		}
+		if((r=hashmap_get(&rankmap, historyFileItems->items[i]))==NULL) {
+			r=(RankedHistoryItem *)malloc(sizeof(RankedHistoryItem));
+			r->rank=history_ranking_function(0, i);
+			r->item=historyFileItems->items[i];
+
+			hashmap_put(&rankmap, historyFileItems->items[i], r);
+
+			radixItem=(RadixItem *)malloc(sizeof(RadixItem));
+			radixItem->key=r->rank;
+			radixItem->data=r;
+			radixItem->next=NULL;
+			radixsort_add(&rs, radixItem);
+		} else {
+			//printf("\n>>> %s ", r->item); fflush(stdout);
+			radixItem=radix_cut(&rs, r->rank, r);
+
+			if(radixItem!=NULL) {
+				r->rank=history_ranking_function(r->rank, i);
+				radixItem->key=r->rank;
+				radixsort_add(&rs, radixItem);
+			} // TODO else assert
+		}
+	}
+
+	RadixItem **prioritizedRadix=radixsort_dump(&rs);
+	prioritizedHistory=(HistoryItems *)malloc(sizeof(HistoryItems));
+	prioritizedHistory->count=rs.size;
+	prioritizedHistory->items=malloc(rs.size * sizeof(char*));
+	for(i=0; i<rs.size; i++) {
+		printf("\n %d %p ",i,prioritizedRadix[i]->data);
+		if(prioritizedRadix[i]->data) {
+			prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+		}
+		printf("\n %d %s ",i,((RankedHistoryItem *)(prioritizedRadix[i]->data))->item);
+	}
+
+	radixsort_destroy(&rs);
+
+	return prioritizedHistory;
 }
 
 void free_prioritized_history() {
-	//free(prioritizedHistory->items);
-	//free(prioritizedHistory);
+	// TODO free(prioritizedHistory->items);
+	// TODO free(prioritizedHistory);
 }
+
 
 
 #ifdef GET_HISTORY_FROM_FILE

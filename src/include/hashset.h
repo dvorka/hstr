@@ -12,18 +12,16 @@ struct HashNode {
     struct HashNode *next;
 };
 
-struct HashSetStruct {
+typedef struct {
     struct HashNode * lists[TABLE_SIZE];
     int currentSize;
-};
+} HashSet;
 
-typedef struct HashSetStruct HashSet;
-
-void hashset_init( HashSet * hs );
-int hashset_contains( const HashSet * hs, const char *key );
-int hashset_add( HashSet * hs, const char *key );
-int hashset_remove( HashSet * hs, const char *key );
-int hashset_size( const HashSet * hs );
-void hashset_print( const HashSet * hs );
+void hashset_init( HashSet *hs );
+int hashset_contains( const HashSet *hs, const char *key );
+int hashset_add( HashSet *hs, const char *key );
+int hashset_remove( HashSet *hs, const char *key );
+int hashset_size( const HashSet *hs );
+void hashset_print( const HashSet *hs );
 
 #endif

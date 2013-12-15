@@ -20,7 +20,7 @@
 
 typedef struct {
 	char **items;
-	int count;
+	unsigned count;
 } HistoryItems;
 
 HistoryItems *get_history_items();

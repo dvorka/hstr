@@ -52,7 +52,7 @@
 #endif
 
 static char **selection=NULL;
-static int selectionSize=0;
+static unsigned selectionSize=0;
 static bool terminalHasColors=FALSE;
 
 
@@ -80,7 +80,7 @@ void print_history_label(WINDOW *win) {
 
 	strcpy(message, LABEL_HISTORY);
 	width -= strlen(LABEL_HISTORY);
-	int i;
+	unsigned i;
 	for (i=0; i < width; i++) {
 		strcat(message, " ");
 	}
@@ -92,12 +92,12 @@ void print_history_label(WINDOW *win) {
 	refresh();
 }
 
-int get_max_history_items(WINDOW *win) {
+unsigned get_max_history_items(WINDOW *win) {
 	return (getmaxy(win)-(Y_OFFSET_ITEMS+2));
 }
 
 
-void alloc_selection(int size) {
+void alloc_selection(unsigned size) {
 	selectionSize=size;
 	if(selection!=NULL) {
 		free(selection);
@@ -108,9 +108,9 @@ void alloc_selection(int size) {
 	}
 }
 
-int make_selection(char *prefix, HistoryItems *history, int maxSelectionCount) {
+unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount) {
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
-	int i, selectionCount=0;
+	unsigned i, selectionCount=0;
 
     HashSet set;
     hashset_init(&set);
@@ -145,15 +145,15 @@ int make_selection(char *prefix, HistoryItems *history, int maxSelectionCount) {
 	return selectionCount;
 }
 
-char *print_selection(WINDOW *win, int maxHistoryItems, char *prefix, HistoryItems *history) {
+char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history) {
 	char *result="";
-	int selectionCount=make_selection(prefix, history, maxHistoryItems);
+	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
 	if (selectionCount > 0) {
 		result = selection[0];
 	}
 
 	int height=get_max_history_items(win);
-	int i;
+	unsigned i;
 	int y=Y_OFFSET_ITEMS;
 
 	move(Y_OFFSET_ITEMS, 0);
@@ -245,7 +245,6 @@ char *selection_loop(HistoryItems *history) {
 			break;
 		case 91:
 			// TODO 91 killed > debug to determine how to distinguish \e and [
-	        //mvprintw(Y_OFFSET_HELP, 0, "91 killed");
 			break;
 		case KEY_BACKSPACE:
 		case 127:

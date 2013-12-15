@@ -8,6 +8,6 @@
 
 void tiocsti();
 void fill_terminal_input(char* cmd);
-void reverse_char_pointer_array(char **array, int length);
+void reverse_char_pointer_array(char **array, unsigned length);
 
 #endif
