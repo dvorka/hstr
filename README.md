@@ -17,8 +17,14 @@ https://github.com/dvorka/hstr/releases
 
 INSTALLATION
 ------------
-* bind `hh` to a key and/or add it to $PATH
-* bind `hh` to a BASH key by adding a line to your `.bashrc`, e.g. Ctrl-R:
+* add 
+
+     `shopt -s histappend`
+     `export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"`
+
+  at the end of `.bashrc` in order to ensure that BASH history of commands 
+  will be kept in sync with filesystem.
+* bind `hh` to a BASH key by adding a line to `.bashrc`, e.g. Ctrl-R:
 
     `bind '"\C-r": "\C-k\C-uhh\C-j"'`
 
@@ -32,8 +38,8 @@ INSTALLATION
 
   To determine the character sequence emitted by a pressed key in terminal, 
   type CTRL-v and then press the key. For example, F12 gives `^[[24~`. 
-  Replace the `^[` with `\e`. To clear the line first, add `\C-k \C-u` in front of 
-  the actual command. Check your current bindings using:
+  Replace the `^[` with `\e`. To clear the line first, add `\C-k \C-u` in 
+  front of the actual command. Check your current bindings using:
 
     `bind -S`
 

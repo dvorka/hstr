@@ -115,16 +115,9 @@ void free_prioritized_history() {
 	// TODO free(prioritizedHistory);
 }
 
-void flush_history() {
-	const char *filename = "history";
-	char *const args[1] = {"-a"};
-	execvp(filename, args);
-}
-
 HistoryItems *get_history_items() {
 	history=(HistoryItems *)malloc(sizeof(HistoryItems));
 
-	flush_history();
 	using_history();
 
 	char *historyFile = getenv(ENV_VAR_HISTFILE);
