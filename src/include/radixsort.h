@@ -20,8 +20,7 @@ typedef struct radixitem {
 
 typedef struct radixslot {
 	unsigned key;
-	unsigned min;
-	unsigned max;
+	RadixItem **slot;
 	struct radixslot *next;
 } RadixSlot;
 

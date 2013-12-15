@@ -108,16 +108,13 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		if(prioritizedRadix[i]->data) {
 			prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
 		}
+		free(prioritizedRadix[i]->data);
+		free(prioritizedRadix[i]);
 	}
 
 	radixsort_destroy(&rs);
 
 	return prioritizedHistory;
-}
-
-void free_prioritized_history() {
-	// TODO free(prioritizedHistory->items);
-	// TODO free(prioritizedHistory);
 }
 
 HistoryItems *get_history_items() {
@@ -158,14 +155,21 @@ HistoryItems *get_history_items() {
 	return history;
 }
 
-void free_history_items() {
-	free(history->items);
-	free(history);
-}
-
 HistoryItems *get_prioritized_history() {
 	HistoryItems *fileItems=get_history_items();
 	return prioritize_history(fileItems);
+}
+
+void free_prioritized_history() {
+	free(prioritizedHistory->items);
+	free(prioritizedHistory);
+}
+
+void free_history_items() {
+	int i;
+	for(i=0; i<history->count; i++) free(history->items[i]);
+	free(history->items);
+	free(history);
 }
 
 void history_mgmt_open() {

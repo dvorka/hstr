@@ -14,21 +14,6 @@
 #include <string.h>
 #include <stddef.h>
 
-RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned key) {
-	RadixItem **slot=malloc(SIX2FOUR_SIZE * sizeof(RadixItem*));
-	memset(slot, 0, SIX2FOUR_SIZE * sizeof(RadixItem*));
-	RadixSlot *slotDescriptor=malloc(sizeof(RadixSlot));
-	slotDescriptor->key=key;
-	slotDescriptor->min=0;
-	slotDescriptor->max=SIX2FOUR_SIZE;
-	if(rs->_slots) {
-		slotDescriptor->next=rs->_slots->next;
-	}
-	rs->_slots=slotDescriptor;
-	rs->_slotsCount++;
-	return slot;
-}
-
 void radixsort_init(RadixSorter *rs) {
 	rs->size=0;
 	memset(rs->six2four, 0, SIX2FOUR_SIZE * sizeof(RadixItem*));
@@ -36,6 +21,35 @@ void radixsort_init(RadixSorter *rs) {
 	rs->_keyLimit=SIX2FOUR_SIZE*SIX2FOUR_SIZE;
 	rs->_slots=NULL;
 	rs->_slotsCount=0;
+}
+
+RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned key) {
+	RadixItem **slot=malloc(SIX2FOUR_SIZE * sizeof(RadixItem *));
+	memset(slot, 0, SIX2FOUR_SIZE * sizeof(RadixItem *));
+
+	RadixSlot *newSlotDescriptor=malloc(sizeof(RadixSlot));
+	newSlotDescriptor->key=key;
+	newSlotDescriptor->slot=slot;
+	newSlotDescriptor->next=NULL;
+	if(rs->_slots) {
+		RadixSlot *s=rs->_slots, *lastS=NULL;
+		while(s->next && s->key < key) {
+			lastS=s;
+			s=s->next;
+		}
+		if(lastS) {
+			newSlotDescriptor->next=s;
+			lastS->next=newSlotDescriptor;
+		} else {
+			newSlotDescriptor->next=rs->_slots;
+			rs->_slots=newSlotDescriptor;
+		}
+	} else {
+		rs->_slots=newSlotDescriptor;
+	}
+
+	rs->_slotsCount++;
+	return slot;
 }
 
 void radixsort_add(RadixSorter *rs, RadixItem *item) {
@@ -71,6 +85,7 @@ RadixItem **radixsort_dump(RadixSorter *rs) {
 			// TODO optimization: iterate only _slots chain
 			t=SIX2FOUR_SIZE-1;
 			do {
+				// TODO optimization: store max for slot and iterate from it here as well
 				if(rs->six2four[s]!=NULL) {
 					if(rs->six2four[s][t]!=NULL) {
 						result[i++]=rs->six2four[s][t];
@@ -123,7 +138,13 @@ RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data) {
 }
 
 void radixsort_destroy(RadixSorter *rs) {
-	// TODO destroy RadixItems chains
-	// TODO destroy three2one segments
-	// TODO destroy six2four
+	RadixSlot *s=rs->_slots, *d;
+	while(s) {
+		d=s;
+		s=s->next;
+		free(d->slot);
+		free(d);
+	}
+	// radix items DONE: are passed on dump() by reference
+	// rs DONE: created and destroyed by caller
 }

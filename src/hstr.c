@@ -21,7 +21,7 @@
 #include "include/hstr_history.h"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, Ctrl-r to delete item, ENTER to select"
+#define LABEL_HELP "Type to filter, UP/DOWN arrows to navigate, Ctrl-r to delete row, ENTER to select"
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 #define Y_OFFSET_PROMPT 0
@@ -72,7 +72,7 @@ void print_help_label(WINDOW *win) {
 }
 
 void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences) {
-	mvwprintw(win, Y_OFFSET_HELP, 0, "History item '%s' deleted (%d occurrences)", cmd, occurences);
+	mvwprintw(win, Y_OFFSET_HELP, 0, "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
 	clrtoeol();
 	refresh();
 }
