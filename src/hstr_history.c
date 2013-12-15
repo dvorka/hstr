@@ -11,6 +11,9 @@
 #include "include/hashset.h"
 #include "include/hashmap.h"
 #include "include/radixsort.h"
+#include <stdbool.h>
+
+#include "include/hstr_utils.h"
 
 #define NDEBUG
 #include <assert.h>
@@ -22,18 +25,21 @@ typedef struct {
 
 static HistoryItems *history;
 static HistoryItems *prioritizedHistory;
+static bool dirty;
 
 unsigned history_ranking_function(unsigned rank, unsigned newOccurenceOrder, unsigned lng) {
 	rank+=newOccurenceOrder/10 + lng;
 	return rank;
 }
 
-char *get_history_file() {
-	char *home = getenv(ENV_VAR_HOME);
-	char *fileName = (char*) malloc(
-			strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
-	strcat(strcat(strcpy(fileName, home), "/"), FILE_HISTORY);
-	return fileName;
+char *get_history_file_name() {
+	char *historyFile=getenv(ENV_VAR_HISTFILE);
+	if(!historyFile || strlen(historyFile)==0) {
+		char *home = getenv(ENV_VAR_HOME);
+		historyFile = (char*) malloc(strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
+		strcat(strcat(strcpy(historyFile, home), "/"), FILE_HISTORY);
+	}
+	return historyFile;
 }
 
 void dump_prioritized_history(HistoryItems *ph) {
@@ -120,11 +126,7 @@ HistoryItems *get_history_items() {
 
 	using_history();
 
-	char *historyFile = getenv(ENV_VAR_HISTFILE);
-	if(!historyFile || strlen(historyFile)==0) {
-		historyFile=get_history_file();
-	}
-
+	char *historyFile = get_history_file_name();
 	if(read_history(historyFile)!=0) {
 		fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
 		exit(EXIT_FAILURE);
@@ -167,4 +169,25 @@ HistoryItems *get_prioritized_history() {
 	return prioritize_history(fileItems);
 }
 
+void history_mgmt_open() {
+	dirty=false;
+}
 
+void history_mgmt_remove(char *cmd) {
+	get_history_items();
+
+	int offset=history_search_pos(cmd, 0, 0);
+	while(offset>=0) {
+		free_history_entry(remove_history(offset));
+		offset=history_search_pos(cmd, 0, ++offset);
+	}
+
+	write_history(get_history_file_name());
+	dirty=true;
+}
+
+void history_mgmt_close() {
+	if(dirty) {
+		fill_terminal_input("history -r\n");
+	}
+}

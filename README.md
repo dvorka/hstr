@@ -20,6 +20,7 @@ INSTALLATION
 * add 
 
      `shopt -s histappend`
+
      `export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"`
 
   at the end of `.bashrc` in order to ensure that BASH history of commands 
