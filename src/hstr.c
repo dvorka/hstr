@@ -328,6 +328,16 @@ char *selection_loop(HistoryItems *history) {
 	return result;
 }
 
+void install() {
+	 FILE *file = fopen("/home/dvorka/test.txt","a");
+	 fseek(file,0, SEEK_END);
+	 fprintf(file,"%s","\n\nshopt -s histappend");
+	 fprintf(file,"%s","\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"");
+	 fprintf(file,"%s","\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'");
+	 fprintf(file,"%s","\n\n");
+	 fclose(file);
+}
+
 void hstr() {
 	HistoryItems *history=get_prioritized_history();
 	history_mgmt_open();
