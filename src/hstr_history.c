@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hstr_history.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Loading and processing of BASH history
+ ============================================================================
+*/
+
 #include "include/hstr_history.h"
 #include "include/hashset.h"
 #include "include/hashmap.h"
@@ -101,86 +110,6 @@ void free_prioritized_history() {
 	// TODO free(prioritizedHistory);
 }
 
-
-
-#ifdef GET_HISTORY_FROM_FILE
-
-static char *historyAsString;
-
-char *load_history_file() {
-	char *fileName = get_history_file();
-	if(access(fileName, F_OK) != -1) {
-		char *file_contents;
-		long input_file_size;
-
-		FILE *input_file = fopen(fileName, "rb");
-		fseek(input_file, 0, SEEK_END);
-		input_file_size = ftell(input_file);
-		rewind(input_file);
-		file_contents = malloc((input_file_size + 1) * (sizeof(char)));
-		if(fread(file_contents, sizeof(char), input_file_size, input_file)==-1) {
-			exit(EXIT_FAILURE);
-		}
-		fclose(input_file);
-		file_contents[input_file_size] = 0;
-
-		return file_contents;
-	} else {
-	    fprintf(stderr,"\nHistory file not found: %s\n",fileName);
-	    exit(EXIT_FAILURE);
-	}
-}
-
-int count_history_lines(char *history) {
-	int i = 0;
-	char *p=strchr(history,'\n');
-	while (p!=NULL) {
-		i++;
-		p=strchr(p+1,'\n');
-	}
-	return i;
-}
-
-char **get_tokenized_history(char *history, int lines) {
-	char **tokens = malloc(sizeof(char*) * lines);
-
-	int i = 0;
-	char *pb=history, *pe;
-	pe=strchr(history, '\n');
-	while(pe!=NULL) {
-		tokens[i]=pb;
-		*pe=0;
-
-		pb=pe+1;
-		pe=strchr(pb, '\n');
-		i++;
-	}
-
-	return tokens;
-}
-
-char **get_history_items() {
-	historyAsString = load_history_file(FILE_HISTORY);
-	historyItemsCount = count_history_lines(historyAsString);
-	historyItems = get_tokenized_history(historyAsString, historyItemsCount);
-	reverse_char_pointer_array(historyItems, historyItemsCount);
-	return historyItems;
-}
-
-int get_history_items_size() {
-	return historyItemsCount;
-}
-
-void free_history_items() {
-	free(historyAsString);
-	free(historyItems);
-}
-
-
-
-#else
-
-
 void flush_history() {
 	const char *filename = "history";
 	char *const args[1] = {"-a"};
@@ -235,5 +164,9 @@ void free_history_items() {
 	free(history);
 }
 
+HistoryItems *get_prioritized_history() {
+	HistoryItems *fileItems=get_history_items();
+	return prioritize_history(fileItems);
+}
 
-#endif
+

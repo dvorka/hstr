@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : radixsort.c
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Radix sort
+ ============================================================================
+*/
+
 #include "include/radixsort.h"
 #include <stdlib.h>
 #include <stdio.h>
@@ -5,16 +14,28 @@
 #include <string.h>
 #include <stddef.h>
 
-RadixItem **radixsort_get_slot() {
+RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned key) {
 	RadixItem **slot=malloc(SIX2FOUR_SIZE * sizeof(RadixItem*));
 	memset(slot, 0, SIX2FOUR_SIZE * sizeof(RadixItem*));
+	RadixSlot *slotDescriptor=malloc(sizeof(RadixSlot));
+	slotDescriptor->key=key;
+	slotDescriptor->min=0;
+	slotDescriptor->max=SIX2FOUR_SIZE;
+	if(rs->_slots) {
+		slotDescriptor->next=rs->_slots->next;
+	}
+	rs->_slots=slotDescriptor;
+	rs->_slotsCount++;
 	return slot;
 }
 
 void radixsort_init(RadixSorter *rs) {
 	rs->size=0;
 	memset(rs->six2four, 0, SIX2FOUR_SIZE * sizeof(RadixItem*));
-	rs->maxValue=0;
+	rs->maxKey=0;
+	rs->_keyLimit=SIX2FOUR_SIZE*SIX2FOUR_SIZE;
+	rs->_slots=NULL;
+	rs->_slotsCount=0;
 }
 
 void radixsort_add(RadixSorter *rs, RadixItem *item) {
@@ -23,7 +44,7 @@ void radixsort_add(RadixSorter *rs, RadixItem *item) {
 	unsigned three2zero=item->key-six2four*1000;
 
 	if(rs->six2four[six2four]==NULL) {
-		rs->six2four[six2four]=radixsort_get_slot();
+		rs->six2four[six2four]=radixsort_get_slot(rs, six2four);
 	}
 
 	RadixItem *chain=rs->six2four[six2four][three2zero];
@@ -35,18 +56,19 @@ void radixsort_add(RadixSorter *rs, RadixItem *item) {
 	}
 
 	rs->size++;
-	rs->maxValue=(rs->maxValue>item->key?rs->maxValue:item->key);
+	rs->maxKey=(rs->maxKey>item->key?rs->maxKey:item->key);
 }
 
 RadixItem **radixsort_dump(RadixSorter *rs) {
 	if(rs->size>0) {
 		RadixItem **result=malloc(rs->size * sizeof(RadixItem *));
-		double d = ((double)rs->maxValue)/1000.0;
+		double d = ((double)rs->maxKey)/1000.0;
 		int six2four = (int)trunc(d);
 
 		int s, t, i=0;
 		s=six2four;
 		do {
+			// TODO optimization: iterate only _slots chain
 			t=SIX2FOUR_SIZE-1;
 			do {
 				if(rs->six2four[s]!=NULL) {
@@ -69,7 +91,7 @@ RadixItem **radixsort_dump(RadixSorter *rs) {
 }
 
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data) {
-	if(key<=rs->maxValue) {
+	if(key<=rs->maxKey) {
 		double d = ((double) key)/1000.0;
 		unsigned six2four = (unsigned)trunc(d);
 		unsigned three2zero=key-six2four*1000;

@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hashset.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Hash set
+ ============================================================================
+*/
+
 #include "include/hashset.h"
 
 unsigned int hash( const char *str ) {

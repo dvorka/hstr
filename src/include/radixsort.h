@@ -1,5 +1,16 @@
+/*
+ ============================================================================
+ Name        : radixsort.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Radix sort
+ ============================================================================
+*/
+
 #ifndef RADIXSORT_H_
 #define RADIXSORT_H_
+
+#define SIX2FOUR_SIZE 1000
 
 typedef struct radixitem {
 	unsigned key;
@@ -7,12 +18,21 @@ typedef struct radixitem {
 	struct radixitem *next;
 } RadixItem;
 
-#define SIX2FOUR_SIZE 1000
+typedef struct radixslot {
+	unsigned key;
+	unsigned min;
+	unsigned max;
+	struct radixslot *next;
+} RadixSlot;
 
 typedef struct {
 	unsigned size;
-	unsigned maxValue;
+	unsigned maxKey;
 	RadixItem **six2four[SIX2FOUR_SIZE];
+
+	unsigned _keyLimit;
+	RadixSlot *_slots;
+	unsigned _slotsCount;
 } RadixSorter;
 
 void radixsort_init(RadixSorter *rs);

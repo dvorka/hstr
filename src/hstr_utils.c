@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hstr_utils.c
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Utilities
+ ============================================================================
+*/
+
 #include "include/hstr_utils.h"
 
 #define DEFAULT_COMMAND "pwd"

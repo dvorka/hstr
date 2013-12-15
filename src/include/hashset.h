@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hashset.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Hash set
+ ============================================================================
+*/
+
 #ifndef _HASHSET_H
 #define _HASHSET_H
 

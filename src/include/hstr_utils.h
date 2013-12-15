@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hstr_utils.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Utilities
+ ============================================================================
+*/
+
 #ifndef _HSTR_UTILS_H
 #define _HSTR_UTILS_H
 

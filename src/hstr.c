@@ -1,8 +1,7 @@
 /*
  ============================================================================
  Name        : hstr.c
- Author      : Martin Dvorak
- Version     : 0.2
+ Author      : martin.dvorak@midforger.com
  Copyright   : Apache 2.0
  Description : Shell history completion utility
  ============================================================================
@@ -325,8 +324,7 @@ char *selection_loop(HistoryItems *history) {
 }
 
 void hstr() {
-	HistoryItems *historyFileItems=get_history_items();
-	HistoryItems *history=prioritize_history(historyFileItems);
+	HistoryItems *history=get_prioritized_history();
 	char *command = selection_loop(history);
 	fill_terminal_input(command);
 	free_prioritized_history();

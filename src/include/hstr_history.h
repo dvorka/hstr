@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hstr_history.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Loading and processing of BASH history
+ ============================================================================
+*/
+
 #ifndef _HSTR_HISTORY_H_
 #define _HSTR_HISTORY_H_
 
@@ -9,9 +18,6 @@
 #include <unistd.h>
 #include "hstr_utils.h"
 
-//#define GET_HISTORY_FROM_FILE
-#define GET_HISTORY_USING_LIBRARY
-
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 #define ENV_VAR_HISTFILE "HISTFILE"
@@ -22,6 +28,8 @@ typedef struct {
 	char **items;
 	unsigned count;
 } HistoryItems;
+
+HistoryItems *get_prioritized_history();
 
 HistoryItems *get_history_items();
 void free_history_items();

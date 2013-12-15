@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hashmap.h
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Hash map
+ ============================================================================
+*/
+
 #ifndef _HASHMAP_H_
 #define _HASHMAP_H_
 

@@ -1,3 +1,12 @@
+/*
+ ============================================================================
+ Name        : hashmap.c
+ Author      : martin.dvorak@midforger.com
+ Copyright   : Apache 2.0
+ Description : Hash map
+ ============================================================================
+*/
+
 #include "include/hashmap.h"
 
 unsigned int hashmap_hash( const char *str ) {
