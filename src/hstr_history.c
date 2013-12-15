@@ -12,6 +12,9 @@
 #include "include/hashmap.h"
 #include "include/radixsort.h"
 
+#define NDEBUG
+#include <assert.h>
+
 typedef struct {
 	char *item;
 	unsigned rank;
@@ -20,17 +23,18 @@ typedef struct {
 static HistoryItems *history;
 static HistoryItems *prioritizedHistory;
 
+unsigned history_ranking_function(unsigned rank, unsigned newOccurenceOrder, unsigned lng) {
+	rank+=newOccurenceOrder/10 + lng;
+	return rank;
+}
+
 char *get_history_file() {
 	char *home = getenv(ENV_VAR_HOME);
 	char *fileName = (char*) malloc(
 			strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
-	strcpy(fileName, home);
-	strcat(fileName, "/");
-	strcat(fileName, FILE_HISTORY);
+	strcat(strcat(strcpy(fileName, home), "/"), FILE_HISTORY);
 	return fileName;
 }
-
-#define history_ranking_function(RANK, NEWORDEROCCURENCE) (RANK?RANK+NEWORDEROCCURENCE:NEWORDEROCCURENCE)
 
 void dump_prioritized_history(HistoryItems *ph) {
 	printf("\n\nPrioritized history:");
@@ -68,7 +72,7 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		}
 		if((r=hashmap_get(&rankmap, historyFileItems->items[i]))==NULL) {
 			r=(RankedHistoryItem *)malloc(sizeof(RankedHistoryItem));
-			r->rank=history_ranking_function(0, i);
+			r->rank=history_ranking_function(0, i, strlen(historyFileItems->items[i]));
 			r->item=historyFileItems->items[i];
 
 			hashmap_put(&rankmap, historyFileItems->items[i], r);
@@ -79,14 +83,15 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 			radixItem->next=NULL;
 			radixsort_add(&rs, radixItem);
 		} else {
-			//printf("\n>>> %s ", r->item); fflush(stdout);
 			radixItem=radix_cut(&rs, r->rank, r);
 
-			if(radixItem!=NULL) {
-				r->rank=history_ranking_function(r->rank, i);
+			assert(radixItem);
+
+			if(radixItem) {
+				r->rank=history_ranking_function(r->rank, i, strlen(historyFileItems->items[i]));
 				radixItem->key=r->rank;
 				radixsort_add(&rs, radixItem);
-			} // TODO else assert
+			}
 		}
 	}
 
