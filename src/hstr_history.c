@@ -41,18 +41,18 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 	hashmap_init(&rankmap);
 
 	HashSet blacklist;
+	char *blackCommands[] = {"ls", "pwd", "cd", "hh"};
+	int i;
 	hashset_init(&blacklist);
-	hashset_add(&blacklist, "ls");
-	hashset_add(&blacklist, "pwd");
-	hashset_add(&blacklist, "cd");
-	hashset_add(&blacklist, "hh");
+	for(i=0; i<4; i++) {
+		hashset_add(&blacklist, blackCommands[i]);
+	}
 
 	RadixSorter rs;
 	radixsort_init(&rs);
 
 	RankedHistoryItem *r;
 	RadixItem *radixItem;
-	int i;
 	for(i=0; i<historyFileItems->count; i++) {
 		if(hashset_contains(&blacklist, historyFileItems->items[i])) {
 			continue;
@@ -86,11 +86,9 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 	prioritizedHistory->count=rs.size;
 	prioritizedHistory->items=malloc(rs.size * sizeof(char*));
 	for(i=0; i<rs.size; i++) {
-		printf("\n %d %p ",i,prioritizedRadix[i]->data);
 		if(prioritizedRadix[i]->data) {
 			prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
 		}
-		printf("\n %d %s ",i,((RankedHistoryItem *)(prioritizedRadix[i]->data))->item);
 	}
 
 	radixsort_destroy(&rs);
