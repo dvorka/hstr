@@ -11,7 +11,6 @@
 #include "include/hashset.h"
 #include "include/hashmap.h"
 #include "include/radixsort.h"
-#include <stdbool.h>
 
 #include "include/hstr_utils.h"
 
@@ -173,21 +172,22 @@ void history_mgmt_open() {
 	dirty=false;
 }
 
-void history_mgmt_remove(char *cmd) {
-	get_history_items();
-
-	int offset=history_search_pos(cmd, 0, 0);
+int history_mgmt_remove(char *cmd) {
+	int offset=history_search_pos(cmd, 0, 0), occurences=0;
 	while(offset>=0) {
+		occurences++;
 		free_history_entry(remove_history(offset));
 		offset=history_search_pos(cmd, 0, ++offset);
 	}
-
-	write_history(get_history_file_name());
-	dirty=true;
+	if(occurences) {
+		write_history(get_history_file_name());
+		dirty=true;
+	}
+	return occurences;
 }
 
 void history_mgmt_close() {
 	if(dirty) {
-		fill_terminal_input("history -r\n");
+		fill_terminal_input("history -r\n", false);
 	}
 }

@@ -14,9 +14,10 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
+#include <stdbool.h>
 
 void tiocsti();
-void fill_terminal_input(char* cmd);
+void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);
 
 #endif

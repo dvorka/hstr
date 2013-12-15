@@ -21,7 +21,7 @@
 #include "include/hstr_history.h"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, ENTER to select"
+#define LABEL_HELP "Type to filter history, use UP and DOWN arrows to navigate, Ctrl-r to delete item, ENTER to select"
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 #define Y_OFFSET_PROMPT 0
@@ -32,6 +32,7 @@
 #define KEY_TERMINAL_RESIZE 410
 #define KEY_CTRL_A 1
 #define KEY_CTRL_E 5
+#define KEY_CTRL_R 18
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -67,6 +68,12 @@ int print_prompt(WINDOW *win) {
 
 void print_help_label(WINDOW *win) {
 	mvwprintw(win, Y_OFFSET_HELP, 0, LABEL_HELP);
+	refresh();
+}
+
+void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences) {
+	mvwprintw(win, Y_OFFSET_HELP, 0, "History item '%s' deleted (%d occurrences)", cmd, occurences);
+	clrtoeol();
 	refresh();
 }
 
@@ -216,10 +223,10 @@ char *selection_loop(HistoryItems *history) {
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-	int y = 1, c, maxHistoryItems, cursorX, cursorY;
+	int y = 1, c, maxHistoryItems, cursorX, cursorY, deleteOccurences;
 	bool done = FALSE;
 	char prefix[500]="";
-	char *result="";
+	char *result="", *delete;
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
@@ -231,6 +238,14 @@ char *selection_loop(HistoryItems *history) {
 		case KEY_TERMINAL_RESIZE:
 		case KEY_CTRL_A:
 		case KEY_CTRL_E:
+			break;
+		case KEY_CTRL_R:
+			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+				delete=selection[selectionCursorPosition];
+				deleteOccurences=history_mgmt_remove(delete);
+				print_cmd_deleted_label(stdscr, delete, deleteOccurences);
+				move(y, basex+strlen(prefix));
+			}
 			break;
 		case 91:
 			// TODO 91 killed > debug to determine how to distinguish \e and [
@@ -315,8 +330,10 @@ char *selection_loop(HistoryItems *history) {
 
 void hstr() {
 	HistoryItems *history=get_prioritized_history();
+	history_mgmt_open();
 	char *command = selection_loop(history);
-	fill_terminal_input(command);
+	history_mgmt_close();
+	fill_terminal_input(command, true);
 	free_prioritized_history();
 	free_history_items();
 }

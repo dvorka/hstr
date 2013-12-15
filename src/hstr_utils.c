@@ -19,7 +19,7 @@ void tiocsti() {
 	}
 }
 
-void fill_terminal_input(char *cmd){
+void fill_terminal_input(char *cmd, bool padding){
 	size_t size = strlen(cmd);
 	unsigned i;
 	char *c;
@@ -28,7 +28,7 @@ void fill_terminal_input(char *cmd){
 		c=(cmd+i);
 		ioctl(0, TIOCSTI, c);
 	}
-	printf("\n");
+	if(padding) printf("\n");
 }
 
 void reverse_char_pointer_array(char **array, unsigned length) {

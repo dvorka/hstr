@@ -16,6 +16,7 @@
 #include <stdlib.h>
 #include <readline/history.h>
 #include <unistd.h>
+#include <stdbool.h>
 #include "hstr_utils.h"
 
 #define ENV_VAR_USER "USER"
@@ -36,5 +37,9 @@ void free_history_items();
 
 HistoryItems *prioritize_history(HistoryItems *historyFileItems);
 void free_prioritized_history();
+
+void history_mgmt_open();
+int history_mgmt_remove(char *cmd);
+void history_mgmt_close();
 
 #endif
