@@ -109,31 +109,23 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	unsigned i, selectionCount=0;
 
-    HashSet set;
-    hashset_init(&set);
-
 	for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
-		if(history->items[i]!=NULL && !hashset_contains(&set, history->items[i])) {
+		if(history->items[i]) {
 			if(prefix==NULL) {
 				selection[selectionCount++]=history->items[i];
-				hashset_add(&set, history->items[i]);
 			} else {
 				if(history->items[i]==strstr(history->items[i], prefix)) {
 					selection[selectionCount++]=history->items[i];
-					hashset_add(&set, history->items[i]);
 				}
 			}
 		}
 	}
 
-	if(prefix!=NULL && selectionCount<maxSelectionCount) {
+	if(prefix && selectionCount<maxSelectionCount) {
 		for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
-			if(!hashset_contains(&set, history->items[i])) {
-				char *substring = strstr(history->items[i], prefix);
-				if (substring != NULL && substring!=history->items[i]) {
-					selection[selectionCount++]=history->items[i];
-					hashset_add(&set, history->items[i]);
-				}
+			char *substring = strstr(history->items[i], prefix);
+			if (substring != NULL && substring!=history->items[i]) {
+				selection[selectionCount++]=history->items[i];
 			}
 		}
 	}
