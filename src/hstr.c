@@ -207,6 +207,19 @@ void color_attr_off(int c) {
 	}
 }
 
+void selection_remove(char *cmd, HistoryItems *history) {
+	if(history->count) {
+		int i, w, count;
+		for(i=0, w=0; i<history->count; i++) {
+			if(strcmp(history->items[i], cmd)) {
+				history->items[w]=history->items[i];
+				w++;
+			}
+		}
+		history->count=w;
+	}
+}
+
 char *selection_loop(HistoryItems *history) {
 	initscr();
 	color_start();
@@ -243,6 +256,8 @@ char *selection_loop(HistoryItems *history) {
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=selection[selectionCursorPosition];
 				deleteOccurences=history_mgmt_remove(delete);
+				selection_remove(delete, history);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history);
 				print_cmd_deleted_label(stdscr, delete, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
