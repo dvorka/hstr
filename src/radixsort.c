@@ -67,6 +67,8 @@ void radixsort_add(RadixSorter *rs, RadixItem *item) {
 }
 
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data) {
+	// TODO optimization: remove empty slots (or just set size to 0 & don't traverse it
+	// TODO optimization: fix min/max on cut of a value
 	if(key<=rs->maxKey) {
 		unsigned topIndex = GET_TOP_INDEX(key);
 		unsigned lowIndex = GET_LOW_INDEX(key, topIndex);
@@ -130,15 +132,23 @@ void radixsort_stat(RadixSorter *rs) {
 	if(rs->size>0) {
 		int t = GET_TOP_INDEX(rs->maxKey);
 		int l, slotMin;
+		unsigned i=1;
 		do {
 			printf("\n  Slot %u (min/max): %u %u",t, rs->_slotDescriptors[t]->min, rs->_slotDescriptors[t]->max);
-			l=rs->_slotDescriptors[t]->max;
-			slotMin=rs->_slotDescriptors[t]->min;
-			do {
-				if(rs->topDigits[t]) {
-					printf("\n    > %u",l);
-				}
-			} while(--l>=slotMin);
+			l=GET_LOW_INDEX(rs->_slotDescriptors[t]->max,t);
+			slotMin=GET_LOW_INDEX(rs->_slotDescriptors[t]->min,t);
+			if(rs->topDigits[t]) {
+				do {
+					if(rs->topDigits[t][l]) {
+						printf("\n    > %d #%u",l, i++);
+						RadixItem *ri=rs->topDigits[t][l]->next;
+						while(ri) {
+							printf(" #%u",i++);
+							ri=ri->next;
+						}
+					}
+				} while(--l>=slotMin);
+			}
 		} while(--t>=0);
 	}
 	fflush(stdout);

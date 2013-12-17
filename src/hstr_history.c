@@ -100,6 +100,8 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		}
 	}
 
+	radixsort_stat(&rs); exit(0);
+
 	RadixItem **prioritizedRadix=radixsort_dump(&rs);
 	prioritizedHistory=(HistoryItems *)malloc(sizeof(HistoryItems));
 	prioritizedHistory->count=rs.size;
@@ -112,7 +114,6 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		free(prioritizedRadix[i]);
 	}
 
-	radixsort_stat(&rs); exit(0);
 	radixsort_destroy(&rs);
 
 	return prioritizedHistory;
