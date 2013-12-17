@@ -37,13 +37,13 @@
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key number: '%3d' / Char: '%c'", KEY, KEY)
 #else
-#define LOGKEYS(Y,KEY) ;
+#define LOGKEYS(Y,KEY)
 #endif
 
 #ifdef DEBUG_CURPOS
 #define LOGCURSOR(Y) mvprintw(Y, 0, "X/Y: %3d / %3d", getcurx(stdscr), getcury(stdscr))
 #else
-#define LOGCURSOR(Y) ;
+#define LOGCURSOR(Y)
 #endif
 
 static char **selection=NULL;

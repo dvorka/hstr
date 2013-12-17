@@ -21,6 +21,7 @@ typedef struct radixitem {
 typedef struct radixslot {
 	unsigned min;
 	unsigned max;
+	unsigned size;
 } RadixSlot;
 
 typedef struct {

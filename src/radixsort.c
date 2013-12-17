@@ -15,8 +15,8 @@
 #include <string.h>
 #include <stddef.h>
 
-#define GET_TOP_INDEX(KEY) (unsigned)trunc(((double)KEY)/(double)SLOT_SIZE);
-#define GET_LOW_INDEX(KEY, TOPINDEX) KEY-TOPINDEX*SLOT_SIZE;
+#define GET_TOP_INDEX(KEY) (unsigned)trunc(((double)KEY)/(double)SLOT_SIZE)
+#define GET_LOW_INDEX(KEY, TOPINDEX) KEY-TOPINDEX*SLOT_SIZE
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit) {
 	unsigned topIndexLimit=GET_TOP_INDEX(keyLimit);
@@ -37,6 +37,7 @@ RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned topIndex) {
 	RadixSlot *descriptor=malloc(sizeof(RadixSlot));
 	descriptor->min=rs->keyLimit;
 	descriptor->max=0;
+	descriptor->size=0;
 
 	rs->_slotDescriptors[topIndex]=descriptor;
 	rs->_slotsCount++;
@@ -64,10 +65,28 @@ void radixsort_add(RadixSorter *rs, RadixItem *item) {
 	rs->maxKey=MAX(rs->maxKey,item->key);
 	rs->_slotDescriptors[topIndex]->min=MIN(rs->_slotDescriptors[topIndex]->min,item->key);
 	rs->_slotDescriptors[topIndex]->max=MAX(rs->_slotDescriptors[topIndex]->max,item->key);
+	rs->_slotDescriptors[topIndex]->size++;
+}
+
+void radix_dec_slot_descriptor_size(RadixSorter *rs, RadixSlot *descriptor, unsigned key, unsigned topIndex) {
+	descriptor->size--;
+	if(!descriptor->size) {
+		descriptor->min=rs->keyLimit;
+		descriptor->max=0;
+	} else {
+		if(descriptor->size==1) {
+			if(rs->topDigits[topIndex][descriptor->max]) {
+				descriptor->min=descriptor->max;
+			} else {
+				if(rs->topDigits[topIndex][descriptor->min]) {
+					descriptor->max=descriptor->min;
+				}
+			}
+		}
+	}
 }
 
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data) {
-	// TODO optimization: remove empty slots (or just set size to 0 & don't traverse it
 	// TODO optimization: fix min/max on cut of a value
 	if(key<=rs->maxKey) {
 		unsigned topIndex = GET_TOP_INDEX(key);
@@ -92,6 +111,7 @@ RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data) {
 				}
 				ri->next=NULL;
 				rs->size--;
+				radix_dec_slot_descriptor_size(rs, rs->_slotDescriptors[topIndex], key, topIndex);
 				return ri;
 			}
 		}
@@ -103,27 +123,32 @@ RadixItem **radixsort_dump(RadixSorter *rs) {
 	if(rs->size>0) {
 		RadixItem **result=malloc(rs->size * sizeof(RadixItem *));
 		int t = GET_TOP_INDEX(rs->maxKey);
-		int slotMin, l;
+		int slotMin, slotSize, slotCount, l;
 		unsigned items=0;
 		do {
-			l=GET_LOW_INDEX(rs->_slotDescriptors[t]->max,t);
-			slotMin=GET_LOW_INDEX(rs->_slotDescriptors[t]->min,t);
-			do {
-				if(rs->topDigits[t]) {
-					if(rs->topDigits[t][l]) {
-						result[items++]=rs->topDigits[t][l];
-						RadixItem *ri=rs->topDigits[t][l]->next;
-						while(ri) {
-							result[items++]=ri;
-							ri=ri->next;
+			if(rs->topDigits[t]) {
+				if(rs->_slotDescriptors[t]->size>0) {
+					l=GET_LOW_INDEX(rs->_slotDescriptors[t]->max,t);
+					slotMin=GET_LOW_INDEX(rs->_slotDescriptors[t]->min,t);
+					slotSize=rs->_slotDescriptors[t]->size;
+					slotCount=0;
+					do {
+						if(rs->topDigits[t][l]) {
+							result[items++]=rs->topDigits[t][l];
+							slotCount++;
+							RadixItem *ri=rs->topDigits[t][l]->next;
+							while(ri) {
+								result[items++]=ri;
+								slotCount++;
+								ri=ri->next;
+							}
 						}
-					}
+					} while(--l>=slotMin && slotCount<slotSize);
 				}
-			} while(--l>=slotMin);
+			}
 		} while(--t>=0);
 		return result;
 	}
-
 	return NULL;
 }
 
@@ -131,23 +156,32 @@ void radixsort_stat(RadixSorter *rs) {
 	printf("\n Radixsort (size/max/limit): %u %u %u", rs->size, rs->maxKey, rs->keyLimit);
 	if(rs->size>0) {
 		int t = GET_TOP_INDEX(rs->maxKey);
-		int l, slotMin;
-		unsigned i=1;
+		int slotMin, slotSize, slotCount, l;
+		unsigned items=0;
 		do {
-			printf("\n  Slot %u (min/max): %u %u",t, rs->_slotDescriptors[t]->min, rs->_slotDescriptors[t]->max);
-			l=GET_LOW_INDEX(rs->_slotDescriptors[t]->max,t);
-			slotMin=GET_LOW_INDEX(rs->_slotDescriptors[t]->min,t);
 			if(rs->topDigits[t]) {
-				do {
-					if(rs->topDigits[t][l]) {
-						printf("\n    > %d #%u",l, i++);
-						RadixItem *ri=rs->topDigits[t][l]->next;
-						while(ri) {
-							printf(" #%u",i++);
-							ri=ri->next;
+				printf("\n  Slot %u (size/min/max): %u %u %u",t, rs->_slotDescriptors[t]->size, rs->_slotDescriptors[t]->min, rs->_slotDescriptors[t]->max);
+				if(rs->_slotDescriptors[t]->size>0) {
+					l=GET_LOW_INDEX(rs->_slotDescriptors[t]->max,t);
+					slotMin=GET_LOW_INDEX(rs->_slotDescriptors[t]->min,t);
+					slotSize=rs->_slotDescriptors[t]->size;
+					slotCount=0;
+					do {
+						if(rs->topDigits[t][l]) {
+							printf("\n    > %d #%u",l, ++items);
+							++slotCount;
+							RadixItem *ri=rs->topDigits[t][l]->next;
+							while(ri) {
+								printf(" #%u",++items);
+								++slotCount;
+								ri=ri->next;
+							}
 						}
-					}
-				} while(--l>=slotMin);
+					} while(--l>=slotMin && slotCount<slotSize);
+					printf("\n    STOP @ %d",l);
+				} else {
+					printf(" > SKIPPED");
+				}
 			}
 		} while(--t>=0);
 	}
@@ -158,7 +192,7 @@ void radixsort_destroy(RadixSorter *rs) {
 	// radix items: DONE (passed on dump() by reference)
 	// rs: DONE (created and destroyed by caller)
 	// slots:
-	unsigned topIndex = GET_TOP_INDEX(rs->maxKey);
+	int topIndex = GET_TOP_INDEX(rs->maxKey);
 	do {
 		if(rs->topDigits[topIndex]) {
 			free(rs->topDigits[topIndex]);

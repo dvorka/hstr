@@ -26,6 +26,12 @@ static HistoryItems *history;
 static HistoryItems *prioritizedHistory;
 static bool dirty;
 
+#ifdef DEBUG_RADIX
+#define DEBUG_RADIXSORT() radixsort_stat(&rs); exit(0)
+#else
+#define DEBUG_RADIXSORT()
+#endif
+
 unsigned history_ranking_function(unsigned rank, unsigned newOccurenceOrder, unsigned lng) {
 	rank+=newOccurenceOrder/10 + lng;
 	return rank;
@@ -100,7 +106,7 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		}
 	}
 
-	radixsort_stat(&rs); exit(0);
+	DEBUG_RADIXSORT();
 
 	RadixItem **prioritizedRadix=radixsort_dump(&rs);
 	prioritizedHistory=(HistoryItems *)malloc(sizeof(HistoryItems));
