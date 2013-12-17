@@ -357,7 +357,6 @@ void hstr() {
 	history_mgmt_close();
 	fill_terminal_input(command, true);
 	free_prioritized_history();
-	free_history_items();
 }
 
 int main(int argc, char *argv[]) {

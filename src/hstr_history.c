@@ -22,9 +22,9 @@ typedef struct {
 	unsigned rank;
 } RankedHistoryItem;
 
-static HistoryItems *history;
 static HistoryItems *prioritizedHistory;
 static bool dirty;
+static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh"};
 
 #ifdef DEBUG_RADIX
 #define DEBUG_RADIXSORT() radixsort_stat(&rs); exit(0)
@@ -32,16 +32,13 @@ static bool dirty;
 #define DEBUG_RADIXSORT()
 #endif
 
-unsigned history_ranking_function(unsigned rank, unsigned newOccurenceOrder, unsigned lng) {
-	rank+=newOccurenceOrder/10 + lng;
-	return rank;
-}
+#define HISTORY_RANKING_FUNCTION(RANK,NEWOCCURENCEORDER,LNG) RANK+NEWOCCURENCEORDER/10+LNG
 
 char *get_history_file_name() {
 	char *historyFile=getenv(ENV_VAR_HISTFILE);
 	if(!historyFile || strlen(historyFile)==0) {
 		char *home = getenv(ENV_VAR_HOME);
-		historyFile = (char*) malloc(strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
+		historyFile = malloc(strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
 		strcat(strcat(strcpy(historyFile, home), "/"), FILE_HISTORY);
 	}
 	return historyFile;
@@ -60,74 +57,7 @@ void dump_prioritized_history(HistoryItems *ph) {
 	printf("\n"); fflush(stdout);
 }
 
-HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
-	HashMap rankmap;
-	hashmap_init(&rankmap);
-
-	HashSet blacklist;
-	char *blackCommands[] = {"ls", "pwd", "cd", "hh"};
-	int i;
-	hashset_init(&blacklist);
-	for(i=0; i<4; i++) {
-		hashset_add(&blacklist, blackCommands[i]);
-	}
-
-	RadixSorter rs;
-	radixsort_init(&rs, 100000);
-
-	RankedHistoryItem *r;
-	RadixItem *radixItem;
-	for(i=0; i<historyFileItems->count; i++) {
-		if(hashset_contains(&blacklist, historyFileItems->items[i])) {
-			continue;
-		}
-		if((r=hashmap_get(&rankmap, historyFileItems->items[i]))==NULL) {
-			r=(RankedHistoryItem *)malloc(sizeof(RankedHistoryItem));
-			r->rank=history_ranking_function(0, i, strlen(historyFileItems->items[i]));
-			r->item=historyFileItems->items[i];
-
-			hashmap_put(&rankmap, historyFileItems->items[i], r);
-
-			radixItem=(RadixItem *)malloc(sizeof(RadixItem));
-			radixItem->key=r->rank;
-			radixItem->data=r;
-			radixItem->next=NULL;
-			radixsort_add(&rs, radixItem);
-		} else {
-			radixItem=radix_cut(&rs, r->rank, r);
-
-			assert(radixItem);
-
-			if(radixItem) {
-				r->rank=history_ranking_function(r->rank, i, strlen(historyFileItems->items[i]));
-				radixItem->key=r->rank;
-				radixsort_add(&rs, radixItem);
-			}
-		}
-	}
-
-	DEBUG_RADIXSORT();
-
-	RadixItem **prioritizedRadix=radixsort_dump(&rs);
-	prioritizedHistory=(HistoryItems *)malloc(sizeof(HistoryItems));
-	prioritizedHistory->count=rs.size;
-	prioritizedHistory->items=malloc(rs.size * sizeof(char*));
-	for(i=0; i<rs.size; i++) {
-		if(prioritizedRadix[i]->data) {
-			prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
-		}
-		free(prioritizedRadix[i]->data);
-		free(prioritizedRadix[i]);
-	}
-
-	radixsort_destroy(&rs);
-
-	return prioritizedHistory;
-}
-
-HistoryItems *get_history_items() {
-	history=(HistoryItems *)malloc(sizeof(HistoryItems));
-
+HistoryItems *get_prioritized_history() {
 	using_history();
 
 	char *historyFile = get_history_file_name();
@@ -138,46 +68,78 @@ HistoryItems *get_history_items() {
 	HISTORY_STATE *historyState=history_get_history_state();
 
 	if(historyState->length > 0) {
-		history->count=historyState->length;
-		history->items=(char**)malloc(history->count * sizeof(char*));
+		HashMap rankmap;
+		hashmap_init(&rankmap);
 
-		HIST_ENTRY **historyList=history_list();
+		HashSet blacklist;
 		int i;
-		char *entry, *item;
-		for(i=0; i<history->count; i++) {
-			entry=historyList[i]->line;
-			if(entry!=NULL) {
-				item=malloc(strlen(entry)+1);
-				strcpy(item, entry);
-			} else {
-				item=malloc(2);
-				strcpy(item, " ");
-			}
-			history->items[i]=item;
+		hashset_init(&blacklist);
+		for(i=0; i<4; i++) {
+			hashset_add(&blacklist, commandBlacklist[i]);
 		}
+
+		RadixSorter rs;
+		radixsort_init(&rs, 100000);
+
+		RankedHistoryItem *r;
+		RadixItem *radixItem;
+		HIST_ENTRY **historyList=history_list();
+		char *line;
+		for(i=0; i<historyState->length; i++) {
+			line=historyList[i]->line;
+			if(hashset_contains(&blacklist, line)) {
+				continue;
+			}
+			if((r=hashmap_get(&rankmap, line))==NULL) {
+				r=malloc(sizeof(RankedHistoryItem));
+				r->rank=HISTORY_RANKING_FUNCTION(0, i, strlen(line));
+				r->item=historyList[i]->line;
+
+				hashmap_put(&rankmap, line, r);
+
+				radixItem=malloc(sizeof(RadixItem));
+				radixItem->key=r->rank;
+				radixItem->data=r;
+				radixItem->next=NULL;
+				radixsort_add(&rs, radixItem);
+			} else {
+				radixItem=radix_cut(&rs, r->rank, r);
+
+				assert(radixItem);
+
+				if(radixItem) {
+					r->rank=HISTORY_RANKING_FUNCTION(r->rank, i, strlen(line));
+					radixItem->key=r->rank;
+					radixsort_add(&rs, radixItem);
+				}
+			}
+		}
+
+		DEBUG_RADIXSORT();
+
+		RadixItem **prioritizedRadix=radixsort_dump(&rs);
+		prioritizedHistory=malloc(sizeof(HistoryItems));
+		prioritizedHistory->count=rs.size;
+		prioritizedHistory->items=malloc(rs.size * sizeof(char*));
+		for(i=0; i<rs.size; i++) {
+			if(prioritizedRadix[i]->data) {
+				prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+			}
+			free(prioritizedRadix[i]->data);
+			free(prioritizedRadix[i]);
+		}
+
+		radixsort_destroy(&rs);
+
+		return prioritizedHistory;
 	} else {
-		history->count=0;
-		history->items=NULL;
+		return NULL;
 	}
-
-	return history;
-}
-
-HistoryItems *get_prioritized_history() {
-	HistoryItems *fileItems=get_history_items();
-	return prioritize_history(fileItems);
 }
 
 void free_prioritized_history() {
 	free(prioritizedHistory->items);
 	free(prioritizedHistory);
-}
-
-void free_history_items() {
-	int i;
-	for(i=0; i<history->count; i++) free(history->items[i]);
-	free(history->items);
-	free(history);
 }
 
 void history_mgmt_open() {
