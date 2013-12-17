@@ -10,7 +10,7 @@
 #ifndef RADIXSORT_H_
 #define RADIXSORT_H_
 
-#define SIX2FOUR_SIZE 1000
+#define SLOT_SIZE 1000
 
 typedef struct radixitem {
 	unsigned key;
@@ -19,25 +19,25 @@ typedef struct radixitem {
 } RadixItem;
 
 typedef struct radixslot {
-	unsigned key;
-	RadixItem **slot;
-	struct radixslot *next;
+	unsigned min;
+	unsigned max;
 } RadixSlot;
 
 typedef struct {
 	unsigned size;
 	unsigned maxKey;
-	RadixItem **six2four[SIX2FOUR_SIZE];
+	unsigned keyLimit;
+	RadixItem ***topDigits;
 
-	unsigned _keyLimit;
-	RadixSlot *_slots;
+	RadixSlot **_slotDescriptors;
 	unsigned _slotsCount;
 } RadixSorter;
 
-void radixsort_init(RadixSorter *rs);
+void radixsort_init(RadixSorter *rs, unsigned keyLimit);
 void radixsort_add(RadixSorter *rs, RadixItem *item);
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data);
 RadixItem **radixsort_dump(RadixSorter *rs);
+void radixsort_stat(RadixSorter *rs);
 void radixsort_destroy(RadixSorter *rs);
 
 #endif /* RADIXSORT_H_ */

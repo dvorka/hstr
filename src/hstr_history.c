@@ -67,7 +67,7 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 	}
 
 	RadixSorter rs;
-	radixsort_init(&rs);
+	radixsort_init(&rs, 100000);
 
 	RankedHistoryItem *r;
 	RadixItem *radixItem;
@@ -112,6 +112,7 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems) {
 		free(prioritizedRadix[i]);
 	}
 
+	radixsort_stat(&rs); exit(0);
 	radixsort_destroy(&rs);
 
 	return prioritizedHistory;
