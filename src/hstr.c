@@ -21,7 +21,7 @@
 #include "include/hstr_history.h"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter, UP/DOWN arrows to navigate, Ctrl-r to delete row, ENTER to select"
+#define LABEL_HELP "Type to filter, UP/DOWN arrows to move, Ctrl-r to rmv row, ENTER to select, Ctrl-x to exit"
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 #define Y_OFFSET_PROMPT 0
@@ -33,7 +33,9 @@
 #define KEY_CTRL_A 1
 #define KEY_CTRL_E 5
 #define KEY_CTRL_R 18
+#define KEY_CTRL_X 24
 
+#define DEBUG_KEYS
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key number: '%3d' / Char: '%c'", KEY, KEY)
 #else
@@ -46,10 +48,15 @@
 #define LOGCURSOR(Y)
 #endif
 
+static const char *INSTALL_STRING=
+		 "\nshopt -s histappend"
+		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
+		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
+		 "\n\n";
+
 static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool terminalHasColors=FALSE;
-
 
 int print_prompt(WINDOW *win) {
 	char hostname[128];
@@ -206,7 +213,7 @@ void color_attr_off(int c) {
 
 void selection_remove(char *cmd, HistoryItems *history) {
 	if(history->count) {
-		int i, w, count;
+		int i, w;
 		for(i=0, w=0; i<history->count; i++) {
 			if(strcmp(history->items[i], cmd)) {
 				history->items[w]=history->items[i];
@@ -236,7 +243,7 @@ char *selection_loop(HistoryItems *history) {
 	int y = 1, c, maxHistoryItems, cursorX, cursorY, deleteOccurences;
 	bool done = FALSE;
 	char prefix[500]="";
-	char *result="", *delete;
+	char *result="", *msg, *delete;
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
@@ -252,10 +259,12 @@ char *selection_loop(HistoryItems *history) {
 		case KEY_CTRL_R:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=selection[selectionCursorPosition];
-				deleteOccurences=history_mgmt_remove(delete);
+				msg=malloc(strlen(delete)+1);
+				strcpy(msg,delete);
 				selection_remove(delete, history);
+				deleteOccurences=history_mgmt_remove(delete);
 				result = print_selection(stdscr, maxHistoryItems, prefix, history);
-				print_cmd_deleted_label(stdscr, delete, deleteOccurences);
+				print_cmd_deleted_label(stdscr, msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
 			break;
@@ -313,6 +322,10 @@ char *selection_loop(HistoryItems *history) {
 			}
 			done = TRUE;
 			break;
+		case KEY_CTRL_X:
+			result = NULL;
+			done = TRUE;
+			break;
 		default:
 			LOGKEYS(Y_OFFSET_HELP,c);
 			LOGCURSOR(Y_OFFSET_HELP);
@@ -340,14 +353,16 @@ char *selection_loop(HistoryItems *history) {
 	return result;
 }
 
-void install() {
+void install_write() {
 	 FILE *file = fopen("/home/dvorka/test.txt","a");
 	 fseek(file,0, SEEK_END);
-	 fprintf(file,"%s","\n\nshopt -s histappend");
-	 fprintf(file,"%s","\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"");
-	 fprintf(file,"%s","\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'");
+	 fprintf(file,"%s",INSTALL_STRING);
 	 fprintf(file,"%s","\n\n");
 	 fclose(file);
+}
+
+void install_show() {
+	printf("%s", INSTALL_STRING);
 }
 
 void hstr() {
@@ -360,7 +375,11 @@ void hstr() {
 }
 
 int main(int argc, char *argv[]) {
-	hstr();
+	if(argc>1) {
+		install_show();
+	} else {
+		hstr();
+	}
 	return EXIT_SUCCESS;
 }
 

@@ -20,15 +20,17 @@ void tiocsti() {
 }
 
 void fill_terminal_input(char *cmd, bool padding){
-	size_t size = strlen(cmd);
-	unsigned i;
-	char *c;
-	for (i = 0; i < size; i++) {
-		// terminal I/O control, simulate terminal input
-		c=(cmd+i);
-		ioctl(0, TIOCSTI, c);
+	if(cmd) {
+		size_t size = strlen(cmd);
+		unsigned i;
+		char *c;
+		for (i = 0; i < size; i++) {
+			// terminal I/O control, simulate terminal input
+			c=(cmd+i);
+			ioctl(0, TIOCSTI, c);
+		}
+		if(padding) printf("\n");
 	}
-	if(padding) printf("\n");
 }
 
 void reverse_char_pointer_array(char **array, unsigned length) {

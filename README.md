@@ -20,6 +20,7 @@ https://github.com/dvorka/hstr/releases
 
 INSTALLATION
 ------------
+* add `hh` to `$PATH`
 * add 
 
      `shopt -s histappend`
