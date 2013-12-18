@@ -21,7 +21,7 @@
 #include "include/hstr_history.h"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter, UP/DOWN arrows to move, Ctrl-r to rmv row, ENTER to select, Ctrl-x to exit"
+#define LABEL_HELP "Type to filter, arrows to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit"
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 #define Y_OFFSET_PROMPT 0
@@ -35,7 +35,6 @@
 #define KEY_CTRL_R 18
 #define KEY_CTRL_X 24
 
-#define DEBUG_KEYS
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key number: '%3d' / Char: '%c'", KEY, KEY)
 #else
@@ -268,8 +267,9 @@ char *selection_loop(HistoryItems *history) {
 				move(y, basex+strlen(prefix));
 			}
 			break;
-		case 91:
-			// TODO 91 killed > debug to determine how to distinguish \e and [
+		case 91: // TODO 91 killed > debug to determine how to distinguish \e and [
+		case 68: // left arrow
+		case 67: // rigtht arrow
 			break;
 		case KEY_BACKSPACE:
 		case 127:
