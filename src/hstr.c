@@ -21,8 +21,9 @@
 #include "include/hstr_history.h"
 
 #define LABEL_HISTORY " HISTORY "
-#define LABEL_HELP "Type to filter, arrows to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit"
+#define FILE_BASHRC ".bashrc"
 #define SELECTION_CURSOR_IN_PROMPT -1
+#define SELECTION_PREFIX_MAX_LNG 500
 
 #define Y_OFFSET_PROMPT 0
 #define Y_OFFSET_HELP 2
@@ -53,9 +54,13 @@ static const char *INSTALL_STRING=
 		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
 		 "\n\n";
 
+static char *LABEL_HELP=
+		 "Type to filter, UP/DOWN to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit";
+
 static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool terminalHasColors=FALSE;
+static char screenLine[1000];
 
 int print_prompt(WINDOW *win) {
 	char hostname[128];
@@ -70,12 +75,14 @@ int print_prompt(WINDOW *win) {
 }
 
 void print_help_label(WINDOW *win) {
-	mvwprintw(win, Y_OFFSET_HELP, 0, LABEL_HELP);
+	snprintf(screenLine, getmaxx(win), "%s", LABEL_HELP);
+	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
 	refresh();
 }
 
 void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences) {
-	mvwprintw(win, Y_OFFSET_HELP, 0, "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+	snprintf(screenLine, getmaxx(win), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
 	clrtoeol();
 	refresh();
 }
@@ -100,7 +107,7 @@ void print_history_label(WINDOW *win) {
 }
 
 unsigned get_max_history_items(WINDOW *win) {
-	return (getmaxy(win)-(Y_OFFSET_ITEMS+2));
+	return (getmaxy(win)-Y_OFFSET_ITEMS);
 }
 
 
@@ -152,6 +159,7 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 	}
 
 	int height=get_max_history_items(win);
+	int width=getmaxx(win);
 	unsigned i;
 	int y=Y_OFFSET_ITEMS;
 
@@ -160,7 +168,8 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
-			mvwprintw(win, y++, 0, " %s", selection[i]);
+			snprintf(screenLine, width, " %s", selection[i]);
+			mvwprintw(win, y++, 0, screenLine);
 			if(prefix!=NULL) {
 				wattron(win,A_BOLD);
 				char *p=strstr(selection[i], prefix);
@@ -234,6 +243,7 @@ char *selection_loop(HistoryItems *history) {
 	print_selection(stdscr, get_max_history_items(stdscr), NULL, history);
 	int basex = print_prompt(stdscr);
 	int x = basex;
+	int width=getmaxx(stdscr);
 	color_attr_off(COLOR_PAIR(1));
 
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -241,7 +251,7 @@ char *selection_loop(HistoryItems *history) {
 
 	int y = 1, c, maxHistoryItems, cursorX, cursorY, deleteOccurences;
 	bool done = FALSE;
-	char prefix[500]="";
+	char prefix[SELECTION_PREFIX_MAX_LNG]="";
 	char *result="", *msg, *delete;
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
@@ -333,13 +343,15 @@ char *selection_loop(HistoryItems *history) {
 			if(c!=27) {
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-				strcat(prefix, (char*)(&c));
-				wattron(stdscr,A_BOLD);
-				mvprintw(y, basex, "%s", prefix);
-				cursorX=getcurx(stdscr);
-				cursorY=getcury(stdscr);
-				wattroff(stdscr,A_BOLD);
-				clrtoeol();
+				if(strlen(prefix)<(width-basex-1)) {
+					strcat(prefix, (char*)(&c));
+					wattron(stdscr,A_BOLD);
+					mvprintw(y, basex, "%s", prefix);
+					cursorX=getcurx(stdscr);
+					cursorY=getcury(stdscr);
+					wattroff(stdscr,A_BOLD);
+					clrtoeol();
+				}
 
 				result = print_selection(stdscr, maxHistoryItems, prefix, history);
 				move(cursorY, cursorX);
@@ -354,11 +366,13 @@ char *selection_loop(HistoryItems *history) {
 }
 
 void install_write() {
-	 FILE *file = fopen("/home/dvorka/test.txt","a");
-	 fseek(file,0, SEEK_END);
-	 fprintf(file,"%s",INSTALL_STRING);
-	 fprintf(file,"%s","\n\n");
-	 fclose(file);
+	char *home = getenv(ENV_VAR_HOME);
+	sprintf(screenLine, "%s/%s", home, FILE_BASHRC);
+	FILE *file = fopen(screenLine,"a");
+	fseek(file,0, SEEK_END);
+	fprintf(file,"%s",INSTALL_STRING);
+	fprintf(file,"%s","\n\n");
+	fclose(file);
 }
 
 void install_show() {
