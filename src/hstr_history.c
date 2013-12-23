@@ -9,7 +9,6 @@
 
 #include "include/hstr_history.h"
 #include "include/hashset.h"
-#include "include/hashmap.h"
 #include "include/radixsort.h"
 
 #include "include/hstr_utils.h"
@@ -68,8 +67,8 @@ HistoryItems *get_prioritized_history() {
 	HISTORY_STATE *historyState=history_get_history_state();
 
 	if(historyState->length > 0) {
-		HashMap rankmap;
-		hashmap_init(&rankmap);
+		HashSet rankmap;
+		hashset_init(&rankmap);
 
 		HashSet blacklist;
 		int i;
@@ -90,12 +89,12 @@ HistoryItems *get_prioritized_history() {
 			if(hashset_contains(&blacklist, line)) {
 				continue;
 			}
-			if((r=hashmap_get(&rankmap, line))==NULL) {
+			if((r=hashset_get(&rankmap, line))==NULL) {
 				r=malloc(sizeof(RankedHistoryItem));
 				r->rank=HISTORY_RANKING_FUNCTION(0, i, strlen(line));
 				r->item=historyList[i]->line;
 
-				hashmap_put(&rankmap, line, r);
+				hashset_put(&rankmap, line, r);
 
 				radixItem=malloc(sizeof(RadixItem));
 				radixItem->key=r->rank;
