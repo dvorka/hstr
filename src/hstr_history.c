@@ -23,7 +23,7 @@ typedef struct {
 
 static HistoryItems *prioritizedHistory;
 static bool dirty;
-static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh"};
+static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh", "mc"};
 
 #ifdef DEBUG_RADIX
 #define DEBUG_RADIXSORT() radixsort_stat(&rs); exit(0)

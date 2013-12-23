@@ -69,7 +69,7 @@ int hashset_put(HashSet * hs, const char *key, void *value) {
 }
 
 int hashset_add(HashSet * hs, const char *key) {
-	return hashset_put(hs, key, NULL);
+	return hashset_put(hs, key, "nil");
 }
 
 int hashset_size(const HashSet * hs) {
