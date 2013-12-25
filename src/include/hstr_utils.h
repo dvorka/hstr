@@ -15,6 +15,7 @@
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <unistd.h>
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -22,5 +23,6 @@
 void tiocsti();
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);
+char *get_hostname();
 
 #endif

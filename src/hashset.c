@@ -59,7 +59,8 @@ int hashset_put(HashSet * hs, const char *key, void *value) {
         return 0;
     }
 
-    newNode->key = strdup( key );
+    newNode->key = malloc(strlen(key)+1);
+    strcpy(newNode->key, key);
     newNode->value = value;
     newNode->next = hs->lists[ listNum ];
     hs->lists[ listNum ] = newNode;

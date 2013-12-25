@@ -2,7 +2,6 @@
 
 rm -vf *.*~
 
-# copy hstr/ source code to a work directory and run this script to create DEB package
 cd ..
 bzr commit -m "Sync."
 bzr builddeb -- -us -uc

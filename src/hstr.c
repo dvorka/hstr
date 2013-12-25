@@ -63,11 +63,10 @@ static bool terminalHasColors=FALSE;
 static char screenLine[1000];
 
 int print_prompt(WINDOW *win) {
-	char hostname[128];
+	char *hostname = get_hostname();
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
 
-	gethostname(hostname, sizeof hostname);
 	mvwprintw(win, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
 	refresh();
 

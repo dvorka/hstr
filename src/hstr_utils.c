@@ -10,6 +10,8 @@
 #include "include/hstr_utils.h"
 
 #define DEFAULT_COMMAND "pwd"
+#define HOSTNAME_BUFFER 100
+#define PROC_HOSTNAME "/proc/sys/kernel/hostname"
 
 void tiocsti() {
 	char buf[] = DEFAULT_COMMAND;
@@ -43,5 +45,19 @@ void reverse_char_pointer_array(char **array, unsigned length) {
     }
 }
 
-
+char *get_hostname()
+{
+    char *b=malloc(HOSTNAME_BUFFER);
+	if(access( PROC_HOSTNAME, F_OK ) != -1) {
+	    FILE *f = fopen(PROC_HOSTNAME, "r");
+	    b=fgets(b, HOSTNAME_BUFFER, f);
+	    fclose(f);
+	    if(b) {
+	    	b[strlen(b)-1]=0;
+	    	return b;
+	    }
+	}
+    strcpy(b,"localhost");
+    return b;
+}
 
