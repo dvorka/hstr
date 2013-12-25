@@ -1,0 +1,46 @@
+.TH HH 1
+.SH NAME
+\fBhh\fR \- suggest commands from shell history
+.SH SYNOPSIS
+.B hh
+.SH DESCRIPTION
+.B hh
+uses shell history to provide suggest box like functionality
+for commands used in the past. By default it parses .bash-history
+file that is filtered as you type a command substring. Commands 
+are not just filtered, but also ordered by a ranking algorithm
+that considers number of occurences, length and timestamp. In addition
+hh allows removal of commands from history - for instance with a typo or with a sensitive content.
+.SH COMMANDS
+.TP 
+\fBpattern\fR
+Type to filter shell history.
+.TP
+\fBUP\fR arrow, \fBDOWN\fR arrow
+Navigate in the history list.
+.TP
+\fBENTER\fR
+Choose currently selected item for completion.
+.TP 
+\fBCtrl\-r\fR
+Remove currently selected item from the shell history.
+.TP
+\fBCtrl\-x\fR
+Write changes to shell history and exit.
+.SH INSTALLATION
+Add the following lines to ~/.bashrc:
+.nf
+.sp
+shopt -s histappend
+export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
+bind '"\eC\-r": "\eC\-k\eC\-uhh\eC-j"'
+.sp
+.fi
+.SH AUTHOR
+Written by Martin Dvorak <martin.dvorak@mindforger.com>
+.SH BUGS
+Report bugs to https://github.com/dvorka/hstr/issues
+.SH "SEE ALSO"
+.BR history (1),
+.BR bash (1)
+
