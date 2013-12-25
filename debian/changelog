@@ -1,5 +1,5 @@
-hh (0.7-0ubuntu1) raring; urgency=low
+hh (0.7-1ubuntu2) raring; urgency=low
 
-  * Initial release.
+  * Fixing history and curses includes.
 
  -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  Wed, 25 Dec 2013 17:21:31 +0100
