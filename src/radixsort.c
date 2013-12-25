@@ -8,12 +8,6 @@
 */
 
 #include "include/radixsort.h"
-#include "include/hstr_utils.h"
-#include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include <string.h>
-#include <stddef.h>
 
 #define GET_TOP_INDEX(KEY) KEY/SLOT_SIZE
 #define GET_LOW_INDEX(KEY) KEY%SLOT_SIZE

@@ -18,6 +18,8 @@
 #include <unistd.h>
 #include <stdbool.h>
 #include "hstr_utils.h"
+#include "hashset.h"
+#include "radixsort.h"
 
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"

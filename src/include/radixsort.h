@@ -10,6 +10,13 @@
 #ifndef RADIXSORT_H_
 #define RADIXSORT_H_
 
+#include <stdlib.h>
+#include <stdio.h>
+#include <math.h>
+#include <string.h>
+#include <stddef.h>
+#include "hstr_utils.h"
+
 #define SLOT_SIZE 1000
 
 typedef struct radixitem {

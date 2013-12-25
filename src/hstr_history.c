@@ -8,10 +8,6 @@
 */
 
 #include "include/hstr_history.h"
-#include "include/hashset.h"
-#include "include/radixsort.h"
-
-#include "include/hstr_utils.h"
 
 #define NDEBUG
 #include <assert.h>
