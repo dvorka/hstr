@@ -1,5 +1,7 @@
 #!/bin/bash
 
+rm -vrf ../.git ../.settings ../Debug ../Release ../.cproject ../.project ../.gitignore
+
 rm -vf *.*~ ../*.*~ ../src/*.*~
 rm -rvf ../atom5te.cache
 rm -vf ../man/Makefile ../man/Makefile.in

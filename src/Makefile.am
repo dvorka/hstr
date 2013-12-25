@@ -1,6 +1,6 @@
 # http://mij.oltrelinux.com/devel/autoconf-automake/
 AM_CFLAGS = --pedantic -Wall -std=c99 -O2
-AM_LDFLAGS = -lncurses -lreadline -lm
+AM_LDFLAGS =
 
 # bin_ installs to bin; hh_ is the binary name
 bin_PROGRAMS = hh

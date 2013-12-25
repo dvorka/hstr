@@ -18,9 +18,16 @@ DOWNLOAD
 https://github.com/dvorka/hstr/releases
 
 
+BUILD
+------------
+* install from the source distribution:
+
+    `./configure && make && make install`
+
+
 INSTALLATION
 ------------
-* add `hh` to `$PATH`
+* make sure `hh` is in `${PATH}`
 * add 
 
      `shopt -s histappend`
@@ -33,18 +40,13 @@ INSTALLATION
 
     `bind '"\C-r": "\C-k\C-uhh\C-j"'`
 
-  or F12:
-
-    `bind '"\e[24~":"\C-k\C-uhh\C-j"'` 
-
   or Ctrl-F12:
 
     `bind '"\e[24;5~":"\C-k\C-uhh\C-j"'`
 
   To determine the character sequence emitted by a pressed key in terminal, 
-  type CTRL-v and then press the key. For example, F12 gives `^[[24~`. 
-  Replace the `^[` with `\e`. To clear the line first, add `\C-k \C-u` in 
-  front of the actual command. Check your current bindings using:
+  type CTRL-v and then press the key. To clear the line first, add `\C-k \C-u` 
+  in front of the actual command. Check your current bindings using:
 
     `bind -S`
 

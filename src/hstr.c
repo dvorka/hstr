@@ -249,7 +249,7 @@ char *selection_loop(HistoryItems *history) {
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-	int y = 1, c, maxHistoryItems, cursorX, cursorY, deleteOccurences;
+	int y = 1, c, maxHistoryItems, cursorX=0, cursorY=0, deleteOccurences;
 	bool done = FALSE;
 	char prefix[SELECTION_PREFIX_MAX_LNG]="";
 	char *result="", *msg, *delete;
