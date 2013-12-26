@@ -18,16 +18,28 @@ DOWNLOAD
 https://github.com/dvorka/hstr/releases
 
 
-BUILD
+SOURCE CODE INSTALLATION
 ------------
-* install from the source distribution:
+* download distribution, expand it and install `hh`:
 
     `./configure && make && make install`
 
+* Configure `hh` as described below. 
 
-INSTALLATION
+
+UBUNTU INSTALLATION
 ------------
-* make sure `hh` is in `${PATH}`
+* install `hh` on Ubuntu:
+
+    `sudo add-apt-repository ppa:ultradvorka/ppa`
+
+    `sudo apt-get update`
+
+    `sudo apt-get install hh`
+
+
+CONFIGURATION
+------------
 * add 
 
      `shopt -s histappend`
