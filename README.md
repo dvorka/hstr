@@ -10,7 +10,7 @@ from the history. It aims to make completion easier and faster
 than Ctrl-R.
 
 
-[![Shell History Suggest Box](http://www.mindcognition.com/hstr/hstr.png "Shell History Suggest Box")](https://github.com/dvorka/hstr)
+[![Shell History Suggest Box](http://mindforger.com/projects/images/hh.png "Shell History Suggest Box")](https://github.com/dvorka/hstr)
 
 
 DOWNLOAD
