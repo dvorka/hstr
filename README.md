@@ -19,7 +19,7 @@ https://github.com/dvorka/hstr/releases
 
 
 SOURCE CODE INSTALLATION
-------------
+------------------------
 * download distribution, expand it and install `hh`:
 
     `./configure && make && make install`
@@ -27,8 +27,8 @@ SOURCE CODE INSTALLATION
 * Configure `hh` as described below. 
 
 
-UBUNTU INSTALLATION
-------------
+UBUNTU 13.04 INSTALLATION
+-------------------------
 * install `hh` on Ubuntu:
 
     `sudo add-apt-repository ppa:ultradvorka/ppa`
