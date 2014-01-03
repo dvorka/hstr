@@ -9,7 +9,8 @@
 
 #include "include/hashset.h"
 
-unsigned int hashmap_hash(const char *str) {
+unsigned int hashmap_hash(const char *str)
+{
     int i;
     unsigned int result = 5381;
 
@@ -21,7 +22,8 @@ unsigned int hashmap_hash(const char *str) {
     return result % HASH_MAP_SIZE;
 }
 
-void hashset_init(HashSet * hs) {
+void hashset_init(HashSet * hs)
+{
     int i;
     hs->currentSize = 0;
     for( i = 0; i < HASH_MAP_SIZE; i++ ) {
@@ -29,7 +31,8 @@ void hashset_init(HashSet * hs) {
     }
 }
 
-void *hashset_get(const HashSet * hs, const char *key) {
+void *hashset_get(const HashSet * hs, const char *key)
+{
     int listNum = hashmap_hash( key );
     struct HashSetNode *ptr = hs->lists[ listNum ];
 
@@ -39,11 +42,13 @@ void *hashset_get(const HashSet * hs, const char *key) {
     return (ptr != NULL? ptr->value : NULL);
 }
 
-int hashset_contains(const HashSet * hs, const char *key) {
+int hashset_contains(const HashSet * hs, const char *key)
+{
 	return (hashset_get(hs, key) != NULL);
 }
 
-int hashset_put(HashSet * hs, const char *key, void *value) {
+int hashset_put(HashSet * hs, const char *key, void *value)
+{
     struct HashSetNode *newNode;
     int listNum;
 
@@ -69,15 +74,18 @@ int hashset_put(HashSet * hs, const char *key, void *value) {
     return 1;
 }
 
-int hashset_add(HashSet * hs, const char *key) {
+int hashset_add(HashSet * hs, const char *key)
+{
 	return hashset_put(hs, key, "nil");
 }
 
-int hashset_size(const HashSet * hs) {
+int hashset_size(const HashSet * hs)
+{
     return hs->currentSize;
 }
 
-void hashset_stat( const HashSet * hs ) {
+void hashset_stat( const HashSet * hs )
+{
     int i;
     struct HashSetNode *ptr;
 

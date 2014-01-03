@@ -62,7 +62,8 @@ static unsigned selectionSize=0;
 static bool terminalHasColors=FALSE;
 static char screenLine[1000];
 
-int print_prompt(WINDOW *win) {
+int print_prompt(WINDOW *win)
+{
 	char *hostname = get_hostname();
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
@@ -73,20 +74,23 @@ int print_prompt(WINDOW *win) {
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
 }
 
-void print_help_label(WINDOW *win) {
+void print_help_label(WINDOW *win)
+{
 	snprintf(screenLine, getmaxx(win), "%s", LABEL_HELP);
 	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
 	refresh();
 }
 
-void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences) {
+void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences)
+{
 	snprintf(screenLine, getmaxx(win), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
 	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
 	clrtoeol();
 	refresh();
 }
 
-void print_history_label(WINDOW *win) {
+void print_history_label(WINDOW *win)
+{
 	char message[512];
 
 	int width=getmaxx(win);
@@ -105,12 +109,14 @@ void print_history_label(WINDOW *win) {
 	refresh();
 }
 
-unsigned get_max_history_items(WINDOW *win) {
+unsigned get_max_history_items(WINDOW *win)
+{
 	return (getmaxy(win)-Y_OFFSET_ITEMS);
 }
 
 
-void alloc_selection(unsigned size) {
+void alloc_selection(unsigned size)
+{
 	selectionSize=size;
 	if(selection!=NULL) {
 		free(selection);
@@ -121,7 +127,8 @@ void alloc_selection(unsigned size) {
 	}
 }
 
-unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount) {
+unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount)
+{
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	unsigned i, selectionCount=0;
 
@@ -150,7 +157,8 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history) {
+char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history)
+{
 	char *result="";
 	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
 	if (selectionCount > 0) {
@@ -184,7 +192,8 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 	return result;
 }
 
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition) {
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition)
+{
 	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 		mvprintw(Y_OFFSET_ITEMS+previousSelectionCursorPosition, 0, " ");
 	}
@@ -193,32 +202,37 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 	}
 }
 
-void color_start() {
+void color_start()
+{
 	terminalHasColors=has_colors();
 	if(terminalHasColors) {
 		start_color();
 	}
 }
 
-void color_init_pair(short int x, short int y, short int z) {
+void color_init_pair(short int x, short int y, short int z)
+{
 	if(terminalHasColors) {
 		init_pair(x, y, z);
 	}
 }
 
-void color_attr_on(int c) {
+void color_attr_on(int c)
+{
 	if(terminalHasColors) {
 		attron(c);
 	}
 }
 
-void color_attr_off(int c) {
+void color_attr_off(int c)
+{
 	if(terminalHasColors) {
 		attroff(c);
 	}
 }
 
-void selection_remove(char *cmd, HistoryItems *history) {
+void selection_remove(char *cmd, HistoryItems *history)
+{
 	if(history->count) {
 		int i, w;
 		for(i=0, w=0; i<history->count; i++) {
@@ -231,7 +245,8 @@ void selection_remove(char *cmd, HistoryItems *history) {
 	}
 }
 
-char *selection_loop(HistoryItems *history) {
+char *selection_loop(HistoryItems *history)
+{
 	initscr();
 	color_start();
 
@@ -364,7 +379,8 @@ char *selection_loop(HistoryItems *history) {
 	return result;
 }
 
-void install_write() {
+void install_write()
+{
 	char *home = getenv(ENV_VAR_HOME);
 	sprintf(screenLine, "%s/%s", home, FILE_BASHRC);
 	FILE *file = fopen(screenLine,"a");
@@ -374,11 +390,13 @@ void install_write() {
 	fclose(file);
 }
 
-void install_show() {
+void install_show()
+{
 	printf("%s", INSTALL_STRING);
 }
 
-void hstr() {
+void hstr()
+{
 	HistoryItems *history=get_prioritized_history();
 	history_mgmt_open();
 	char *command = selection_loop(history);
@@ -387,7 +405,8 @@ void hstr() {
 	free_prioritized_history();
 }
 
-int main(int argc, char *argv[]) {
+int main(int argc, char *argv[])
+{
 	if(argc>1) {
 		install_show();
 	} else {

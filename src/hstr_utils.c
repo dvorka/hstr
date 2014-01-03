@@ -13,7 +13,8 @@
 #define HOSTNAME_BUFFER 100
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
 
-void tiocsti() {
+void tiocsti()
+{
 	char buf[] = DEFAULT_COMMAND;
 	int i;
 	for (i = 0; i < sizeof buf - 1; i++) {
@@ -21,7 +22,8 @@ void tiocsti() {
 	}
 }
 
-void fill_terminal_input(char *cmd, bool padding){
+void fill_terminal_input(char *cmd, bool padding)
+{
 	if(cmd) {
 		size_t size = strlen(cmd);
 		unsigned i;
@@ -35,7 +37,8 @@ void fill_terminal_input(char *cmd, bool padding){
 	}
 }
 
-void reverse_char_pointer_array(char **array, unsigned length) {
+void reverse_char_pointer_array(char **array, unsigned length)
+{
 	char *temp;
 	unsigned i;
     for (i=0; i<length/2; i++) {

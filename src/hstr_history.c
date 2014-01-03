@@ -7,6 +7,7 @@
  ============================================================================
 */
 
+#include <readline/history.h>
 #include "include/hstr_history.h"
 
 #define NDEBUG
@@ -29,7 +30,8 @@ static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh", "mc"};
 
 #define HISTORY_RANKING_FUNCTION(RANK,NEWOCCURENCEORDER,LNG) RANK+NEWOCCURENCEORDER/10+LNG
 
-char *get_history_file_name() {
+char *get_history_file_name()
+{
 	char *historyFile=getenv(ENV_VAR_HISTFILE);
 	if(!historyFile || strlen(historyFile)==0) {
 		char *home = getenv(ENV_VAR_HOME);
@@ -39,7 +41,8 @@ char *get_history_file_name() {
 	return historyFile;
 }
 
-void dump_prioritized_history(HistoryItems *ph) {
+void dump_prioritized_history(HistoryItems *ph)
+{
 	printf("\n\nPrioritized history:");
 	int i;
 	for(i=0; i<ph->count; i++) {
@@ -52,7 +55,8 @@ void dump_prioritized_history(HistoryItems *ph) {
 	printf("\n"); fflush(stdout);
 }
 
-HistoryItems *get_prioritized_history() {
+HistoryItems *get_prioritized_history()
+{
 	using_history();
 
 	char *historyFile = get_history_file_name();
@@ -132,16 +136,19 @@ HistoryItems *get_prioritized_history() {
 	}
 }
 
-void free_prioritized_history() {
+void free_prioritized_history()
+{
 	free(prioritizedHistory->items);
 	free(prioritizedHistory);
 }
 
-void history_mgmt_open() {
+void history_mgmt_open()
+{
 	dirty=false;
 }
 
-int history_mgmt_remove(char *cmd) {
+int history_mgmt_remove(char *cmd)
+{
 	int offset=history_search_pos(cmd, 0, 0), occurences=0;
 	while(offset>=0) {
 		occurences++;
@@ -155,7 +162,8 @@ int history_mgmt_remove(char *cmd) {
 	return occurences;
 }
 
-void history_mgmt_close() {
+void history_mgmt_close()
+{
 	if(dirty) {
 		fill_terminal_input("history -r\n", false);
 	}
