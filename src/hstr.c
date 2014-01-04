@@ -143,8 +143,14 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 			if(prefix==NULL) {
 				selection[selectionCount++]=history->items[i];
 			} else {
-				if(history->items[i]==strstr(history->items[i], prefix)) {
-					selection[selectionCount++]=history->items[i];
+				if(caseSensitive) {
+					if(history->items[i]==strstr(history->items[i], prefix)) {
+						selection[selectionCount++]=history->items[i];
+					}
+				} else {
+					if(history->items[i]==strcasestr(history->items[i], prefix)) {
+						selection[selectionCount++]=history->items[i];
+					}
 				}
 			}
 		}
@@ -187,19 +193,22 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 	move(Y_OFFSET_ITEMS, 0);
 	wclrtobot(win);
 
-	char *p;
+	char *p, *pdup;
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
 			snprintf(screenLine, width, " %s", selection[i]);
 			mvwprintw(win, y++, 0, screenLine);
-			if(prefix!=NULL) {
+			if(prefix!=NULL && strlen(prefix)>0) {
 				wattron(win,A_BOLD);
 				if(caseSensitive) {
 					p=strstr(selection[i], prefix);
+					mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", prefix);
 				} else {
 					p=strcasestr(selection[i], prefix);
+					snprintf(screenLine, strlen(prefix)+1, "%s", p);
+					mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", screenLine);
 				}
-				mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", prefix);
+
 				wattroff(win,A_BOLD);
 			}
 		} else {

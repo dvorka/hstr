@@ -1,5 +1,5 @@
 #!/bin/bash
 
-cd ../man && groff -man -Tascii hh.1
+cd ../man && man ./hh.1
 
 # eof

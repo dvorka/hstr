@@ -12,6 +12,6 @@ cp -vf /usr/share/automake-1.11/depcomp .
 cp -vf /usr/share/automake-1.11/install-sh .
 cp -vf /usr/share/automake-1.11/missing .
 
-cd bin
+cd dist
 
 # eof
