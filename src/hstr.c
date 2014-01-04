@@ -30,11 +30,17 @@
 #define Y_OFFSET_HISTORY 3
 #define Y_OFFSET_ITEMS 4
 
-#define KEY_TERMINAL_RESIZE 410
-#define KEY_CTRL_A 1
-#define KEY_CTRL_E 5
-#define KEY_CTRL_R 18
-#define KEY_CTRL_X 24
+#define K_CTRL_A 1
+#define K_CTRL_E 5
+#define K_CTRL_R 18
+#define K_CTRL_X 24
+#define K_CTRL_I 9
+#define K_ENTER 10
+#define K_ARROW_LEFT 68
+#define K_ARROW_RIGHT 67
+#define K_BACKSPACE 127
+#define K_UP 65
+#define K_DOWN 66
 
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key number: '%3d' / Char: '%c'", KEY, KEY)
@@ -54,7 +60,7 @@ static const char *INSTALL_STRING=
 		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
 		 "\n\n";
 
-static char *LABEL_HELP=
+static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit";
 
 static char **selection=NULL;
@@ -127,7 +133,7 @@ void alloc_selection(unsigned size)
 	}
 }
 
-unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount)
+unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, bool caseSensitive)
 {
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	unsigned i, selectionCount=0;
@@ -145,10 +151,18 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	}
 
 	if(prefix && selectionCount<maxSelectionCount) {
+		char *substring;
 		for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
-			char *substring = strstr(history->items[i], prefix);
-			if (substring != NULL && substring!=history->items[i]) {
-				selection[selectionCount++]=history->items[i];
+			if(caseSensitive) {
+				substring = strstr(history->items[i], prefix);
+				if (substring != NULL && substring!=history->items[i]) {
+					selection[selectionCount++]=history->items[i];
+				}
+			} else {
+				substring = strcasestr(history->items[i], prefix);
+				if (substring != NULL && substring!=history->items[i]) {
+					selection[selectionCount++]=history->items[i];
+				}
 			}
 		}
 	}
@@ -157,10 +171,10 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history)
+char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history, bool caseSensitive)
 {
 	char *result="";
-	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
+	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems, caseSensitive);
 	if (selectionCount > 0) {
 		result = selection[0];
 	}
@@ -173,13 +187,18 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 	move(Y_OFFSET_ITEMS, 0);
 	wclrtobot(win);
 
+	char *p;
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
 			snprintf(screenLine, width, " %s", selection[i]);
 			mvwprintw(win, y++, 0, screenLine);
 			if(prefix!=NULL) {
 				wattron(win,A_BOLD);
-				char *p=strstr(selection[i], prefix);
+				if(caseSensitive) {
+					p=strstr(selection[i], prefix);
+				} else {
+					p=strcasestr(selection[i], prefix);
+				}
 				mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", prefix);
 				wattroff(win,A_BOLD);
 			}
@@ -254,7 +273,8 @@ char *selection_loop(HistoryItems *history)
 	color_attr_on(COLOR_PAIR(1));
 	print_history_label(stdscr);
 	print_help_label(stdscr);
-	print_selection(stdscr, get_max_history_items(stdscr), NULL, history);
+	bool caseSensitive=FALSE;
+	print_selection(stdscr, get_max_history_items(stdscr), NULL, history, caseSensitive);
 	int basex = print_prompt(stdscr);
 	int x = basex;
 	int width=getmaxx(stdscr);
@@ -275,28 +295,27 @@ char *selection_loop(HistoryItems *history)
 		echo();
 
 		switch (c) {
-		case KEY_TERMINAL_RESIZE:
-		case KEY_CTRL_A:
-		case KEY_CTRL_E:
+		case KEY_RESIZE:
+		case K_CTRL_A:
+		case K_CTRL_E:
+		case K_ARROW_LEFT:
+		case K_ARROW_RIGHT:
+		case 91: // TODO 91 killed > debug to determine how to distinguish \e and [
 			break;
-		case KEY_CTRL_R:
+		case K_CTRL_R:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=selection[selectionCursorPosition];
 				msg=malloc(strlen(delete)+1);
 				strcpy(msg,delete);
 				selection_remove(delete, history);
 				deleteOccurences=history_mgmt_remove(delete);
-				result = print_selection(stdscr, maxHistoryItems, prefix, history);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
 				print_cmd_deleted_label(stdscr, msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
 			break;
-		case 91: // TODO 91 killed > debug to determine how to distinguish \e and [
-		case 68: // left arrow
-		case 67: // rigtht arrow
-			break;
 		case KEY_BACKSPACE:
-		case 127:
+		case K_BACKSPACE:
 			if(strlen(prefix)>0) {
 				prefix[strlen(prefix)-1]=0;
 				x--;
@@ -307,16 +326,16 @@ char *selection_loop(HistoryItems *history)
 			}
 
 			if(strlen(prefix)>0) {
-				make_selection(prefix, history, maxHistoryItems);
+				make_selection(prefix, history, maxHistoryItems, caseSensitive);
 			} else {
-				make_selection(NULL, history, maxHistoryItems);
+				make_selection(NULL, history, maxHistoryItems, caseSensitive);
 			}
-			result = print_selection(stdscr, maxHistoryItems, prefix, history);
+			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
 
 			move(y, basex+strlen(prefix));
 			break;
 		case KEY_UP:
-		case 65:
+		case K_UP:
 			previousSelectionCursorPosition=selectionCursorPosition;
 			if(selectionCursorPosition>0) {
 				selectionCursorPosition--;
@@ -326,7 +345,7 @@ char *selection_loop(HistoryItems *history)
 			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
 		case KEY_DOWN:
-		case 66:
+		case K_DOWN:
 			if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
 				selectionCursorPosition=previousSelectionCursorPosition=0;
 			} else {
@@ -339,14 +358,18 @@ char *selection_loop(HistoryItems *history)
 			}
 			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
 			break;
-		case 10:
+		case KEY_ENTER:
+		case K_ENTER:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				result=selection[selectionCursorPosition];
 				alloc_selection(0);
 			}
 			done = TRUE;
 			break;
-		case KEY_CTRL_X:
+		case K_CTRL_I:
+			caseSensitive=!caseSensitive;
+			break;
+		case K_CTRL_X:
 			result = NULL;
 			done = TRUE;
 			break;
@@ -367,7 +390,7 @@ char *selection_loop(HistoryItems *history)
 					clrtoeol();
 				}
 
-				result = print_selection(stdscr, maxHistoryItems, prefix, history);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
 				move(cursorY, cursorX);
 				refresh();
 			}
