@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="0.731"
+export HHVERSION="0.74"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
@@ -8,8 +8,9 @@ export HHSRC=/home/dvorka/p/hstr/github/hstr
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export HHBUILD=hstr-${NOW}
 
-export UBUNTUVERSION=raring
-#export UBUNTUVERSION=saucy
+#export UBUNTUVERSION=quantal # 0.*3
+#export UBUNTUVERSION=raring # 0.*1
+export UBUNTUVERSION=saucy # 0.*2
 
 export HHBZRMSG="Adding case insensitive search."
 

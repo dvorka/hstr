@@ -41,6 +41,7 @@ checkout_hh `pwd`
 cd hh/dist
 ./2-deb.sh
 
+pwd
 echo -e "\n\nContinue by editing debian/changes and dist/ directory: 3-deb-push.sh\n"
 
 # eof
