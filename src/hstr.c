@@ -35,6 +35,7 @@
 #define K_CTRL_R 18
 #define K_CTRL_X 24
 #define K_CTRL_I 9
+#define K_CTRL_H 8
 #define K_ENTER 10
 #define K_ARROW_LEFT 68
 #define K_ARROW_RIGHT 67
@@ -136,23 +137,24 @@ void alloc_selection(unsigned size)
 	}
 }
 
-unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, bool caseSensitive)
+unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, bool caseSensitive, bool raw)
 {
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	unsigned i, selectionCount=0;
+	char **source=(raw?history->raw:history->items);
 
 	for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
-		if(history->items[i]) {
+		if(source[i]) {
 			if(prefix==NULL) {
-				selection[selectionCount++]=history->items[i];
+				selection[selectionCount++]=source[i];
 			} else {
 				if(caseSensitive) {
-					if(history->items[i]==strstr(history->items[i], prefix)) {
-						selection[selectionCount++]=history->items[i];
+					if(source[i]==strstr(source[i], prefix)) {
+						selection[selectionCount++]=source[i];
 					}
 				} else {
-					if(history->items[i]==strcasestr(history->items[i], prefix)) {
-						selection[selectionCount++]=history->items[i];
+					if(source[i]==strcasestr(source[i], prefix)) {
+						selection[selectionCount++]=source[i];
 					}
 				}
 			}
@@ -163,14 +165,14 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 		char *substring;
 		for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
 			if(caseSensitive) {
-				substring = strstr(history->items[i], prefix);
-				if (substring != NULL && substring!=history->items[i]) {
-					selection[selectionCount++]=history->items[i];
+				substring = strstr(source[i], prefix);
+				if (substring != NULL && substring!=source[i]) {
+					selection[selectionCount++]=source[i];
 				}
 			} else {
-				substring = strcasestr(history->items[i], prefix);
-				if (substring != NULL && substring!=history->items[i]) {
-					selection[selectionCount++]=history->items[i];
+				substring = strcasestr(source[i], prefix);
+				if (substring != NULL && substring!=source[i]) {
+					selection[selectionCount++]=source[i];
 				}
 			}
 		}
@@ -180,10 +182,10 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history, bool caseSensitive)
+char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history, bool caseSensitive, bool raw)
 {
 	char *result="";
-	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems, caseSensitive);
+	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems, caseSensitive, raw);
 	if (selectionCount > 0) {
 		result = selection[0];
 	}
@@ -286,7 +288,8 @@ char *selection_loop(HistoryItems *history)
 	print_history_label(stdscr);
 	print_help_label(stdscr);
 	bool caseSensitive=FALSE;
-	print_selection(stdscr, get_max_history_items(stdscr), NULL, history, caseSensitive);
+	bool raw=FALSE;
+	print_selection(stdscr, get_max_history_items(stdscr), NULL, history, caseSensitive, raw);
 	int basex = print_prompt(stdscr);
 	int x = basex;
 	int width=getmaxx(stdscr);
@@ -321,7 +324,7 @@ char *selection_loop(HistoryItems *history)
 				strcpy(msg,delete);
 				selection_remove(delete, history);
 				deleteOccurences=history_mgmt_remove(delete);
-				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
 				print_cmd_deleted_label(stdscr, msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
@@ -338,11 +341,11 @@ char *selection_loop(HistoryItems *history)
 			}
 
 			if(strlen(prefix)>0) {
-				make_selection(prefix, history, maxHistoryItems, caseSensitive);
+				make_selection(prefix, history, maxHistoryItems, caseSensitive, raw);
 			} else {
-				make_selection(NULL, history, maxHistoryItems, caseSensitive);
+				make_selection(NULL, history, maxHistoryItems, caseSensitive, raw);
 			}
-			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
+			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
 
 			move(y, basex+strlen(prefix));
 			break;
@@ -381,6 +384,10 @@ char *selection_loop(HistoryItems *history)
 		case K_CTRL_I:
 			caseSensitive=!caseSensitive;
 			break;
+		case K_CTRL_H:
+			raw=!raw;
+			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
+			break;
 		case K_CTRL_X:
 			result = NULL;
 			done = TRUE;
@@ -402,7 +409,7 @@ char *selection_loop(HistoryItems *history)
 					clrtoeol();
 				}
 
-				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive);
+				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
 				move(cursorY, cursorX);
 				refresh();
 			}

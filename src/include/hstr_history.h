@@ -29,6 +29,7 @@
 
 typedef struct {
 	char **items;
+	char **raw;
 	unsigned count;
 } HistoryItems;
 

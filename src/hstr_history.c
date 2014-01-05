@@ -82,10 +82,13 @@ HistoryItems *get_prioritized_history()
 
 		RankedHistoryItem *r;
 		RadixItem *radixItem;
-		HIST_ENTRY **historyList=history_list();
+        HIST_ENTRY **historyList=history_list();
+        char **rawHistory=malloc(sizeof(char*) * historyState->length);
+        int rawOffset=historyState->length-1;
 		char *line;
-		for(i=0; i<historyState->length; i++) {
+		for(i=0; i<historyState->length; i++, rawOffset--) {
 			line=historyList[i]->line;
+			rawHistory[rawOffset]=line;
 			if(hashset_contains(&blacklist, line)) {
 				continue;
 			}
@@ -120,6 +123,7 @@ HistoryItems *get_prioritized_history()
 		prioritizedHistory=malloc(sizeof(HistoryItems));
 		prioritizedHistory->count=rs.size;
 		prioritizedHistory->items=malloc(rs.size * sizeof(char*));
+		prioritizedHistory->raw=rawHistory;
 		for(i=0; i<rs.size; i++) {
 			if(prioritizedRadix[i]->data) {
 				prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
