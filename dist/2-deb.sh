@@ -15,6 +15,19 @@ function createChangelog() {
   echo -e "\n" >> $1
 }
 
+function createTarball() {
+  cd ..
+  mkdir work
+  cd work
+  cp -vrf ../${HH} .
+  rm -rvf ${HH}/.bzr
+  tar zcf ../${HH}.tgz ${HH}
+  cp -vf ../${HH}.tgz ../${HH}.orig.tar.gz
+  cd ../${HH}
+}
+
+echo -e "\n_ hh deb build  _______________________________________________\n"
+
 rm -rvf ../debian
 cp -rvf ${HHSRC}/debian ..
 
@@ -23,7 +36,11 @@ createChangelog ../debian/changelog
 cd ../..
 mv hh ${HH}
 cd ${HH}
+bzr add .
 bzr commit -m "Update for ${HH} at ${NOW}."
+
+createTarball
+
 bzr builddeb -- -us -uc
 bzr builddeb -S
 cd ../build-area

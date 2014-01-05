@@ -2,8 +2,9 @@
 
 . /home/dvorka/p/hstr/github/hstr/dist/env.sh
 
-function branch_hh() {
-  bzr branch lp:~ultradvorka/+junk/hh-package
+function checkout_hh() {
+  bzr checkout lp:~ultradvorka/+junk/hh-package
+  #bzr branch lp:~ultradvorka/+junk/hh-package
   #bzr clone lp:~ultradvorka/+junk/hh-package
   #bzr branch lp:hstr
   mv hh-package ${HH}
@@ -34,7 +35,7 @@ rm -rvf *.*~ ./debian
 mkdir ${HHBUILD}
 cd ${HHBUILD}
 
-branch_hh `pwd`
+checkout_hh `pwd`
 #init_hh `pwd`
 
 cd hh/dist
