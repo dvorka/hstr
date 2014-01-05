@@ -1,5 +1,0 @@
-hh (0.71-0ubuntu1) saucy; urgency=low
-
-  * Case insensitive search with ctrl-i toggle.
-
- -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  Wed, 25 Dec 2013 17:21:31 +0100

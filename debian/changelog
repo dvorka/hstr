@@ -1,4 +1,4 @@
-hh (0.71-0ubuntu1) raring; urgency=low
+hh (0.72-0ubuntu1) raring; urgency=low
 
   * Case insensitive search with ctrl-i toggle.
 

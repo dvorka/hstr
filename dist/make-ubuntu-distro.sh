@@ -3,29 +3,43 @@
 . /home/dvorka/p/hstr/github/hstr/dist/env.sh
 
 function branch_hh() {
-  bzr branch lp:hstr
-  #cd hstr
-  #mv .bzr ..
-  #rm -rvf debian dist man src LICENSE *.am *.md *.ac
-  #mv ../.bzr .
-  #cp -rvf ${HHSRC}/* ${HHSRC}/*.*  .
+  bzr branch lp:~ultradvorka/+junk/hh-package
+  #bzr clone lp:~ultradvorka/+junk/hh-package
+  #bzr branch lp:hstr
+  mv hh-package ${HH}
+  cd ${HH}
+  mv .bzr ..
+  rm -rvf debian dist man src LICENSE *.am *.md *.ac auto*.*
+  mv ../.bzr .
+  cp -rvf ${HHSRC}/* ${HHSRC}/*.*  .
+  cd ..
+  #tar zcf ${HH}.tgz ${HH}
+  #cp -vf ${H}.tgz ${HH}.orig.tar.gz
+  mv -v ${HH} hh
+  cd ./hh/dist && ./1-dist.sh && cd ../..
 }
 
 function init_hh() {
   cp -rvf ${HHSRC} .
+  cd ./hstr/dist && ./1-dist.sh && rm -vrf ../debian && cd ../..
+  cd ${1}
   mv hstr ${HH}
   tar zcf ${HH}.tgz ${HH}
   rm -rvf ${HH}
-  bzr dh-make hh ${HHVERSION} ${HH}.tgz
+  bzr dh-make -v hh ${HHVERSION} ${HH}.tgz
 }
 
-rm -rvf *.*~
+rm -rvf *.*~ ./debian
 
 mkdir ${HHBUILD}
 cd ${HHBUILD}
-init_hh
-cd dist
 
-#echo "Continue by editing debian/changes and dist/ directory: 1-dist.sh"
+branch_hh `pwd`
+#init_hh `pwd`
+
+cd hh/dist
+./2-deb.sh
+
+echo -e "\n\nContinue by editing debian/changes and dist/ directory: 3-deb-push.sh\n"
 
 # eof

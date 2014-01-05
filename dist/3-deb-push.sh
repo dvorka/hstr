@@ -4,7 +4,8 @@
 
 cd ..
 bzr commit -m "Sync."
-bzr push lp:~ultradvorka/+junk/hh-package
+bzr push :parent
+#bzr push lp:~ultradvorka/+junk/hh-package
 cd ..
 dput ppa:ultradvorka ${HHRELEASE}_source.changes
 

@@ -1,5 +1,5 @@
 Source: hh
-Section: universe/admin
+Section: Utilities
 Priority: optional
 Maintainer: Martin Dvorak <martin.dvorak@mindforger.com>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev, libreadline-dev, libncurses5-dev

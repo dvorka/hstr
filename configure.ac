@@ -4,8 +4,8 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 0.7, martin.dvorak@mindforger.com)
-AM_INIT_AUTOMAKE(hh, 0.7)
+AC_INIT(hh, 0.73, martin.dvorak@mindforger.com)
+AM_INIT_AUTOMAKE(hh, 0.73)
 AC_OUTPUT(Makefile src/Makefile man/Makefile)
 
 # Checks for src dir existence.
