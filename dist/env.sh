@@ -8,9 +8,8 @@ export HHSRC=/home/dvorka/p/hstr/github/hstr
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export HHBUILD=hstr-${NOW}
 
-#export UBUNTUVERSION=quantal # 0.*3
-#export UBUNTUVERSION=raring # 0.*1
-export UBUNTUVERSION=saucy # 0.*2
+#export UBUNTUVERSION=raring
+export UBUNTUVERSION=saucy
 
 export HHBZRMSG="Adding case insensitive search."
 

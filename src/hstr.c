@@ -60,6 +60,9 @@ static const char *INSTALL_STRING=
 		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
 		 "\n\n";
 
+static const char *BUILD_STRING=
+		"Build: "__DATE__" " __TIME__"";
+
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit";
 
@@ -430,11 +433,15 @@ void install_show()
 void hstr()
 {
 	HistoryItems *history=get_prioritized_history();
-	history_mgmt_open();
-	char *command = selection_loop(history);
-	history_mgmt_close();
-	fill_terminal_input(command, true);
-	free_prioritized_history();
+	if(history) {
+		history_mgmt_open();
+		char *command = selection_loop(history);
+		history_mgmt_close();
+		fill_terminal_input(command, true);
+		free_prioritized_history();
+	} else {
+		printf("Empty shell history - nothing to suggest...\n");
+	}
 }
 
 int main(int argc, char *argv[])
