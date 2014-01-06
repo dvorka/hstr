@@ -7,6 +7,7 @@
  ============================================================================
 */
 
+#include <stdio.h>
 #include <readline/history.h>
 #include "include/hstr_history.h"
 

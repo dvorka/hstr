@@ -7,6 +7,8 @@
  ============================================================================
 */
 
+#define _GNU_SOURCE
+
 #include <curses.h>
 #include <stdbool.h>
 #include <stddef.h>
