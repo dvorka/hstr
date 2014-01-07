@@ -27,7 +27,7 @@ SOURCE CODE INSTALLATION
 * Configure `hh` as described below. 
 
 
-UBUNTU 13.04 INSTALLATION
+UBUNTU 12.10/13.04/13.10 INSTALLATION
 -------------------------
 * install `hh` on Ubuntu:
 
