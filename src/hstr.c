@@ -64,7 +64,7 @@ static const char *INSTALL_STRING=
 		 "\n\n";
 
 static const char *BUILD_STRING=
-		"Build: "__DATE__" " __TIME__"";
+		"HH build: "__DATE__" " __TIME__"";
 
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit";
@@ -200,7 +200,7 @@ char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, Histo
 	move(Y_OFFSET_ITEMS, 0);
 	wclrtobot(win);
 
-	char *p, *pdup;
+	char *p;
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
 			snprintf(screenLine, width, " %s", selection[i]);
@@ -436,7 +436,7 @@ void install_write()
 
 void install_show()
 {
-	printf("%s", INSTALL_STRING);
+	printf("# %s\n%s", BUILD_STRING, INSTALL_STRING);
 }
 
 void hstr()
