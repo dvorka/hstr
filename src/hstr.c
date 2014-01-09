@@ -22,7 +22,6 @@
 #include "include/hstr_utils.h"
 #include "include/hstr_history.h"
 
-#define LABEL_HISTORY " HISTORY "
 #define FILE_BASHRC ".bashrc"
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 500
@@ -67,63 +66,69 @@ static const char *BUILD_STRING=
 		"HH build: "__DATE__" " __TIME__"";
 
 static const char *LABEL_HELP=
-		 "Type to filter, UP/DOWN to move, Ctrl-r to remove, ENTER to select, Ctrl-x to exit";
+		 "Type to filter, UP/DOWN to move, C-r to remove, ENTER to select, C-x to exit";
 
 static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool terminalHasColors=FALSE;
+static bool caseSensitive=FALSE;
+static bool defaultOrder=FALSE;
 static char screenLine[1000];
 
-int print_prompt(WINDOW *win)
+int print_prompt()
 {
 	char *hostname = get_hostname();
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
 
-	mvwprintw(win, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
+	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
 	refresh();
 
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
 }
 
-void print_help_label(WINDOW *win)
+void print_help_label()
 {
-	snprintf(screenLine, getmaxx(win), "%s", LABEL_HELP);
-	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
+	snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
+	mvwprintw(stdscr, Y_OFFSET_HELP, 0, screenLine);
 	refresh();
 }
 
-void print_cmd_deleted_label(WINDOW *win, char *cmd, int occurences)
+void print_cmd_deleted_label(char *cmd, int occurences)
 {
-	snprintf(screenLine, getmaxx(win), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
-	mvwprintw(win, Y_OFFSET_HELP, 0, screenLine);
+	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+	mvwprintw(stdscr, Y_OFFSET_HELP, 0, screenLine);
 	clrtoeol();
 	refresh();
 }
 
-void print_history_label(WINDOW *win)
+// make this status row
+void print_history_label(HistoryItems *history)
 {
-	char message[512];
-
-	int width=getmaxx(win);
-
-	strcpy(message, LABEL_HISTORY);
-	width -= strlen(LABEL_HISTORY);
+	sprintf(screenLine, "- HISTORY - case:%s (C-i) - order:%s (C-h) - %d/%d ",
+			(caseSensitive?"sensitive":"insensitive"),
+			(defaultOrder?"history":"ranking"),
+			history->count,
+			history->rawCount);
+	int width=getmaxx(stdscr);
+	width -= strlen(screenLine);
+	if(width<0) {
+		width = 0;
+		screenLine[getmaxx(stdscr)]=0;
+	}
 	unsigned i;
 	for (i=0; i < width; i++) {
-		strcat(message, " ");
+		strcat(screenLine, "-");
 	}
-
-	wattron(win, A_REVERSE);
-	mvwprintw(win, Y_OFFSET_HISTORY, 0, message);
-	wattroff(win, A_REVERSE);
-
+	wattron(stdscr, A_REVERSE);
+	mvwprintw(stdscr, Y_OFFSET_HISTORY, 0, screenLine);
+	wattroff(stdscr, A_REVERSE);
 	refresh();
 }
 
-unsigned get_max_history_items(WINDOW *win)
+unsigned get_max_history_items()
 {
-	return (getmaxy(win)-Y_OFFSET_ITEMS);
+	return (getmaxy(stdscr)-Y_OFFSET_ITEMS);
 }
 
 
@@ -139,11 +144,11 @@ void alloc_selection(unsigned size)
 	}
 }
 
-unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, bool caseSensitive, bool raw)
+unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount)
 {
 	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
 	unsigned i, selectionCount=0;
-	char **source=(raw?history->raw:history->items);
+	char **source=(defaultOrder?history->raw:history->items);
 
 	for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
@@ -184,67 +189,6 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-char *print_selection(WINDOW *win, unsigned maxHistoryItems, char *prefix, HistoryItems *history, bool caseSensitive, bool raw)
-{
-	char *result="";
-	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems, caseSensitive, raw);
-	if (selectionCount > 0) {
-		result = selection[0];
-	}
-
-	int height=get_max_history_items(win);
-	int width=getmaxx(win);
-	unsigned i;
-	int y=Y_OFFSET_ITEMS;
-
-	move(Y_OFFSET_ITEMS, 0);
-	wclrtobot(win);
-
-	char *p;
-	for (i = 0; i<height; ++i) {
-		if(i<selectionSize) {
-			snprintf(screenLine, width, " %s", selection[i]);
-			mvwprintw(win, y++, 0, screenLine);
-			if(prefix!=NULL && strlen(prefix)>0) {
-				wattron(win,A_BOLD);
-				if(caseSensitive) {
-					p=strstr(selection[i], prefix);
-					mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", prefix);
-				} else {
-					p=strcasestr(selection[i], prefix);
-					snprintf(screenLine, strlen(prefix)+1, "%s", p);
-					mvwprintw(win, (y-1), 1+(p-selection[i]), "%s", screenLine);
-				}
-
-				wattroff(win,A_BOLD);
-			}
-		} else {
-			mvwprintw(win, y++, 0, " ");
-		}
-	}
-	refresh();
-
-	return result;
-}
-
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition)
-{
-	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-		mvprintw(Y_OFFSET_ITEMS+previousSelectionCursorPosition, 0, " ");
-	}
-	if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-		mvprintw(Y_OFFSET_ITEMS+selectionCursorPosition, 0, ">");
-	}
-}
-
-void color_start()
-{
-	terminalHasColors=has_colors();
-	if(terminalHasColors) {
-		start_color();
-	}
-}
-
 void color_init_pair(short int x, short int y, short int z)
 {
 	if(terminalHasColors) {
@@ -256,6 +200,87 @@ void color_attr_on(int c)
 {
 	if(terminalHasColors) {
 		attron(c);
+	}
+}
+
+void print_selection_row(char *text, int y, int width, char *prefix) {
+	snprintf(screenLine, width, " %s", text);
+	mvwprintw(stdscr, y, 0, screenLine);
+	if(prefix!=NULL && strlen(prefix)>0) {
+		wattron(stdscr,A_BOLD);
+		char *p;
+		if(caseSensitive) {
+			p=strstr(text, prefix);
+			mvwprintw(stdscr, y, 1+(p-text), "%s", prefix);
+		} else {
+			p=strcasestr(text, prefix);
+			snprintf(screenLine, strlen(prefix)+1, "%s", p);
+			mvwprintw(stdscr, y, 1+(p-text), "%s", screenLine);
+		}
+		wattroff(stdscr,A_BOLD);
+	}
+
+}
+
+void print_highlighted_selection_row(char *text, int y, int width) {
+	wattron(stdscr, A_REVERSE);
+	wattron(stdscr, A_BOLD);
+	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminalHasColors?" ":">"), text);
+	mvprintw(y, 0, "%s", screenLine);
+	wattroff(stdscr, A_BOLD);
+	wattroff(stdscr, A_REVERSE);
+}
+
+char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *history)
+{
+	char *result="";
+	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
+	if (selectionCount > 0) {
+		result = selection[0];
+	}
+
+	int height=get_max_history_items(stdscr);
+	int width=getmaxx(stdscr);
+	unsigned i;
+	int y=Y_OFFSET_ITEMS;
+
+	move(Y_OFFSET_ITEMS, 0);
+	wclrtobot(stdscr);
+
+	for (i = 0; i<height; ++i) {
+		if(i<selectionSize) {
+			print_selection_row(selection[i], y++, width, prefix);
+		} else {
+			mvwprintw(stdscr, y++, 0, " ");
+		}
+	}
+	refresh();
+
+	return result;
+}
+
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *prefix)
+{
+	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+		print_selection_row(
+				selection[previousSelectionCursorPosition],
+				Y_OFFSET_ITEMS+previousSelectionCursorPosition,
+				getmaxx(stdscr),
+				prefix);
+	}
+	if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+		print_highlighted_selection_row(
+				selection[selectionCursorPosition],
+				Y_OFFSET_ITEMS+selectionCursorPosition,
+				getmaxx(stdscr));
+	}
+}
+
+void color_start()
+{
+	terminalHasColors=has_colors();
+	if(terminalHasColors) {
+		start_color();
 	}
 }
 
@@ -287,11 +312,9 @@ char *selection_loop(HistoryItems *history)
 
 	color_init_pair(1, COLOR_WHITE, COLOR_BLACK);
 	color_attr_on(COLOR_PAIR(1));
-	print_history_label(stdscr);
-	print_help_label(stdscr);
-	bool caseSensitive=FALSE;
-	bool raw=FALSE;
-	print_selection(stdscr, get_max_history_items(stdscr), NULL, history, caseSensitive, raw);
+	print_history_label(history);
+	print_help_label();
+	print_selection(get_max_history_items(stdscr), NULL, history);
 	int basex = print_prompt(stdscr);
 	int x = basex;
 	int width=getmaxx(stdscr);
@@ -313,6 +336,9 @@ char *selection_loop(HistoryItems *history)
 
 		switch (c) {
 		case KEY_RESIZE:
+			print_history_label(history);
+			move(y, basex+strlen(prefix));
+			break;
 		case K_CTRL_A:
 		case K_CTRL_E:
 		case K_ARROW_LEFT:
@@ -326,10 +352,11 @@ char *selection_loop(HistoryItems *history)
 				strcpy(msg,delete);
 				selection_remove(delete, history);
 				deleteOccurences=history_mgmt_remove(delete);
-				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
-				print_cmd_deleted_label(stdscr, msg, deleteOccurences);
+				result = print_selection(maxHistoryItems, prefix, history);
+				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
+			print_history_label(history);
 			break;
 		case KEY_BACKSPACE:
 		case K_BACKSPACE:
@@ -343,11 +370,11 @@ char *selection_loop(HistoryItems *history)
 			}
 
 			if(strlen(prefix)>0) {
-				make_selection(prefix, history, maxHistoryItems, caseSensitive, raw);
+				make_selection(prefix, history, maxHistoryItems);
 			} else {
-				make_selection(NULL, history, maxHistoryItems, caseSensitive, raw);
+				make_selection(NULL, history, maxHistoryItems);
 			}
-			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
+			result = print_selection(maxHistoryItems, prefix, history);
 
 			move(y, basex+strlen(prefix));
 			break;
@@ -359,7 +386,8 @@ char *selection_loop(HistoryItems *history)
 			} else {
 				selectionCursorPosition=selectionSize-1;
 			}
-			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
+			move(y, basex+strlen(prefix));
 			break;
 		case KEY_DOWN:
 		case K_DOWN:
@@ -373,7 +401,8 @@ char *selection_loop(HistoryItems *history)
 					selectionCursorPosition=0;
 				}
 			}
-			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition);
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
+			move(y, basex+strlen(prefix));
 			break;
 		case KEY_ENTER:
 		case K_ENTER:
@@ -385,10 +414,13 @@ char *selection_loop(HistoryItems *history)
 			break;
 		case K_CTRL_I:
 			caseSensitive=!caseSensitive;
+			result = print_selection(maxHistoryItems, prefix, history);
+			print_history_label(history);
 			break;
 		case K_CTRL_H:
-			raw=!raw;
-			result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
+			defaultOrder=!defaultOrder;
+			result = print_selection(maxHistoryItems, prefix, history);
+			print_history_label(history);
 			break;
 		case K_CTRL_X:
 			result = NULL;
@@ -411,7 +443,7 @@ char *selection_loop(HistoryItems *history)
 					clrtoeol();
 				}
 
-				result = print_selection(stdscr, maxHistoryItems, prefix, history, caseSensitive, raw);
+				result = print_selection(maxHistoryItems, prefix, history);
 				move(cursorY, cursorX);
 				refresh();
 			}

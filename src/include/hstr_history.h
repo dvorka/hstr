@@ -31,6 +31,7 @@ typedef struct {
 	char **items;
 	char **raw;
 	unsigned count;
+	unsigned rawCount;
 } HistoryItems;
 
 HistoryItems *get_prioritized_history();

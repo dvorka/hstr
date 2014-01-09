@@ -123,6 +123,7 @@ HistoryItems *get_prioritized_history()
 		RadixItem **prioritizedRadix=radixsort_dump(&rs);
 		prioritizedHistory=malloc(sizeof(HistoryItems));
 		prioritizedHistory->count=rs.size;
+		prioritizedHistory->rawCount=historyState->length;
 		prioritizedHistory->items=malloc(rs.size * sizeof(char*));
 		prioritizedHistory->raw=rawHistory;
 		for(i=0; i<rs.size; i++) {
