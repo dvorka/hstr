@@ -10,6 +10,7 @@
 #define _GNU_SOURCE
 
 #include <curses.h>
+#include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
 #include <stdio.h>
@@ -305,8 +306,22 @@ void selection_remove(char *cmd, HistoryItems *history)
 	}
 }
 
+void hstr_on_exit(char *command) {
+	history_mgmt_close();
+	fill_terminal_input(command, true);
+	free_prioritized_history();
+}
+
+void signal_callback_handler_ctrl_c(int signum)
+{
+	hstr_on_exit(NULL);
+	exit(signum);
+}
+
 char *selection_loop(HistoryItems *history)
 {
+	//signal(SIGINT, signal_callback_handler_ctrl_c);
+
 	initscr();
 	color_start();
 
@@ -477,9 +492,7 @@ void hstr()
 	if(history) {
 		history_mgmt_open();
 		char *command = selection_loop(history);
-		history_mgmt_close();
-		fill_terminal_input(command, true);
-		free_prioritized_history();
+		hstr_on_exit(command);
 	} else {
 		printf("Empty shell history - nothing to suggest...\n");
 	}
