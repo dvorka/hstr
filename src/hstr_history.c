@@ -21,6 +21,7 @@ typedef struct {
 
 static HistoryItems *prioritizedHistory;
 static bool dirty;
+#define BLACKLIST_SIZE 5
 static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh", "mc"};
 
 #ifdef DEBUG_RADIX
@@ -74,7 +75,7 @@ HistoryItems *get_prioritized_history()
 		HashSet blacklist;
 		int i;
 		hashset_init(&blacklist);
-		for(i=0; i<4; i++) {
+		for(i=0; i<BLACKLIST_SIZE; i++) {
 			hashset_add(&blacklist, commandBlacklist[i]);
 		}
 
