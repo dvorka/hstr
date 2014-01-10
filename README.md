@@ -10,21 +10,12 @@ from the history. It aims to make completion easier and faster
 than Ctrl-R.
 
 
-[![Shell History Suggest Box](http://mindforger.com/projects/images/hh.png "Shell History Suggest Box")](https://github.com/dvorka/hstr)
+[![Shell History Suggest Box](http://mindforger.com/projects/images/hh.png "Shell History Suggest Box")](http://mindforger.com/projects/images/hh.png)
 
 
 DOWNLOAD
 --------
 https://github.com/dvorka/hstr/releases
-
-
-SOURCE CODE INSTALLATION
-------------------------
-* download distribution, expand it and install `hh`:
-
-    `./configure && make && make install`
-
-* Configure `hh` as described below. 
 
 
 UBUNTU 12.10/13.04/13.10 INSTALLATION
@@ -36,6 +27,17 @@ UBUNTU 12.10/13.04/13.10 INSTALLATION
     `sudo apt-get update`
 
     `sudo apt-get install hh`
+
+* Configure `hh` as described below. 
+
+
+SOURCE CODE INSTALLATION
+------------------------
+* download distribution (project Releases section), expand the archive and install `hh`:
+
+    `./configure && make && make install`
+
+* Configure `hh` as described below. 
 
 
 CONFIGURATION

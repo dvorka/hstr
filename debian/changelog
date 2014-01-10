@@ -1,5 +1,5 @@
-hh (0.72-0ubuntu1) raring; urgency=low
+hh (0.80-0ubuntu1) raring; urgency=low
 
-  * Case insensitive search with ctrl-i toggle.
+  * Highlighted selection row and metrics/history ordering.
 
  -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  Wed, 25 Dec 2013 17:21:31 +0100
