@@ -13,11 +13,6 @@ than Ctrl-R.
 [![Shell History Suggest Box](http://mindforger.com/projects/images/hh-1.jpg "Shell History Suggest Box")](http://mindforger.com/projects/images/hh-1.jpg)
 
 
-DOWNLOAD
---------
-https://github.com/dvorka/hstr/releases
-
-
 UBUNTU 12.10/13.04/13.10 INSTALLATION
 -------------------------
 * install `hh` on Ubuntu:
@@ -29,6 +24,11 @@ UBUNTU 12.10/13.04/13.10 INSTALLATION
     `sudo apt-get install hh`
 
 * Configure `hh` as described below. 
+
+
+DOWNLOAD
+--------
+https://github.com/dvorka/hstr/releases
 
 
 SOURCE CODE INSTALLATION
