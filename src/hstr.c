@@ -58,6 +58,7 @@
 #endif
 
 static const char *INSTALL_STRING=
+                 "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
 		 "\nshopt -s histappend"
 		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
 		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
@@ -314,13 +315,16 @@ void hstr_on_exit(char *command) {
 
 void signal_callback_handler_ctrl_c(int signum)
 {
-	hstr_on_exit(NULL);
-	exit(signum);
+	if(signum==SIGINT) {
+		endwin();
+		hstr_on_exit(NULL);
+		exit(signum);
+	}
 }
 
 char *selection_loop(HistoryItems *history)
 {
-	//signal(SIGINT, signal_callback_handler_ctrl_c);
+	signal(SIGINT, signal_callback_handler_ctrl_c);
 
 	initscr();
 	color_start();
