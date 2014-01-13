@@ -40,6 +40,21 @@ SOURCE CODE INSTALLATION
 * Configure `hh` as described below. 
 
 
+MAC OS
+------
+* install http://www.macports.org
+* configure using:
+
+   `env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure`
+
+* finish the installation
+
+    `make && make install`
+
+* Configure `hh` as described below. 
+
+
+
 CONFIGURATION
 ------------
 * add 

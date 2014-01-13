@@ -83,7 +83,7 @@ int print_prompt()
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
 
-	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
+	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s:$ ", user, hostname);
 	refresh();
 
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
