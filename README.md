@@ -46,7 +46,10 @@ SOURCE CODE INSTALLATION
 
 MAC OS
 ------
-* install http://www.macports.org
+* install MacPorts:
+
+   http://www.macports.org
+
 * configure using:
 
    `env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure`
@@ -74,11 +77,11 @@ CONFIGURATION EXPLANATION
 
 * binding of `hh` to a BASH key (e.g. to `Ctrl-R`):
 
-    `bind '"\C-r": "\C-k\C-uhh\C-j"'`
+    `bind '"\C-r": "\C-ahh \C-j"'`
 
   `Ctrl-F12` would be:
 
-    `bind '"\e[24;5~":"\C-k\C-uhh\C-j"'`
+    `bind '"\e[24;5~":"\C-ahh \C-j"'`
 
   To determine the character sequence emitted by a pressed key in terminal, 
   type CTRL-v and then press the key. Check your current bindings using:

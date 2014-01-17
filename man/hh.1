@@ -1,8 +1,8 @@
 .TH HH 1
 .SH NAME
-\fBhh\fR \- suggest commands from shell history
+\fBhh\fR \- shell history suggest box
 .SH SYNOPSIS
-.B hh
+.B hh [OPTION] [ARG1] [ARG2]...
 .SH DESCRIPTION
 .B hh
 uses shell history to provide suggest box like functionality
@@ -11,6 +11,10 @@ file that is filtered as you type a command substring. Commands
 are not just filtered, but also ordered by a ranking algorithm
 that considers number of occurences, length and timestamp. In addition
 hh allows removal of commands from history - for instance with a typo or with a sensitive content.
+.SH OPTIONNS
+.TP 
+\fB--show-configuration\fR
+Show configuration to be added to .bashrc
 .SH COMMANDS
 .TP 
 \fBpattern\fR
@@ -39,7 +43,7 @@ Add the following lines to ~/.bashrc:
 .sp
 shopt -s histappend
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
-bind '"\eC\-r": "\eC\-k\eC\-uhh\eC-j"'
+bind '"\eC\-r": "\eC\-ahh \eC-j"'
 .sp
 .fi
 .SH AUTHOR
