@@ -2,7 +2,7 @@
 .SH NAME
 \fBhh\fR \- shell history suggest box
 .SH SYNOPSIS
-.B hh [OPTION] [ARG1] [ARG2]...
+.B hh [option] [arg1] [arg2]...
 .SH DESCRIPTION
 .B hh
 uses shell history to provide suggest box like functionality
@@ -17,7 +17,7 @@ hh allows removal of commands from history - for instance with a typo or with a 
 Show configuration to be added to .bashrc
 .SH COMMANDS
 .TP 
-\fBpattern\fR
+\fBpattern\fR\eC\-u
 Type to filter shell history.
 .TP 
 \fBCtrl\-i\fR
@@ -46,6 +46,10 @@ export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
 bind '"\eC\-r": "\eC\-ahh \eC-j"'
 .sp
 .fi
+The first command ensures that new history items are appended to .bash_history
+(instead of overwriting). The second command ensures synchronization of the
+history between memory and file system. The third command binds hh to
+Ctrl-r shortcut.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS
