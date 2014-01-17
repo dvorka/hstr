@@ -26,6 +26,7 @@
 #define FILE_BASHRC ".bashrc"
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 500
+#define CMDLINE_LNG 250
 
 #define Y_OFFSET_PROMPT 0
 #define Y_OFFSET_HELP 2
@@ -76,6 +77,7 @@ static bool terminalHasColors=FALSE;
 static bool caseSensitive=FALSE;
 static bool defaultOrder=FALSE;
 static char screenLine[1000];
+static char cmdline[CMDLINE_LNG];
 
 int print_prompt()
 {
@@ -83,7 +85,7 @@ int print_prompt()
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
 
-	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s:$ ", user, hostname);
+	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
 	refresh();
 
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
@@ -343,15 +345,21 @@ char *selection_loop(HistoryItems *history)
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
 	int y = 1, c, maxHistoryItems, cursorX=0, cursorY=0, deleteOccurences;
-	bool done = FALSE;
-	char prefix[SELECTION_PREFIX_MAX_LNG]="";
+	bool done = FALSE, skip=TRUE;
+	char prefix[SELECTION_PREFIX_MAX_LNG];
+	prefix[0]=0;
+	strcpy(prefix, cmdline);
 	char *result="", *msg, *delete;
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
 		noecho();
-		c = wgetch(stdscr);
-		echo();
+		if(!skip) {
+			c = wgetch(stdscr);
+		} else {
+			skip=FALSE;
+		}
+		//echo();
 
 		switch (c) {
 		case KEY_RESIZE:
@@ -502,13 +510,39 @@ void hstr()
 	}
 }
 
+void assemble_cmdline(int argc, char *argv[]) {
+	int i;
+	cmdline[0]=0;
+	for(i=1; i<argc; i++) {
+		if((strlen(cmdline)+strlen(argv[i])*2)>CMDLINE_LNG) break;
+		printf("%d %s\n", i, argv[i]);
+		if(strstr(argv[i], " ")) {
+			strcat(cmdline, "\"");
+		}
+		strcat(cmdline, argv[i]);
+		if(strstr(argv[i], " ")) {
+			strcat(cmdline, "\"");
+		}
+		if((i+1<argc)) {
+			strcat(cmdline, " ");
+		}
+	}
+}
+
 int main(int argc, char *argv[])
 {
-	if(argc>1) {
-		install_show();
+	if(argc>0) {
+		if(argc==1 && strstr(argv[1], "--show-configuration")) {
+			install_show();
+		} else {
+			assemble_cmdline(argc, argv);
+			hstr();
+		}
 	} else {
+		cmdline[0]=0;
 		hstr();
 	}
+
 	return EXIT_SUCCESS;
 }
 
