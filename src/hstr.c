@@ -532,7 +532,7 @@ void assemble_cmdline(int argc, char *argv[]) {
 int main(int argc, char *argv[])
 {
 	if(argc>0) {
-		if(argc==1 && strstr(argv[1], "--show-configuration")) {
+		if(argc==2 && strstr(argv[1], "--show-configuration")) {
 			install_show();
 		} else {
 			assemble_cmdline(argc, argv);
