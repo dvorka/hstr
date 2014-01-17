@@ -62,7 +62,7 @@ static const char *INSTALL_STRING=
                  "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
 		 "\nshopt -s histappend"
 		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
-		 "\nbind '\"\\C-r\": \"\\C-k\\C-uhh\\C-j\"'"
+		 "\nbind '\"\\C-r\": \"\\C-ahh \\C-j\"'"
 		 "\n\n";
 
 static const char *BUILD_STRING=
