@@ -1,1 +1,1 @@
-gcc test_args.c -o test_args
+gcc ./src/test_args.c -o _args
