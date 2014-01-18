@@ -49,6 +49,10 @@
 #define K_ENTER 10
 #define K_ESC 27
 
+#define color_attr_on(C) if(terminalHasColors) { attron(C); }
+#define color_attr_off(C) if(terminalHasColors) { attroff(C); }
+#define color_init_pair(X, Y, Z) if(terminalHasColors) { init_pair(X, Y, Z); }
+
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
 #else
@@ -88,7 +92,7 @@ int print_prompt()
 	char *user = getenv(ENV_VAR_USER);
 	int xoffset = 1;
 
-	mvwprintw(stdscr, xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
+	mvprintw(xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
 	refresh();
 
 	return xoffset+strlen(user)+1+strlen(hostname)+1;
@@ -97,14 +101,14 @@ int print_prompt()
 void print_help_label()
 {
 	snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
-	mvwprintw(stdscr, Y_OFFSET_HELP, 0, screenLine);
+	mvprintw(Y_OFFSET_HELP, 0, screenLine);
 	refresh();
 }
 
 void print_cmd_deleted_label(char *cmd, int occurences)
 {
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
-	mvwprintw(stdscr, Y_OFFSET_HELP, 0, screenLine);
+	mvprintw(Y_OFFSET_HELP, 0, screenLine);
 	clrtoeol();
 	refresh();
 }
@@ -127,9 +131,9 @@ void print_history_label(HistoryItems *history)
 	for (i=0; i < width; i++) {
 		strcat(screenLine, "-");
 	}
-	wattron(stdscr, A_REVERSE);
-	mvwprintw(stdscr, Y_OFFSET_HISTORY, 0, screenLine);
-	wattroff(stdscr, A_REVERSE);
+	color_attr_on(A_REVERSE);
+	mvprintw(Y_OFFSET_HISTORY, 0, screenLine);
+	color_attr_off(A_REVERSE);
 	refresh();
 }
 
@@ -196,46 +200,32 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-void color_init_pair(short int x, short int y, short int z)
-{
-	if(terminalHasColors) {
-		init_pair(x, y, z);
-	}
-}
-
-void color_attr_on(int c)
-{
-	if(terminalHasColors) {
-		attron(c);
-	}
-}
-
 void print_selection_row(char *text, int y, int width, char *prefix) {
 	snprintf(screenLine, width, " %s", text);
-	mvwprintw(stdscr, y, 0, screenLine);
+	mvprintw(y, 0, screenLine);
 	if(prefix!=NULL && strlen(prefix)>0) {
-		wattron(stdscr,A_BOLD);
+		color_attr_on(A_BOLD);
 		char *p;
 		if(caseSensitive) {
 			p=strstr(text, prefix);
-			mvwprintw(stdscr, y, 1+(p-text), "%s", prefix);
+			mvprintw(y, 1+(p-text), "%s", prefix);
 		} else {
 			p=strcasestr(text, prefix);
 			snprintf(screenLine, strlen(prefix)+1, "%s", p);
-			mvwprintw(stdscr, y, 1+(p-text), "%s", screenLine);
+			mvprintw(y, 1+(p-text), "%s", screenLine);
 		}
-		wattroff(stdscr,A_BOLD);
+		color_attr_off(A_BOLD);
 	}
 
 }
 
 void print_highlighted_selection_row(char *text, int y, int width) {
-	wattron(stdscr, A_REVERSE);
-	wattron(stdscr, A_BOLD);
+	color_attr_on(A_REVERSE);
+	color_attr_on(A_BOLD);
 	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminalHasColors?" ":">"), text);
 	mvprintw(y, 0, "%s", screenLine);
-	wattroff(stdscr, A_BOLD);
-	wattroff(stdscr, A_REVERSE);
+	color_attr_off(A_BOLD);
+	color_attr_off(A_REVERSE);
 }
 
 char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *history)
@@ -252,13 +242,13 @@ char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *hist
 	int y=Y_OFFSET_ITEMS;
 
 	move(Y_OFFSET_ITEMS, 0);
-	wclrtobot(stdscr);
+	clrtobot();
 
 	for (i = 0; i<height; ++i) {
 		if(i<selectionSize) {
 			print_selection_row(selection[i], y++, width, prefix);
 		} else {
-			mvwprintw(stdscr, y++, 0, " ");
+			mvprintw(y++, 0, " ");
 		}
 	}
 	refresh();
@@ -288,13 +278,6 @@ void color_start()
 	terminalHasColors=has_colors();
 	if(terminalHasColors) {
 		start_color();
-	}
-}
-
-void color_attr_off(int c)
-{
-	if(terminalHasColors) {
-		attroff(c);
 	}
 }
 
@@ -413,9 +396,9 @@ char *selection_loop(HistoryItems *history)
 			if(strlen(prefix)>0) {
 				prefix[strlen(prefix)-1]=0;
 				x--;
-				wattron(stdscr,A_BOLD);
+				color_attr_on(A_BOLD);
 				mvprintw(y, basex, "%s", prefix);
-				wattroff(stdscr,A_BOLD);
+				color_attr_off(A_BOLD);
 				clrtoeol();
 			}
 
@@ -478,11 +461,11 @@ char *selection_loop(HistoryItems *history)
 
 				if(strlen(prefix)<(width-basex-1)) {
 					strcat(prefix, (char*)(&c));
-					wattron(stdscr,A_BOLD);
+					color_attr_on(A_BOLD);
 					mvprintw(y, basex, "%s", prefix);
 					cursorX=getcurx(stdscr);
 					cursorY=getcury(stdscr);
-					wattroff(stdscr,A_BOLD);
+					color_attr_off(A_BOLD);
 					clrtoeol();
 				}
 
