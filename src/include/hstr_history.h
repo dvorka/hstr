@@ -43,6 +43,7 @@ HistoryItems *prioritize_history(HistoryItems *historyFileItems);
 void free_prioritized_history();
 
 void history_mgmt_open();
+void history_clear_dirty();
 int history_mgmt_remove(char *cmd);
 void history_mgmt_close();
 

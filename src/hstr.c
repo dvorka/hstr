@@ -34,29 +34,26 @@
 #define Y_OFFSET_HISTORY 3
 #define Y_OFFSET_ITEMS 4
 
-#define K_ESC 91
-#define K_ALT 27
-
 #define K_CTRL_A 1
 #define K_CTRL_E 5
+#define K_CTRL_G 7
 #define K_CTRL_H 8
-#define K_CTRL_I 9
 #define K_CTRL_R 18
+#define K_CTRL_T 20
+#define K_CTRL_U 21
 #define K_CTRL_X 24
+#define K_CTRL_Z 26
 
-#define K_ARROW_LEFT 68
-#define K_ARROW_RIGHT 67
-#define K_ARROW_UP 65
-#define K_ARROW_DOWN 66
+#define K_TAB 9
 
 #define K_ENTER 10
-#define K_BACKSPACE 127
+#define K_ALT 27
 
 #define DEBUG_KEYS
 #ifdef DEBUG_KEYS
-#define LOGKEYS(Y,KEY, BRANCH) mvprintw(Y, 0, "%s Key number: '%3d' / Char: '%c'", BRANCH, KEY, KEY)
+#define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
 #else
-#define LOGKEYS(Y,KEY, BRANCH)
+#define LOGKEYS(Y,KEY)
 #endif
 
 #ifdef DEBUG_CURPOS
@@ -66,7 +63,7 @@
 #endif
 
 static const char *INSTALL_STRING=
-                 "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
+         "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
 		 "\nshopt -s histappend"
 		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
 		 "\nbind '\"\\C-r\": \"\\C-ahh \\C-j\"'"
@@ -116,7 +113,7 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 // make this status row
 void print_history_label(HistoryItems *history)
 {
-	sprintf(screenLine, "- HISTORY - case:%s (C-i) - order:%s (C-h) - %d/%d ",
+	sprintf(screenLine, "- HISTORY - case:%s (C-u) - order:%s (C-h) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
 			(defaultOrder?"history":"ranking"),
 			history->count,
@@ -331,11 +328,22 @@ void signal_callback_handler_ctrl_c(int signum)
 	}
 }
 
+char *prepare_result(int selectionCursorPosition, bool executeResult)
+{
+	cmdline[0]=0;
+	strcpy(cmdline,selection[selectionCursorPosition]);
+	if(executeResult) strcat(cmdline,"\n");
+	alloc_selection(0);
+	return cmdline;
+}
+
 char *selection_loop(HistoryItems *history)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
 
 	initscr();
+	keypad(stdscr, TRUE);
+	noecho();
 	color_start();
 	color_init_pair(1, COLOR_WHITE, COLOR_BLACK);
 	color_attr_on(COLOR_PAIR(1));
@@ -343,156 +351,142 @@ char *selection_loop(HistoryItems *history)
 	print_history_label(history);
 	print_help_label();
 	print_selection(get_max_history_items(stdscr), NULL, history);
-	int basex = print_prompt(stdscr);
-	int x = basex;
-	int width=getmaxx(stdscr);
+
 	color_attr_off(COLOR_PAIR(1));
 
+	bool done=FALSE, skip=TRUE, executeResult=FALSE;
+	int basex=print_prompt(stdscr);
+	int x=basex, y=1, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
+	int width=getmaxx(stdscr);
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-
-	int y = 1, c, maxHistoryItems, cursorX=0, cursorY=0, deleteOccurences;
-	bool done = FALSE, skip=TRUE;
+	char *result="", *msg, *delete;
 	char prefix[SELECTION_PREFIX_MAX_LNG];
 	prefix[0]=0;
 	strcpy(prefix, cmdline);
-	char *result="", *msg, *delete;
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
-		noecho();
 		if(!skip) {
 			c = wgetch(stdscr);
 		} else {
 			skip=FALSE;
-		}
-		//echo();
-
-		if(c==K_ALT) {
 			continue;
 		}
 
-		if(CTRL_CHAR(c)) {
-			switch (c) {
-			case K_CTRL_R:
-				if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-					delete=selection[selectionCursorPosition];
-					msg=malloc(strlen(delete)+1);
-					strcpy(msg,delete);
-					selection_remove(delete, history);
-					deleteOccurences=history_mgmt_remove(delete);
-					result = print_selection(maxHistoryItems, prefix, history);
-					print_cmd_deleted_label(msg, deleteOccurences);
-					move(y, basex+strlen(prefix));
-				}
-				print_history_label(history);
-				break;
-			case K_CTRL_I:
-				caseSensitive=!caseSensitive;
+		switch (c) {
+		case K_CTRL_R:
+			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+				delete=selection[selectionCursorPosition];
+				msg=malloc(strlen(delete)+1);
+				strcpy(msg,delete);
+				selection_remove(delete, history);
+				deleteOccurences=history_mgmt_remove(delete);
 				result = print_selection(maxHistoryItems, prefix, history);
-				print_history_label(history);
-				break;
-			case K_CTRL_H:
-				defaultOrder=!defaultOrder;
-				result = print_selection(maxHistoryItems, prefix, history);
-				print_history_label(history);
-				break;
-			case K_CTRL_X:
-				result = NULL;
-				done = TRUE;
-				break;
-			case KEY_ENTER:
-			case K_ENTER:
-				if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-					result=selection[selectionCursorPosition];
-					alloc_selection(0);
-				}
-				done = TRUE;
-				break;
-			default:
-				LOGKEYS(Y_OFFSET_HELP, c, "CTRL");
-				// skip
-				break;
-			}
-		} else {
-			switch (c) {
-			case KEY_RESIZE:
-				print_history_label(history);
+				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
-				break;
-			case KEY_BACKSPACE:
-			case K_BACKSPACE:
-				if(strlen(prefix)>0) {
-					prefix[strlen(prefix)-1]=0;
-					x--;
+			}
+			print_history_label(history);
+			break;
+		case K_CTRL_U:
+			caseSensitive=!caseSensitive;
+			result = print_selection(maxHistoryItems, prefix, history);
+			print_history_label(history);
+			break;
+		case K_CTRL_H:
+			defaultOrder=!defaultOrder;
+			result = print_selection(maxHistoryItems, prefix, history);
+			print_history_label(history);
+			break;
+		case K_CTRL_X:
+			result = NULL;
+			done = TRUE;
+			break;
+		case KEY_RESIZE:
+			print_history_label(history);
+			move(y, basex+strlen(prefix));
+			break;
+		case KEY_BACKSPACE:
+			if(strlen(prefix)>0) {
+				prefix[strlen(prefix)-1]=0;
+				x--;
+				wattron(stdscr,A_BOLD);
+				mvprintw(y, basex, "%s", prefix);
+				wattroff(stdscr,A_BOLD);
+				clrtoeol();
+			}
+
+			if(strlen(prefix)>0) {
+				make_selection(prefix, history, maxHistoryItems);
+			} else {
+				make_selection(NULL, history, maxHistoryItems);
+			}
+			result = print_selection(maxHistoryItems, prefix, history);
+
+			move(y, basex+strlen(prefix));
+			break;
+		case KEY_UP:
+			previousSelectionCursorPosition=selectionCursorPosition;
+			if(selectionCursorPosition>0) {
+				selectionCursorPosition--;
+			} else {
+				selectionCursorPosition=selectionSize-1;
+			}
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
+			move(y, basex+strlen(prefix));
+			break;
+		case KEY_DOWN:
+			if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
+				selectionCursorPosition=previousSelectionCursorPosition=0;
+			} else {
+				previousSelectionCursorPosition=selectionCursorPosition;
+				if((selectionCursorPosition+1)<selectionSize) {
+					selectionCursorPosition++;
+				} else {
+					selectionCursorPosition=0;
+				}
+			}
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
+			move(y, basex+strlen(prefix));
+			break;
+		case K_ENTER:
+		case KEY_ENTER:
+			executeResult=TRUE;
+		case K_TAB:
+		case KEY_LEFT:
+		case KEY_RIGHT:
+			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+				result=prepare_result(selectionCursorPosition, executeResult);
+			}
+			done = TRUE;
+			break;
+		case K_CTRL_G:
+			result="";
+			history_clear_dirty();
+			done=TRUE;
+			break;
+		default:
+			LOGKEYS(Y_OFFSET_HELP, c);
+			LOGCURSOR(Y_OFFSET_HELP);
+
+			if(c>K_CTRL_Z) {
+				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+
+				if(strlen(prefix)<(width-basex-1)) {
+					strcat(prefix, (char*)(&c));
 					wattron(stdscr,A_BOLD);
 					mvprintw(y, basex, "%s", prefix);
+					cursorX=getcurx(stdscr);
+					cursorY=getcury(stdscr);
 					wattroff(stdscr,A_BOLD);
 					clrtoeol();
 				}
 
-				if(strlen(prefix)>0) {
-					make_selection(prefix, history, maxHistoryItems);
-				} else {
-					make_selection(NULL, history, maxHistoryItems);
-				}
 				result = print_selection(maxHistoryItems, prefix, history);
-
-				move(y, basex+strlen(prefix));
-				break;
-			case KEY_UP:
-			case K_ARROW_UP:
-				previousSelectionCursorPosition=selectionCursorPosition;
-				if(selectionCursorPosition>0) {
-					selectionCursorPosition--;
-				} else {
-					selectionCursorPosition=selectionSize-1;
-				}
-				highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
-				move(y, basex+strlen(prefix));
-				break;
-			case KEY_DOWN:
-			case K_ARROW_DOWN:
-				if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
-					selectionCursorPosition=previousSelectionCursorPosition=0;
-				} else {
-					previousSelectionCursorPosition=selectionCursorPosition;
-					if((selectionCursorPosition+1)<selectionSize) {
-						selectionCursorPosition++;
-					} else {
-						selectionCursorPosition=0;
-					}
-				}
-				highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
-				move(y, basex+strlen(prefix));
-				break;
-			case K_ESC:
-			case K_ARROW_LEFT:
-			case K_ARROW_RIGHT:
-				break;
-			default:
-				LOGKEYS(Y_OFFSET_HELP, c, "ASCII");
-				LOGCURSOR(Y_OFFSET_HELP);
-
-				if(c!=27) { // TODO remove
-					selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-
-					if(strlen(prefix)<(width-basex-1)) {
-						strcat(prefix, (char*)(&c));
-						wattron(stdscr,A_BOLD);
-						mvprintw(y, basex, "%s", prefix);
-						cursorX=getcurx(stdscr);
-						cursorY=getcury(stdscr);
-						wattroff(stdscr,A_BOLD);
-						clrtoeol();
-					}
-
-					result = print_selection(maxHistoryItems, prefix, history);
-					move(cursorY, cursorX);
-					refresh();
-				}
-				break;
+				move(cursorY, cursorX);
+				refresh();
 			}
+			break;
 		}
 	}
 	endwin();
@@ -500,20 +494,27 @@ char *selection_loop(HistoryItems *history)
 	return result;
 }
 
-void install_write()
-{
-	char *home = getenv(ENV_VAR_HOME);
-	sprintf(screenLine, "%s/%s", home, FILE_BASHRC);
-	FILE *file = fopen(screenLine,"a");
-	fseek(file,0, SEEK_END);
-	fprintf(file,"%s",INSTALL_STRING);
-	fprintf(file,"%s","\n\n");
-	fclose(file);
-}
-
 void install_show()
 {
 	printf("# %s\n%s", BUILD_STRING, INSTALL_STRING);
+}
+
+void assemble_cmdline(int argc, char *argv[]) {
+	int i;
+	cmdline[0]=0;
+	for(i=1; i<argc; i++) {
+		if((strlen(cmdline)+strlen(argv[i])*2)>CMDLINE_LNG) break;
+		if(strstr(argv[i], " ")) {
+			strcat(cmdline, "\"");
+		}
+		strcat(cmdline, argv[i]);
+		if(strstr(argv[i], " ")) {
+			strcat(cmdline, "\"");
+		}
+		if((i+1<argc)) {
+			strcat(cmdline, " ");
+		}
+	}
 }
 
 void hstr()
@@ -525,25 +526,6 @@ void hstr()
 		hstr_on_exit(command);
 	} else {
 		printf("Empty shell history - nothing to suggest...\n");
-	}
-}
-
-void assemble_cmdline(int argc, char *argv[]) {
-	int i;
-	cmdline[0]=0;
-	for(i=1; i<argc; i++) {
-		if((strlen(cmdline)+strlen(argv[i])*2)>CMDLINE_LNG) break;
-		printf("%d %s\n", i, argv[i]);
-		if(strstr(argv[i], " ")) {
-			strcat(cmdline, "\"");
-		}
-		strcat(cmdline, argv[i]);
-		if(strstr(argv[i], " ")) {
-			strcat(cmdline, "\"");
-		}
-		if((i+1<argc)) {
-			strcat(cmdline, " ");
-		}
 	}
 }
 

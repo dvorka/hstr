@@ -24,7 +24,7 @@ void tiocsti()
 
 void fill_terminal_input(char *cmd, bool padding)
 {
-	if(cmd) {
+	if(cmd && strlen(cmd)>0) {
 		size_t size = strlen(cmd);
 		unsigned i;
 		char *c;

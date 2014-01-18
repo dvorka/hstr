@@ -154,6 +154,11 @@ void history_mgmt_open()
 	dirty=false;
 }
 
+void history_clear_dirty()
+{
+	dirty=false;
+}
+
 int history_mgmt_remove(char *cmd)
 {
 	int offset=history_search_pos(cmd, 0, 0), occurences=0;

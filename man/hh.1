@@ -17,10 +17,10 @@ hh allows removal of commands from history - for instance with a typo or with a 
 Show configuration to be added to .bashrc
 .SH COMMANDS
 .TP 
-\fBpattern\fR\eC\-u
+\fBpattern\fR
 Type to filter shell history.
 .TP 
-\fBCtrl\-i\fR
+\fBCtrl\-u\fR
 Toggle case sensitive search.
 .TP 
 \fBCtrl\-h\fR
@@ -29,14 +29,20 @@ Toggle history as provided by shell vs. ranked history ordered by the number of 
 \fBUP\fR arrow, \fBDOWN\fR arrow
 Navigate in the history list. 
 .TP
+\fBTAB\fR
+Choose currently selected item for completion and let user to edit it on the command prompt.
+.TP
 \fBENTER\fR
-Choose currently selected item for completion.
+Choose currently selected item for completion and execute it.
 .TP 
 \fBCtrl\-r\fR
 Remove currently selected item from the shell history.
 .TP
 \fBCtrl\-x\fR
 Write changes to shell history and exit.
+.TP
+\fBCtrl\-g\fR
+Exit with empty prompt.
 .SH INSTALLATION
 Add the following lines to ~/.bashrc:
 .nf
