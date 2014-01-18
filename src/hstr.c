@@ -112,7 +112,7 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 // make this status row
 void print_history_label(HistoryItems *history)
 {
-	sprintf(screenLine, "- HISTORY - case:%s (C-u) - order:%s (C-h) - %d/%d ",
+	sprintf(screenLine, "- HISTORY - case:%s (C-t) - order:%s (C-h) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
 			(defaultOrder?"history":"ranking"),
 			history->count,
@@ -387,7 +387,7 @@ char *selection_loop(HistoryItems *history)
 			}
 			print_history_label(history);
 			break;
-		case K_CTRL_U:
+		case K_CTRL_T:
 			caseSensitive=!caseSensitive;
 			result = print_selection(maxHistoryItems, prefix, history);
 			print_history_label(history);
@@ -405,6 +405,10 @@ char *selection_loop(HistoryItems *history)
 			print_history_label(history);
 			move(y, basex+strlen(prefix));
 			break;
+		case K_CTRL_U:
+			prefix[0]=0;
+			mvprintw(y, basex, "");
+			clrtoeol();
 		case KEY_BACKSPACE:
 			if(strlen(prefix)>0) {
 				prefix[strlen(prefix)-1]=0;
