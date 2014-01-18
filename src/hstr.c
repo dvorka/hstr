@@ -47,9 +47,8 @@
 #define K_TAB 9
 
 #define K_ENTER 10
-#define K_ALT 27
+#define K_ESC 27
 
-#define DEBUG_KEYS
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
 #else
@@ -461,6 +460,7 @@ char *selection_loop(HistoryItems *history)
 			done = TRUE;
 			break;
 		case K_CTRL_G:
+		case K_ESC:
 			result="";
 			history_clear_dirty();
 			done=TRUE;
