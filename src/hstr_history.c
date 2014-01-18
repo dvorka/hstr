@@ -8,6 +8,7 @@
 */
 
 #include <stdio.h>
+#include <limits.h>
 #include <readline/history.h>
 #include "include/hstr_history.h"
 
@@ -30,7 +31,11 @@ static const char *commandBlacklist[] = {"ls", "pwd", "cd", "hh", "mc"};
 #define DEBUG_RADIXSORT()
 #endif
 
-#define HISTORY_RANKING_FUNCTION(RANK,NEWOCCURENCEORDER,LNG) RANK+NEWOCCURENCEORDER/10+LNG
+unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t length) {
+	long metrics=rank+newOccurenceOrder/10+length;
+	assert(metrics<UINT_MAX);
+	return metrics;
+}
 
 char *get_history_file_name()
 {
@@ -96,7 +101,7 @@ HistoryItems *get_prioritized_history()
 			}
 			if((r=hashset_get(&rankmap, line))==NULL) {
 				r=malloc(sizeof(RankedHistoryItem));
-				r->rank=HISTORY_RANKING_FUNCTION(0, i, strlen(line));
+				r->rank=history_ranking_function(0, i, strlen(line));
 				r->item=historyList[i]->line;
 
 				hashset_put(&rankmap, line, r);
@@ -112,7 +117,7 @@ HistoryItems *get_prioritized_history()
 				assert(radixItem);
 
 				if(radixItem) {
-					r->rank=HISTORY_RANKING_FUNCTION(r->rank, i, strlen(line));
+					r->rank=history_ranking_function(r->rank, i, strlen(line));
 					radixItem->key=r->rank;
 					radixsort_add(&rs, radixItem);
 				}

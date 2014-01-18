@@ -45,7 +45,6 @@ void radixsort_add(RadixSorter *rs, RadixItem *item)
 	unsigned topIndex = GET_TOP_INDEX(item->key);
 	unsigned lowIndex = GET_LOW_INDEX(item->key);
 
-
 	if(!rs->topDigits[topIndex]) {
 		rs->topDigits[topIndex]=radixsort_get_slot(rs, topIndex);
 	}
