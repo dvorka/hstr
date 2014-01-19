@@ -13,5 +13,5 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Suggest box like shell history completion 
  A command line utility that brings improved shell command completion 
- from the history. It aims to make completion easier and faster than Ctrl-R.
+ from the history. It aims to make completion easier and faster than Ctrl-r.
 Tag: implemented-in::c++, interface::commandline, role::program

@@ -1,5 +1,5 @@
 hh (0.80-0ubuntu1) raring; urgency=low
 
-  * Highlighted selection row and metrics/history ordering.
+  * Fixed keyboard loop; Ctrl-r consistent shortcuts; propagation of the text from the prompt to HH.
 
  -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  Wed, 25 Dec 2013 17:21:31 +0100

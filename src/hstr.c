@@ -76,7 +76,7 @@ static const char *BUILD_STRING=
 		"HH build: "__DATE__" " __TIME__"";
 
 static const char *LABEL_HELP=
-		 "Type to filter, UP/DOWN to move, C-r to remove, ENTER to select, C-x to exit";
+		 "Type to filter, UP/DOWN to move, DEL to remove, TAB to select, C-g to cancel";
 
 static char **selection=NULL;
 static unsigned selectionSize=0;
@@ -357,7 +357,7 @@ char *selection_loop(HistoryItems *history)
 		}
 
 		switch (c) {
-		case K_CTRL_R:
+		case KEY_DC:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=selection[selectionCursorPosition];
 				msg=malloc(strlen(delete)+1);
@@ -421,6 +421,7 @@ char *selection_loop(HistoryItems *history)
 			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
 			move(y, basex+strlen(prefix));
 			break;
+		case K_CTRL_R:
 		case KEY_DOWN:
 			if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
 				selectionCursorPosition=previousSelectionCursorPosition=0;
