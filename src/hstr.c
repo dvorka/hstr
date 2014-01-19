@@ -44,10 +44,10 @@
 #define K_CTRL_X 24
 #define K_CTRL_Z 26
 
-#define K_TAB 9
-
-#define K_ENTER 10
 #define K_ESC 27
+#define K_TAB 9
+#define K_BACKSPACE 127
+#define K_ENTER 10
 
 #define color_attr_on(C) if(terminalHasColors) { attron(C); }
 #define color_attr_off(C) if(terminalHasColors) { attroff(C); }
@@ -352,6 +352,15 @@ char *selection_loop(HistoryItems *history)
 		if(!skip) {
 			c = wgetch(stdscr);
 		} else {
+			if(strlen(prefix)>0) {
+				color_attr_on(A_BOLD);
+				mvprintw(y, basex, "%s", prefix);
+				color_attr_off(A_BOLD);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
+				result = print_selection(maxHistoryItems, prefix, history);
+				move(cursorY, cursorX);
+			}
 			skip=FALSE;
 			continue;
 		}
@@ -392,6 +401,7 @@ char *selection_loop(HistoryItems *history)
 			prefix[0]=0;
 			mvprintw(y, basex, "");
 			clrtoeol();
+		case K_BACKSPACE:
 		case KEY_BACKSPACE:
 			if(strlen(prefix)>0) {
 				prefix[strlen(prefix)-1]=0;
