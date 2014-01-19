@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="0.92"
+export HHVERSION="0.97"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
@@ -12,7 +12,7 @@ export HHBUILD=hstr-${NOW}
 #export UBUNTUVERSION=raring
 export UBUNTUVERSION=saucy
 
-export HHBZRMSG="Fixed keyboard loop; Ctrl-r consistent shortcuts; propagation of the text from the prompt to HH."
+export HHBZRMSG="Prompt 2 filter fixed + better C-r compatibility."
 
 # - edit config.am ... set new version
 # - user email must be as in gpg i.e. (Dvorka) must present
