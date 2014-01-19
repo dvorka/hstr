@@ -1,7 +1,7 @@
 hstr
 ====
 
-BASH History Suggest Box - check [video](http://www.youtube.com/watch?v=QYP4PlPvzT0)
+BASH History Suggest Box - [http://www.youtube.com/watch?v=QYP4PlPvzT0](http://www.youtube.com/watch?v=QYP4PlPvzT0)
 
 
 DESCRIPTION
