@@ -33,6 +33,7 @@ void fill_terminal_input(char *cmd, bool padding)
 			c=(cmd+i);
 			ioctl(0, TIOCSTI, c);
 		}
+		// echo, but don't flush to terminal
 		if(padding) printf("\n");
 	}
 }

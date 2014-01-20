@@ -183,7 +183,7 @@ int history_mgmt_remove(char *cmd)
 	return occurences;
 }
 
-void history_mgmt_close()
+void history_mgmt_flush()
 {
 	if(dirty) {
 		fill_terminal_input("history -r\n", false);

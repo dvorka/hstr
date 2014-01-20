@@ -69,7 +69,7 @@ static const char *INSTALL_STRING=
          "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
 		 "\nshopt -s histappend"
 		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
-		 "\nbind '\"\\C-r\": \"\\C-ahh \\C-j\"'"
+		 "\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'"
 		 "\n\n";
 
 static const char *BUILD_STRING=
@@ -143,21 +143,26 @@ unsigned get_max_history_items()
 }
 
 
-void alloc_selection(unsigned size)
+void realloc_selection(unsigned size)
 {
 	selectionSize=size;
 	if(selection!=NULL) {
-		free(selection);
-		selection=NULL;
-	}
-	if(size>0) {
-		selection = malloc(size);
+		if(size>0) {
+			selection=realloc(selection, size);
+		} else {
+			free(selection);
+			selection=NULL;
+		}
+	} else {
+		if(size>0) {
+			selection = malloc(size);
+		}
 	}
 }
 
 unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount)
 {
-	alloc_selection(sizeof(char*) * maxSelectionCount); // TODO realloc
+	realloc_selection(sizeof(char*) * maxSelectionCount);
 	unsigned i, selectionCount=0;
 	char **source=(defaultOrder?history->raw:history->items);
 
@@ -295,9 +300,8 @@ void selection_remove(char *cmd, HistoryItems *history)
 	}
 }
 
-void hstr_on_exit(char *command) {
-	history_mgmt_close();
-	fill_terminal_input(command, true);
+void hstr_on_exit() {
+	history_mgmt_flush();
 	free_prioritized_history();
 }
 
@@ -305,21 +309,12 @@ void signal_callback_handler_ctrl_c(int signum)
 {
 	if(signum==SIGINT) {
 		endwin();
-		hstr_on_exit(NULL);
+		hstr_on_exit();
 		exit(signum);
 	}
 }
 
-char *prepare_result(int selectionCursorPosition, bool executeResult)
-{
-	cmdline[0]=0;
-	strcpy(cmdline,selection[selectionCursorPosition]);
-	if(executeResult) strcat(cmdline,"\n");
-	alloc_selection(0);
-	return cmdline;
-}
-
-char *selection_loop(HistoryItems *history)
+void selection_loop(HistoryItems *history)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
 
@@ -358,7 +353,7 @@ char *selection_loop(HistoryItems *history)
 				color_attr_off(A_BOLD);
 				cursorX=getcurx(stdscr);
 				cursorY=getcury(stdscr);
-				result = print_selection(maxHistoryItems, prefix, history);
+				result=print_selection(maxHistoryItems, prefix, history);
 				move(cursorY, cursorX);
 			}
 			skip=FALSE;
@@ -373,7 +368,7 @@ char *selection_loop(HistoryItems *history)
 				strcpy(msg,delete);
 				selection_remove(delete, history);
 				deleteOccurences=history_mgmt_remove(delete);
-				result = print_selection(maxHistoryItems, prefix, history);
+				result=print_selection(maxHistoryItems, prefix, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(prefix));
 			}
@@ -381,17 +376,17 @@ char *selection_loop(HistoryItems *history)
 			break;
 		case K_CTRL_T:
 			caseSensitive=!caseSensitive;
-			result = print_selection(maxHistoryItems, prefix, history);
+			result=print_selection(maxHistoryItems, prefix, history);
 			print_history_label(history);
 			break;
 		case K_CTRL_H:
 			defaultOrder=!defaultOrder;
-			result = print_selection(maxHistoryItems, prefix, history);
+			result=print_selection(maxHistoryItems, prefix, history);
 			print_history_label(history);
 			break;
 		case K_CTRL_X:
-			result = NULL;
-			done = TRUE;
+			result=NULL;
+			done=TRUE;
 			break;
 		case KEY_RESIZE:
 			print_history_label(history);
@@ -417,7 +412,7 @@ char *selection_loop(HistoryItems *history)
 			} else {
 				make_selection(NULL, history, maxHistoryItems);
 			}
-			result = print_selection(maxHistoryItems, prefix, history);
+			result=print_selection(maxHistoryItems, prefix, history);
 
 			move(y, basex+strlen(prefix));
 			break;
@@ -453,13 +448,13 @@ char *selection_loop(HistoryItems *history)
 		case KEY_LEFT:
 		case KEY_RIGHT:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-				result=prepare_result(selectionCursorPosition, executeResult);
+				result=selection[selectionCursorPosition];
 			}
-			done = TRUE;
+			done=TRUE;
 			break;
 		case K_CTRL_G:
 		case K_ESC:
-			result="";
+			result=NULL;
 			history_clear_dirty();
 			done=TRUE;
 			break;
@@ -489,7 +484,12 @@ char *selection_loop(HistoryItems *history)
 	}
 	endwin();
 
-	return result;
+	if(result!=NULL) {
+		fill_terminal_input(result, TRUE);
+		if(executeResult) {
+			fill_terminal_input("\n", FALSE);
+		}
+	}
 }
 
 void install_show()
@@ -520,8 +520,8 @@ void hstr()
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
-		char *command = selection_loop(history);
-		hstr_on_exit(command);
+		selection_loop(history);
+		hstr_on_exit();
 	} else {
 		printf("Empty shell history - nothing to suggest...\n");
 	}

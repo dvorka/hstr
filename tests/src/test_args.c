@@ -14,6 +14,8 @@
 
 int main(int argc, char *argv[])
 {
+	printf("%d",strchr("a\nb",10));
+
 	if(argc>0) {
 		int i;
 		char line[LINELNG];

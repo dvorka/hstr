@@ -49,7 +49,7 @@ Add the following lines to ~/.bashrc:
 .sp
 shopt -s histappend
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
-bind '"\eC\-r": "\eC\-ahh \eC-j"'
+bind '"\eC\-r": "\eC\-a hh \eC-j"'
 .sp
 .fi
 The first command ensures that new history items are appended to .bash_history
@@ -63,4 +63,3 @@ Report bugs to https://github.com/dvorka/hstr/issues
 .SH "SEE ALSO"
 .BR history (1),
 .BR bash (1)
-
