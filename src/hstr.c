@@ -377,11 +377,13 @@ void selection_loop(HistoryItems *history)
 		case K_CTRL_T:
 			caseSensitive=!caseSensitive;
 			result=print_selection(maxHistoryItems, prefix, history);
+			// TODO render selected line (or reset and move to prompt)
 			print_history_label(history);
 			break;
 		case K_CTRL_H:
 			defaultOrder=!defaultOrder;
 			result=print_selection(maxHistoryItems, prefix, history);
+			// TODO render selected line (or reset and move to prompt)
 			print_history_label(history);
 			break;
 		case K_CTRL_X:

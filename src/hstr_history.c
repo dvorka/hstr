@@ -35,7 +35,8 @@ static const char *commandBlacklist[] = {
 #endif
 
 unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t length) {
-	long metrics=rank+newOccurenceOrder/10+length;
+	//long metrics=rank+newOccurenceOrder/10+length;
+	long metrics=rank+(log(newOccurenceOrder)*10.0)+length;
 	assert(metrics<UINT_MAX);
 	return metrics;
 }
