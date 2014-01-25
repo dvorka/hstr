@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="0.97"
+export HHVERSION="1.0.2"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
@@ -12,9 +12,8 @@ export HHBUILD=hstr-${NOW}
 #export UBUNTUVERSION=raring
 export UBUNTUVERSION=saucy
 
-export HHBZRMSG="Prompt 2 filter fixed + better C-r compatibility."
+export HHBZRMSG="Stabilization, fixes and better BASH shortcuts compatibility."
 
-# - edit config.am ... set new version
 # - user email must be as in gpg i.e. (Dvorka) must present
 # - hh_ must be with underscore
 

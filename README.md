@@ -24,7 +24,7 @@ UBUNTU INSTALLATION
 
     `sudo apt-get install hh`
 
-* Configure `hh`: 
+* configure `hh`: 
 
       `hh --show-configuration >> ~/.bashrc`
 
@@ -40,7 +40,7 @@ SOURCE CODE INSTALLATION
 
     `./configure && make && make install`
 
-* Configure `hh`:
+* configure `hh`:
 
       `hh --show-configuration >> ~/.bashrc`
 
@@ -59,7 +59,7 @@ MAC OS
 
     `make && make install`
 
-* Configure `hh`:
+* configure `hh`:
 
       `hh --show-configuration >> ~/.bashrc`
 
