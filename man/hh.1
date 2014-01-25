@@ -11,7 +11,7 @@ file that is filtered as you type a command substring. Commands
 are not just filtered, but also ordered by a ranking algorithm
 that considers number of occurences, length and timestamp. In addition
 hh allows removal of commands from history - for instance with a typo or with a sensitive content.
-.SH OPTIONNS
+.SH OPTIONS
 .TP 
 \fB--show-configuration\fR
 Show configuration to be added to .bashrc
@@ -41,6 +41,12 @@ Choose currently selected item for completion and execute it.
 \fBDEL\fR
 Remove currently selected item from the shell history.
 .TP
+\fBBACSKSPACE\fR, \fBCtrl\-h\fR
+Delete last pattern character.
+.TP
+\fBCtrl\-u\fR, \fBCtrl\-w\fR
+Delete pattern and search again.
+.TP
 \fBCtrl\-x\fR
 Write changes to shell history and exit.
 .TP
@@ -50,15 +56,16 @@ Exit with empty prompt.
 Add the following lines to ~/.bashrc:
 .nf
 .sp
-shopt -s histappend
+shopt -s histappend              # append new history items to .bash_history
+export HISTCONTROL=ignorespace   # leading space hides commands from history
+export HISTFILESIZE=10000        # increase history file size (default is 500)
+export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
-bind '"\eC\-r": "\eC\-a hh \eC-j"'
+bind '"\eC\-r": "\eC\-a hh \eC-j"'    # bind hh to Ctrl-r
 .sp
 .fi
-The first command ensures that new history items are appended to .bash_history
-(instead of overwriting). The second command ensures synchronization of the
-history between memory and file system. The third command binds hh to
-Ctrl-r shortcut.
+The prompt command ensures synchronization of the history between BASH memory 
+and history file.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS

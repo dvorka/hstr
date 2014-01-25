@@ -66,10 +66,13 @@
 #endif
 
 static const char *INSTALL_STRING=
-         "\n# Add this configuration to ~/.bashrc to let HH load and flush up to date history"
-		 "\nshopt -s histappend"
-		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
-		 "\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'"
+         "\n# add this configuration to ~/.bashrc"
+		 "\nshopt -s histappend              # append new history items to .bash_history"
+		 "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
+		 "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
+		 "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
+		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
+		 "\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'    # bind hh to Ctrl-r"
 		 "\n\n";
 
 static const char *BUILD_STRING=
@@ -383,10 +386,6 @@ void loop_to_select(HistoryItems *history)
 			print_history_label(history);
 			selectionCursorPosition=0;
 			break;
-		case K_CTRL_X:
-			result=NULL;
-			done=TRUE;
-			break;
 		case KEY_RESIZE:
 			print_history_label(history);
 			move(y, basex+strlen(pattern));
@@ -462,6 +461,10 @@ void loop_to_select(HistoryItems *history)
 			history_clear_dirty();
 			done=TRUE;
 			break;
+		case K_CTRL_X:
+			result=NULL;
+			done=TRUE;
+			break;
 		default:
 			LOGKEYS(Y_OFFSET_HELP, c);
 			LOGCURSOR(Y_OFFSET_HELP);
@@ -495,7 +498,7 @@ void loop_to_select(HistoryItems *history)
 
 void install_show()
 {
-	printf("# %s\n%s", BUILD_STRING, INSTALL_STRING);
+	printf("%s", INSTALL_STRING);
 }
 
 void assemble_cmdline(int argc, char *argv[]) {
@@ -535,6 +538,7 @@ int main(int argc, char *argv[])
 		if(argc==2 && strstr(argv[1], "--show-configuration")) {
 			install_show();
 			// TODO --help (tr --help)
+			//printf("# %s\n%s", BUILD_STRING, INSTALL_STRING);
 		} else {
 			assemble_cmdline(argc, argv);
 			hstr();
