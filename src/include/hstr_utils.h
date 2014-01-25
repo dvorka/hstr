@@ -24,5 +24,6 @@ void tiocsti();
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);
 char *get_hostname();
+void toggle_case(char *str, bool lowercase);
 
 #endif

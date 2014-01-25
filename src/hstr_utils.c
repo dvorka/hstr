@@ -8,6 +8,7 @@
 */
 
 #include "include/hstr_utils.h"
+#include <ctype.h>
 
 #define DEFAULT_COMMAND "pwd"
 #define HOSTNAME_BUFFER 100
@@ -65,3 +66,15 @@ char *get_hostname()
     return b;
 }
 
+void toggle_case(char *str, bool lowercase) {
+	if(str && strlen(str>0)) {
+		int i;
+		for(i = 0; str[i]; i++){
+			if(lowercase) {
+				str[i] = tolower(str[i]);
+			} else {
+				str[i] = toupper(str[i]);
+			}
+		}
+	}
+}

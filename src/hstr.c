@@ -38,11 +38,15 @@
 #define K_CTRL_E 5
 #define K_CTRL_G 7
 #define K_CTRL_H 8
+#define K_CTRL_L 12
 #define K_CTRL_R 18
 #define K_CTRL_T 20
 #define K_CTRL_U 21
+#define K_CTRL_W 23
 #define K_CTRL_X 24
 #define K_CTRL_Z 26
+
+#define K_CTRL_SLASH 31
 
 #define K_ESC 27
 #define K_TAB 9
@@ -116,7 +120,7 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 // make this status row
 void print_history_label(HistoryItems *history)
 {
-	sprintf(screenLine, "- HISTORY - case:%s (C-t) - order:%s (C-h) - %d/%d ",
+	sprintf(screenLine, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
 			(defaultOrder?"history":"ranking"),
 			history->count,
@@ -135,6 +139,13 @@ void print_history_label(HistoryItems *history)
 	mvprintw(Y_OFFSET_HISTORY, 0, screenLine);
 	color_attr_off(A_REVERSE);
 	refresh();
+}
+
+void print_pattern(char *pattern, int y, int x) {
+	color_attr_on(A_BOLD);
+	mvprintw(y, x, "%s", pattern);
+	color_attr_off(A_BOLD);
+	clrtoeol();
 }
 
 unsigned get_max_history_items()
@@ -314,7 +325,7 @@ void signal_callback_handler_ctrl_c(int signum)
 	}
 }
 
-void selection_loop(HistoryItems *history)
+void loop_to_select(HistoryItems *history)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
 
@@ -331,29 +342,29 @@ void selection_loop(HistoryItems *history)
 
 	color_attr_off(COLOR_PAIR(1));
 
-	bool done=FALSE, skip=TRUE, executeResult=FALSE;
+	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
 	int basex=print_prompt(stdscr);
 	int x=basex, y=1, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
 	int width=getmaxx(stdscr);
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	char *result="", *msg, *delete;
-	char prefix[SELECTION_PREFIX_MAX_LNG];
-	prefix[0]=0;
-	strcpy(prefix, cmdline);
+	char pattern[SELECTION_PREFIX_MAX_LNG];
+	pattern[0]=0;
+	strcpy(pattern, cmdline);
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
 
 		if(!skip) {
 			c = wgetch(stdscr);
 		} else {
-			if(strlen(prefix)>0) {
+			if(strlen(pattern)>0) {
 				color_attr_on(A_BOLD);
-				mvprintw(y, basex, "%s", prefix);
+				mvprintw(y, basex, "%s", pattern);
 				color_attr_off(A_BOLD);
 				cursorX=getcurx(stdscr);
 				cursorY=getcury(stdscr);
-				result=print_selection(maxHistoryItems, prefix, history);
+				result=print_selection(maxHistoryItems, pattern, history);
 				move(cursorY, cursorX);
 			}
 			skip=FALSE;
@@ -368,23 +379,23 @@ void selection_loop(HistoryItems *history)
 				strcpy(msg,delete);
 				selection_remove(delete, history);
 				deleteOccurences=history_mgmt_remove(delete);
-				result=print_selection(maxHistoryItems, prefix, history);
+				result=print_selection(maxHistoryItems, pattern, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
-				move(y, basex+strlen(prefix));
+				move(y, basex+strlen(pattern));
 			}
 			print_history_label(history);
 			break;
 		case K_CTRL_T:
 			caseSensitive=!caseSensitive;
-			result=print_selection(maxHistoryItems, prefix, history);
-			// TODO render selected line (or reset and move to prompt)
+			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
+			selectionCursorPosition=0;
 			break;
-		case K_CTRL_H:
+		case K_CTRL_SLASH:
 			defaultOrder=!defaultOrder;
-			result=print_selection(maxHistoryItems, prefix, history);
-			// TODO render selected line (or reset and move to prompt)
+			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
+			selectionCursorPosition=0;
 			break;
 		case K_CTRL_X:
 			result=NULL;
@@ -392,31 +403,36 @@ void selection_loop(HistoryItems *history)
 			break;
 		case KEY_RESIZE:
 			print_history_label(history);
-			move(y, basex+strlen(prefix));
+			move(y, basex+strlen(pattern));
 			break;
 		case K_CTRL_U:
-			prefix[0]=0;
-			mvprintw(y, basex, "");
-			clrtoeol();
+		case K_CTRL_W: // TODO supposed to delete just one word backward
+			pattern[0]=0;
+			print_pattern(pattern, y, basex);
+			break;
+		case K_CTRL_L:
+			toggle_case(pattern, lowercase);
+			lowercase=!lowercase;
+			print_pattern(pattern, y, basex);
+			selectionCursorPosition=0;
+			break;
+		case K_CTRL_H:
 		case K_BACKSPACE:
 		case KEY_BACKSPACE:
-			if(strlen(prefix)>0) {
-				prefix[strlen(prefix)-1]=0;
+			if(strlen(pattern)>0) {
+				pattern[strlen(pattern)-1]=0;
 				x--;
-				color_attr_on(A_BOLD);
-				mvprintw(y, basex, "%s", prefix);
-				color_attr_off(A_BOLD);
-				clrtoeol();
+				print_pattern(pattern, y, basex);
 			}
 
-			if(strlen(prefix)>0) {
-				make_selection(prefix, history, maxHistoryItems);
+			if(strlen(pattern)>0) {
+				make_selection(pattern, history, maxHistoryItems);
 			} else {
 				make_selection(NULL, history, maxHistoryItems);
 			}
-			result=print_selection(maxHistoryItems, prefix, history);
+			result=print_selection(maxHistoryItems, pattern, history);
 
-			move(y, basex+strlen(prefix));
+			move(y, basex+strlen(pattern));
 			break;
 		case KEY_UP:
 			previousSelectionCursorPosition=selectionCursorPosition;
@@ -425,8 +441,8 @@ void selection_loop(HistoryItems *history)
 			} else {
 				selectionCursorPosition=selectionSize-1;
 			}
-			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
-			move(y, basex+strlen(prefix));
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
+			move(y, basex+strlen(pattern));
 			break;
 		case K_CTRL_R:
 		case KEY_DOWN:
@@ -440,8 +456,8 @@ void selection_loop(HistoryItems *history)
 					selectionCursorPosition=0;
 				}
 			}
-			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, prefix);
-			move(y, basex+strlen(prefix));
+			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
+			move(y, basex+strlen(pattern));
 			break;
 		case K_ENTER:
 		case KEY_ENTER:
@@ -467,17 +483,14 @@ void selection_loop(HistoryItems *history)
 			if(c>K_CTRL_Z) {
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-				if(strlen(prefix)<(width-basex-1)) {
-					strcat(prefix, (char*)(&c));
-					color_attr_on(A_BOLD);
-					mvprintw(y, basex, "%s", prefix);
+				if(strlen(pattern)<(width-basex-1)) {
+					strcat(pattern, (char*)(&c));
+					print_pattern(pattern, y, basex);
 					cursorX=getcurx(stdscr);
 					cursorY=getcury(stdscr);
-					color_attr_off(A_BOLD);
-					clrtoeol();
 				}
 
-				result = print_selection(maxHistoryItems, prefix, history);
+				result = print_selection(maxHistoryItems, pattern, history);
 				move(cursorY, cursorX);
 				refresh();
 			}
@@ -500,6 +513,7 @@ void install_show()
 }
 
 void assemble_cmdline(int argc, char *argv[]) {
+	// TODO support BASH substitutions: !!, !!ps, !$, !*
 	int i;
 	cmdline[0]=0;
 	for(i=1; i<argc; i++) {
@@ -522,7 +536,7 @@ void hstr()
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
-		selection_loop(history);
+		loop_to_select(history);
 		hstr_on_exit();
 	} else {
 		printf("Empty shell history - nothing to suggest...\n");
