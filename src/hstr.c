@@ -293,7 +293,6 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 	}
 }
 
-
 void selection_remove(char *cmd, HistoryItems *history)
 {
 	if(history->count) {
@@ -544,7 +543,6 @@ int main(int argc, char *argv[])
 				return EXIT_SUCCESS;
 			}
 			if(strstr(argv[1], "--help")) {
-				// TODO --help (tr --help)
 				printf("%s", HELP_STRING);
 				return EXIT_SUCCESS;
 			}
@@ -559,4 +557,3 @@ int main(int argc, char *argv[])
 
 	return EXIT_SUCCESS;
 }
-

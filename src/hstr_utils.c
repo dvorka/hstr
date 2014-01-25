@@ -67,7 +67,7 @@ char *get_hostname()
 }
 
 void toggle_case(char *str, bool lowercase) {
-	if(str && strlen(str>0)) {
+	if(str && strlen(str)>0) {
 		int i;
 		for(i = 0; str[i]; i++){
 			if(lowercase) {
