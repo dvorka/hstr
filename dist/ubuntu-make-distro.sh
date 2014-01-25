@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /home/dvorka/p/hstr/github/hstr/dist/env.sh
+. /home/dvorka/p/hstr/github/hstr/dist/ubuntu-env.sh
 
 function checkout_hh() {
   bzr checkout lp:~ultradvorka/+junk/hh-package
@@ -36,12 +36,11 @@ mkdir ${HHBUILD}
 cd ${HHBUILD}
 
 checkout_hh `pwd`
-#init_hh `pwd`
 
 cd hh/dist
-./2-deb.sh
+./2-ubuntu-build-deb.sh
 
 pwd
-echo -e "\n\nContinue by editing debian/changes and dist/ directory: 3-deb-push.sh\n"
+echo -e "\n\nFinish by running 3-ubuntu-push-deb.sh\n"
 
 # eof

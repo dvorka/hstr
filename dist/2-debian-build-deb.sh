@@ -2,7 +2,7 @@
 
 export SCRIPTHOME=`pwd`
 
-. ./env.sh
+. ./debian-env.sh
 
 function createChangelog() {
   export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
@@ -32,18 +32,16 @@ rm -rvf ../debian
 cp -rvf ${HHSRC}/debian ..
 
 createChangelog ../debian/changelog
+cp -vf debian/rules ../debian/rules
+cp -vf debian/hh.dirs ../debian/hh.dirs
 
 cd ../..
 mv hh ${HH}
 cd ${HH}
-bzr add .
-bzr commit -m "Update for ${HH} at ${NOW}."
 
 createTarball
 
-bzr builddeb -- -us -uc
-bzr builddeb -S
-cd ../build-area
-pbuilder-dist ${UBUNTUVERSION} build ${HHRELEASE}.dsc
+debuild -us -uc
+debuild -S
 
 # eof

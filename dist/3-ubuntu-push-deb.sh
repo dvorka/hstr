@@ -1,6 +1,6 @@
 #!/bin/bash
  
-. ./env.sh
+. ./ubuntu-env.sh
 
 cd ..
 #bzr commit -m "Sync."
