@@ -17,12 +17,13 @@ AC_CONFIG_SRCDIR([src/hstr.c])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB(ncurses, initscr)
-AC_CHECK_LIB(m,cos)
-AC_CHECK_LIB(readline, using_history)
+AC_CHECK_LIB(ncurses, initscr, [], [AC_MSG_ERROR([Could  not find Curses library])])
+AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could  not find Math library])])
+AC_CHECK_LIB(readline, using_history, [], [AC_MSG_ERROR([Could  not find Readline library])])
 
 # Checks for header files.
 AC_CHECK_HEADER(assert.h)
+AC_CHECK_HEADER(ctype.h)
 AC_CHECK_HEADER(curses.h)
 AC_CHECK_HEADER(fcntl.h)
 AC_CHECK_HEADER(math.h)

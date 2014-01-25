@@ -21,10 +21,10 @@
 #include <readline/chardefs.h>
 
 #include "include/hashset.h"
-#include "include/hstr_utils.h"
+#include "include/hstr_curses.h"
 #include "include/hstr_history.h"
+#include "include/hstr_utils.h"
 
-#define FILE_BASHRC ".bashrc"
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 500
 #define CMDLINE_LNG 250
@@ -53,10 +53,6 @@
 #define K_BACKSPACE 127
 #define K_ENTER 10
 
-#define color_attr_on(C) if(terminalHasColors) { attron(C); }
-#define color_attr_off(C) if(terminalHasColors) { attroff(C); }
-#define color_init_pair(X, Y, Z) if(terminalHasColors) { init_pair(X, Y, Z); }
-
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
 #else
@@ -84,7 +80,6 @@ static const char *LABEL_HELP=
 
 static char **selection=NULL;
 static unsigned selectionSize=0;
-static bool terminalHasColors=FALSE;
 static bool caseSensitive=FALSE;
 static bool defaultOrder=FALSE;
 static char screenLine[1000];
@@ -117,7 +112,6 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 	refresh();
 }
 
-// make this status row
 void print_history_label(HistoryItems *history)
 {
 	sprintf(screenLine, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
@@ -232,13 +226,12 @@ void print_selection_row(char *text, int y, int width, char *prefix) {
 		}
 		color_attr_off(A_BOLD);
 	}
-
 }
 
 void print_highlighted_selection_row(char *text, int y, int width) {
 	color_attr_on(A_REVERSE);
 	color_attr_on(A_BOLD);
-	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminalHasColors?" ":">"), text);
+	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminal_has_colors()?" ":">"), text);
 	mvprintw(y, 0, "%s", screenLine);
 	color_attr_off(A_BOLD);
 	color_attr_off(A_REVERSE);
@@ -289,13 +282,6 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 	}
 }
 
-void color_start()
-{
-	terminalHasColors=has_colors();
-	if(terminalHasColors) {
-		start_color();
-	}
-}
 
 void selection_remove(char *cmd, HistoryItems *history)
 {
@@ -548,6 +534,7 @@ int main(int argc, char *argv[])
 	if(argc>0) {
 		if(argc==2 && strstr(argv[1], "--show-configuration")) {
 			install_show();
+			// TODO --help (tr --help)
 		} else {
 			assemble_cmdline(argc, argv);
 			hstr();
