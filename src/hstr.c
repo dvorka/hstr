@@ -66,17 +66,25 @@
 #endif
 
 static const char *INSTALL_STRING=
-         "\n# add this configuration to ~/.bashrc"
-		 "\nshopt -s histappend              # append new history items to .bash_history"
-		 "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
-		 "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
-		 "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
-		 "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
-		 "\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'    # bind hh to Ctrl-r"
-		 "\n\n";
+		"\n# add this configuration to ~/.bashrc"
+		"\nshopt -s histappend              # append new history items to .bash_history"
+		"\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
+		"\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
+		"\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
+		"\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
+		"\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'    # bind hh to Ctrl-r"
+		"\n\n";
 
-static const char *BUILD_STRING=
-		"HH build: "__DATE__" " __TIME__"";
+static const char *HELP_STRING=
+		"Usage: hh [option] [arg1] [arg2]..."
+		"\nShell history suggest box (build: "__DATE__" " __TIME__")"
+		"\n"
+		"\n  --show-configuration    ... show configuration to be added to .bashrc"
+		"\n  --help                  ... display this help and exit"
+		"\n"
+		"\nReport bugs to martin.dvorak@mindforger.com"
+		"\nHome page: https://github.com/dvorka/hstr"
+		"\n";
 
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN to move, DEL to remove, TAB to select, C-g to cancel";
@@ -496,11 +504,6 @@ void loop_to_select(HistoryItems *history)
 	}
 }
 
-void install_show()
-{
-	printf("%s", INSTALL_STRING);
-}
-
 void assemble_cmdline(int argc, char *argv[]) {
 	// TODO support BASH substitutions: !!, !!ps, !$, !*
 	int i;
@@ -535,10 +538,16 @@ void hstr()
 int main(int argc, char *argv[])
 {
 	if(argc>0) {
-		if(argc==2 && strstr(argv[1], "--show-configuration")) {
-			install_show();
-			// TODO --help (tr --help)
-			//printf("# %s\n%s", BUILD_STRING, INSTALL_STRING);
+		if(argc==2) {
+			if(strstr(argv[1], "--show-configuration")) {
+				printf("%s", INSTALL_STRING);
+				return EXIT_SUCCESS;
+			}
+			if(strstr(argv[1], "--help")) {
+				// TODO --help (tr --help)
+				printf("%s", HELP_STRING);
+				return EXIT_SUCCESS;
+			}
 		} else {
 			assemble_cmdline(argc, argv);
 			hstr();
