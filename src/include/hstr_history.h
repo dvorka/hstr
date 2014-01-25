@@ -25,7 +25,7 @@
 #define ENV_VAR_HOME "HOME"
 #define ENV_VAR_HISTFILE "HISTFILE"
 
-#define FILE_HISTORY ".bash_history"
+#define DEFAULT_HISTORY_FILE ".bash_history"
 
 typedef struct {
 	char **items;

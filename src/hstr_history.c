@@ -46,8 +46,8 @@ char *get_history_file_name()
 	char *historyFile=getenv(ENV_VAR_HISTFILE);
 	if(!historyFile || strlen(historyFile)==0) {
 		char *home = getenv(ENV_VAR_HOME);
-		historyFile = malloc(strlen(home) + 1 + strlen(FILE_HISTORY) + 1);
-		strcat(strcat(strcpy(historyFile, home), "/"), FILE_HISTORY);
+		historyFile = malloc(strlen(home) + 1 + strlen(DEFAULT_HISTORY_FILE) + 1);
+		strcat(strcat(strcpy(historyFile, home), "/"), DEFAULT_HISTORY_FILE);
 	}
 	return historyFile;
 }
