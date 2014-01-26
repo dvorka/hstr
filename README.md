@@ -7,7 +7,7 @@ BASH History Suggest Box - [http://www.youtube.com/watch?v=sPF29NyXe2U](http://w
 DESCRIPTION
 -----------
 A command line utility that brings improved BASH command completion 
-from the history. It aims to make completion easier and faster
+from the history. It aims to make completion easier and more efficient
 than `Ctrl-r`.
 
 [![Shell History Suggest Box](http://mindforger.com/projects/images/hh-1.jpg "Shell History Suggest Box")](http://mindforger.com/projects/images/hh-1.jpg)
