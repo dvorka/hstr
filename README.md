@@ -71,18 +71,22 @@ hh --show-configuration >> ~/.bashrc
 
 CONFIGURATION EXPLANATION
 -------------------------
-* `hh` works best with the optinal configuration described below.
+* `hh` works best with the optional configuration described in this section.
+  You can configure `hh` just by running:
+```Shell
+hh --show-configuration >> ~/.bashrc
+```
 
 * bind `hh` to a BASH key e.g. to `Ctrl-R`:
 ```Shell
 bind '"\C-r": "\C-ahh \C-j"'
 ```
-or `Ctrl-F12:
+or `Ctrl-F12`:
 ```Shell
 bind '"\e[24;5~":"\C-ahh \C-j"'
 ```
 To determine the character sequence emitted by a pressed key in terminal, 
-type CTRL-v and then press the key. Check your current bindings using:
+type `Ctrl-v` and then press the key. Check your current bindings using:
 ```Shell
 bind -S
 ```
