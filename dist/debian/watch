@@ -1,0 +1,2 @@
+version=3
+http://github.com/dvorka/hstr/tags /dvorka/hstr/archive/(.+)\.(.+)\.tar\.gz

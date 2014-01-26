@@ -13,7 +13,13 @@ cd `pwd`
 mv hstr ${HH}
 tar zcf ${HH}.tgz ${HH}
 rm -rvf ${HH}
-bzr dh-make -v hh ${HHVERSION} ${HH}.tgz
+
+#bzr dh-make -v packagename version tarball
+bzr dh_make -v hh ${HHVERSION} ${HH}.tgz
+
+# rewrite to native dh_make:
+#dh_make --single --createorig 
+
 rm -vf *.orig.tar.gz
 
 cd hh/dist
