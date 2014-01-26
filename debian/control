@@ -1,7 +1,7 @@
 Source: hh
 Section: utils
 Priority: optional
-Maintainer: Martin Dvorak <martin.dvorak@mindforger.com>
+Maintainer: Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>
 Build-Depends: debhelper (>= 8.0.0), autotools-dev, libreadline-dev, libncurses5-dev
 Standards-Version: 3.9.5
 Homepage: https://github.com/dvorka/hstr

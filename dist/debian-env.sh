@@ -2,8 +2,8 @@
 
 # Debian release: https://wiki.debian.org/IntroDebianPackaging
 
-export HHVERSION="1.0.5"
-export HHFULLVERSION=${HHVERSION}-1.0
+export HHVERSION="1.0.6"
+export HHFULLVERSION=${HHVERSION}-1.2
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh-${HHFULLVERSION}
 export HHSRC=/home/dvorka/p/hstr/github/hstr
@@ -12,6 +12,6 @@ export HHBUILD=hstr-${NOW}
 
 export UBUNTUVERSION=unstable
 
-export HHBZRMSG="Making the .deb package compliant with Debian: NMU version, version ..."
+export HHBZRMSG="Fixing history management - exact match ensured."
 
 # eof
