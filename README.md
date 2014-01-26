@@ -24,7 +24,7 @@ UBUNTU INSTALLATION
 
     `sudo apt-get install hh`
 
-* configure `hh`: 
+* optionally configure `hh`: 
 
       `hh --show-configuration >> ~/.bashrc`
 
@@ -40,7 +40,7 @@ SOURCE CODE INSTALLATION
 
     `./configure && make && make install`
 
-* configure `hh`:
+* optionally configure `hh`:
 
       `hh --show-configuration >> ~/.bashrc`
 
@@ -51,7 +51,7 @@ MAC OS
 
    http://www.macports.org
 
-* configure using:
+* set the environment:
 
    `env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure`
 
@@ -59,28 +59,20 @@ MAC OS
 
     `make && make install`
 
-* configure `hh`:
+* optionally configure `hh`:
 
       `hh --show-configuration >> ~/.bashrc`
 
 
 CONFIGURATION EXPLANATION
 -------------------------
-* appending of the in memory history (instead of overwriting it) 
-  to `.bash_history`: 
+* `hh` works best with the optinal configuration described below.
 
-    `shopt -s histappend`
-
-* flushing and realoading of `.bash_history` in order to ensure that
-  it is in sync with memory:
-
-     `export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"`
-
-* binding of `hh` to a BASH key (e.g. to `Ctrl-R`):
+* bind `hh` to a BASH key e.g. to `Ctrl-R`:
 
     `bind '"\C-r": "\C-ahh \C-j"'`
 
-  `Ctrl-F12` would be:
+  or `Ctrl-F12:
 
     `bind '"\e[24;5~":"\C-ahh \C-j"'`
 
@@ -89,7 +81,32 @@ CONFIGURATION EXPLANATION
 
     `bind -S`
 
+* increase the size of history:
+    
+``
+     export HISTFILESIZE=10000
+     export HISTSIZE=${HISTFILESIZE}
+``
+ 
+  Variables defined above increase the number of history items and history file size
+  (default value is 500).
+
+* ensure syncing (flushing and reloading) of `.bash_history` with in-memory 
+  history:
+
+     `export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"`
+
+* force appending of in-memory history to `.bash_history` 
+  (instead of overwriting): 
+
+    `shopt -s histappend`
+
+* use leading space to hide commands from history:
+
+    `export HISTCONTROL=ignorespace`
+
+  Suitable for a sensitive information like passwords.
+
 BUGS
 ----
 https://github.com/dvorka/hstr/issues
-
