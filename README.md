@@ -16,14 +16,14 @@ than `Ctrl-r`.
 UBUNTU INSTALLATION
 -------------------
 * install `hh` on Ubuntu (12.10/13.04/13.10):
-```Shell
+```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
 sudo apt-get install hh
 ```
 
 * optionally configure `hh`: 
-```Shell
+```bash
 hh --show-configuration >> ~/.bashrc
 ```
 
@@ -36,12 +36,12 @@ https://github.com/dvorka/hstr/releases
 SOURCE CODE INSTALLATION
 ------------------------
 * download distribution (project Releases section), expand the archive and install `hh`:
-```Shell
+```bash
 ./configure && make && make install
 ```
 
 * optionally configure `hh`:
-```Shell
+```bash
 hh --show-configuration >> ~/.bashrc
 ```
 
@@ -53,17 +53,17 @@ MAC OS
    http://www.macports.org
 
 * set the environment:
-```Shell
+```bash
 env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure
 ```
 
 * finish the installation
-```Shell
+```bash
 make && make install
 ```
 
 * optionally configure `hh`:
-```Shell
+```bash
 hh --show-configuration >> ~/.bashrc
 ```
 
@@ -72,26 +72,26 @@ CONFIGURATION EXPLANATION
 -------------------------
 * `hh` works best with the optional configuration described in this section.
   You can configure `hh` just by running:
-```Shell
+```bash
 hh --show-configuration >> ~/.bashrc
 ```
 
 * bind `hh` to a BASH key e.g. to `Ctrl-R`:
-```Shell
+```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
 or `Ctrl-F12`:
-```Shell
+```bash
 bind '"\e[24;5~":"\C-ahh \C-j"'
 ```
 To determine the character sequence emitted by a pressed key in terminal, 
 type `Ctrl-v` and then press the key. Check your current bindings using:
-```Shell
+```bash
 bind -S
 ```
 
 * increase the size of history:
-```Shell
+```bash
 export HISTFILESIZE=10000
 export HISTSIZE=${HISTFILESIZE}
 ```
@@ -100,18 +100,18 @@ Variables defined above increase the number of history items and history file si
 
 * ensure syncing (flushing and reloading) of `.bash_history` with in-memory 
   history:
-```Shell
+```bash
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 ```
 
 * force appending of in-memory history to `.bash_history` 
   (instead of overwriting): 
-```Shell
+```bash
 shopt -s histappend
 ```
 
 * use leading space to hide commands from history:
-```Shell
+```bash
 export HISTCONTROL=ignorespace
 ```
 Suitable for a sensitive information like passwords.
