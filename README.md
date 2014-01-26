@@ -8,8 +8,7 @@ DESCRIPTION
 -----------
 A command line utility that brings improved BASH command completion 
 from the history. It aims to make completion easier and faster
-than Ctrl-R.
-
+than `Ctrl-r`.
 
 [![Shell History Suggest Box](http://mindforger.com/projects/images/hh-1.jpg "Shell History Suggest Box")](http://mindforger.com/projects/images/hh-1.jpg)
 
