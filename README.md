@@ -82,10 +82,10 @@ CONFIGURATION EXPLANATION
     `bind -S`
 
 * increase the size of history:
-  ```Shell
-     export HISTFILESIZE=10000
-     export HISTSIZE=${HISTFILESIZE}
-  ```
+```Shell
+export HISTFILESIZE=10000
+export HISTSIZE=${HISTFILESIZE}
+```
  
   Variables defined above increase the number of history items and history file size
   (default value is 500).
