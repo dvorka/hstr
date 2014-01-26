@@ -172,9 +172,14 @@ void history_clear_dirty()
 int history_mgmt_remove(char *cmd)
 {
 	int offset=history_search_pos(cmd, 0, 0), occurences=0;
+	char *l;
+	HISTORY_STATE *historyState=history_get_history_state();
 	while(offset>=0) {
-		occurences++;
-		free_history_entry(remove_history(offset));
+		l=historyState->entries[offset]->line;
+		if(offset<historyState->length && !strcmp(cmd, l)) {
+			occurences++;
+			free_history_entry(remove_history(offset));
+		}
 		offset=history_search_pos(cmd, 0, ++offset);
 	}
 	if(occurences) {
