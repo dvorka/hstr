@@ -30,9 +30,9 @@
 #define CMDLINE_LNG 250
 
 #define Y_OFFSET_PROMPT 0
-#define Y_OFFSET_HELP 2
-#define Y_OFFSET_HISTORY 3
-#define Y_OFFSET_ITEMS 4
+#define Y_OFFSET_HELP 1
+#define Y_OFFSET_HISTORY 2
+#define Y_OFFSET_ITEMS 3
 
 #define K_CTRL_A 1
 #define K_CTRL_E 5
@@ -52,6 +52,11 @@
 #define K_TAB 9
 #define K_BACKSPACE 127
 #define K_ENTER 10
+
+#define HH_COLOR_NORMAL  1
+#define HH_COLOR_HIGHROW 2
+#define HH_COLOR_PROMPT  3
+#define HH_COLOR_DELETE  4
 
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
@@ -93,6 +98,7 @@ static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool caseSensitive=FALSE;
 static bool defaultOrder=FALSE;
+static bool hicolor=FALSE;
 static char screenLine[1000];
 static char cmdline[CMDLINE_LNG];
 
@@ -100,12 +106,18 @@ int print_prompt()
 {
 	char *hostname = get_hostname();
 	char *user = getenv(ENV_VAR_USER);
-	int xoffset = 1;
+	int xoffset = 0;
 
-	mvprintw(xoffset, Y_OFFSET_PROMPT, "%s@%s$ ", user, hostname);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(3));
+	}
+	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(1));
+	}
 	refresh();
 
-	return xoffset+strlen(user)+1+strlen(hostname)+1;
+	return strlen(user)+1+strlen(hostname)+1+1;
 }
 
 void print_help_label()
@@ -118,7 +130,15 @@ void print_help_label()
 void print_cmd_deleted_label(char *cmd, int occurences)
 {
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(A_BOLD);
+	}
 	mvprintw(Y_OFFSET_HELP, 0, screenLine);
+	if(hicolor) {
+		color_attr_off(A_BOLD);
+		color_attr_on(COLOR_PAIR(1));
+	}
 	clrtoeol();
 	refresh();
 }
@@ -140,9 +160,15 @@ void print_history_label(HistoryItems *history)
 	for (i=0; i < width; i++) {
 		strcat(screenLine, "-");
 	}
+	if(hicolor) {
+		color_attr_on(A_BOLD);
+	}
 	color_attr_on(A_REVERSE);
 	mvprintw(Y_OFFSET_HISTORY, 0, screenLine);
 	color_attr_off(A_REVERSE);
+	if(hicolor) {
+		color_attr_off(A_BOLD);
+	}
 	refresh();
 }
 
@@ -240,12 +266,20 @@ void print_selection_row(char *text, int y, int width, char *prefix) {
 }
 
 void print_highlighted_selection_row(char *text, int y, int width) {
-	color_attr_on(A_REVERSE);
 	color_attr_on(A_BOLD);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(2));
+	} else {
+		color_attr_on(A_REVERSE);
+	}
 	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminal_has_colors()?" ":">"), text);
 	mvprintw(y, 0, "%s", screenLine);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(1));
+	} else {
+		color_attr_off(A_REVERSE);
+	}
 	color_attr_off(A_BOLD);
-	color_attr_off(A_REVERSE);
 }
 
 char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *history)
@@ -330,6 +364,11 @@ void loop_to_select(HistoryItems *history)
 	noecho();
 	color_start();
 	color_init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	if(hicolor) {
+		color_init_pair(2, COLOR_WHITE, COLOR_GREEN);
+		color_init_pair(3, COLOR_CYAN, COLOR_BLACK);
+		color_init_pair(4, COLOR_WHITE, COLOR_RED);
+	}
 	color_attr_on(COLOR_PAIR(1));
 
 	print_history_label(history);
@@ -340,7 +379,7 @@ void loop_to_select(HistoryItems *history)
 
 	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
 	int basex=print_prompt(stdscr);
-	int x=basex, y=1, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
+	int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
 	int width=getmaxx(stdscr);
 	int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 	int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
