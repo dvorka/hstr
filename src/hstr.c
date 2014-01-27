@@ -54,9 +54,11 @@
 #define K_ENTER 10
 
 #define HH_COLOR_NORMAL  1
-#define HH_COLOR_HIGHROW 2
+#define HH_COLOR_HIROW   2
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
+
+#define ENV_VAR_HH_CONFIG "HH_CONFIG"
 
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
@@ -102,6 +104,16 @@ static bool hicolor=FALSE;
 static char screenLine[1000];
 static char cmdline[CMDLINE_LNG];
 
+void get_env_configuration()
+{
+	char *hhconfig=getenv(ENV_VAR_HH_CONFIG);
+	if(hhconfig && strlen(hhconfig)>0) {
+		if(strstr(hhconfig,"hicolor")) {
+			hicolor=TRUE;
+		}
+	}
+}
+
 int print_prompt()
 {
 	char *hostname = get_hostname();
@@ -109,11 +121,13 @@ int print_prompt()
 	int xoffset = 0;
 
 	if(hicolor) {
-		color_attr_on(COLOR_PAIR(3));
+		color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
+		color_attr_on(A_BOLD);
 	}
 	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
 	if(hicolor) {
-		color_attr_on(COLOR_PAIR(1));
+		color_attr_off(A_BOLD);
+		color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
 	}
 	refresh();
 
@@ -363,21 +377,20 @@ void loop_to_select(HistoryItems *history)
 	keypad(stdscr, TRUE);
 	noecho();
 	color_start();
-	color_init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	color_init_pair(HH_COLOR_NORMAL, COLOR_WHITE, COLOR_BLACK);
 	if(hicolor) {
-		color_init_pair(2, COLOR_WHITE, COLOR_GREEN);
-		color_init_pair(3, COLOR_CYAN, COLOR_BLACK);
-		color_init_pair(4, COLOR_WHITE, COLOR_RED);
+		color_init_pair(HH_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
+		color_init_pair(HH_COLOR_PROMPT, COLOR_BLUE, COLOR_BLACK);
+		color_init_pair(HH_COLOR_DELETE, COLOR_WHITE, COLOR_RED);
 	}
-	color_attr_on(COLOR_PAIR(1));
 
-	print_history_label(history);
+	color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
 	print_help_label();
+	print_history_label(history);
 	print_selection(get_max_history_items(stdscr), NULL, history);
+	color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
-	color_attr_off(COLOR_PAIR(1));
-
-	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
+	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, justDeleted=FALSE;
 	int basex=print_prompt(stdscr);
 	int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
 	int width=getmaxx(stdscr);
@@ -406,6 +419,11 @@ void loop_to_select(HistoryItems *history)
 			continue;
 		}
 
+		if(justDeleted) {
+			print_help_label();
+			justDeleted=FALSE;
+		}
+
 		switch (c) {
 		case KEY_DC:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
@@ -417,6 +435,7 @@ void loop_to_select(HistoryItems *history)
 				result=print_selection(maxHistoryItems, pattern, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(pattern));
+				justDeleted=TRUE;
 			}
 			print_history_label(history);
 			break;
@@ -566,6 +585,7 @@ void hstr()
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
+		get_env_configuration();
 		loop_to_select(history);
 		hstr_on_exit();
 	} else {

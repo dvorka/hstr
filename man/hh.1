@@ -15,6 +15,9 @@ hh allows removal of commands from history - for instance with a typo or with a 
 .TP 
 \fB--show-configuration\fR
 Show configuration to be added to .bashrc
+.TP 
+\fB--help\fR
+Show help
 .SH COMMANDS
 .TP 
 \fBpattern\fR
@@ -52,10 +55,16 @@ Write changes to shell history and exit.
 .TP
 \fBCtrl\-g\fR
 Exit with empty prompt.
-.SH INSTALLATION
-Add the following lines to ~/.bashrc:
+.SH ENVIRONMENT VARIABLES
+\fBhh\fR defines the following environment variables:
+.TP
+\fBHH_CONFIG\fR
+Configuration options: \fBhicolor\fR to get more colors (default is monochromatic). 
+.SH CONFIGURATION
+Optionally add the following lines to ~/.bashrc:
 .nf
 .sp
+export HH_CONFIG=hicolor         # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
 export HISTFILESIZE=10000        # increase history file size (default is 500)
