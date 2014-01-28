@@ -90,6 +90,11 @@ type `Ctrl-v` and then press the key. Check your current bindings using:
 bind -S
 ```
 
+* get `hh` in more colors:
+```bash
+export HH_CONFIG=hicolor
+```
+
 * increase the size of history:
 ```bash
 export HISTFILESIZE=10000

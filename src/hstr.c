@@ -79,6 +79,7 @@
 
 static const char *INSTALL_STRING=
 		"\n# add this configuration to ~/.bashrc"
+		"\nexport HH_CONFIG=hicolor         # get more colors"
 		"\nshopt -s histappend              # append new history items to .bash_history"
 		"\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
 		"\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
