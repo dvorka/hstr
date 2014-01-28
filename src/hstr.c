@@ -149,7 +149,7 @@ int print_prompt()
 void print_help_label()
 {
 	snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
-	mvprintw(Y_OFFSET_HELP, 0, screenLine);
+	mvprintw(Y_OFFSET_HELP, 0, screenLine); clrtoeol();
 	refresh();
 }
 
