@@ -59,6 +59,11 @@
 #define HH_COLOR_DELETE  4
 
 #define ENV_VAR_HH_CONFIG "HH_CONFIG"
+#define HH_CONFIG_HICOLOR  "hicolor"
+#define HH_CONFIG_CASE     "casesensitive"
+#define HH_CONFIG_SORTING  "rawhistory"
+
+#define SPACE_PADDING "                                                              "
 
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
@@ -108,8 +113,14 @@ void get_env_configuration()
 {
 	char *hhconfig=getenv(ENV_VAR_HH_CONFIG);
 	if(hhconfig && strlen(hhconfig)>0) {
-		if(strstr(hhconfig,"hicolor")) {
+		if(strstr(hhconfig,HH_CONFIG_HICOLOR)) {
 			hicolor=TRUE;
+		}
+		if(strstr(hhconfig,HH_CONFIG_CASE)) {
+			caseSensitive=TRUE;
+		}
+		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
+			defaultOrder=TRUE;
 		}
 	}
 }
@@ -263,7 +274,7 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 
 void print_selection_row(char *text, int y, int width, char *prefix) {
 	snprintf(screenLine, width, " %s", text);
-	mvprintw(y, 0, screenLine);
+	mvprintw(y, 0, screenLine); clrtoeol();
 	if(prefix!=NULL && strlen(prefix)>0) {
 		color_attr_on(A_BOLD);
 		char *p;
@@ -286,7 +297,9 @@ void print_highlighted_selection_row(char *text, int y, int width) {
 	} else {
 		color_attr_on(A_REVERSE);
 	}
-	snprintf(screenLine, getmaxx(stdscr), "%s%s", (terminal_has_colors()?" ":">"), text);
+	snprintf(screenLine, getmaxx(stdscr),
+			"%s%s" SPACE_PADDING SPACE_PADDING SPACE_PADDING,
+			(terminal_has_colors()?" ":">"), text);
 	mvprintw(y, 0, "%s", screenLine);
 	if(hicolor) {
 		color_attr_on(COLOR_PAIR(1));

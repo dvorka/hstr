@@ -41,6 +41,8 @@ cd hh/dist
 ./2-ubuntu-build-deb.sh
 
 pwd
-echo -e "\n\nFinish by running 3-ubuntu-push-deb.sh\n"
+#echo -e "\n\nFinish by running 3-ubuntu-push-deb.sh\n"
+./3-ubuntu-push-deb.sh
+
 
 # eof

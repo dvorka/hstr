@@ -59,7 +59,14 @@ Exit with empty prompt.
 \fBhh\fR defines the following environment variables:
 .TP
 \fBHH_CONFIG\fR
-Configuration options: \fBhicolor\fR to get more colors (default is monochromatic). 
+Configuration options. \fBhh\fR is monochromatic by default - use \fBhicolor\fR to get more colors.
+Make the pattern-based filtering case sensitive using \fBcasesensitive\fR. Force raw history view instead
+of metric-based one using \fBrawhistory\fR. Example:
+.nf
+.sp
+export HH_CONFIG=casesensitive,hicolor         # color version with case sensitive search
+.sp
+.fi
 .SH CONFIGURATION
 Optionally add the following lines to ~/.bashrc:
 .nf
