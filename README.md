@@ -10,7 +10,7 @@ A command line utility that brings improved BASH command completion
 from the history. It aims to make completion easier and more efficient
 than `Ctrl-r`.
 
-[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-1.jpg "BASH History Suggest Box")](http://mindforger.com/projects/images/hh-1.jpg)
+[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-2.jpg "BASH History Suggest Box")](http://mindforger.com/projects/images/hh-2.jpg)
 
 
 UBUNTU INSTALLATION
