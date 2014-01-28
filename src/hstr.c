@@ -619,10 +619,9 @@ int main(int argc, char *argv[])
 				printf("%s", HELP_STRING);
 				return EXIT_SUCCESS;
 			}
-		} else {
-			assemble_cmdline(argc, argv);
-			hstr();
 		}
+		assemble_cmdline(argc, argv);
+		hstr();
 	} else {
 		cmdline[0]=0;
 		hstr();
