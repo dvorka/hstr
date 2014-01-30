@@ -39,6 +39,7 @@ typedef struct {
 
 	RadixSlot **_slotDescriptors;
 	unsigned _slotsCount;
+	unsigned _topIndexLimit;
 } RadixSorter;
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit);

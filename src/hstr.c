@@ -58,7 +58,7 @@
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
 
-#define ENV_VAR_HH_CONFIG "HH_CONFIG"
+#define ENV_VAR_HH_CONFIG  "HH_CONFIG"
 #define HH_CONFIG_HICOLOR  "hicolor"
 #define HH_CONFIG_CASE     "casesensitive"
 #define HH_CONFIG_SORTING  "rawhistory"

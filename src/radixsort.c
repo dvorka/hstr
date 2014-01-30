@@ -1,4 +1,4 @@
-/*
+/*"
  ============================================================================
  Name        : radixsort.c
  Author      : martin.dvorak@midforger.com
@@ -12,16 +12,19 @@
 #define GET_TOP_INDEX(KEY) KEY/SLOT_SIZE
 #define GET_LOW_INDEX(KEY) KEY%SLOT_SIZE
 
+#define RADIX_DEBUG     0
+#define RADIX_STRICT	0
+
 void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 {
-	unsigned topIndexLimit=GET_TOP_INDEX(keyLimit);
+	rs->_topIndexLimit=GET_TOP_INDEX(keyLimit);
 	rs->size=0;
-	rs->topDigits=malloc(topIndexLimit * sizeof(RadixItem ***));
-	memset(rs->topDigits, 0, topIndexLimit * sizeof(RadixItem ***));
+	rs->topDigits=malloc(rs->_topIndexLimit * sizeof(RadixItem ***));
+	memset(rs->topDigits, 0, rs->_topIndexLimit * sizeof(RadixItem ***));
 	rs->maxKey=0;
 	rs->keyLimit=keyLimit;
 
-	rs->_slotDescriptors=malloc(topIndexLimit * sizeof(RadixSlot **));
+	rs->_slotDescriptors=malloc(rs->_topIndexLimit * sizeof(RadixSlot **));
 	rs->_slotsCount=0;
 }
 
@@ -42,6 +45,17 @@ RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned topIndex)
 
 void radixsort_add(RadixSorter *rs, RadixItem *item)
 {
+	if(item->key > rs->keyLimit) {
+		if(RADIX_DEBUG) {
+			fprintf(stderr, "ERROR: Radix sort overflow - value to be inserted in radix is too big: %i (limit: %i)\n", item->key, rs->keyLimit);
+		}
+		if(RADIX_STRICT) {
+			exit(0);
+		} else {
+			return;
+		}
+	}
+
 	unsigned topIndex = GET_TOP_INDEX(item->key);
 	unsigned lowIndex = GET_LOW_INDEX(item->key);
 

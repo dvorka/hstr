@@ -35,7 +35,7 @@ static const char *commandBlacklist[] = {
 #endif
 
 unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t length) {
-	//long metrics=rank+newOccurenceOrder/10+length;
+	// long metrics = rank+newOccurenceOrder/10+length;
 	long metrics=rank+(log(newOccurenceOrder)*10.0)+length;
 	assert(metrics<UINT_MAX);
 	return metrics;
@@ -90,7 +90,9 @@ HistoryItems *get_prioritized_history()
 		}
 
 		RadixSorter rs;
-		radixsort_init(&rs, 100000);
+		// TODO quick fix to enable loading of huge history files (2x800kB allocated) > malloc this
+		//      based on the expected max value (inferred from history file size, # of rows, row size)
+		radixsort_init(&rs, 100000000);
 
 		RankedHistoryItem *r;
 		RadixItem *radixItem;
