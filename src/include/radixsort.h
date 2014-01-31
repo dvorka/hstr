@@ -37,6 +37,9 @@ typedef struct {
 	unsigned keyLimit;
 	RadixItem ***topDigits;
 
+	bool optFloorAndInsertBigKeys;
+	bool optIgnoreBigKeys;
+
 	RadixSlot **_slotDescriptors;
 	unsigned _slotsCount;
 	unsigned _topIndexLimit;
@@ -47,6 +50,6 @@ void radixsort_add(RadixSorter *rs, RadixItem *item);
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data);
 RadixItem **radixsort_dump(RadixSorter *rs);
 void radixsort_destroy(RadixSorter *rs);
-void radixsort_stat(RadixSorter *rs);
+void radixsort_stat(RadixSorter *rs, bool listing);
 
 #endif /* RADIXSORT_H_ */

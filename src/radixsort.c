@@ -12,11 +12,13 @@
 #define GET_TOP_INDEX(KEY) KEY/SLOT_SIZE
 #define GET_LOW_INDEX(KEY) KEY%SLOT_SIZE
 
-#define RADIX_DEBUG     0
-#define RADIX_STRICT	0
+#define RADIX_DEBUG     1
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 {
+	rs->optFloorAndInsertBigKeys=false;
+	rs->optIgnoreBigKeys=false;
+
 	rs->_topIndexLimit=GET_TOP_INDEX(keyLimit);
 	rs->size=0;
 	rs->topDigits=malloc(rs->_topIndexLimit * sizeof(RadixItem ***));
@@ -46,13 +48,15 @@ RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned topIndex)
 void radixsort_add(RadixSorter *rs, RadixItem *item)
 {
 	if(item->key > rs->keyLimit) {
-		if(RADIX_DEBUG) {
-			fprintf(stderr, "ERROR: Radix sort overflow - value to be inserted in radix is too big: %i (limit: %i)\n", item->key, rs->keyLimit);
-		}
-		if(RADIX_STRICT) {
-			exit(0);
+		if(RADIX_DEBUG) fprintf(stderr, "ERROR: Radix sort overflow - inserted key is bigger than limit (%i): %i\n", rs->keyLimit, item->key);
+		if(rs->optFloorAndInsertBigKeys) {
+			item->key = rs->keyLimit;
 		} else {
-			return;
+			if(rs->optIgnoreBigKeys) {
+				return;
+			} else {
+				exit(0);
+			}
 		}
 	}
 
@@ -100,7 +104,7 @@ void radix_dec_slot_descriptor_size(RadixSorter *rs, RadixSlot *descriptor, unsi
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data)
 {
 	// TODO optimization: fix min/max on cut of a value
-	if(key<=rs->maxKey) {
+	if(key <= rs->maxKey) {
 		unsigned topIndex = GET_TOP_INDEX(key);
 		unsigned lowIndex = GET_LOW_INDEX(key);
 
@@ -165,10 +169,14 @@ RadixItem **radixsort_dump(RadixSorter *rs)
 	return NULL;
 }
 
-void radixsort_stat(RadixSorter *rs)
+void radixsort_stat(RadixSorter *rs, bool listing)
 {
-	printf("\n Radixsort (size/max/limit): %u %u %u", rs->size, rs->maxKey, rs->keyLimit);
-	if(rs->size>0) {
+	printf("\n Radixsort (size/max/limit/slot count): %u %u %u %u", rs->size, rs->maxKey, rs->keyLimit, rs->_slotsCount);
+	unsigned memory=rs->_topIndexLimit * sizeof(RadixItem ***);
+	memory+=memory;
+	memory+=rs->_slotsCount*(SLOT_SIZE * sizeof(RadixItem *));
+	printf("\n   Memory: %u\n", memory);
+	if(listing && rs->size>0) {
 		int t = GET_TOP_INDEX(rs->maxKey);
 		int slotMin, slotSize, slotCount, l;
 		unsigned items=0;
