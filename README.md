@@ -15,7 +15,7 @@ than `Ctrl-r`.
 
 UBUNTU INSTALLATION
 -------------------
-* install `hh` on Ubuntu (12.10/13.04/13.10):
+* install `hh` on Ubuntu (12.10/13.10):
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
