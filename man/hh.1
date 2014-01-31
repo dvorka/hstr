@@ -14,7 +14,7 @@ hh allows removal of commands from history - for instance with a typo or with a 
 .SH OPTIONS
 .TP 
 \fB--show-configuration\fR
-Show configuration to be added to .bashrc
+Show configuration that can be added to .bashrc
 .TP 
 \fB--help\fR
 Show help
@@ -56,17 +56,23 @@ Write changes to shell history and exit.
 \fBCtrl\-g\fR
 Exit with empty prompt.
 .SH ENVIRONMENT VARIABLES
-\fBhh\fR defines the following environment variables:
+\fBhh\fR defines the following environment variable:
 .TP
 \fBHH_CONFIG\fR
-Configuration options. \fBhh\fR is monochromatic by default - use \fBhicolor\fR to get more colors.
-Make the pattern-based filtering case sensitive using \fBcasesensitive\fR. Force raw history view instead
-of metric-based one using \fBrawhistory\fR. Example:
-.nf
-.sp
-export HH_CONFIG=casesensitive,hicolor         # color version with case sensitive search
-.sp
-.fi
+Configuration options:
+
+\fIhicolor\fR 
+        Get more colors with this option (default is monochromatic).
+
+\fIcasesensitive\fR
+        Make the pattern-based filtering case sensitive by default. 
+
+\fIrawhistory\fR
+        Show normal history by default (default is metric-based). 
+
+Example:
+        \fBexport HH_CONFIG=casesensitive,hicolor\fR
+
 .SH CONFIGURATION
 Optionally add the following lines to ~/.bashrc:
 .nf

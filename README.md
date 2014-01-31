@@ -94,6 +94,18 @@ bind -S
 ```bash
 export HH_CONFIG=hicolor
 ```
+Show normal history by default (instead of metrics-based view):
+```bash
+export HH_CONFIG=rawhistory
+```
+Make search case sensitive (insensitive by default):
+```bash
+export HH_CONFIG=casesensitive
+```
+More colors and case sensitive search:
+```bash
+export HH_CONFIG=hicolor,casesensitive
+```
 
 * increase the size of history:
 ```bash
