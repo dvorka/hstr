@@ -83,7 +83,8 @@ export HISTCONTROL=ignorespace   # leading space hides commands from history
 export HISTFILESIZE=10000        # increase history file size (default is 500)
 export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
-bind '"\eC\-r": "\eC\-a hh \eC-j"'    # bind hh to Ctrl-r
+# if this is interactive shell, then bind hh to Ctrl-r
+if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hh \eC-j"'; fi
 .sp
 .fi
 The prompt command ensures synchronization of the history between BASH memory 

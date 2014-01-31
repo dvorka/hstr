@@ -76,7 +76,7 @@ CONFIGURATION EXPLANATION
 hh --show-configuration >> ~/.bashrc
 ```
 
-* bind `hh` to a BASH key e.g. to `Ctrl-R`:
+* bind `hh` to a BASH key e.g. to `Ctrl-r`:
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
@@ -84,6 +84,11 @@ or `Ctrl-F12`:
 ```bash
 bind '"\e[24;5~":"\C-ahh \C-j"'
 ```
+bind `hh` to `Ctrl-r` only if this is interactive shell:
+```bash
+if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh \C-j"'; fi
+```
+
 To determine the character sequence emitted by a pressed key in terminal, 
 type `Ctrl-v` and then press the key. Check your current bindings using:
 ```bash
@@ -94,15 +99,15 @@ bind -S
 ```bash
 export HH_CONFIG=hicolor
 ```
-Show normal history by default (instead of metrics-based view):
+show normal history by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=rawhistory
 ```
-Make search case sensitive (insensitive by default):
+make search case sensitive (insensitive by default):
 ```bash
 export HH_CONFIG=casesensitive
 ```
-More colors and case sensitive search:
+more colors and case sensitive search:
 ```bash
 export HH_CONFIG=hicolor,casesensitive
 ```

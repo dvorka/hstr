@@ -85,7 +85,8 @@ static const char *INSTALL_STRING=
 		"\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
 		"\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
 		"\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
-		"\nbind '\"\\C-r\": \"\\C-a hh \\C-j\"'    # bind hh to Ctrl-r"
+		"\n# if this is interactive shell, then bind hh to Ctrl-r"
+		"\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh \\C-j\"'; fi"
 		"\n\n";
 
 static const char *HELP_STRING=
