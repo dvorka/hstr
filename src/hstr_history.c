@@ -28,7 +28,6 @@ static const char *commandBlacklist[] = {
 		"ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
 };
 
-#define DEBUG_RADIX
 #ifdef DEBUG_RADIX
 #define DEBUG_RADIXSORT() radixsort_stat(&rs, false); exit(0)
 #else
