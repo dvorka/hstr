@@ -11,7 +11,6 @@
 #include <ctype.h>
 
 #define DEFAULT_COMMAND "pwd"
-#define HOSTNAME_BUFFER 100
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
 
 void tiocsti()
@@ -50,20 +49,19 @@ void reverse_char_pointer_array(char **array, unsigned length)
     }
 }
 
-char *get_hostname()
+void get_hostname(int bufferSize, char *buffer)
 {
-    char *b=malloc(HOSTNAME_BUFFER);
-	if(access( PROC_HOSTNAME, F_OK ) != -1) {
-	    FILE *f = fopen(PROC_HOSTNAME, "r");
-	    b=fgets(b, HOSTNAME_BUFFER, f);
-	    fclose(f);
+    char *b=buffer;
+	if(access(PROC_HOSTNAME, F_OK) != -1) {
+	    FILE *file = fopen(PROC_HOSTNAME, "r");
+	    b=fgets(buffer, bufferSize, file);
+	    fclose(file);
 	    if(b) {
 	    	b[strlen(b)-1]=0;
-	    	return b;
+	    	return;
 	    }
 	}
-    strcpy(b,"localhost");
-    return b;
+    strcpy(buffer,"localhost");
 }
 
 void toggle_case(char *str, bool lowercase) {

@@ -26,8 +26,10 @@
 #include "include/hstr_utils.h"
 
 #define SELECTION_CURSOR_IN_PROMPT -1
-#define SELECTION_PREFIX_MAX_LNG 500
+#define SELECTION_PREFIX_MAX_LNG 512
 #define CMDLINE_LNG 2048
+#define HOSTNAME_BUFFER 128
+
 
 #define Y_OFFSET_PROMPT 0
 #define Y_OFFSET_HELP 1
@@ -129,22 +131,26 @@ void get_env_configuration()
 
 int print_prompt()
 {
-	char *hostname = get_hostname();
 	char *user = getenv(ENV_VAR_USER);
-	int xoffset = 0;
+	char *hostname=malloc(HOSTNAME_BUFFER);
+	int xoffset = 0, promptLength;
 
 	if(hicolor) {
 		color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
 		color_attr_on(A_BOLD);
 	}
-	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", (user?user:"me"), (hostname?hostname:"localhost"));
+	user=(user?user:"me");
+	get_hostname(HOSTNAME_BUFFER, hostname);
+	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
+	promptLength=strlen(user)+1+strlen(hostname)+1+1;
+	free(hostname);
 	if(hicolor) {
 		color_attr_off(A_BOLD);
 		color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
 	}
 	refresh();
 
-	return strlen(user)+1+strlen(hostname)+1+1;
+	return promptLength;
 }
 
 void print_help_label()
