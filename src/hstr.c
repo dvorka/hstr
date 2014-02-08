@@ -137,7 +137,7 @@ int print_prompt()
 		color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
 		color_attr_on(A_BOLD);
 	}
-	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
+	mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", (user?user:"me"), (hostname?hostname:"localhost"));
 	if(hicolor) {
 		color_attr_off(A_BOLD);
 		color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
@@ -195,7 +195,7 @@ void print_history_label(HistoryItems *history)
 	refresh();
 }
 
-void print_pattern(char *pattern, int y, int x)
+void print_prefix(char *pattern, int y, int x)
 {
 	color_attr_on(A_BOLD);
 	mvprintw(y, x, "%s", pattern);
@@ -233,13 +233,9 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	char **source=(defaultOrder?history->raw:history->items);
 	unsigned count=(defaultOrder?history->rawCount:history->count);
 
-	if(prefix && !strlen(prefix)) {
-		prefix=NULL;
-	}
-
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
-			if(!prefix) {
+			if(!prefix || !strlen(prefix)) {
 				selection[selectionCount++]=source[i];
 			} else {
 				if(caseSensitive) {
@@ -428,7 +424,7 @@ void loop_to_select(HistoryItems *history)
 		if(!skip) {
 			c = wgetch(stdscr);
 		} else {
-			if(strlen(pattern)>0) {
+			if(strlen(pattern)) {
 				color_attr_on(A_BOLD);
 				mvprintw(y, basex, "%s", pattern);
 				color_attr_off(A_BOLD);
@@ -475,17 +471,20 @@ void loop_to_select(HistoryItems *history)
 			break;
 		case KEY_RESIZE:
 			print_history_label(history);
+			result=print_selection(maxHistoryItems, pattern, history);
+			print_history_label(history);
+			selectionCursorPosition=0;
 			move(y, basex+strlen(pattern));
 			break;
 		case K_CTRL_U:
 		case K_CTRL_W: // TODO supposed to delete just one word backward
 			pattern[0]=0;
-			print_pattern(pattern, y, basex);
+			print_prefix(pattern, y, basex);
 			break;
 		case K_CTRL_L:
 			toggle_case(pattern, lowercase);
 			lowercase=!lowercase;
-			print_pattern(pattern, y, basex);
+			print_prefix(pattern, y, basex);
 			selectionCursorPosition=0;
 			break;
 		case K_CTRL_H:
@@ -494,7 +493,7 @@ void loop_to_select(HistoryItems *history)
 			if(strlen(pattern)>0) {
 				pattern[strlen(pattern)-1]=0;
 				x--;
-				print_pattern(pattern, y, basex);
+				print_prefix(pattern, y, basex);
 			}
 
 			if(strlen(pattern)>0) {
@@ -563,7 +562,7 @@ void loop_to_select(HistoryItems *history)
 
 				if(strlen(pattern)<(width-basex-1)) {
 					strcat(pattern, (char*)(&c));
-					print_pattern(pattern, y, basex);
+					print_prefix(pattern, y, basex);
 					cursorX=getcurx(stdscr);
 					cursorY=getcury(stdscr);
 				}
