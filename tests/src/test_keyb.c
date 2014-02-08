@@ -11,6 +11,9 @@
 #include <readline/readline.h>
 #include <readline/chardefs.h>
 
+// $ xev
+//   ... get keycodes
+
 void echo_printable_characters()
 {
 	int c;

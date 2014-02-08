@@ -11,6 +11,7 @@ export HHBUILD=hstr-${NOW}
 #export UBUNTUVERSION=quantal
 #export UBUNTUVERSION=raring
 export UBUNTUVERSION=saucy
+#export UBUNTUVERSION=trusty
 
 export HHBZRMSG="Making radix sort allocation more effient and inserts more robust."
 

@@ -27,7 +27,7 @@
 
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 500
-#define CMDLINE_LNG 250
+#define CMDLINE_LNG 2048
 
 #define Y_OFFSET_PROMPT 0
 #define Y_OFFSET_HELP 1
@@ -108,7 +108,7 @@ static unsigned selectionSize=0;
 static bool caseSensitive=FALSE;
 static bool defaultOrder=FALSE;
 static bool hicolor=FALSE;
-static char screenLine[1000];
+static char screenLine[CMDLINE_LNG];
 static char cmdline[CMDLINE_LNG];
 
 void get_env_configuration()
@@ -172,17 +172,13 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 
 void print_history_label(HistoryItems *history)
 {
-	sprintf(screenLine, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
+	int width=getmaxx(stdscr);
+	snprintf(screenLine, width, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
 			(defaultOrder?"history":"ranking"),
 			history->count,
 			history->rawCount);
-	int width=getmaxx(stdscr);
 	width -= strlen(screenLine);
-	if(width<0) {
-		width = 0;
-		screenLine[getmaxx(stdscr)]=0;
-	}
 	unsigned i;
 	for (i=0; i < width; i++) {
 		strcat(screenLine, "-");
@@ -199,7 +195,8 @@ void print_history_label(HistoryItems *history)
 	refresh();
 }
 
-void print_pattern(char *pattern, int y, int x) {
+void print_pattern(char *pattern, int y, int x)
+{
 	color_attr_on(A_BOLD);
 	mvprintw(y, x, "%s", pattern);
 	color_attr_off(A_BOLD);
@@ -214,16 +211,15 @@ unsigned get_max_history_items()
 
 void realloc_selection(unsigned size)
 {
-	selectionSize=size;
-	if(selection!=NULL) {
-		if(size>0) {
+	if(selection) {
+		if(size) {
 			selection=realloc(selection, size);
 		} else {
 			free(selection);
 			selection=NULL;
 		}
 	} else {
-		if(size>0) {
+		if(size) {
 			selection = malloc(size);
 		}
 	}
@@ -232,12 +228,18 @@ void realloc_selection(unsigned size)
 unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCount)
 {
 	realloc_selection(sizeof(char*) * maxSelectionCount);
+
 	unsigned i, selectionCount=0;
 	char **source=(defaultOrder?history->raw:history->items);
+	unsigned count=(defaultOrder?history->rawCount:history->count);
 
-	for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
+	if(prefix && !strlen(prefix)) {
+		prefix=NULL;
+	}
+
+	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
-			if(prefix==NULL) {
+			if(!prefix) {
 				selection[selectionCount++]=source[i];
 			} else {
 				if(caseSensitive) {
@@ -255,7 +257,7 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 
 	if(prefix && selectionCount<maxSelectionCount) {
 		char *substring;
-		for(i=0; i<history->count && selectionCount<maxSelectionCount; i++) {
+		for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 			if(caseSensitive) {
 				substring = strstr(source[i], prefix);
 				if (substring != NULL && substring!=source[i]) {
@@ -274,10 +276,11 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	return selectionCount;
 }
 
-void print_selection_row(char *text, int y, int width, char *prefix) {
+void print_selection_row(char *text, int y, int width, char *prefix)
+{
 	snprintf(screenLine, width, " %s", text);
 	mvprintw(y, 0, screenLine); clrtoeol();
-	if(prefix!=NULL && strlen(prefix)>0) {
+	if(prefix && strlen(prefix)>0) {
 		color_attr_on(A_BOLD);
 		char *p;
 		if(caseSensitive) {
@@ -292,7 +295,8 @@ void print_selection_row(char *text, int y, int width, char *prefix) {
 	}
 }
 
-void print_highlighted_selection_row(char *text, int y, int width) {
+void print_highlighted_selection_row(char *text, int y, int width)
+{
 	color_attr_on(A_BOLD);
 	if(hicolor) {
 		color_attr_on(COLOR_PAIR(2));
@@ -313,10 +317,12 @@ void print_highlighted_selection_row(char *text, int y, int width) {
 
 char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *history)
 {
-	char *result="";
+	char *result;
 	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
 	if (selectionCount > 0) {
-		result = selection[0];
+		result=selection[0];
+	} else {
+		result="";
 	}
 
 	int height=get_max_history_items(stdscr);
@@ -370,7 +376,8 @@ void selection_remove(char *cmd, HistoryItems *history)
 	}
 }
 
-void hstr_on_exit() {
+void hstr_on_exit()
+{
 	history_mgmt_flush();
 	free_prioritized_history();
 }
@@ -521,7 +528,9 @@ void loop_to_select(HistoryItems *history)
 					selectionCursorPosition=0;
 				}
 			}
-			highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
+			if(selectionSize) {
+				highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
+			}
 			move(y, basex+strlen(pattern));
 			break;
 		case K_ENTER:
@@ -576,7 +585,8 @@ void loop_to_select(HistoryItems *history)
 	}
 }
 
-void assemble_cmdline(int argc, char *argv[]) {
+void assemble_cmdline(int argc, char *argv[])
+{
 	// TODO support BASH substitutions: !!, !!ps, !$, !*
 	int i;
 	cmdline[0]=0;
