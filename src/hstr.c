@@ -319,12 +319,10 @@ void print_highlighted_selection_row(char *text, int y, int width)
 
 char *print_selection(unsigned maxHistoryItems, char *prefix, HistoryItems *history)
 {
-	char *result;
+	char *result=NULL;
 	unsigned selectionCount=make_selection(prefix, history, maxHistoryItems);
 	if (selectionCount > 0) {
 		result=selection[0];
-	} else {
-		result="";
 	}
 
 	int height=get_max_history_items(stdscr);
