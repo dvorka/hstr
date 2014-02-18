@@ -49,6 +49,7 @@ apt-get install hh
 * optionally configure `hh`: 
 ```bash
 hh --show-configuration >> ~/.bashrc
+```
 
 
 DOWNLOAD
