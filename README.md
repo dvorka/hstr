@@ -80,6 +80,10 @@ hh --show-configuration >> ~/.bashrc
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
+or `Ctrl-Alt-r`:
+```bash
+bind '"\e\C-r":"\C-ahh \C-j"'
+```
 or `Ctrl-F12`:
 ```bash
 bind '"\e[24;5~":"\C-ahh \C-j"'
