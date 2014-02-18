@@ -28,6 +28,29 @@ hh --show-configuration >> ~/.bashrc
 ```
 
 
+DEBIAN/MINT INSTALLATION
+-------------------
+* install `hh` on Debian (Wheezy) or Mint (13) by registering the key:
+```bash
+wget www.clfh.de/frankh.asc
+apt-key add frankh.asc
+```
+adding the repository:
+```bash
+deb http://www.clfh.de/debian wheezy main
+deb-src http://www.clfh.de/debian wheezy main
+```
+and installing it:
+```bash
+apt-get update
+apt-get install hh
+```
+
+* optionally configure `hh`: 
+```bash
+hh --show-configuration >> ~/.bashrc
+
+
 DOWNLOAD
 --------
 https://github.com/dvorka/hstr/releases
