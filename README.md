@@ -52,23 +52,21 @@ hh --show-configuration >> ~/.bashrc
 ```
 
 
-DOWNLOAD
---------
+ARCH LINUX
+----------
+* download latest distribution from project Releases section:
+
 https://github.com/dvorka/hstr/releases
 
+* use PKGBUILD in the root of the distribution to build package using `makepkg`:
 
-SOURCE CODE INSTALLATION
-------------------------
-* download distribution (project Releases section), expand the archive and install `hh`:
-```bash
-./configure && make && make install
-```
+https://wiki.archlinux.org/index.php/PKGBUILD
 
+* install `hh`
 * optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-
 
 MAC OS
 ------
@@ -90,6 +88,24 @@ make && make install
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
+
+
+INSTALLATION FROM SOURCE CODE
+-----------------------------
+* download latest distribution from project Releases section:
+
+https://github.com/dvorka/hstr/releases
+
+* expand the archive and install `hh` using:
+```bash
+./configure && make && make install
+```
+
+* optionally configure `hh`:
+```bash
+hh --show-configuration >> ~/.bashrc
+```
+
 
 
 CONFIGURATION EXPLANATION
