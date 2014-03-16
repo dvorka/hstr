@@ -15,9 +15,9 @@ void testLog() {
 #define MAX_CHARACTER_CODE 10000
 static char line[MAX_CHARACTER_CODE];
 
-void testGenerateCrazyHistoryFile()
+void testGenerateHugeHistoryFileWithDifferentLines()
 {
-	FILE *file = fopen(".bash_history_crazy","a");
+	FILE *file = fopen(".bash_history_huge","a");
 	fseek(file,0, SEEK_END);
 
 	line[0]=0;
@@ -26,12 +26,34 @@ void testGenerateCrazyHistoryFile()
 		sprintf(line,"%s%c",line,i);
 		fprintf(file,"%s\n",line);
 	}
-
 	fclose(file);
 }
 
+
+void testGenerateHugeHistoryFileWithSameLines()
+{
+	FILE *file = fopen(".bash_history_same","a");
+	fseek(file,0, SEEK_END);
+
+	int i;
+	for(i=0; i<100000; i++) {
+		fprintf(file,"find . | while read X; do echo $X; cat $X | grep -i ctrl; done | less\n",line);
+		fprintf(file,
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+				"git commit -a -m \"Code review and stabilization.\" && git push origin master\n",
+				line);
+	}
+	fclose(file);
+}
+
+
 int main(int argc, char *argv[])
 {
-	testGenerateCrazyHistoryFile();
+	testGenerateHugeHistoryFileWithSameLines();
 }
 
