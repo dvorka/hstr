@@ -17,6 +17,7 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "hstr_favorites.h"
 #include "hstr_utils.h"
 #include "hashset.h"
 #include "radixsort.h"
@@ -30,10 +31,9 @@
 typedef struct {
 	char **items;
 	char **raw;
-	char **favorites;
+	FavoriteItems *favorites;
 	unsigned count;
 	unsigned rawCount;
-	unsigned favoritesCount;
 } HistoryItems;
 
 HistoryItems *get_prioritized_history();

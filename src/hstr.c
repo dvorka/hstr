@@ -38,6 +38,7 @@
 
 #define K_CTRL_A 1
 #define K_CTRL_E 5
+#define K_CTRL_F 6
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
@@ -258,8 +259,8 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 		count=history->rawCount;
 		break;
 	case HH_VIEW_FAVORITES:
-		source=history->favorites;
-		count=history->favoritesCount;
+		source=history->favorites->items;
+		count=history->favorites->count;
 		break;
 	}
 
@@ -496,6 +497,19 @@ void loop_to_select(HistoryItems *history)
 			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
 			selectionCursorPosition=0;
+			break;
+		case K_CTRL_F:
+			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+				result=selection[selectionCursorPosition];
+
+				if(historyView==HH_VIEW_FAVORITES) {
+					favorites_choose(history->favorites, result);
+				} else {
+					favorites_add(history->favorites, result);
+				}
+				result=print_selection(maxHistoryItems, pattern, history);
+				selectionCursorPosition=0;
+			}
 			break;
 		case KEY_RESIZE:
 			print_history_label(history);

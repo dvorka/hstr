@@ -11,7 +11,6 @@
 #include <limits.h>
 #include <readline/history.h>
 #include "include/hstr_history.h"
-#include "include/hstr_favorites.h"
 
 #define NDEBUG
 #include <assert.h>
@@ -152,11 +151,10 @@ HistoryItems *get_prioritized_history()
 		radixsort_destroy(&rs);
 
 
-		FavoriteItems favoriteItems;
-		favorites_init(&favoriteItems);
-		favorites_load(&favoriteItems);
-		prioritizedHistory->favorites=favoriteItems.items;
-		prioritizedHistory->favoritesCount=favoriteItems.count;
+		FavoriteItems *favoriteItems=malloc(sizeof(FavoriteItems));
+		favorites_init(favoriteItems);
+		favorites_load(favoriteItems);
+		prioritizedHistory->favorites=favoriteItems;
 
 		return prioritizedHistory;
 	} else {
@@ -167,13 +165,7 @@ HistoryItems *get_prioritized_history()
 void free_prioritized_history()
 {
 	free(prioritizedHistory->items);
-	if(prioritizedHistory->favorites) {
-		int i;
-		for(i=0; i<prioritizedHistory->favoritesCount; i++) {
-			free(prioritizedHistory->favorites[i]);
-		}
-		free(prioritizedHistory->favorites);
-	}
+	favorites_destroy(prioritizedHistory->favorites);
 	free(prioritizedHistory);
 }
 
