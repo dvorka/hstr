@@ -19,10 +19,9 @@ typedef struct {
 	unsigned count;
 } FavoriteItems;
 
-FavoriteItems *favorites_init();
-FavoriteItems *favorites_load();
-void favorites_add();
-void favorites_save();
-void favorites_close();
+void favorites_init(FavoriteItems *favorites);
+void favorites_load(FavoriteItems *favorites);
+void favorites_add(FavoriteItems *favorites, char *favorite);
+void favorites_save(FavoriteItems *favorites);
 
 #endif

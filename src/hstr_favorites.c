@@ -9,39 +9,26 @@
 
 #include "include/hstr_favorites.h"
 
-FavoriteItems *favorites;
+#define FAVORITE_SEGMENT_SIZE 10
 
-FavoriteItems *favorites_init() {
-	favorites=malloc(sizeof(FavoriteItems));
-	return favorites;
+void favorites_init(FavoriteItems *favorites) {
+	favorites->items=NULL;
+	favorites->count=0;
 }
 
-FavoriteItems *favorites_load() {
-	// TODO fake initialization
+void favorites_load(FavoriteItems *favorites) {
+	// TODO fake initialization instead of .hhrc load
 	favorites->count=3;
 	favorites->items=malloc(sizeof(char *)*favorites->count);
 	favorites->items[0]="a";
 	favorites->items[1]="b";
 	favorites->items[2]="c";
-
-	return favorites;
 }
 
-void favorites_add(char *newFavorite) {
+void favorites_add(FavoriteItems *favorites, char *newFavorite) {
 	favorites->items=realloc(favorites->items, sizeof(char *)*favorites->count);
 	favorites->items[favorites->count++]=newFavorite;
 }
 
-void favorites_save() {
-}
-
-void favorites_close() {
-	if(favorites) {
-		if(favorites->count) {
-			int i;
-			for(i=0; i<favorites->count; i++) {
-				free(favorites->items[i]);
-			}
-		}
-	}
+void favorites_save(FavoriteItems *favorites) {
 }

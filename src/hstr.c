@@ -60,10 +60,14 @@
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
 
-#define ENV_VAR_HH_CONFIG  "HH_CONFIG"
+#define HH_ENV_VAR_CONFIG  "HH_CONFIG"
 #define HH_CONFIG_HICOLOR  "hicolor"
 #define HH_CONFIG_CASE     "casesensitive"
 #define HH_CONFIG_SORTING  "rawhistory"
+
+#define HH_VIEW_RANKING		0
+#define HH_VIEW_HISTORY		1
+#define HH_VIEW_FAVORITES	2
 
 #define SPACE_PADDING "                                                              "
 
@@ -78,6 +82,11 @@
 #else
 #define LOGCURSOR(Y)
 #endif
+
+static const char *HH_VIEW_LABELS[]={
+		"ranking",
+		"history",
+		"favorites"};
 
 static const char *INSTALL_STRING=
 		"\n# add this configuration to ~/.bashrc"
@@ -108,14 +117,14 @@ static const char *LABEL_HELP=
 static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool caseSensitive=FALSE;
-static bool defaultOrder=FALSE;
+static int historyView=HH_VIEW_RANKING;
 static bool hicolor=FALSE;
 static char screenLine[CMDLINE_LNG];
 static char cmdline[CMDLINE_LNG];
 
 void get_env_configuration()
 {
-	char *hhconfig=getenv(ENV_VAR_HH_CONFIG);
+	char *hhconfig=getenv(HH_ENV_VAR_CONFIG);
 	if(hhconfig && strlen(hhconfig)>0) {
 		if(strstr(hhconfig,HH_CONFIG_HICOLOR)) {
 			hicolor=TRUE;
@@ -124,7 +133,7 @@ void get_env_configuration()
 			caseSensitive=TRUE;
 		}
 		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
-			defaultOrder=TRUE;
+			historyView=TRUE;
 		}
 	}
 }
@@ -179,9 +188,9 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 void print_history_label(HistoryItems *history)
 {
 	int width=getmaxx(stdscr);
-	snprintf(screenLine, width, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
+	snprintf(screenLine, width, "- HISTORY - case:%s (C-t) - view:%s (C-/) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
-			(defaultOrder?"history":"ranking"),
+			HH_VIEW_LABELS[historyView],
 			history->count,
 			history->rawCount);
 	width -= strlen(screenLine);
@@ -236,8 +245,23 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	realloc_selection(sizeof(char*) * maxSelectionCount);
 
 	unsigned i, selectionCount=0;
-	char **source=(defaultOrder?history->raw:history->items);
-	unsigned count=(defaultOrder?history->rawCount:history->count);
+	char **source;
+	unsigned count;
+
+	switch(historyView) {
+	case HH_VIEW_RANKING:
+		source=history->items;
+		count=history->count;
+		break;
+	case HH_VIEW_HISTORY:
+		source=history->raw;
+		count=history->rawCount;
+		break;
+	case HH_VIEW_FAVORITES:
+		source=history->favorites;
+		count=history->favoritesCount;
+		break;
+	}
 
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
@@ -468,7 +492,7 @@ void loop_to_select(HistoryItems *history)
 			selectionCursorPosition=0;
 			break;
 		case K_CTRL_SLASH:
-			defaultOrder=!defaultOrder;
+			historyView=(++historyView)%3;
 			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
 			selectionCursorPosition=0;
