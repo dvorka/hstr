@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="1.8.3"
+export HHVERSION="1.8.6"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
