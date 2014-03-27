@@ -12,7 +12,10 @@
 
 #include <stdlib.h>
 
-#define HH_RC_FILE ".hhrc"
+#define ENV_VAR_USER "USER"
+#define ENV_VAR_HOME "HOME"
+
+#define FILE_HH_RC ".hhrc"
 
 typedef struct {
 	char **items;

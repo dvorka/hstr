@@ -22,11 +22,9 @@
 #include "hashset.h"
 #include "radixsort.h"
 
-#define ENV_VAR_USER "USER"
-#define ENV_VAR_HOME "HOME"
 #define ENV_VAR_HISTFILE "HISTFILE"
 
-#define DEFAULT_HISTORY_FILE ".bash_history"
+#define FILE_DEFAULT_HISTORY ".bash_history"
 
 typedef struct {
 	char **items;
