@@ -15,19 +15,19 @@
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 
-#define FILE_HH_RC ".hhrc"
+#define FILE_HH_RC ".hh_favorites"
 
 typedef struct {
 	char **items;
 	unsigned count;
+	bool loaded;
 } FavoriteItems;
 
 void favorites_init(FavoriteItems *favorites);
-void favorites_load(FavoriteItems *favorites);
+void favorites_get(FavoriteItems *favorites);
 void favorites_add(FavoriteItems *favorites, char *favorite);
 void favorites_choose(FavoriteItems *favorites, char *choice);
 void favorites_remove(FavoriteItems *favorites, char *almostDead);
-void favorites_save(FavoriteItems *favorites);
 void favorites_destroy(FavoriteItems *favorites);
 
 #endif
