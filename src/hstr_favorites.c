@@ -22,15 +22,20 @@ void favorites_init(FavoriteItems *favorites)
 	favorites->loaded=false;
 }
 
+char* favorites_get_filename()
+{
+	char *home = getenv(ENV_VAR_HOME);
+	char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_RC) + 1);
+	strcpy(fileName, home);
+	strcat(fileName, "/");
+	strcat(fileName, FILE_HH_RC);
+	return fileName;
+}
+
 void favorites_get(FavoriteItems *favorites)
 {
 	if(!favorites->loaded) {
-		char *home = getenv(ENV_VAR_HOME);
-		char *fileName=(char*)malloc(strlen(home)+1+strlen(FILE_HH_RC)+1);
-		strcpy(fileName,home);
-		strcat(fileName,"/");
-		strcat(fileName,FILE_HH_RC);
-
+		char* fileName = favorites_get_filename();
 		char *file_contents=NULL;
 		if(access(fileName, F_OK) != -1) {
 			long input_file_size;
@@ -73,6 +78,7 @@ void favorites_get(FavoriteItems *favorites)
 			favorites->loaded=true;
 			return;
 		}
+		free(fileName);
 	}
 }
 
@@ -114,16 +120,36 @@ void favorites_choose(FavoriteItems *favorites, char *choice)
 
 void favorites_remove(FavoriteItems *favorites, char *almostDead)
 {
-	// TODO: keep slot you have, just change count
+	// TODO: keep slot you have, just change count > ? by pointer or strstr?
 
 	favorites_save(favorites);
 }
 
 void favorites_save(FavoriteItems *favorites)
 {
+	char *fileName=favorites_get_filename();
+
 	if(favorites->count) {
-		// TODO shrink file and rewrite it (can be shorter)
+		FILE *output_file = fopen(fileName, "wb");
+		rewind(output_file);
+		int i;
+		for(i=0; i<favorites->count; i++) {
+			if(fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), output_file)==-1) {
+				exit(EXIT_FAILURE);
+			}
+			if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
+				exit(EXIT_FAILURE);
+			}
+		}
+		fclose(output_file);
+	} else {
+		if(access(fileName, F_OK) != -1) {
+			FILE *output_file = fopen(fileName, "wb");
+			fclose(output_file);
+		}
 	}
+
+	free(fileName);
 }
 
 void favorites_destroy(FavoriteItems *favorites)
