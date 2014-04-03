@@ -27,7 +27,7 @@ void favorites_init(FavoriteItems *favorites);
 void favorites_get(FavoriteItems *favorites);
 void favorites_add(FavoriteItems *favorites, char *favorite);
 void favorites_choose(FavoriteItems *favorites, char *choice);
-void favorites_remove(FavoriteItems *favorites, char *almostDead);
+int favorites_remove(FavoriteItems *favorites, char *almostDead);
 void favorites_destroy(FavoriteItems *favorites);
 
 #endif

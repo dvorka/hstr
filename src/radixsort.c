@@ -9,10 +9,8 @@
 
 #include "include/radixsort.h"
 
-#define GET_TOP_INDEX(KEY) KEY/SLOT_SIZE
-#define GET_LOW_INDEX(KEY) KEY%SLOT_SIZE
-
-#define RADIX_DEBUG     1
+#define GET_TOP_INDEX(KEY) KEY/RADIX_SLOT_SIZE
+#define GET_LOW_INDEX(KEY) KEY%RADIX_SLOT_SIZE
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 {
@@ -30,10 +28,15 @@ void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 	rs->_slotsCount=0;
 }
 
+void radixsort_set_debug_level(RadixSorter *rs, unsigned debugLevel)
+{
+	rs->_debug=debugLevel;
+}
+
 RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned topIndex)
 {
-	RadixItem **slot=malloc(SLOT_SIZE * sizeof(RadixItem *));
-	memset(slot, 0, SLOT_SIZE * sizeof(RadixItem *));
+	RadixItem **slot=malloc(RADIX_SLOT_SIZE * sizeof(RadixItem *));
+	memset(slot, 0, RADIX_SLOT_SIZE * sizeof(RadixItem *));
 
 	RadixSlot *descriptor=malloc(sizeof(RadixSlot));
 	descriptor->min=rs->keyLimit;
@@ -48,7 +51,9 @@ RadixItem **radixsort_get_slot(RadixSorter *rs, unsigned topIndex)
 void radixsort_add(RadixSorter *rs, RadixItem *item)
 {
 	if(item->key > rs->keyLimit) {
-		if(RADIX_DEBUG) fprintf(stderr, "ERROR: Radix sort overflow - inserted key is bigger than limit (%u): %u\n", rs->keyLimit, item->key);
+		if(rs->_debug > RADIX_DEBUG_LEVEL_NONE) {
+			fprintf(stderr, "WARNING: Radix sort overflow - inserted key is bigger than limit (%u): %u\n", rs->keyLimit, item->key);
+		}
 		if(rs->optFloorAndInsertBigKeys) {
 			item->key = rs->keyLimit-1;
 		} else {
@@ -174,7 +179,7 @@ void radixsort_stat(RadixSorter *rs, bool listing)
 	printf("\n Radixsort (size/max/limit/slot count): %u %u %u %u", rs->size, rs->maxKey, rs->keyLimit, rs->_slotsCount);
 	unsigned memory=rs->_topIndexLimit * sizeof(RadixItem ***);
 	memory+=memory;
-	memory+=rs->_slotsCount*(SLOT_SIZE * sizeof(RadixItem *));
+	memory+=rs->_slotsCount*(RADIX_SLOT_SIZE * sizeof(RadixItem *));
 	printf("\n   Memory: %u\n", memory);
 	if(listing && rs->size>0) {
 		int t = GET_TOP_INDEX(rs->maxKey);

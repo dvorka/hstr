@@ -118,11 +118,21 @@ void favorites_choose(FavoriteItems *favorites, char *choice)
 	favorites_save(favorites);
 }
 
-void favorites_remove(FavoriteItems *favorites, char *almostDead)
+int favorites_remove(FavoriteItems *favorites, char *almostDead)
 {
-	// TODO: keep slot you have, just change count > ? by pointer or strstr?
+	int i, j=0;
+	for(i=0; i<favorites->count && j<favorites->count; i++) {
+		if(j) {
+			favorites->items[i]=favorites->items[j++];
+		} else {
+			if(favorites->items[i] == almostDead) {
+				j=i+1;
+			}
+		}
+	}
 
 	favorites_save(favorites);
+	return 1; // true or false
 }
 
 void favorites_save(FavoriteItems *favorites)

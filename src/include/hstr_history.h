@@ -28,10 +28,10 @@
 
 typedef struct {
 	char **items;
-	char **raw;
-	FavoriteItems *favorites;
 	unsigned count;
+	char **raw;
 	unsigned rawCount;
+	FavoriteItems *favorites;
 } HistoryItems;
 
 HistoryItems *get_prioritized_history();

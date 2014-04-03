@@ -65,6 +65,12 @@
 #define HH_CONFIG_HICOLOR  "hicolor"
 #define HH_CONFIG_CASE     "casesensitive"
 #define HH_CONFIG_SORTING  "rawhistory"
+#define HH_CONFIG_DEBUG    "debug"
+#define HH_CONFIG_WARN     "warning"
+
+#define HH_DEBUG_LEVEL_NONE  0
+#define HH_DEBUG_LEVEL_WARN  1
+#define HH_DEBUG_LEVEL_DEBUG 2
 
 #define HH_VIEW_RANKING		0
 #define HH_VIEW_HISTORY		1
@@ -120,6 +126,7 @@ static unsigned selectionSize=0;
 static bool caseSensitive=FALSE;
 static int historyView=HH_VIEW_RANKING;
 static bool hicolor=FALSE;
+static int debugLevel=0;
 static char screenLine[CMDLINE_LNG];
 static char cmdline[CMDLINE_LNG];
 
@@ -135,6 +142,13 @@ void get_env_configuration()
 		}
 		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
 			historyView=TRUE;
+		}
+		if(strstr(hhconfig,HH_CONFIG_DEBUG)) {
+			debugLevel=HH_DEBUG_LEVEL_DEBUG;
+		} else {
+			if(strstr(hhconfig,HH_CONFIG_WARN)) {
+				debugLevel=HH_DEBUG_LEVEL_WARN;
+			}
 		}
 	}
 }
@@ -416,6 +430,15 @@ void signal_callback_handler_ctrl_c(int signum)
 	}
 }
 
+int seletion_source_remove(char* delete, HistoryItems *history)
+{
+	if(historyView!=HH_VIEW_FAVORITES) {
+		return history_mgmt_remove(delete);
+	} else {
+		return favorites_remove(history->favorites, delete);
+	}
+}
+
 void loop_to_select(HistoryItems *history)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
@@ -478,7 +501,7 @@ void loop_to_select(HistoryItems *history)
 				msg=malloc(strlen(delete)+1);
 				strcpy(msg,delete);
 				selection_remove(delete, history);
-				deleteOccurences=history_mgmt_remove(delete);
+				deleteOccurences=seletion_source_remove(delete, history);
 				result=print_selection(maxHistoryItems, pattern, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(pattern));
