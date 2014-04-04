@@ -93,13 +93,18 @@ static const char *INSTALL_STRING=
 
 static const char *HELP_STRING=
 		"Usage: hh [option] [arg1] [arg2]..."
-		"\nShell history suggest box (build: "__DATE__" " __TIME__")"
+		"\nShell history suggest box:"
 		"\n"
 		"\n  --show-configuration    ... show configuration to be added to .bashrc"
 		"\n  --help                  ... display this help and exit"
 		"\n"
 		"\nReport bugs to martin.dvorak@mindforger.com"
 		"\nHome page: https://github.com/dvorka/hstr"
+		"\n";
+
+static const char *VERSION_STRING=
+		"hh version \"1.8\""
+		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
 static const char *LABEL_HELP=
@@ -628,10 +633,16 @@ int main(int argc, char *argv[])
 			if(strstr(argv[1], "--show-configuration")) {
 				printf("%s", INSTALL_STRING);
 				return EXIT_SUCCESS;
-			}
-			if(strstr(argv[1], "--help")) {
-				printf("%s", HELP_STRING);
-				return EXIT_SUCCESS;
+			} else {
+				if(strstr(argv[1], "--help")) {
+					printf("%s", HELP_STRING);
+					return EXIT_SUCCESS;
+				} else {
+					if(strstr(argv[1], "--version")) {
+						printf("%s", VERSION_STRING);
+						return EXIT_SUCCESS;
+					}
+				}
 			}
 		}
 		assemble_cmdline(argc, argv);

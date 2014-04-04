@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="1.8.6"
+export HHVERSION="1.8.7"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
@@ -8,10 +8,11 @@ export HHSRC=/home/dvorka/p/hstr/github/hstr
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export HHBUILD=hstr-${NOW}
 
+## https://wiki.ubuntu.com/Releases
+export UBUNTUVERSION=precise
 #export UBUNTUVERSION=quantal
-##export UBUNTUVERSION=raring
 #export UBUNTUVERSION=saucy
-export UBUNTUVERSION=trusty
+#export UBUNTUVERSION=trusty
 
 export HHBZRMSG="Huge history scalability and robustness (optimization and fixes)."
 
