@@ -403,15 +403,32 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 
 void selection_remove(char *cmd, HistoryItems *history)
 {
-	if(history->count) {
-		int i, w;
-		for(i=0, w=0; i<history->count; i++) {
-			if(strcmp(history->items[i], cmd)) {
-				history->items[w]=history->items[i];
-				w++;
+	if(historyView==HH_VIEW_FAVORITES) {
+		if(history->favorites->count) {
+
+			selection must be remade & shown OR move the favorites remove code to here
+
+			int i, w;
+			for(i=0, w=0; i<history->count; i++) {
+				if(strcmp(history->items[i], cmd)) {
+					history->items[w]=history->items[i];
+					w++;
+				}
 			}
+			history->count=w;
+
 		}
-		history->count=w;
+	} else {
+		if(history->count) {
+			int i, w;
+			for(i=0, w=0; i<history->count; i++) {
+				if(strcmp(history->items[i], cmd)) {
+					history->items[w]=history->items[i];
+					w++;
+				}
+			}
+			history->count=w;
+		}
 	}
 }
 
