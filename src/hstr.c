@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : hstr.c
- Author      : martin.dvorak@midforger.com
+ Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
  Description : Shell history completion utility
  ============================================================================

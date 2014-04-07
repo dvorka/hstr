@@ -1,9 +1,11 @@
 /*
- * test_hstr.c
- *
- *  Created on: Jan 10, 2014
- *      Author: dvorka
- */
+ ============================================================================
+ Name        : test_hashset.c
+ Author      : martin.dvorak@mindforger.com
+ Copyright   : Apache 2.0
+ Description : A test
+ ============================================================================
+*/
 
 #include "../src/include/hashset.h"
 

@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : radixsort.h
- Author      : martin.dvorak@midforger.com
+ Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
  Description : Radix sort
  ============================================================================

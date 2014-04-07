@@ -1,7 +1,7 @@
 /*
  ============================================================================
  Name        : hstr_history.h
- Author      : martin.dvorak@midforger.com
+ Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
  Description : Loading and processing of BASH history
  ============================================================================

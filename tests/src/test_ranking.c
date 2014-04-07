@@ -1,5 +1,11 @@
-/* Test
- */
+/*
+ ============================================================================
+ Name        : test_ranking.c
+ Author      : martin.dvorak@mindforger.com
+ Copyright   : Apache 2.0
+ Description : A test
+ ============================================================================
+*/
 
 #include <stdio.h>
 #include <math.h>
