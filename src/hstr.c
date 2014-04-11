@@ -161,7 +161,7 @@ int print_prompt()
 void print_help_label()
 {
 	snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
-	mvprintw(Y_OFFSET_HELP, 0, screenLine); clrtoeol();
+	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine); clrtoeol();
 	refresh();
 }
 
@@ -172,7 +172,7 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 		color_attr_on(COLOR_PAIR(4));
 		color_attr_on(A_BOLD);
 	}
-	mvprintw(Y_OFFSET_HELP, 0, screenLine);
+	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
 	if(hicolor) {
 		color_attr_off(A_BOLD);
 		color_attr_on(COLOR_PAIR(1));
@@ -198,7 +198,7 @@ void print_history_label(HistoryItems *history)
 		color_attr_on(A_BOLD);
 	}
 	color_attr_on(A_REVERSE);
-	mvprintw(Y_OFFSET_HISTORY, 0, screenLine);
+	mvprintw(Y_OFFSET_HISTORY, 0, "%s", screenLine);
 	color_attr_off(A_REVERSE);
 	if(hicolor) {
 		color_attr_off(A_BOLD);
@@ -286,7 +286,7 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 void print_selection_row(char *text, int y, int width, char *prefix)
 {
 	snprintf(screenLine, width, " %s", text);
-	mvprintw(y, 0, screenLine); clrtoeol();
+	mvprintw(y, 0, "%s", screenLine); clrtoeol();
 	if(prefix && strlen(prefix)>0) {
 		color_attr_on(A_BOLD);
 		char *p;
