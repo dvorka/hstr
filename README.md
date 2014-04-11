@@ -27,6 +27,45 @@ sudo apt-get install hh
 hh --show-configuration >> ~/.bashrc
 ```
 
+INSTALLATION FROM SOURCE CODE
+-----------------------------
+* Clone git repository
+```bash
+git clone https://github.com/dvorka/hstr.git
+```
+
+* create build files using:
+```bash
+cd ./dist && ./dist-1.sh && cd ..
+```
+
+* install `hh` using:
+```bash
+./configure && make && make install
+```
+
+* optionally configure `hh`:
+```bash
+hh --show-configuration >> ~/.bashrc
+```
+
+
+INSTALLATION DISTRIBUTION
+-------------------------
+* download latest distribution from project Releases section:
+
+https://github.com/dvorka/hstr/releases
+
+* expand the archive and install `hh` using:
+```bash
+./configure && make && make install
+```
+
+* optionally configure `hh`:
+```bash
+hh --show-configuration >> ~/.bashrc
+```
+
 
 DEBIAN/MINT INSTALLATION
 -------------------
@@ -88,24 +127,6 @@ make && make install
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-
-
-INSTALLATION FROM SOURCE CODE
------------------------------
-* download latest distribution from project Releases section:
-
-https://github.com/dvorka/hstr/releases
-
-* expand the archive and install `hh` using:
-```bash
-./configure && make && make install
-```
-
-* optionally configure `hh`:
-```bash
-hh --show-configuration >> ~/.bashrc
-```
-
 
 
 CONFIGURATION EXPLANATION
