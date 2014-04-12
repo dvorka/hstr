@@ -29,7 +29,7 @@ hh --show-configuration >> ~/.bashrc
 
 INSTALLATION FROM SOURCE CODE
 -----------------------------
-* Clone git repository
+* Clone Git repository:
 ```bash
 git clone https://github.com/dvorka/hstr.git
 ```
@@ -50,7 +50,7 @@ hh --show-configuration >> ~/.bashrc
 ```
 
 
-INSTALLATION DISTRIBUTION
+DISTRIBUTION INSTALLATION 
 -------------------------
 * download latest distribution from project Releases section:
 

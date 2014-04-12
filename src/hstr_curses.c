@@ -4,6 +4,7 @@
  Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
  Description : Curses utilities
+               http://pueblo.sourceforge.net/doc/manual/ansi_color_codes.html
  ============================================================================
 */
 
