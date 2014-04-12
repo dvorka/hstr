@@ -82,6 +82,33 @@ void favorites_get(FavoriteItems *favorites)
 	}
 }
 
+void favorites_save(FavoriteItems *favorites)
+{
+	char *fileName=favorites_get_filename();
+
+	if(favorites->count) {
+		FILE *output_file = fopen(fileName, "wb");
+		rewind(output_file);
+		int i;
+		for(i=0; i<favorites->count; i++) {
+			if(fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), output_file)==-1) {
+				exit(EXIT_FAILURE);
+			}
+			if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
+				exit(EXIT_FAILURE);
+			}
+		}
+		fclose(output_file);
+	} else {
+		if(access(fileName, F_OK) != -1) {
+			FILE *output_file = fopen(fileName, "wb");
+			fclose(output_file);
+		}
+	}
+
+	free(fileName);
+}
+
 void favorites_add(FavoriteItems *favorites, char *newFavorite)
 {
 	if(favorites->count) {
@@ -118,48 +145,25 @@ void favorites_choose(FavoriteItems *favorites, char *choice)
 	favorites_save(favorites);
 }
 
-int favorites_remove(FavoriteItems *favorites, char *almostDead)
+bool favorites_remove(FavoriteItems *favorites, char *almostDead)
 {
-	int i, j=0;
-	for(i=0; i<favorites->count && j<favorites->count; i++) {
-		if(j) {
-			favorites->items[i]=favorites->items[j++];
-		} else {
-			if(favorites->items[i] == almostDead) {
-				j=i+1;
-			}
-		}
-	}
-
-	favorites_save(favorites);
-	return 1; // true or false
-}
-
-void favorites_save(FavoriteItems *favorites)
-{
-	char *fileName=favorites_get_filename();
-
 	if(favorites->count) {
-		FILE *output_file = fopen(fileName, "wb");
-		rewind(output_file);
-		int i;
-		for(i=0; i<favorites->count; i++) {
-			if(fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), output_file)==-1) {
-				exit(EXIT_FAILURE);
-			}
-			if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
-				exit(EXIT_FAILURE);
+		int i, j;
+		for(i=0, j=0; i<favorites->count && j<favorites->count; i++, j++) {
+			if(!strcmp(favorites->items[i], almostDead)) {
+				j=i+1;
+				favorites->count--;
+			} else {
+				if(j>i) {
+					favorites->items[i]=favorites->items[j];
+				}
 			}
 		}
-		fclose(output_file);
+		favorites_save(favorites);
+		return true;
 	} else {
-		if(access(fileName, F_OK) != -1) {
-			FILE *output_file = fopen(fileName, "wb");
-			fclose(output_file);
-		}
+		return false;
 	}
-
-	free(fileName);
 }
 
 void favorites_destroy(FavoriteItems *favorites)

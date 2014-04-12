@@ -119,7 +119,7 @@ static const char *HELP_STRING=
 		"\n";
 
 static const char *LABEL_HELP=
-		 "Type to filter, UP/DOWN to move, DEL to remove, TAB to select, C-g to cancel";
+		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 static char **selection=NULL;
 static unsigned selectionSize=0;
@@ -200,10 +200,26 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 	refresh();
 }
 
+void print_cmd_added_favorite_label(char *cmd)
+{
+	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(A_BOLD);
+	}
+	mvprintw(Y_OFFSET_HELP, 0, screenLine);
+	if(hicolor) {
+		color_attr_off(A_BOLD);
+		color_attr_on(COLOR_PAIR(1));
+	}
+	clrtoeol();
+	refresh();
+}
+
 void print_history_label(HistoryItems *history)
 {
 	int width=getmaxx(stdscr);
-	snprintf(screenLine, width, "- HISTORY - case:%s (C-t) - view:%s (C-/) - %d/%d ",
+	snprintf(screenLine, width, "- HISTORY - match:%s (C-t) - view:%s (C-/) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
 			HH_VIEW_LABELS[historyView],
 			history->count,
@@ -404,20 +420,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 void selection_remove(char *cmd, HistoryItems *history)
 {
 	if(historyView==HH_VIEW_FAVORITES) {
-		if(history->favorites->count) {
-
-			selection must be remade & shown OR move the favorites remove code to here
-
-			int i, w;
-			for(i=0, w=0; i<history->count; i++) {
-				if(strcmp(history->items[i], cmd)) {
-					history->items[w]=history->items[i];
-					w++;
-				}
-			}
-			history->count=w;
-
-		}
+		favorites_remove(history->favorites, cmd);
 	} else {
 		if(history->count) {
 			int i, w;
@@ -477,7 +480,7 @@ void loop_to_select(HistoryItems *history)
 	print_selection(get_max_history_items(stdscr), NULL, history);
 	color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
-	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, justDeleted=FALSE;
+	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE;
 	int basex=print_prompt(stdscr);
 	int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
 	int width=getmaxx(stdscr);
@@ -506,9 +509,9 @@ void loop_to_select(HistoryItems *history)
 			continue;
 		}
 
-		if(justDeleted) {
+		if(printDefaultLabel) {
 			print_help_label();
-			justDeleted=FALSE;
+			printDefaultLabel=FALSE;
 		}
 
 		switch (c) {
@@ -522,7 +525,7 @@ void loop_to_select(HistoryItems *history)
 				result=print_selection(maxHistoryItems, pattern, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(pattern));
-				justDeleted=TRUE;
+				printDefaultLabel=TRUE;
 			}
 			print_history_label(history);
 			break;
@@ -546,6 +549,8 @@ void loop_to_select(HistoryItems *history)
 					favorites_choose(history->favorites, result);
 				} else {
 					favorites_add(history->favorites, result);
+					print_cmd_added_favorite_label(result);
+					printDefaultLabel=TRUE;
 				}
 				result=print_selection(maxHistoryItems, pattern, history);
 				selectionCursorPosition=0;
