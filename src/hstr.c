@@ -65,6 +65,7 @@
 #define HH_CONFIG_HICOLOR  "hicolor"
 #define HH_CONFIG_CASE     "casesensitive"
 #define HH_CONFIG_SORTING  "rawhistory"
+#define HH_CONFIG_FAVORITES "favorites"
 #define HH_CONFIG_DEBUG    "debug"
 #define HH_CONFIG_WARN     "warning"
 
@@ -141,7 +142,11 @@ void get_env_configuration()
 			caseSensitive=TRUE;
 		}
 		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
-			historyView=TRUE;
+			historyView=HH_VIEW_HISTORY;
+		} else {
+			if(strstr(hhconfig,HH_CONFIG_FAVORITES)) {
+				historyView=HH_VIEW_FAVORITES;
+			}
 		}
 		if(strstr(hhconfig,HH_CONFIG_DEBUG)) {
 			debugLevel=HH_DEBUG_LEVEL_DEBUG;
