@@ -11,11 +11,11 @@
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
+
 #include "include/hstr_favorites.h"
+#include "include/hstr_utils.h"
 
 #define FAVORITE_SEGMENT_SIZE 10
-
-extern char *strdup(const char *s);
 
 void favorites_init(FavoriteItems *favorites)
 {
@@ -68,7 +68,7 @@ void favorites_get(FavoriteItems *favorites)
 				while(pe!=NULL) {
 					favorites->items[i]=pb;
 					*pe=0;
-					favorites->items[i]=(char *)strdup(pb);
+					favorites->items[i]=hstr_strdup(pb);
 					pb=pe+1;
 					pe=strchr(pb, '\n');
 					i++;
@@ -115,11 +115,11 @@ void favorites_add(FavoriteItems *favorites, char *newFavorite)
 {
 	if(favorites->count) {
 		favorites->items=realloc(favorites->items, sizeof(char *) * ++favorites->count);
-		favorites->items[favorites->count-1]=strdup(newFavorite);
+		favorites->items[favorites->count-1]=hstr_strdup(newFavorite);
 		favorites_choose(favorites, newFavorite);
 	} else {
 		favorites->items=malloc(sizeof(char*));
-		favorites->items[0]=strdup(newFavorite);
+		favorites->items[0]=hstr_strdup(newFavorite);
 		favorites->count=1;
 	}
 

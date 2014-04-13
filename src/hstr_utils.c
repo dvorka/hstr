@@ -8,10 +8,20 @@
 */
 
 #include "include/hstr_utils.h"
+
 #include <ctype.h>
 
 #define DEFAULT_COMMAND "pwd"
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
+
+// strdup() not in ISO C
+char *hstr_strdup(const char * s)
+{
+  size_t len = 1+strlen(s);
+  char *p = malloc(len);
+
+  return p ? memcpy(p, s, len) : NULL;
+}
 
 void tiocsti()
 {

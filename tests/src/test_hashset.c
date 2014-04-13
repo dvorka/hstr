@@ -8,6 +8,7 @@
 */
 
 #include "../src/include/hashset.h"
+#include "../src/include/hstr_utils.h"
 
 void testBlacklist() {
 	const char* commandBlacklist[] = { };
@@ -19,7 +20,7 @@ void testBlacklist() {
 	}
 	for (i = 0; i < 5; i++) {
 		printf("match %d\n",
-				hashset_contains(&blacklist, strdup(commandBlacklist[i])));
+				hashset_contains(&blacklist, hstr_strdup(commandBlacklist[i])));
 	}
 }
 
