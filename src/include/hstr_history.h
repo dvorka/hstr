@@ -17,21 +17,21 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "hstr_favorites.h"
 #include "hstr_utils.h"
 #include "hashset.h"
 #include "radixsort.h"
 
-#define ENV_VAR_USER "USER"
-#define ENV_VAR_HOME "HOME"
 #define ENV_VAR_HISTFILE "HISTFILE"
 
-#define DEFAULT_HISTORY_FILE ".bash_history"
+#define FILE_DEFAULT_HISTORY ".bash_history"
 
 typedef struct {
 	char **items;
-	char **raw;
 	unsigned count;
+	char **raw;
 	unsigned rawCount;
+	FavoriteItems *favorites;
 } HistoryItems;
 
 HistoryItems *get_prioritized_history();

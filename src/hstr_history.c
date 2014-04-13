@@ -47,8 +47,8 @@ char *get_history_file_name()
 	char *historyFile=getenv(ENV_VAR_HISTFILE);
 	if(!historyFile || strlen(historyFile)==0) {
 		char *home = getenv(ENV_VAR_HOME);
-		historyFile = malloc(strlen(home) + 1 + strlen(DEFAULT_HISTORY_FILE) + 1);
-		strcat(strcat(strcpy(historyFile, home), "/"), DEFAULT_HISTORY_FILE);
+		historyFile = malloc(strlen(home) + 1 + strlen(FILE_DEFAULT_HISTORY) + 1);
+		strcat(strcat(strcpy(historyFile, home), "/"), FILE_DEFAULT_HISTORY);
 	}
 	return historyFile;
 }
@@ -150,6 +150,13 @@ HistoryItems *get_prioritized_history()
 
 		radixsort_destroy(&rs);
 
+
+		FavoriteItems *favoriteItems=malloc(sizeof(FavoriteItems));
+		favorites_init(favoriteItems);
+		// TODO make favorites loading lazy > github issue
+		favorites_get(favoriteItems);
+		prioritizedHistory->favorites=favoriteItems;
+
 		return prioritizedHistory;
 	} else {
 		return NULL;
@@ -159,6 +166,7 @@ HistoryItems *get_prioritized_history()
 void free_prioritized_history()
 {
 	free(prioritizedHistory->items);
+	favorites_destroy(prioritizedHistory->favorites);
 	free(prioritizedHistory);
 }
 

@@ -17,7 +17,11 @@
 #include <stddef.h>
 #include "hstr_utils.h"
 
-#define SLOT_SIZE 1000
+#define RADIX_SLOT_SIZE 1000
+
+#define RADIX_DEBUG_LEVEL_NONE  0
+#define RADIX_DEBUG_LEVEL_WARN  1
+#define RADIX_DEBUG_LEVEL_DEBUG 2
 
 typedef struct radixitem {
 	unsigned key;
@@ -43,9 +47,11 @@ typedef struct {
 	RadixSlot **_slotDescriptors;
 	unsigned _slotsCount;
 	unsigned _topIndexLimit;
+	unsigned _debug;
 } RadixSorter;
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit);
+void radixsort_set_debug_level(RadixSorter *rs, unsigned debugLevel);
 void radixsort_add(RadixSorter *rs, RadixItem *item);
 RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data);
 RadixItem **radixsort_dump(RadixSorter *rs);

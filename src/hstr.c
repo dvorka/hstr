@@ -38,6 +38,7 @@
 
 #define K_CTRL_A 1
 #define K_CTRL_E 5
+#define K_CTRL_F 6
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
@@ -60,10 +61,21 @@
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
 
-#define ENV_VAR_HH_CONFIG  "HH_CONFIG"
+#define HH_ENV_VAR_CONFIG  "HH_CONFIG"
 #define HH_CONFIG_HICOLOR  "hicolor"
 #define HH_CONFIG_CASE     "casesensitive"
 #define HH_CONFIG_SORTING  "rawhistory"
+#define HH_CONFIG_FAVORITES "favorites"
+#define HH_CONFIG_DEBUG    "debug"
+#define HH_CONFIG_WARN     "warning"
+
+#define HH_DEBUG_LEVEL_NONE  0
+#define HH_DEBUG_LEVEL_WARN  1
+#define HH_DEBUG_LEVEL_DEBUG 2
+
+#define HH_VIEW_RANKING		0
+#define HH_VIEW_HISTORY		1
+#define HH_VIEW_FAVORITES	2
 
 #define SPACE_PADDING "                                                              "
 
@@ -78,6 +90,11 @@
 #else
 #define LOGCURSOR(Y)
 #endif
+
+static const char *HH_VIEW_LABELS[]={
+		"ranking",
+		"history",
+		"favorites"};
 
 static const char *INSTALL_STRING=
 		"\n# add this configuration to ~/.bashrc"
@@ -95,7 +112,8 @@ static const char *HELP_STRING=
 		"Usage: hh [option] [arg1] [arg2]..."
 		"\nShell history suggest box:"
 		"\n"
-		"\n  --show-configuration    ... show configuration to be added to .bashrc"
+		"\n  --favorites -f          ... show command favorites"
+		"\n  --show-configuration    ... show configuration to be added to ~/.bashrc"
 		"\n  --help                  ... display this help and exit"
 		"\n"
 		"\nReport bugs to martin.dvorak@mindforger.com"
@@ -108,19 +126,20 @@ static const char *VERSION_STRING=
 		"\n";
 
 static const char *LABEL_HELP=
-		 "Type to filter, UP/DOWN to move, DEL to remove, TAB to select, C-g to cancel";
+		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 static char **selection=NULL;
 static unsigned selectionSize=0;
 static bool caseSensitive=FALSE;
-static bool defaultOrder=FALSE;
+static int historyView=HH_VIEW_RANKING;
 static bool hicolor=FALSE;
+static int debugLevel=0;
 static char screenLine[CMDLINE_LNG];
 static char cmdline[CMDLINE_LNG];
 
 void get_env_configuration()
 {
-	char *hhconfig=getenv(ENV_VAR_HH_CONFIG);
+	char *hhconfig=getenv(HH_ENV_VAR_CONFIG);
 	if(hhconfig && strlen(hhconfig)>0) {
 		if(strstr(hhconfig,HH_CONFIG_HICOLOR)) {
 			hicolor=TRUE;
@@ -129,7 +148,18 @@ void get_env_configuration()
 			caseSensitive=TRUE;
 		}
 		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
-			defaultOrder=TRUE;
+			historyView=HH_VIEW_HISTORY;
+		} else {
+			if(strstr(hhconfig,HH_CONFIG_FAVORITES)) {
+				historyView=HH_VIEW_FAVORITES;
+			}
+		}
+		if(strstr(hhconfig,HH_CONFIG_DEBUG)) {
+			debugLevel=HH_DEBUG_LEVEL_DEBUG;
+		} else {
+			if(strstr(hhconfig,HH_CONFIG_WARN)) {
+				debugLevel=HH_DEBUG_LEVEL_WARN;
+			}
 		}
 	}
 }
@@ -181,12 +211,28 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 	refresh();
 }
 
+void print_cmd_added_favorite_label(char *cmd)
+{
+	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
+	if(hicolor) {
+		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(A_BOLD);
+	}
+	mvprintw(Y_OFFSET_HELP, 0, screenLine);
+	if(hicolor) {
+		color_attr_off(A_BOLD);
+		color_attr_on(COLOR_PAIR(1));
+	}
+	clrtoeol();
+	refresh();
+}
+
 void print_history_label(HistoryItems *history)
 {
 	int width=getmaxx(stdscr);
-	snprintf(screenLine, width, "- HISTORY - case:%s (C-t) - order:%s (C-/) - %d/%d ",
+	snprintf(screenLine, width, "- HISTORY - match:%s (C-t) - view:%s (C-/) - %d/%d ",
 			(caseSensitive?"sensitive":"insensitive"),
-			(defaultOrder?"history":"ranking"),
+			HH_VIEW_LABELS[historyView],
 			history->count,
 			history->rawCount);
 	width -= strlen(screenLine);
@@ -241,8 +287,23 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	realloc_selection(sizeof(char*) * maxSelectionCount);
 
 	unsigned i, selectionCount=0;
-	char **source=(defaultOrder?history->raw:history->items);
-	unsigned count=(defaultOrder?history->rawCount:history->count);
+	char **source;
+	unsigned count;
+
+	switch(historyView) {
+	case HH_VIEW_RANKING:
+		source=history->items;
+		count=history->count;
+		break;
+	case HH_VIEW_HISTORY:
+		source=history->raw;
+		count=history->rawCount;
+		break;
+	case HH_VIEW_FAVORITES:
+		source=history->favorites->items;
+		count=history->favorites->count;
+		break;
+	}
 
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
@@ -369,15 +430,19 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 
 void selection_remove(char *cmd, HistoryItems *history)
 {
-	if(history->count) {
-		int i, w;
-		for(i=0, w=0; i<history->count; i++) {
-			if(strcmp(history->items[i], cmd)) {
-				history->items[w]=history->items[i];
-				w++;
+	if(historyView==HH_VIEW_FAVORITES) {
+		favorites_remove(history->favorites, cmd);
+	} else {
+		if(history->count) {
+			int i, w;
+			for(i=0, w=0; i<history->count; i++) {
+				if(strcmp(history->items[i], cmd)) {
+					history->items[w]=history->items[i];
+					w++;
+				}
 			}
+			history->count=w;
 		}
-		history->count=w;
 	}
 }
 
@@ -393,6 +458,15 @@ void signal_callback_handler_ctrl_c(int signum)
 		endwin();
 		hstr_on_exit();
 		exit(signum);
+	}
+}
+
+int seletion_source_remove(char* delete, HistoryItems *history)
+{
+	if(historyView!=HH_VIEW_FAVORITES) {
+		return history_mgmt_remove(delete);
+	} else {
+		return favorites_remove(history->favorites, delete);
 	}
 }
 
@@ -417,7 +491,7 @@ void loop_to_select(HistoryItems *history)
 	print_selection(get_max_history_items(stdscr), NULL, history);
 	color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
-	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, justDeleted=FALSE;
+	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE;
 	int basex=print_prompt(stdscr);
 	int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
 	int width=getmaxx(stdscr);
@@ -446,9 +520,9 @@ void loop_to_select(HistoryItems *history)
 			continue;
 		}
 
-		if(justDeleted) {
+		if(printDefaultLabel) {
 			print_help_label();
-			justDeleted=FALSE;
+			printDefaultLabel=FALSE;
 		}
 
 		switch (c) {
@@ -458,11 +532,11 @@ void loop_to_select(HistoryItems *history)
 				msg=malloc(strlen(delete)+1);
 				strcpy(msg,delete);
 				selection_remove(delete, history);
-				deleteOccurences=history_mgmt_remove(delete);
+				deleteOccurences=seletion_source_remove(delete, history);
 				result=print_selection(maxHistoryItems, pattern, history);
 				print_cmd_deleted_label(msg, deleteOccurences);
 				move(y, basex+strlen(pattern));
-				justDeleted=TRUE;
+				printDefaultLabel=TRUE;
 			}
 			print_history_label(history);
 			break;
@@ -473,10 +547,25 @@ void loop_to_select(HistoryItems *history)
 			selectionCursorPosition=0;
 			break;
 		case K_CTRL_SLASH:
-			defaultOrder=!defaultOrder;
+			historyView=(++historyView)%3;
 			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
 			selectionCursorPosition=0;
+			break;
+		case K_CTRL_F:
+			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+				result=selection[selectionCursorPosition];
+
+				if(historyView==HH_VIEW_FAVORITES) {
+					favorites_choose(history->favorites, result);
+				} else {
+					favorites_add(history->favorites, result);
+					print_cmd_added_favorite_label(result);
+					printDefaultLabel=TRUE;
+				}
+				result=print_selection(maxHistoryItems, pattern, history);
+				selectionCursorPosition=0;
+			}
 			break;
 		case KEY_RESIZE:
 			print_history_label(history);
@@ -618,7 +707,6 @@ void hstr()
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
-		get_env_configuration();
 		loop_to_select(history);
 		hstr_on_exit();
 	} else {
@@ -628,8 +716,12 @@ void hstr()
 
 int main(int argc, char *argv[])
 {
+	get_env_configuration();
 	if(argc>0) {
 		if(argc==2) {
+			if(strstr(argv[1], "--favorites") || strstr(argv[1], "-f")) {
+				historyView=HH_VIEW_FAVORITES;
+			}
 			if(strstr(argv[1], "--show-configuration")) {
 				printf("%s", INSTALL_STRING);
 				return EXIT_SUCCESS;

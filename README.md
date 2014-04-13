@@ -172,6 +172,14 @@ make search case sensitive (insensitive by default):
 ```bash
 export HH_CONFIG=casesensitive
 ```
+show warnings:
+```bash
+export HH_CONFIG=warning
+```
+show debug messages:
+```bash
+export HH_CONFIG=warning
+```
 more colors and case sensitive search:
 ```bash
 export HH_CONFIG=hicolor,casesensitive
