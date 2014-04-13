@@ -15,6 +15,8 @@
 
 #define FAVORITE_SEGMENT_SIZE 10
 
+extern char *strdup(const char *s);
+
 void favorites_init(FavoriteItems *favorites)
 {
 	favorites->items=NULL;
@@ -66,7 +68,7 @@ void favorites_get(FavoriteItems *favorites)
 				while(pe!=NULL) {
 					favorites->items[i]=pb;
 					*pe=0;
-					favorites->items[i]=strdup(pb);
+					favorites->items[i]=(char *)strdup(pb);
 					pb=pe+1;
 					pe=strchr(pb, '\n');
 					i++;
