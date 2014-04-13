@@ -12,6 +12,10 @@ than `Ctrl-r`.
 
 [![BASH History Suggest Box](http://mindforger.com/projects/images/hh-2.jpg "BASH History Suggest Box")](http://mindforger.com/projects/images/hh-2.jpg)
 
+Apart to completion from history, it can be managed (you can remove no
+longer wanted commands that e.g. contain sensitive information like
+passwords) and bookmark favorite commands.
+
 
 UBUNTU INSTALLATION
 -------------------
@@ -167,6 +171,10 @@ export HH_CONFIG=hicolor
 show normal history by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=rawhistory
+```
+show favorites by default (instead of metrics-based view):
+```bash
+export HH_CONFIG=favorites
 ```
 make search case sensitive (insensitive by default):
 ```bash
