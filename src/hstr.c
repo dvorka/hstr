@@ -22,6 +22,7 @@
 
 #include "include/hashset.h"
 #include "include/hstr_curses.h"
+#include "include/hstr_favorites.h"
 #include "include/hstr_history.h"
 #include "include/hstr_utils.h"
 
@@ -291,10 +292,6 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	unsigned count;
 
 	switch(historyView) {
-	case HH_VIEW_RANKING:
-		source=history->items;
-		count=history->count;
-		break;
 	case HH_VIEW_HISTORY:
 		source=history->raw;
 		count=history->rawCount;
@@ -302,6 +299,11 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	case HH_VIEW_FAVORITES:
 		source=history->favorites->items;
 		count=history->favorites->count;
+		break;
+	case HH_VIEW_RANKING:
+	default:
+		source=history->items;
+		count=history->count;
 		break;
 	}
 
@@ -547,7 +549,8 @@ void loop_to_select(HistoryItems *history)
 			selectionCursorPosition=0;
 			break;
 		case K_CTRL_SLASH:
-			historyView=(++historyView)%3;
+			historyView++;
+			historyView=historyView%3;
 			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
 			selectionCursorPosition=0;

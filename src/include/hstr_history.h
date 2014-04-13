@@ -17,6 +17,7 @@
 #include <readline/history.h>
 #include <unistd.h>
 #include <stdbool.h>
+
 #include "hstr_favorites.h"
 #include "hstr_utils.h"
 #include "hashset.h"
