@@ -9,16 +9,21 @@ uses shell history to provide suggest box like functionality
 for commands used in the past. By default it parses .bash-history
 file that is filtered as you type a command substring. Commands 
 are not just filtered, but also ordered by a ranking algorithm
-that considers number of occurences, length and timestamp. In addition
-hh allows removal of commands from history - for instance with a typo or with a sensitive content.
+that considers number of occurences, length and timestamp. 
+Favorite and frequently used commands can be bookmarked. In addition
+hh allows removal of commands from history - for instance with a typo 
+or with a sensitive content.
 .SH OPTIONS
 .TP 
+\fB--favorites\fR
+Show favorites view immediately
+.TP 
 \fB--show-configuration\fR
-Show configuration that can be added to .bashrc
+Show configuration that can be added to ~/.bashrc
 .TP 
 \fB--help\fR
 Show help
-.SH COMMANDS
+.SH KEYS
 .TP 
 \fBpattern\fR
 Type to filter shell history.
@@ -27,7 +32,7 @@ Type to filter shell history.
 Toggle case sensitive search.
 .TP 
 \fBCtrl\-/\fR
-Toggle history as provided by shell vs. ranked history ordered by the number of occurences, length and timestamp.
+Rotate view of history as provided by BASH, ranked history ordered by the number of occurences/length/timestamp and favorites.
 .TP 
 \fBCtrl\-l\fR
 Make search pattern lowercase or uppercase.	
@@ -65,10 +70,13 @@ Configuration options:
         Get more colors with this option (default is monochromatic).
 
 \fIcasesensitive\fR
-        Make the pattern-based filtering case sensitive by default. 
+        Make the pattern-based filtering case sensitive (it's case insensitive by default). 
 
 \fIrawhistory\fR
-        Show normal history by default (default is metric-based). 
+        Show normal history as a default view (metric-based view is shown otherwise). 
+
+\fIfavorites\fR 
+        Show favorites as a default view (metric-based view is shown otherwise).
 
 \fIwarning\fR
         Show warning.
@@ -78,6 +86,9 @@ Configuration options:
 
 Example:
         \fBexport HH_CONFIG=casesensitive,hicolor\fR
+
+.SH FILES
+\fB~/.hh_favorites\fR bookmarked favorite commands
 
 .SH CONFIGURATION
 Optionally add the following lines to ~/.bashrc:

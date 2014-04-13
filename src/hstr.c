@@ -112,6 +112,7 @@ static const char *HELP_STRING=
 		"Usage: hh [option] [arg1] [arg2]..."
 		"\nShell history suggest box (build: "__DATE__" " __TIME__")"
 		"\n"
+		"\n  --favorites             ... show command favorites"
 		"\n  --show-configuration    ... show configuration to be added to .bashrc"
 		"\n  --help                  ... display this help and exit"
 		"\n"
@@ -713,6 +714,9 @@ int main(int argc, char *argv[])
 {
 	if(argc>0) {
 		if(argc==2) {
+			if(strstr(argv[1], "--favorites") || strstr(argv[1], "-f")) {
+				xxx
+			}
 			if(strstr(argv[1], "--show-configuration")) {
 				printf("%s", INSTALL_STRING);
 				return EXIT_SUCCESS;
