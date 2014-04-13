@@ -702,7 +702,6 @@ void hstr()
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
-		get_env_configuration();
 		loop_to_select(history);
 		hstr_on_exit();
 	} else {
@@ -712,10 +711,11 @@ void hstr()
 
 int main(int argc, char *argv[])
 {
+	get_env_configuration();
 	if(argc>0) {
 		if(argc==2) {
 			if(strstr(argv[1], "--favorites") || strstr(argv[1], "-f")) {
-				xxx
+				historyView=HH_VIEW_FAVORITES;
 			}
 			if(strstr(argv[1], "--show-configuration")) {
 				printf("%s", INSTALL_STRING);
