@@ -3,7 +3,7 @@
  Name        : hstr.c
  Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
- Description : Shell history completion utility
+ Description : BASH history completion utility
  ============================================================================
 */
 
