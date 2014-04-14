@@ -40,7 +40,7 @@ git clone https://github.com/dvorka/hstr.git
 
 * create build files using:
 ```bash
-cd ./dist && ./dist-1.sh && cd ..
+cd ./dist && ./1-dist.sh && cd ..
 ```
 
 * install `hh` using:

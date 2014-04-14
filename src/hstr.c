@@ -31,7 +31,6 @@
 #define CMDLINE_LNG 2048
 #define HOSTNAME_BUFFER 128
 
-
 #define Y_OFFSET_PROMPT 0
 #define Y_OFFSET_HELP 1
 #define Y_OFFSET_HISTORY 2
@@ -63,20 +62,25 @@
 #define HH_COLOR_DELETE  4
 
 #define HH_ENV_VAR_CONFIG  "HH_CONFIG"
-#define HH_CONFIG_HICOLOR  "hicolor"
-#define HH_CONFIG_CASE     "casesensitive"
-#define HH_CONFIG_SORTING  "rawhistory"
+
+#define HH_CONFIG_HICOLOR   "hicolor"
+#define HH_CONFIG_CASE      "casesensitive"
+#define HH_CONFIG_SORTING   "rawhistory"
 #define HH_CONFIG_FAVORITES "favorites"
-#define HH_CONFIG_DEBUG    "debug"
-#define HH_CONFIG_WARN     "warning"
+#define HH_CONFIG_DEBUG     "debug"
+#define HH_CONFIG_WARN      "warning"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
 #define HH_DEBUG_LEVEL_DEBUG 2
 
-#define HH_VIEW_RANKING		0
-#define HH_VIEW_HISTORY		1
-#define HH_VIEW_FAVORITES	2
+#define HH_VIEW_RANKING		 0
+#define HH_VIEW_HISTORY		 1
+#define HH_VIEW_FAVORITES	 2
+
+#define HH_MATCH_CASE_INSENSITIVE 0
+#define HH_MATCH_REGEXP		      1
+#define HH_MATCH_CASE_SENSITIVE	  2
 
 #define SPACE_PADDING "                                                              "
 
@@ -95,7 +99,13 @@
 static const char *HH_VIEW_LABELS[]={
 		"ranking",
 		"history",
-		"favorites"};
+		"favorites"
+};
+
+static const char *HH_MATCH_LABELS[]={
+		"case-insensitive",
+		"regexp",
+		"case-sensitive"};
 
 static const char *INSTALL_STRING=
 		"\n# add this configuration to ~/.bashrc"
@@ -122,44 +132,69 @@ static const char *HELP_STRING=
 		"\n";
 
 static const char *VERSION_STRING=
-		"hh version \"1.8\""
+		"hh version \"1.10\""
 		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
-static char **selection=NULL;
-static unsigned selectionSize=0;
-static bool caseSensitive=FALSE;
-static int historyView=HH_VIEW_RANKING;
-static bool hicolor=FALSE;
-static int debugLevel=0;
-static char screenLine[CMDLINE_LNG];
-static char cmdline[CMDLINE_LNG];
+typedef struct {
+	char **selection;
+	unsigned selectionSize;
 
-void get_env_configuration()
+	int historyMatch;
+	int historyView;
+
+	char screenLine[CMDLINE_LNG];
+	char cmdline[CMDLINE_LNG];
+
+	bool hicolor;
+
+	int debugLevel;
+
+	HashSet regexpCache;
+} Hstr;
+
+static Hstr *hstr;
+
+void hstr_init(Hstr *hstr)
 {
-	char *hhconfig=getenv(HH_ENV_VAR_CONFIG);
-	if(hhconfig && strlen(hhconfig)>0) {
-		if(strstr(hhconfig,HH_CONFIG_HICOLOR)) {
-			hicolor=TRUE;
+	hstr->selection=NULL;
+	hstr->selectionSize=0;
+
+	hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+
+	hstr->historyMatch=HH_MATCH_LABELS;
+	hstr->historyView=HH_VIEW_RANKING;
+
+	hstr->hicolor=FALSE;
+
+	hashset_init(&hstr->regexpCache);
+}
+
+void hstr_get_env_configuration(Hstr *hstr)
+{
+	char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
+	if(hstr_config && strlen(hstr_config)>0) {
+		if(strstr(hstr_config,HH_CONFIG_HICOLOR)) {
+			hstr->hicolor=TRUE;
 		}
-		if(strstr(hhconfig,HH_CONFIG_CASE)) {
-			caseSensitive=TRUE;
+		if(strstr(hstr_config,HH_CONFIG_CASE)) {
+			hstr->historyMatch=HH_MATCH_CASE_SENSITIVE;
 		}
-		if(strstr(hhconfig,HH_CONFIG_SORTING)) {
-			historyView=HH_VIEW_HISTORY;
+		if(strstr(hstr_config,HH_CONFIG_SORTING)) {
+			hstr->historyView=HH_VIEW_HISTORY;
 		} else {
-			if(strstr(hhconfig,HH_CONFIG_FAVORITES)) {
-				historyView=HH_VIEW_FAVORITES;
+			if(strstr(hstr_config,HH_CONFIG_FAVORITES)) {
+				hstr->historyView=HH_VIEW_FAVORITES;
 			}
 		}
-		if(strstr(hhconfig,HH_CONFIG_DEBUG)) {
-			debugLevel=HH_DEBUG_LEVEL_DEBUG;
+		if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
+			hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
 		} else {
-			if(strstr(hhconfig,HH_CONFIG_WARN)) {
-				debugLevel=HH_DEBUG_LEVEL_WARN;
+			if(strstr(hstr_config,HH_CONFIG_WARN)) {
+				hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
 			}
 		}
 	}
@@ -231,9 +266,9 @@ void print_cmd_added_favorite_label(char *cmd)
 void print_history_label(HistoryItems *history)
 {
 	int width=getmaxx(stdscr);
-	snprintf(screenLine, width, "- HISTORY - match:%s (C-t) - view:%s (C-/) - %d/%d ",
-			(caseSensitive?"sensitive":"insensitive"),
+	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-t) - %d/%d ",
 			HH_VIEW_LABELS[historyView],
+			HH_MATCH_LABELS[historyMatch],
 			history->count,
 			history->rawCount);
 	width -= strlen(screenLine);
@@ -312,14 +347,20 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 			if(!prefix || !strlen(prefix)) {
 				selection[selectionCount++]=source[i];
 			} else {
-				if(caseSensitive) {
-					if(source[i]==strstr(source[i], prefix)) {
-						selection[selectionCount++]=source[i];
-					}
-				} else {
+				switch(historyMatch) {
+				case HH_MATCH_CASE_INSENSITIVE:
 					if(source[i]==strcasestr(source[i], prefix)) {
 						selection[selectionCount++]=source[i];
 					}
+					break;
+				case HH_MATCH_REGEXP:
+					REGEXP
+					break;
+				case HH_MATCH_CASE_SENSITIVE:
+					if(source[i]==strstr(source[i], prefix)) {
+						selection[selectionCount++]=source[i];
+					}
+					break;
 				}
 			}
 		}
@@ -328,6 +369,10 @@ unsigned make_selection(char *prefix, HistoryItems *history, int maxSelectionCou
 	if(prefix && selectionCount<maxSelectionCount) {
 		char *substring;
 		for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
+			switch() {
+
+			}
+
 			if(caseSensitive) {
 				substring = strstr(source[i], prefix);
 				if (substring != NULL && substring!=source[i]) {
@@ -353,6 +398,11 @@ void print_selection_row(char *text, int y, int width, char *prefix)
 	if(prefix && strlen(prefix)>0) {
 		color_attr_on(A_BOLD);
 		char *p;
+
+		switch() {
+
+		}
+
 		if(caseSensitive) {
 			p=strstr(text, prefix);
 			mvprintw(y, 1+(p-text), "%s", prefix);
@@ -448,10 +498,11 @@ void selection_remove(char *cmd, HistoryItems *history)
 	}
 }
 
-void hstr_on_exit()
+void hstr_on_exit(Hstr *hstr)
 {
 	history_mgmt_flush();
 	free_prioritized_history();
+	free(hstr);
 }
 
 void signal_callback_handler_ctrl_c(int signum)
@@ -543,7 +594,9 @@ void loop_to_select(HistoryItems *history)
 			print_history_label(history);
 			break;
 		case K_CTRL_T:
+			MOD goes here
 			caseSensitive=!caseSensitive;
+
 			result=print_selection(maxHistoryItems, pattern, history);
 			print_history_label(history);
 			selectionCursorPosition=0;
@@ -705,13 +758,18 @@ void assemble_cmdline(int argc, char *argv[])
 	}
 }
 
-void hstr()
+void hstr(Hstr *hstr)
 {
+	hstr=malloc(sizeof(Hstr));
+	hstr_init(hstr);
+	hstr_get_env_configuration(hstr);
+
+	// hstr_init
 	HistoryItems *history=get_prioritized_history();
 	if(history) {
 		history_mgmt_open();
 		loop_to_select(history);
-		hstr_on_exit();
+		hstr_on_exit(hstr);
 	} else {
 		printf("Empty shell history - nothing to suggest...\n");
 	}
@@ -719,32 +777,36 @@ void hstr()
 
 int main(int argc, char *argv[])
 {
-	get_env_configuration();
 	if(argc>0) {
+		call function: get command line options
+
 		if(argc==2) {
 			if(strstr(argv[1], "--favorites") || strstr(argv[1], "-f")) {
 				historyView=HH_VIEW_FAVORITES;
-			}
-			if(strstr(argv[1], "--show-configuration")) {
-				printf("%s", INSTALL_STRING);
-				return EXIT_SUCCESS;
+				assemble_cmdline(argc, argv);
+				hstr();
+				free(hstr);
 			} else {
-				if(strstr(argv[1], "--help")) {
-					printf("%s", HELP_STRING);
+				if(strstr(argv[1], "--show-configuration")) {
+					printf("%s", INSTALL_STRING);
 					return EXIT_SUCCESS;
 				} else {
 					if(strstr(argv[1], "--version")) {
 						printf("%s", VERSION_STRING);
 						return EXIT_SUCCESS;
+					} else {
+						// if(strstr(argv[1], "--help")) {
+						printf("Unknown option: %s\n", argv[1]);
+						printf("%s", HELP_STRING);
+						return EXIT_SUCCESS;
 					}
 				}
 			}
 		}
-		assemble_cmdline(argc, argv);
-		hstr();
 	} else {
 		cmdline[0]=0;
 		hstr();
+		free(hstr);
 	}
 
 	return EXIT_SUCCESS;
