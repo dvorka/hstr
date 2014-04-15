@@ -1,6 +1,6 @@
 #!/bin/bash
 
-export HHVERSION="1.9.10"
+export HHVERSION="1.10.4"
 export HHFULLVERSION=${HHVERSION}-0ubuntu1
 export HH=hh_${HHVERSION}
 export HHRELEASE=hh_${HHFULLVERSION}
@@ -14,7 +14,7 @@ export HHBUILD=hstr-${NOW}
 #export UBUNTUVERSION=saucy
 export UBUNTUVERSION=trusty
 
-export HHBZRMSG="Favorites - favorite commands can be bookmarked and shown in a new view!"
+export HHBZRMSG="Minor stabilization release of favorites."
 
 # - user email must be the same as in gpg i.e. (Dvorka) must present
 # - hh_ must be with underscore (dh_make enforced)
