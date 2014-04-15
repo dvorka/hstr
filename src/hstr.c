@@ -59,6 +59,7 @@
 
 #define HH_COLOR_NORMAL  1
 #define HH_COLOR_HIROW   2
+#define HH_COLOR_INFO    2
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
 
@@ -200,7 +201,7 @@ void print_cmd_deleted_label(char *cmd, int occurences)
 {
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
 	if(hicolor) {
-		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
 		color_attr_on(A_BOLD);
 	}
 	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
@@ -216,7 +217,7 @@ void print_cmd_added_favorite_label(char *cmd)
 {
 	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
 	if(hicolor) {
-		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
 		color_attr_on(A_BOLD);
 	}
 	mvprintw(Y_OFFSET_HELP, 0, screenLine);
