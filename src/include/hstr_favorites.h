@@ -11,6 +11,7 @@
 #define _HSTR_FAVORITES_H_
 
 #include <stdlib.h>
+#include <stdbool.h>
 
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
