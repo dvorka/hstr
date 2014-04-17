@@ -16,4 +16,6 @@ int main(int argc, char *argv[])
 	favorites_init(&favoriteItems);
 	favorites_get(&favoriteItems);
 	favorites_remove(&favoriteItems, "c");
+
+	favorites_choose(&favoriteItems, "ccc");
 }

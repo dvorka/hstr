@@ -529,7 +529,7 @@ void loop_to_select(HistoryItems *history)
 		}
 
 		switch (c) {
-		case KEY_DC:
+		case KEY_DC: // DEL
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=selection[selectionCursorPosition];
 				msg=malloc(strlen(delete)+1);
@@ -552,9 +552,16 @@ void loop_to_select(HistoryItems *history)
 		case K_CTRL_SLASH:
 			historyView++;
 			historyView=historyView%3;
-			result=print_selection(maxHistoryItems, pattern, history);
+
 			print_history_label(history);
-			selectionCursorPosition=0;
+			result=print_selection(maxHistoryItems, pattern, history);
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+
+			if(strlen(pattern)<(width-basex-1)) {
+				print_prefix(pattern, y, basex);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
+			}
 			break;
 		case K_CTRL_F:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
@@ -642,6 +649,12 @@ void loop_to_select(HistoryItems *history)
 		case KEY_RIGHT:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				result=selection[selectionCursorPosition];
+				if(historyView==HH_VIEW_FAVORITES) {
+					favorites_choose(history->favorites,result);
+				}
+			} else {
+				executeResult=FALSE;
+				break;
 			}
 			done=TRUE;
 			break;

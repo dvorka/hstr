@@ -140,22 +140,22 @@ void favorites_add(FavoriteItems *favorites, char *newFavorite)
 void favorites_choose(FavoriteItems *favorites, char *choice)
 {
 	if(favorites->count && choice) {
-		int i;
-		char *b=0, *next;
-		for(i=0; i<favorites->count; i++) {
-			if(!strcmp(favorites->items[i],choice)) {
-				favorites->items[0]=favorites->items[i];
+		int r;
+		char *b=NULL, *next;
+		for(r=0; r<favorites->count; r++) {
+			if(!strcmp(favorites->items[r],choice)) {
+				favorites->items[0]=favorites->items[r];
 				if(b) {
-					favorites->items[i]=b;
+					favorites->items[r]=b;
 				}
+				favorites_save(favorites);
 				return;
 			}
-			next=favorites->items[i];
-			favorites->items[i]=b;
+			next=favorites->items[r];
+			favorites->items[r]=b;
 			b=next;
 		}
 	}
-	favorites_save(favorites);
 }
 
 bool favorites_remove(FavoriteItems *favorites, char *almostDead)
