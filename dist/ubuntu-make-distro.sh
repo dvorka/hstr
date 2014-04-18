@@ -1,6 +1,27 @@
 #!/bin/bash
+# ubuntu-make-distro.sh [ubuntu version] [hh version] [change description]
+#   - ./ubuntu-make-distro.sh raring 1.9.5 "Fixed #25."
+#   - this script to be run from ./launchpad or other dir that allows:
+#     ../github/hstr
+#
 
-. /home/dvorka/p/hstr/github/hstr/dist/ubuntu-env.sh
+export UBUNTUVERSION=$1
+export HHVERSION=$2
+export HHBZRMSG=$3
+
+export HHFULLVERSION=${HHVERSION}-0ubuntu1
+export HH=hh_${HHVERSION}
+export HHRELEASE=hh_${HHFULLVERSION}
+export HHSRC=/home/dvorka/p/hstr/github/hstr
+export NOW=`date +%Y-%m-%d--%H-%M-%S`
+export HHBUILD=hstr-${NOW}
+## https://wiki.ubuntu.com/Releases
+#export UBUNTUVERSION=precise
+#export UBUNTUVERSION=quantal
+#export UBUNTUVERSION=saucy
+#export UBUNTUVERSION=trusty
+
+# checkout hh from bazaar and make hstr ################################
 
 function checkout_hh() {
   bzr checkout lp:~ultradvorka/+junk/hh-package
@@ -38,11 +59,64 @@ cd ${HHBUILD}
 checkout_hh `pwd`
 
 cd hh/dist
-./2-ubuntu-build-deb.sh
 
-pwd
-#echo -e "\n\nFinish by running 3-ubuntu-push-deb.sh\n"
-./3-ubuntu-push-deb.sh
+# build .deb for Ubuntu #############################################################
+# ./2-ubuntu-build-deb.sh
 
+export SCRIPTHOME=`pwd`
+
+function createChangelog() {
+  export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
+  echo "Changelog timestamp: ${MYTS}"
+  echo -e "hh (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+  echo -e "\n" >> $1
+  echo -e "  * ${HHBZRMSG}" >> $1
+  echo -e "\n" >> $1
+  echo -e " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
+  echo -e "\n" >> $1
+}
+
+function createTarball() {
+  cd ..
+  mkdir work
+  cd work
+  cp -vrf ../${HH} .
+  rm -rvf ${HH}/.bzr
+  tar zcf ../${HH}.tgz ${HH}
+  cp -vf ../${HH}.tgz ../${HH}.orig.tar.gz
+  cd ../${HH}
+}
+
+echo -e "\n_ hh deb build  _______________________________________________\n"
+
+rm -rvf ../debian
+cp -rvf ${HHSRC}/debian ..
+
+createChangelog ../debian/changelog
+
+cd ../..
+mv hh ${HH}
+cd ${HH}
+bzr add .
+bzr commit -m "Update for ${HH} at ${NOW}."
+
+createTarball
+
+bzr builddeb -- -us -uc
+bzr builddeb -S
+cd ../build-area
+pbuilder-dist ${UBUNTUVERSION} build ${HHRELEASE}.dsc
+
+# push .deb to Launchpad ########################################################
+#./3-ubuntu-push-deb.sh 
+
+# from buildarea/ to ./dist
+cd ../${HH}
+
+echo "Before bzr push: " `pwd`
+bzr push lp:~ultradvorka/+junk/hh-package
+cd ..
+echo "Before dput push: " `pwd`
+dput ppa:ultradvorka ${HHRELEASE}_source.changes
 
 # eof
