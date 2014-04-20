@@ -10,6 +10,7 @@
 #define _GNU_SOURCE
 
 #include <curses.h>
+#include <regex.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
