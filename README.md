@@ -6,7 +6,12 @@ BASH History Suggest Box - [http://www.youtube.com/watch?v=sPF29NyXe2U](http://w
 
 DESCRIPTION
 -----------
-A command line utility that brings improved BASH command completion 
+Are you looking for a command that you used recently? Do you
+want to  avoid to need to write long commands over and over
+again despite the fact you used them recently? Are you looking
+for a tool that would allow you to sustain your favorite commands?
+
+HSTR is a command line utility that brings improved BASH command completion 
 from the history. It aims to make completion easier and more efficient
 than `Ctrl-r`.
 
