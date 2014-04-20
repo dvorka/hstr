@@ -150,13 +150,6 @@ HistoryItems *get_prioritized_history()
 
 		radixsort_destroy(&rs);
 
-
-		FavoriteItems *favoriteItems=malloc(sizeof(FavoriteItems));
-		favorites_init(favoriteItems);
-		// TODO make favorites loading lazy > github issue
-		favorites_get(favoriteItems);
-		prioritizedHistory->favorites=favoriteItems;
-
 		return prioritizedHistory;
 	} else {
 		return NULL;
@@ -166,7 +159,6 @@ HistoryItems *get_prioritized_history()
 void free_prioritized_history()
 {
 	free(prioritizedHistory->items);
-	favorites_destroy(prioritizedHistory->favorites);
 	free(prioritizedHistory);
 }
 
