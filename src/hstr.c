@@ -63,8 +63,11 @@
 
 #define HH_ENV_VAR_CONFIG  "HH_CONFIG"
 
+// TODO make hicolor default, introduce monochromatic
+#define HH_CONFIG_MONO      "monochromatic"
 #define HH_CONFIG_HICOLOR   "hicolor"
 #define HH_CONFIG_CASE      "casesensitive"
+#define HH_CONFIG_REGEXP    "regexp"
 #define HH_CONFIG_SORTING   "rawhistory"
 #define HH_CONFIG_FAVORITES "favorites"
 #define HH_CONFIG_DEBUG     "debug"
@@ -136,6 +139,7 @@ static const char *VERSION_STRING=
 		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
+// TODO help screen - tig
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
@@ -358,9 +362,10 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 					}
 					break;
 				case HH_MATCH_REGEXP:
-					// TODO TODO TODO REGEXP
+					// TODO TODO TODO REGEXP: call regexp implementation from here regexp_match(&regexp, match)
 					break;
 				case HH_MATCH_CASE_SENSITIVE:
+				default:
 					if(source[i]==strstr(source[i], prefix)) {
 						hstr->selection[selectionCount++]=source[i];
 					}
@@ -371,23 +376,26 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 	}
 
 	if(prefix && selectionCount<maxSelectionCount) {
-		//char *substring;
+		char *substring;
 		for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
-//			switch() {
-				// TODO TODO TODO instead of IF rotate views using switch
-			//}
-//
-//			if(caseSensitive) {
-//				substring = strstr(source[i], prefix);
-//				if (substring != NULL && substring!=source[i]) {
-//					selection[selectionCount++]=source[i];
-//				}
-//			} else {
-//				substring = strcasestr(source[i], prefix);
-//				if (substring != NULL && substring!=source[i]) {
-//					selection[selectionCount++]=source[i];
-//				}
-//			}
+			switch(hstr->historyMatch) {
+			case HH_MATCH_CASE_SENSITIVE:
+				substring = strstr(source[i], prefix);
+				if (substring != NULL && substring!=source[i]) {
+					hstr->selection[selectionCount++]=source[i];
+				}
+				break;
+			case HH_MATCH_REGEXP:
+				// TODO TODO regexp_match(&regexp)
+				break;
+			case HH_MATCH_CASE_INSENSITIVE:
+			default:
+				substring = strcasestr(source[i], prefix);
+				if (substring != NULL && substring!=source[i]) {
+					hstr->selection[selectionCount++]=source[i];
+				}
+				break;
+			}
 		}
 	}
 
@@ -401,21 +409,23 @@ void print_selection_row(char *text, int y, int width, char *prefix)
 	mvprintw(y, 0, "%s", screenLine); clrtoeol();
 	if(prefix && strlen(prefix)>0) {
 		color_attr_on(A_BOLD);
-//		char *p;
+		char *p;
 
-		// TODO TODO TODO instead of IF make it SWITCH
-//		switch() {
-//
-//		}
-
-//		if(caseSensitive) {
-//			p=strstr(text, prefix);
-//			mvprintw(y, 1+(p-text), "%s", prefix);
-//		} else {
-//			p=strcasestr(text, prefix);
-//			snprintf(screenLine, strlen(prefix)+1, "%s", p);
-//			mvprintw(y, 1+(p-text), "%s", screenLine);
-//		}
+		switch(hstr->historyMatch) {
+		case HH_MATCH_CASE_SENSITIVE:
+			p=strstr(text, prefix);
+			mvprintw(y, 1+(p-text), "%s", prefix);
+			break;
+		case HH_MATCH_REGEXP:
+			// TODO regexp_(&regex)
+			break;
+		case HH_MATCH_CASE_INSENSITIVE:
+		default:
+			p=strcasestr(text, prefix);
+			snprintf(screenLine, strlen(prefix)+1, "%s", p);
+			mvprintw(y, 1+(p-text), "%s", screenLine);
+			break;
+		}
 		color_attr_off(A_BOLD);
 	}
 }
