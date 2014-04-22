@@ -25,6 +25,7 @@
 #include "include/hstr_curses.h"
 #include "include/hstr_favorites.h"
 #include "include/hstr_history.h"
+#include "include/hstr_regexp.h"
 #include "include/hstr_utils.h"
 
 #define SELECTION_CURSOR_IN_PROMPT -1
@@ -78,13 +79,16 @@
 #define HH_DEBUG_LEVEL_WARN  1
 #define HH_DEBUG_LEVEL_DEBUG 2
 
-#define HH_VIEW_RANKING		 0
-#define HH_VIEW_HISTORY		 1
-#define HH_VIEW_FAVORITES	 2
+#define HH_VIEW_RANKING		0
+#define HH_VIEW_HISTORY		1
+#define HH_VIEW_FAVORITES	2
 
 #define HH_MATCH_CASE_INSENSITIVE 0
 #define HH_MATCH_REGEXP		      1
 #define HH_MATCH_CASE_SENSITIVE	  2
+
+#define HH_CASE_INSENSITIVE	0
+#define HH_CASE_SENSITIVE	1
 
 #define SPACE_PADDING "                                                              "
 
@@ -107,9 +111,14 @@ static const char *HH_VIEW_LABELS[]={
 };
 
 static const char *HH_MATCH_LABELS[]={
-		"case-insensitive",
-		"regexp",
-		"case-sensitive"};
+		"sensitive",
+		"insensitive"
+};
+
+static const char *HH_CASE_LABELS[]={
+		"exact",
+		"regexp"
+};
 
 static const char *INSTALL_STRING=
 		"\n# add this configuration to ~/.bashrc"
@@ -144,7 +153,7 @@ static const char *VERSION_STRING=
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
-// TODO makes this file non-reentrant
+// TODO makes hstr.c non-reentrant
 static char screenLine[CMDLINE_LNG];
 
 typedef struct {
@@ -154,13 +163,14 @@ typedef struct {
 	char **selection;
 	unsigned selectionSize;
 
-	int historyMatch;
-	int historyView;
+	int historyMatch; // TODO patternMatching: exact, regexp
+	int historyView; // TODO view: favs, ...
+	int caseSensitive;
 
 	bool hicolor;
 	int debugLevel;
 
-	HashSet regexpCache;
+	HstrRegexp regexp;
 
 	char cmdline[CMDLINE_LNG];
 } Hstr;
@@ -172,14 +182,15 @@ void hstr_init(Hstr *hstr)
 	hstr->selection=NULL;
 	hstr->selectionSize=0;
 
-	hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
-
 	hstr->historyMatch=HH_MATCH_CASE_INSENSITIVE;
 	hstr->historyView=HH_VIEW_RANKING;
+	hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
 	hstr->hicolor=FALSE;
 
-	hashset_init(&hstr->regexpCache);
+	hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+
+	hstr_regexp_init(&hstr->regexp);
 }
 
 void hstr_get_env_configuration(Hstr *hstr)
@@ -275,9 +286,11 @@ void print_cmd_added_favorite_label(char *cmd, Hstr *hstr)
 void print_history_label(Hstr *hstr)
 {
 	int width=getmaxx(stdscr);
-	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-t) - %d/%d ",
+
+	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-t) - case:%s (C-.) - %d/%d ",
 			HH_VIEW_LABELS[hstr->historyView],
 			HH_MATCH_LABELS[hstr->historyMatch],
+			HH_CASE_LABELS[hstr->caseSensitive],
 			hstr->history->count,
 			hstr->history->rawCount);
 	width -= strlen(screenLine);

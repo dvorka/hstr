@@ -47,7 +47,7 @@ int hashset_contains(const HashSet * hs, const char *key)
 	return (hashset_get(hs, key) != NULL);
 }
 
-int hashset_put(HashSet * hs, const char *key, void *value)
+int hashset_put(HashSet *hs, const char *key, void *value)
 {
     struct HashSetNode *newNode;
     int listNum;
@@ -58,33 +58,33 @@ int hashset_put(HashSet * hs, const char *key, void *value)
     listNum = hashmap_hash( key );
 
 
-    newNode = (struct HashSetNode *) malloc( sizeof ( struct HashSetNode ) );
+    newNode=(struct HashSetNode *)malloc(sizeof(struct HashSetNode));
     if( newNode == NULL ) {
-        fprintf( stderr, "Error allocating node" );
+        fprintf( stderr,"Error allocating node");
         return 0;
     }
 
-    newNode->key = malloc(strlen(key)+1);
+    newNode->key=malloc(strlen(key)+1);
     strcpy(newNode->key, key);
-    newNode->value = value;
-    newNode->next = hs->lists[ listNum ];
-    hs->lists[ listNum ] = newNode;
+    newNode->value=value;
+    newNode->next=hs->lists[listNum];
+    hs->lists[listNum]=newNode;
     hs->currentSize++;
 
     return 1;
 }
 
-int hashset_add(HashSet * hs, const char *key)
+int hashset_add(const HashSet * hs, const char *key)
 {
 	return hashset_put(hs, key, "nil");
 }
 
-int hashset_size(const HashSet * hs)
+int hashset_size(const HashSet *hs)
 {
     return hs->currentSize;
 }
 
-void hashset_stat( const HashSet * hs )
+void hashset_stat(const HashSet *hs)
 {
     int i;
     struct HashSetNode *ptr;
@@ -92,4 +92,15 @@ void hashset_stat( const HashSet * hs )
     for( i = 0; i < HASH_MAP_SIZE; i++ )
         for( ptr = hs->lists[ i ]; ptr != NULL; ptr = ptr->next )
             printf( "%s\n", ptr->key );
+}
+
+char** hashset_keys(const HashSet *hs)
+{
+	// TODO to be implemented
+	return NULL;
+}
+
+void hashset_destroy(const HashSet *hs)
+{
+	// TODO to be implemented
 }
