@@ -83,9 +83,8 @@
 #define HH_VIEW_HISTORY		1
 #define HH_VIEW_FAVORITES	2
 
-#define HH_MATCH_CASE_INSENSITIVE 0
-#define HH_MATCH_REGEXP		      1
-#define HH_MATCH_CASE_SENSITIVE	  2
+#define HH_MATCH_EXACT 	0
+#define HH_MATCH_REGEXP 1
 
 #define HH_CASE_INSENSITIVE	0
 #define HH_CASE_SENSITIVE	1
@@ -111,13 +110,13 @@ static const char *HH_VIEW_LABELS[]={
 };
 
 static const char *HH_MATCH_LABELS[]={
-		"sensitive",
-		"insensitive"
+		"exact",
+		"regexp"
 };
 
 static const char *HH_CASE_LABELS[]={
-		"exact",
-		"regexp"
+		"sensitive",
+		"insensitive"
 };
 
 static const char *INSTALL_STRING=
@@ -138,6 +137,7 @@ static const char *HELP_STRING=
 		"\n"
 		"\n  --favorites -f          ... show command favorites"
 		"\n  --show-configuration    ... show configuration to be added to ~/.bashrc"
+		"\n  --version               ... show version details"
 		"\n  --help                  ... display this help and exit"
 		"\n"
 		"\nReport bugs to martin.dvorak@mindforger.com"
@@ -145,7 +145,7 @@ static const char *HELP_STRING=
 		"\n";
 
 static const char *VERSION_STRING=
-		"hh version \"1.10\""
+		"hh version \"1.11\""
 		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
@@ -161,6 +161,7 @@ typedef struct {
 	FavoriteItems *favorites;
 
 	char **selection;
+	regmatch_t *selectionRegexpMatch;
 	unsigned selectionSize;
 
 	int historyMatch; // TODO patternMatching: exact, regexp
@@ -180,15 +181,18 @@ static Hstr *hstr;
 void hstr_init(Hstr *hstr)
 {
 	hstr->selection=NULL;
+	hstr->selectionRegexpMatch=NULL;
 	hstr->selectionSize=0;
 
-	hstr->historyMatch=HH_MATCH_CASE_INSENSITIVE;
+	hstr->historyMatch=HH_MATCH_REGEXP;
 	hstr->historyView=HH_VIEW_RANKING;
 	hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
 	hstr->hicolor=FALSE;
 
 	hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+
+	hstr->cmdline[0]=0;
 
 	hstr_regexp_init(&hstr->regexp);
 }
@@ -201,7 +205,7 @@ void hstr_get_env_configuration(Hstr *hstr)
 			hstr->hicolor=TRUE;
 		}
 		if(strstr(hstr_config,HH_CONFIG_CASE)) {
-			hstr->historyMatch=HH_MATCH_CASE_SENSITIVE;
+			hstr->caseSensitive=HH_CASE_SENSITIVE;
 		}
 		if(strstr(hstr_config,HH_CONFIG_SORTING)) {
 			hstr->historyView=HH_VIEW_HISTORY;
@@ -287,7 +291,7 @@ void print_history_label(Hstr *hstr)
 {
 	int width=getmaxx(stdscr);
 
-	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-t) - case:%s (C-.) - %d/%d ",
+	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d ",
 			HH_VIEW_LABELS[hstr->historyView],
 			HH_MATCH_LABELS[hstr->historyMatch],
 			HH_CASE_LABELS[hstr->caseSensitive],
@@ -323,26 +327,32 @@ unsigned get_max_history_items()
 	return (getmaxy(stdscr)-Y_OFFSET_ITEMS);
 }
 
-
+// TODO don't realloc if size doesn't change
 void hstr_realloc_selection(unsigned size, Hstr *hstr)
 {
 	if(hstr->selection) {
 		if(size) {
-			hstr->selection=realloc(hstr->selection, size);
+			hstr->selection
+				=realloc(hstr->selection, sizeof(char*) * size);
+			hstr->selectionRegexpMatch
+				=realloc(hstr->selectionRegexpMatch, sizeof(regmatch_t) * size);
 		} else {
 			free(hstr->selection);
+			free(hstr->selectionRegexpMatch);
 			hstr->selection=NULL;
+			hstr->selectionRegexpMatch=NULL;
 		}
 	} else {
 		if(size) {
-			hstr->selection = malloc(size);
+			hstr->selection = malloc(sizeof(char*) * size);
+			hstr->selectionRegexpMatch = malloc(sizeof(regmatch_t) * size);
 		}
 	}
 }
 
 unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, Hstr *hstr)
 {
-	hstr_realloc_selection(sizeof(char*) * maxSelectionCount, hstr);
+	hstr_realloc_selection(maxSelectionCount, hstr);
 
 	unsigned i, selectionCount=0;
 	char **source;
@@ -364,24 +374,33 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 		break;
 	}
 
+	regmatch_t regexpMatch;
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
 			if(!prefix || !strlen(prefix)) {
 				hstr->selection[selectionCount++]=source[i];
 			} else {
 				switch(hstr->historyMatch) {
-				case HH_MATCH_CASE_INSENSITIVE:
-					if(source[i]==strcasestr(source[i], prefix)) {
-						hstr->selection[selectionCount++]=source[i];
+				case HH_MATCH_EXACT:
+					switch(hstr->caseSensitive) {
+					case HH_CASE_SENSITIVE:
+						if(source[i]==strstr(source[i], prefix)) {
+							hstr->selection[selectionCount++]=source[i];
+						}
+						break;
+					case HH_CASE_INSENSITIVE:
+						if(source[i]==strcasestr(source[i], prefix)) {
+							hstr->selection[selectionCount++]=source[i];
+						}
+						break;
 					}
 					break;
 				case HH_MATCH_REGEXP:
-					// TODO TODO TODO REGEXP: call regexp implementation from here regexp_match(&regexp, match)
-					break;
-				case HH_MATCH_CASE_SENSITIVE:
-				default:
-					if(source[i]==strstr(source[i], prefix)) {
-						hstr->selection[selectionCount++]=source[i];
+					if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch)) {
+						hstr->selection[selectionCount]=source[i];
+						hstr->selectionRegexpMatch[selectionCount].rm_so=regexpMatch.rm_so;
+						hstr->selectionRegexpMatch[selectionCount].rm_eo=regexpMatch.rm_eo;
+						selectionCount++;
 					}
 					break;
 				}
@@ -393,22 +412,25 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 		char *substring;
 		for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 			switch(hstr->historyMatch) {
-			case HH_MATCH_CASE_SENSITIVE:
-				substring = strstr(source[i], prefix);
-				if (substring != NULL && substring!=source[i]) {
-					hstr->selection[selectionCount++]=source[i];
+			case HH_MATCH_EXACT:
+				switch(hstr->caseSensitive) {
+				case HH_CASE_SENSITIVE:
+					substring = strstr(source[i], prefix);
+					if (substring != NULL && substring!=source[i]) {
+						hstr->selection[selectionCount++]=source[i];
+					}
+					break;
+				case HH_CASE_INSENSITIVE:
+					substring = strcasestr(source[i], prefix);
+					if (substring != NULL && substring!=source[i]) {
+						hstr->selection[selectionCount++]=source[i];
+					}
+					break;
 				}
 				break;
 			case HH_MATCH_REGEXP:
-				// TODO TODO regexp_match(&regexp)
-				break;
-			case HH_MATCH_CASE_INSENSITIVE:
-			default:
-				substring = strcasestr(source[i], prefix);
-				if (substring != NULL && substring!=source[i]) {
-					hstr->selection[selectionCount++]=source[i];
-				}
-				break;
+				// all regexps matched previously - user decides whether match ^ or infix
+			break;
 			}
 		}
 	}
@@ -417,27 +439,32 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 	return selectionCount;
 }
 
-void print_selection_row(char *text, int y, int width, char *prefix)
+void print_selection_row(char *text, int y, int width, char *pattern)
 {
 	snprintf(screenLine, width, " %s", text);
 	mvprintw(y, 0, "%s", screenLine); clrtoeol();
-	if(prefix && strlen(prefix)>0) {
+
+	if(pattern && strlen(pattern)) {
 		color_attr_on(A_BOLD);
 		char *p;
 
 		switch(hstr->historyMatch) {
-		case HH_MATCH_CASE_SENSITIVE:
-			p=strstr(text, prefix);
-			mvprintw(y, 1+(p-text), "%s", prefix);
+		case HH_MATCH_EXACT:
+			switch(hstr->caseSensitive) {
+			case HH_CASE_INSENSITIVE:
+				p=strcasestr(text, pattern);
+				snprintf(screenLine, strlen(pattern)+1, "%s", p);
+				mvprintw(y, 1+(p-text), "%s", screenLine);
+				break;
+			case HH_CASE_SENSITIVE:
+				p=strstr(text, pattern);
+				mvprintw(y, 1+(p-text), "%s", pattern);
+				break;
+			}
 			break;
 		case HH_MATCH_REGEXP:
-			// TODO regexp_(&regex)
-			break;
-		case HH_MATCH_CASE_INSENSITIVE:
-		default:
-			p=strcasestr(text, prefix);
-			snprintf(screenLine, strlen(prefix)+1, "%s", p);
-			mvprintw(y, 1+(p-text), "%s", screenLine);
+			p=strstr(text, pattern);
+			mvprintw(y, 1+(p-text), "%s", pattern);
 			break;
 		}
 		color_attr_off(A_BOLD);
@@ -464,10 +491,10 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
 	color_attr_off(A_BOLD);
 }
 
-char *hstr_print_selection(unsigned maxHistoryItems, char *prefix, Hstr *hstr)
+char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 {
 	char *result=NULL;
-	unsigned selectionCount=hstr_make_selection(prefix, hstr->history, maxHistoryItems, hstr);
+	unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems, hstr);
 	if (selectionCount > 0) {
 		result=hstr->selection[0];
 	}
@@ -480,9 +507,26 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *prefix, Hstr *hstr)
 	move(Y_OFFSET_ITEMS, 0);
 	clrtobot();
 
+	char buffer[CMDLINE_LNG];
+	int start, end;
+
 	for (i = 0; i<height; ++i) {
 		if(i<hstr->selectionSize) {
-			print_selection_row(hstr->selection[i], y++, width, prefix);
+			if(pattern && strlen(pattern)) {
+				if(hstr->historyMatch==HH_MATCH_REGEXP) {
+					start=hstr->selectionRegexpMatch[i].rm_so;
+					end=hstr->selectionRegexpMatch[i].rm_eo-start;
+					strncpy(buffer,
+							hstr->selection[i]+start,
+							end);
+					buffer[end]=0;
+				} else {
+					strcpy(buffer, pattern);
+				}
+				print_selection_row(hstr->selection[i], y++, width, buffer);
+			} else {
+				print_selection_row(hstr->selection[i], y++, width, pattern);
+			}
 		} else {
 			mvprintw(y++, 0, " ");
 		}
@@ -495,6 +539,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *prefix, Hstr *hstr)
 void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *prefix, Hstr *hstr)
 {
 	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+		// TODO regexp match instead of prefix one level up
 		print_selection_row(
 				hstr->selection[previousSelectionCursorPosition],
 				Y_OFFSET_ITEMS+previousSelectionCursorPosition,
@@ -628,10 +673,16 @@ void loop_to_select(Hstr *hstr)
 			}
 			print_history_label(hstr);
 			break;
+		case K_CTRL_E:
+			hstr->historyMatch++;
+			hstr->historyMatch=hstr->historyMatch%2;
+			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+			print_history_label(hstr);
+			selectionCursorPosition=0;
+			break;
 		case K_CTRL_T:
-			// TODO TODO TODO TODO TODO MOD to rotate regexp views goes here
-			// TODO TODO TODO hstr->caseSensitive=!hstr->caseSensitive;
-
+			hstr->caseSensitive=!hstr->caseSensitive;
+			hstr->regexp.caseSensitive=hstr->caseSensitive;
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
 			selectionCursorPosition=0;
@@ -684,6 +735,7 @@ void loop_to_select(Hstr *hstr)
 				print_prefix(pattern, y, basex);
 			}
 
+			// TODO why I make selection if it's done in print_selection?
 			if(strlen(pattern)>0) {
 				hstr_make_selection(pattern, hstr->history, maxHistoryItems, hstr);
 			} else {
@@ -775,7 +827,6 @@ void loop_to_select(Hstr *hstr)
 // TODO support BASH substitutions: !!, !!ps, !$, !*
 void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr)
 {
-	hstr->cmdline[0]=0;
 	if(argc>0) {
 		int i;
 		for(i=1; i<argc; i++) {
@@ -795,6 +846,9 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr)
 }
 
 // TODO to be rewritten to getopt
+
+// TODO on unknown option make it filter
+// TODO on favorites - skip -f otherwise it becomes filter
 void hstr_get_cmdline_options(int argc, char *argv[], Hstr *hstr)
 {
 	if(argc>0) {
@@ -811,10 +865,13 @@ void hstr_get_cmdline_options(int argc, char *argv[], Hstr *hstr)
 						printf("%s", VERSION_STRING);
 						exit(EXIT_SUCCESS);
 					} else {
-						// if(strstr(argv[1], "--help")) {
-						printf("Unknown option: %s\n", argv[1]);
-						printf("%s", HELP_STRING);
-						exit(EXIT_SUCCESS);
+						if(strstr(argv[1], "--help")) {
+							printf("Unknown option: %s\n", argv[1]);
+							printf("%s", HELP_STRING);
+							exit(EXIT_SUCCESS);
+						} else {
+							hstr_assemble_cmdline_pattern(argc, argv, hstr);
+						}
 					}
 				}
 			}
@@ -850,7 +907,6 @@ int main(int argc, char *argv[])
 	hstr_init(hstr);
 	hstr_get_env_configuration(hstr);
 	hstr_get_cmdline_options(argc, argv, hstr);
-	hstr_assemble_cmdline_pattern(argc, argv, hstr);
 	hstr_init_favorites(hstr);
 	hstr_main(hstr);
 

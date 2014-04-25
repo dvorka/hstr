@@ -16,7 +16,7 @@ void hstr_regexp_init(HstrRegexp *hstrRegexp)
 	hashset_init(&hstrRegexp->cache);
 }
 
-bool hstr_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatch_t *match)
+bool hstr_regexp_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatch_t *match)
 {
 	regex_t* compiled=malloc(sizeof(regex_t));
 	if(hashset_contains(&hstrRegexp->cache,regexp)) {

@@ -32,5 +32,5 @@ void echo_keyb_characters() {
 
 int main(int argc, char *argv[])
 {
-
+	echo_keyb_characters();
 }
