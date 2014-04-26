@@ -7,8 +7,8 @@
  ============================================================================
 */
 
-#include "../src/include/hashset.h"
-#include "../src/include/hstr_utils.h"
+#include "../../src/include/hashset.h"
+#include "../../src/include/hstr_utils.h"
 
 void testBlacklist() {
 	const char* commandBlacklist[] = { };

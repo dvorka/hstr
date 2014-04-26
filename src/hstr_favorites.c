@@ -7,7 +7,6 @@
  ============================================================================
 */
 
-#include <stdbool.h>
 #include <stdio.h>
 #include <string.h>
 #include <unistd.h>
@@ -22,6 +21,18 @@ void favorites_init(FavoriteItems *favorites)
 	favorites->items=NULL;
 	favorites->count=0;
 	favorites->loaded=false;
+}
+
+void favorites_show(FavoriteItems *favorites)
+{
+	printf("\n\nFavorites (%d):", favorites->count);
+	if(favorites->count) {
+		int i;
+		for(i=0;i<favorites->count;i++) {
+			printf("\n%s",favorites->items[i]);
+		}
+	}
+	printf("\n");
 }
 
 char* favorites_get_filename()
@@ -129,36 +140,37 @@ void favorites_add(FavoriteItems *favorites, char *newFavorite)
 void favorites_choose(FavoriteItems *favorites, char *choice)
 {
 	if(favorites->count && choice) {
-		int i;
-		char *b=0, *next;
-		for(i=0; i<favorites->count; i++) {
-			if(!strcmp(favorites->items[i],choice)) {
-				favorites->items[0]=favorites->items[i];
+		int r;
+		char *b=NULL, *next;
+		for(r=0; r<favorites->count; r++) {
+			if(!strcmp(favorites->items[r],choice)) {
+				favorites->items[0]=favorites->items[r];
 				if(b) {
-					favorites->items[i]=b;
+					favorites->items[r]=b;
 				}
+				favorites_save(favorites);
 				return;
 			}
-			next=favorites->items[i];
-			favorites->items[i]=b;
+			next=favorites->items[r];
+			favorites->items[r]=b;
 			b=next;
 		}
 	}
-	favorites_save(favorites);
 }
 
 bool favorites_remove(FavoriteItems *favorites, char *almostDead)
 {
 	if(favorites->count) {
-		int i, j;
-		for(i=0, j=0; i<favorites->count && j<favorites->count; i++, j++) {
-			if(!strcmp(favorites->items[i], almostDead)) {
-				j=i+1;
+		int r, w, count;
+		count=favorites->count;
+		for(r=0, w=0; r<count; r++) {
+			if(!strcmp(favorites->items[r], almostDead)) {
 				favorites->count--;
 			} else {
-				if(j>i) {
-					favorites->items[i]=favorites->items[j];
+				if(w<r) {
+					favorites->items[w]=favorites->items[r];
 				}
+				w++;
 			}
 		}
 		favorites_save(favorites);

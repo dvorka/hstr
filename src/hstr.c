@@ -3,7 +3,7 @@
  Name        : hstr.c
  Author      : martin.dvorak@mindforger.com
  Copyright   : Apache 2.0
- Description : Shell history completion utility
+ Description : BASH history completion utility
  ============================================================================
 */
 
@@ -60,6 +60,7 @@
 
 #define HH_COLOR_NORMAL  1
 #define HH_COLOR_HIROW   2
+#define HH_COLOR_INFO    2
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
 
@@ -259,7 +260,7 @@ void print_cmd_deleted_label(char *cmd, int occurences, Hstr *hstr)
 {
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
 	if(hstr->hicolor) {
-		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
 		color_attr_on(A_BOLD);
 	}
 	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
@@ -275,7 +276,7 @@ void print_cmd_added_favorite_label(char *cmd, Hstr *hstr)
 {
 	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
 	if(hstr->hicolor) {
-		color_attr_on(COLOR_PAIR(4));
+		color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
 		color_attr_on(A_BOLD);
 	}
 	mvprintw(Y_OFFSET_HELP, 0, screenLine);
@@ -670,7 +671,7 @@ void loop_to_select(Hstr *hstr)
 		}
 
 		switch (c) {
-		case KEY_DC:
+		case KEY_DC: // DEL
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				delete=hstr->selection[selectionCursorPosition];
 				msg=malloc(strlen(delete)+1);
@@ -703,6 +704,11 @@ void loop_to_select(Hstr *hstr)
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
 			selectionCursorPosition=0;
+			if(strlen(pattern)<(width-basex-1)) {
+				print_prefix(pattern, y, basex);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
+			}
 			break;
 		case K_CTRL_F:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
@@ -791,6 +797,12 @@ void loop_to_select(Hstr *hstr)
 		case KEY_RIGHT:
 			if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 				result=hstr->selection[selectionCursorPosition];
+				if(hstr->historyView==HH_VIEW_FAVORITES) {
+					favorites_choose(hstr->favorites,result);
+				}
+			} else {
+				executeResult=FALSE;
+				break;
 			}
 			done=TRUE;
 			break;
