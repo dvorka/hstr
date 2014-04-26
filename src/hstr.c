@@ -511,6 +511,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 	char buffer[CMDLINE_LNG];
 	for (i = 0; i<height; ++i) {
 		if(i<hstr->selectionSize) {
+			// TODO make this function
 			if(pattern && strlen(pattern)) {
 				if(hstr->historyMatch==HH_MATCH_REGEXP) {
 					start=hstr->selectionRegexpMatch[i].rm_so;
@@ -538,6 +539,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *pattern, Hstr *hstr)
 {
 	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+		// TODO make this function
 		char buffer[CMDLINE_LNG];
 		if(pattern && strlen(pattern) && hstr->historyMatch==HH_MATCH_REGEXP) {
 			int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
@@ -855,9 +857,6 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr)
 }
 
 // TODO to be rewritten to getopt
-
-// TODO on unknown option make it filter
-// TODO on favorites - skip -f otherwise it becomes filter
 void hstr_get_cmdline_options(int argc, char *argv[], Hstr *hstr)
 {
 	if(argc>0) {
