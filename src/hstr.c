@@ -507,9 +507,8 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 	move(Y_OFFSET_ITEMS, 0);
 	clrtobot();
 
-	char buffer[CMDLINE_LNG];
 	int start, end;
-
+	char buffer[CMDLINE_LNG];
 	for (i = 0; i<height; ++i) {
 		if(i<hstr->selectionSize) {
 			if(pattern && strlen(pattern)) {
@@ -536,15 +535,25 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 	return result;
 }
 
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *prefix, Hstr *hstr)
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *pattern, Hstr *hstr)
 {
 	if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-		// TODO regexp match instead of prefix one level up
+		char buffer[CMDLINE_LNG];
+		if(pattern && strlen(pattern) && hstr->historyMatch==HH_MATCH_REGEXP) {
+			int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
+			int end=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_eo-start;
+			strncpy(buffer,
+					hstr->selection[previousSelectionCursorPosition]+start,
+					end);
+			buffer[end]=0;
+		} else {
+			strcpy(buffer, pattern);
+		}
 		print_selection_row(
 				hstr->selection[previousSelectionCursorPosition],
 				Y_OFFSET_ITEMS+previousSelectionCursorPosition,
 				getmaxx(stdscr),
-				prefix);
+				buffer);
 	}
 	if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
 		hstr_print_highlighted_selection_row(
