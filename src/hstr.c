@@ -208,6 +208,9 @@ void hstr_get_env_configuration(Hstr *hstr)
 		if(strstr(hstr_config,HH_CONFIG_CASE)) {
 			hstr->caseSensitive=HH_CASE_SENSITIVE;
 		}
+		if(strstr(hstr_config,HH_CONFIG_REGEXP)) {
+			hstr->historyMatch=HH_MATCH_REGEXP;
+		}
 		if(strstr(hstr_config,HH_CONFIG_SORTING)) {
 			hstr->historyView=HH_VIEW_HISTORY;
 		} else {
@@ -215,6 +218,7 @@ void hstr_get_env_configuration(Hstr *hstr)
 				hstr->historyView=HH_VIEW_FAVORITES;
 			}
 		}
+
 		if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
 			hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
 		} else {
