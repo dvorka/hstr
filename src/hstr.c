@@ -155,7 +155,7 @@ static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 // TODO makes hstr.c non-reentrant
-static char screenLine[CMDLINE_LNG];
+//static char screenLine[CMDLINE_LNG];
 
 typedef struct {
 	HistoryItems *history;
@@ -255,6 +255,7 @@ int print_prompt(Hstr *hstr)
 
 void print_help_label()
 {
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
 	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine); clrtoeol();
 	refresh();
@@ -262,6 +263,7 @@ void print_help_label()
 
 void print_cmd_deleted_label(char *cmd, int occurences, Hstr *hstr)
 {
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
 	if(hstr->hicolor) {
 		color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
@@ -278,6 +280,7 @@ void print_cmd_deleted_label(char *cmd, int occurences, Hstr *hstr)
 
 void print_cmd_added_favorite_label(char *cmd, Hstr *hstr)
 {
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
 	if(hstr->hicolor) {
 		color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
@@ -296,6 +299,7 @@ void print_history_label(Hstr *hstr)
 {
 	int width=getmaxx(stdscr);
 
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d ",
 			HH_VIEW_LABELS[hstr->historyView],
 			HH_MATCH_LABELS[hstr->historyMatch],
@@ -446,6 +450,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 
 void print_selection_row(char *text, int y, int width, char *pattern)
 {
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, width, " %s", text);
 	mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
@@ -484,6 +489,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
 	} else {
 		color_attr_on(A_REVERSE);
 	}
+	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr),
 			"%s%s" SPACE_PADDING SPACE_PADDING SPACE_PADDING,
 			(terminal_has_colors()?" ":">"), text);
