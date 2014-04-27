@@ -181,7 +181,7 @@ void hstr_init(Hstr *hstr)
 	hstr->selectionRegexpMatch=NULL;
 	hstr->selectionSize=0;
 
-	hstr->historyMatch=HH_MATCH_REGEXP;
+	hstr->historyMatch=HH_MATCH_EXACT;
 	hstr->historyView=HH_VIEW_RANKING;
 	hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
