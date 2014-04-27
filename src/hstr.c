@@ -153,9 +153,6 @@ static const char *VERSION_STRING=
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
-// TODO makes hstr.c non-reentrant
-//static char screenLine[CMDLINE_LNG];
-
 typedef struct {
 	HistoryItems *history;
 	FavoriteItems *favorites;
