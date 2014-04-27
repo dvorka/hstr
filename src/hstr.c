@@ -116,8 +116,8 @@ static const char *HH_MATCH_LABELS[]={
 };
 
 static const char *HH_CASE_LABELS[]={
-		"sensitive",
-		"insensitive"
+		"insensitive",
+		"sensitive"
 };
 
 static const char *INSTALL_STRING=
@@ -692,9 +692,15 @@ void loop_to_select(Hstr *hstr)
 		case K_CTRL_E:
 			hstr->historyMatch++;
 			hstr->historyMatch=hstr->historyMatch%2;
+			// TODO make this a function
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
 			selectionCursorPosition=0;
+			if(strlen(pattern)<(width-basex-1)) {
+				print_prefix(pattern, y, basex);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
+			}
 			break;
 		case K_CTRL_T:
 			hstr->caseSensitive=!hstr->caseSensitive;
@@ -702,6 +708,11 @@ void loop_to_select(Hstr *hstr)
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
 			selectionCursorPosition=0;
+			if(strlen(pattern)<(width-basex-1)) {
+				print_prefix(pattern, y, basex);
+				cursorX=getcurx(stdscr);
+				cursorY=getcury(stdscr);
+			}
 			break;
 		case K_CTRL_SLASH:
 			hstr_next_view(hstr);
