@@ -32,7 +32,7 @@ Show version information
 Type to filter shell history.
 .TP 
 \fBCtrl\-e\fR
-Toggle regular expression and exact search.
+Toggle regular expression and substring search.
 .TP 
 \fBCtrl\-t\fR
 Toggle case sensitive search.
@@ -79,10 +79,13 @@ Configuration options:
         Get more colors with this option (default is monochromatic).
 
 \fIregexp\fR
-        Search command history using regular expressions (exact match is default) 
+        Filter command history using regular expressions (substring match is default) 
+
+\fIsubstring\fR
+        Filter command history using substring.
 
 \fIcasesensitive\fR
-        Make the pattern-based filtering case sensitive (it's case insensitive by default). 
+        Make history filtering case sensitive (it's case insensitive by default). 
 
 \fIrawhistory\fR
         Show normal history as a default view (metric-based view is shown otherwise). 

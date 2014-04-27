@@ -70,6 +70,7 @@
 #define HH_CONFIG_HICOLOR   "hicolor"
 #define HH_CONFIG_CASE      "casesensitive"
 #define HH_CONFIG_REGEXP    "regexp"
+#define HH_CONFIG_SUBSTRING "substring"
 #define HH_CONFIG_SORTING   "rawhistory"
 #define HH_CONFIG_FAVORITES "favorites"
 #define HH_CONFIG_DEBUG     "debug"
@@ -83,8 +84,8 @@
 #define HH_VIEW_HISTORY		1
 #define HH_VIEW_FAVORITES	2
 
-#define HH_MATCH_EXACT 	0
-#define HH_MATCH_REGEXP 1
+#define HH_MATCH_SUBSTRING 	0
+#define HH_MATCH_REGEXP     1
 
 #define HH_CASE_INSENSITIVE	0
 #define HH_CASE_SENSITIVE	1
@@ -181,7 +182,7 @@ void hstr_init(Hstr *hstr)
 	hstr->selectionRegexpMatch=NULL;
 	hstr->selectionSize=0;
 
-	hstr->historyMatch=HH_MATCH_EXACT;
+	hstr->historyMatch=HH_MATCH_SUBSTRING;
 	hstr->historyView=HH_VIEW_RANKING;
 	hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
@@ -206,6 +207,10 @@ void hstr_get_env_configuration(Hstr *hstr)
 		}
 		if(strstr(hstr_config,HH_CONFIG_REGEXP)) {
 			hstr->historyMatch=HH_MATCH_REGEXP;
+		} else {
+			if(strstr(hstr_config,HH_CONFIG_SUBSTRING)) {
+				hstr->historyMatch=HH_MATCH_SUBSTRING;
+			}
 		}
 		if(strstr(hstr_config,HH_CONFIG_SORTING)) {
 			hstr->historyView=HH_VIEW_HISTORY;
@@ -386,7 +391,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 				hstr->selection[selectionCount++]=source[i];
 			} else {
 				switch(hstr->historyMatch) {
-				case HH_MATCH_EXACT:
+				case HH_MATCH_SUBSTRING:
 					switch(hstr->caseSensitive) {
 					case HH_CASE_SENSITIVE:
 						if(source[i]==strstr(source[i], prefix)) {
@@ -417,7 +422,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 		char *substring;
 		for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 			switch(hstr->historyMatch) {
-			case HH_MATCH_EXACT:
+			case HH_MATCH_SUBSTRING:
 				switch(hstr->caseSensitive) {
 				case HH_CASE_SENSITIVE:
 					substring = strstr(source[i], prefix);
@@ -455,7 +460,7 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 		char *p;
 
 		switch(hstr->historyMatch) {
-		case HH_MATCH_EXACT:
+		case HH_MATCH_SUBSTRING:
 			switch(hstr->caseSensitive) {
 			case HH_CASE_INSENSITIVE:
 				p=strcasestr(text, pattern);
