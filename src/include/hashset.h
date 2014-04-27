@@ -30,7 +30,7 @@ typedef struct {
 void hashset_init(HashSet *hs);
 
 int hashset_contains(const HashSet *hs, const char *key);
-int hashset_add(const HashSet *hs, const char *key);
+int hashset_add(HashSet *hs, const char *key);
 int hashset_size(const HashSet *hs);
 char** hashset_keys(const HashSet *hs);
 

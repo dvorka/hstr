@@ -74,7 +74,7 @@ int hashset_put(HashSet *hs, const char *key, void *value)
     return 1;
 }
 
-int hashset_add(const HashSet * hs, const char *key)
+int hashset_add(HashSet * hs, const char *key)
 {
 	return hashset_put(hs, key, "nil");
 }

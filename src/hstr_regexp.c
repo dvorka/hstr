@@ -9,6 +9,8 @@
 
 #include "include/hstr_regexp.h"
 
+#include "include/hstr_utils.h"
+
 #define REGEXP_MATCH_BUFFER_SIZE 1
 
 void hstr_regexp_init(HstrRegexp *hstrRegexp)
@@ -27,7 +29,7 @@ bool hstr_regexp_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatc
 		int compilationStatus=regcomp(compiled, regexp, compilationFlags);
 		//printf("\nCompilation: %d",compilationStatus);
 		if(!compilationStatus) {
-			hashset_put(&hstrRegexp->cache, strdup(regexp), compiled);
+			hashset_put(&hstrRegexp->cache, hstr_strdup(regexp), compiled);
 		} else {
 			free(compiled);
 			// TODO error handling: regerror() to turn error codes to messages

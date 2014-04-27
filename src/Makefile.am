@@ -11,5 +11,6 @@ hh_SOURCES = 						\
 	hstr_history.c include/hstr_history.h 		\
 	hstr_utils.c include/hstr_utils.h 		\
 	hstr_favorites.c include/hstr_favorites.h       \
+	hstr_regexp.c include/hstr_regexp.h             \
 	radixsort.c include/radixsort.h 		\
 	hstr.c 
