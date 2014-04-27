@@ -66,7 +66,6 @@
 
 #define HH_ENV_VAR_CONFIG  "HH_CONFIG"
 
-// TODO make hicolor default, introduce monochromatic
 #define HH_CONFIG_MONO      "monochromatic"
 #define HH_CONFIG_HICOLOR   "hicolor"
 #define HH_CONFIG_CASE      "casesensitive"
@@ -519,7 +518,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 	clrtobot();
 
 	int start, end;
-	char buffer[CMDLINE_LNG];
+	char screenLine[CMDLINE_LNG];
 	for (i = 0; i<height; ++i) {
 		if(i<hstr->selectionSize) {
 			// TODO make this function
@@ -527,14 +526,14 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 				if(hstr->historyMatch==HH_MATCH_REGEXP) {
 					start=hstr->selectionRegexpMatch[i].rm_so;
 					end=hstr->selectionRegexpMatch[i].rm_eo-start;
-					strncpy(buffer,
+					strncpy(screenLine,
 							hstr->selection[i]+start,
 							end);
-					buffer[end]=0;
+					screenLine[end]=0;
 				} else {
-					strcpy(buffer, pattern);
+					strcpy(screenLine, pattern);
 				}
-				print_selection_row(hstr->selection[i], y++, width, buffer);
+				print_selection_row(hstr->selection[i], y++, width, screenLine);
 			} else {
 				print_selection_row(hstr->selection[i], y++, width, pattern);
 			}
