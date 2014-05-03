@@ -10,6 +10,7 @@
 #define _GNU_SOURCE
 
 #include <curses.h>
+#include <getopt.h>
 #include <regex.h>
 #include <signal.h>
 #include <stdbool.h>
@@ -136,10 +137,11 @@ static const char *HELP_STRING=
 		"Usage: hh [option] [arg1] [arg2]..."
 		"\nShell history suggest box:"
 		"\n"
-		"\n  --favorites -f          ... show command favorites"
-		"\n  --show-configuration    ... show configuration to be added to ~/.bashrc"
-		"\n  --version               ... show version details"
-		"\n  --help                  ... display this help and exit"
+		"\n  --favorites          -f ... show favorites view"
+		"\n  --non-interactive    -n ... print filtered history and exit"
+		"\n  --show-configuration -s ... show configuration to be added to ~/.bashrc"
+		"\n  --version            -V ... show version details"
+		"\n  --help               -h ... help"
 		"\n"
 		"\nReport bugs to martin.dvorak@mindforger.com"
 		"\nHome page: https://github.com/dvorka/hstr"
@@ -154,6 +156,19 @@ static const char *VERSION_STRING=
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
+#define GETOPT_NO_ARGUMENT 		    0
+#define GETOPT_REQUIRED_ARGUMENT 	1
+#define GETOPT_OPTIONAL_ARGUMENT 	2
+
+static const struct option long_options[] = {
+		{"favorites",     	   GETOPT_NO_ARGUMENT, NULL, 'f'},
+		{"version",  		   GETOPT_NO_ARGUMENT, NULL, 'V'},
+		{"help",  		       GETOPT_NO_ARGUMENT, NULL, 'h'},
+		{"non-interactive",    GETOPT_NO_ARGUMENT, NULL, 'n'},
+		{"show-configuration", GETOPT_NO_ARGUMENT, NULL, 's'},
+		{0,         		   0,           NULL,  0 }
+};
+
 typedef struct {
 	HistoryItems *history;
 	FavoriteItems *favorites;
@@ -165,6 +180,8 @@ typedef struct {
 	int historyMatch; // TODO patternMatching: exact, regexp
 	int historyView; // TODO view: favs, ...
 	int caseSensitive;
+
+	bool interactive;
 
 	bool hicolor;
 	int debugLevel;
@@ -186,12 +203,12 @@ void hstr_init(Hstr *hstr)
 	hstr->historyView=HH_VIEW_RANKING;
 	hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
+	hstr->interactive=true;
+
 	hstr->hicolor=FALSE;
 
 	hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
-
 	hstr->cmdline[0]=0;
-
 	hstr_regexp_init(&hstr->regexp);
 }
 
@@ -626,6 +643,16 @@ void hstr_next_view(Hstr *hstr)
 	hstr->historyView=hstr->historyView%3;
 }
 
+void stdout_history_and_return(Hstr *hstr) {
+	unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount, hstr);
+	if (selectionCount > 0) {
+		int i;
+		for(i=0; i<selectionCount; i++) {
+			printf("%s\n",hstr->selection[i]);
+		}
+	}
+}
+
 void loop_to_select(Hstr *hstr)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
@@ -644,6 +671,7 @@ void loop_to_select(Hstr *hstr)
 	color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
 	print_help_label();
 	print_history_label(hstr);
+	// TODO why do I print non-filtered selection when on command line there is a pattern?
 	hstr_print_selection(get_max_history_items(stdscr), NULL, hstr);
 	color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
@@ -656,6 +684,7 @@ void loop_to_select(Hstr *hstr)
 	char *result="", *msg, *delete;
 	char pattern[SELECTION_PREFIX_MAX_LNG];
 	pattern[0]=0;
+	// TODO this is too late! > don't render twice
 	strcpy(pattern, hstr->cmdline);
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);
@@ -869,12 +898,12 @@ void loop_to_select(Hstr *hstr)
 	}
 }
 
-// TODO support BASH substitutions: !!, !!ps, !$, !*
-void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr)
+// TODO protection from line overflow (snprinf)
+void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int startIndex)
 {
 	if(argc>0) {
 		int i;
-		for(i=1; i<argc; i++) {
+		for(i=startIndex; i<argc; i++) {
 			if((strlen(hstr->cmdline)+strlen(argv[i])*2)>CMDLINE_LNG) break;
 			if(strstr(argv[i], " ")) {
 				strcat(hstr->cmdline, "\"");
@@ -890,38 +919,6 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr)
 	}
 }
 
-// TODO to be rewritten to getopt
-void hstr_get_cmdline_options(int argc, char *argv[], Hstr *hstr)
-{
-	if(argc>0) {
-		if(argc==2) {
-			if(strstr(argv[1], "--favorites") || strstr(argv[1], "-f")) {
-				hstr->historyView=HH_VIEW_FAVORITES;
-				return;
-			} else {
-				if(strstr(argv[1], "--show-configuration")) {
-					printf("%s", INSTALL_STRING);
-					exit(EXIT_SUCCESS);
-				} else {
-					if(strstr(argv[1], "--version")) {
-						printf("%s", VERSION_STRING);
-						exit(EXIT_SUCCESS);
-					} else {
-						if(strstr(argv[1], "--help")) {
-							printf("Unknown option: %s\n", argv[1]);
-							printf("%s", HELP_STRING);
-							exit(EXIT_SUCCESS);
-						} else {
-							hstr_assemble_cmdline_pattern(argc, argv, hstr);
-						}
-					}
-				}
-			}
-		}
-	}
-
-}
-
 // TODO make favorites loading lazy (load on the first opening of favorites view)
 void hstr_init_favorites(Hstr *hstr)
 {
@@ -935,10 +932,49 @@ void hstr_main(Hstr *hstr)
 	hstr->history=get_prioritized_history();
 	if(hstr->history) {
 		history_mgmt_open();
-		loop_to_select(hstr);
+		if(hstr->interactive) {
+			loop_to_select(hstr);
+		} else {
+			stdout_history_and_return(hstr);
+		}
 		hstr_on_exit(hstr);
 	} else {
 		printf("No history - nothing to suggest...\n");
+	}
+}
+
+void hstr_getopt(int argc, char **argv, Hstr *hstr)
+{
+	int option_index = 0;
+	int option = getopt_long(argc, argv, "fVhns", long_options, &option_index);
+	if(option != -1) {
+		switch(option) {
+		case 'f':
+			hstr->historyView=HH_VIEW_FAVORITES;
+			break;
+		case 'n':
+			hstr->interactive=false;
+			break;
+		case 'V':
+			printf("%s", VERSION_STRING);
+			exit(EXIT_SUCCESS);
+		case 'h':
+			printf("%s", HELP_STRING);
+			exit(EXIT_SUCCESS);
+		case 's':
+			printf("%s", INSTALL_STRING);
+			exit(EXIT_SUCCESS);
+
+		case '?':
+		default:
+			printf("Unrecognized option: '%s'", HELP_STRING);
+			printf("%s", HELP_STRING);
+			exit(EXIT_SUCCESS);
+		}
+	}
+
+	if(optind < argc) {
+		hstr_assemble_cmdline_pattern(argc, argv, hstr, optind);
 	}
 }
 
@@ -947,8 +983,8 @@ int main(int argc, char *argv[])
 	hstr=malloc(sizeof(Hstr));
 
 	hstr_init(hstr);
-	hstr_get_env_configuration(hstr);
-	hstr_get_cmdline_options(argc, argv, hstr);
+    hstr_get_env_configuration(hstr);
+	hstr_getopt(argc, argv, hstr);
 	hstr_init_favorites(hstr);
 	hstr_main(hstr);
 
