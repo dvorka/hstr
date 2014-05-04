@@ -118,7 +118,6 @@ void favorites_save(FavoriteItems *favorites)
 			fclose(output_file);
 		}
 	}
-
 	free(fileName);
 }
 

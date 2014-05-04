@@ -279,10 +279,11 @@ void print_help_label()
 	refresh();
 }
 
-void print_cmd_deleted_label(char *cmd, int occurences, Hstr *hstr)
+void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
 {
 	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+	// TODO make this function
 	if(hstr->hicolor) {
 		color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
 		color_attr_on(A_BOLD);
@@ -296,7 +297,24 @@ void print_cmd_deleted_label(char *cmd, int occurences, Hstr *hstr)
 	refresh();
 }
 
-void print_cmd_added_favorite_label(char *cmd, Hstr *hstr)
+void print_regexp_error(const char *errorMessage)
+{
+	char screenLine[CMDLINE_LNG];
+	snprintf(screenLine, getmaxx(stdscr), "%s", errorMessage);
+	if(hstr->hicolor) {
+		color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
+		color_attr_on(A_BOLD);
+	}
+	mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
+	if(hstr->hicolor) {
+		color_attr_off(A_BOLD);
+		color_attr_on(COLOR_PAIR(1));
+	}
+	clrtoeol();
+	refresh();
+}
+
+void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
 {
 	char screenLine[CMDLINE_LNG];
 	snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
@@ -402,6 +420,8 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 	}
 
 	regmatch_t regexpMatch;
+	char regexpErrorMessage[CMDLINE_LNG];
+	bool regexpCompilationError=false;
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
 			if(!prefix || !strlen(prefix)) {
@@ -423,11 +443,17 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 					}
 					break;
 				case HH_MATCH_REGEXP:
-					if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch)) {
+					if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch, regexpErrorMessage, CMDLINE_LNG)) {
 						hstr->selection[selectionCount]=source[i];
 						hstr->selectionRegexpMatch[selectionCount].rm_so=regexpMatch.rm_so;
 						hstr->selectionRegexpMatch[selectionCount].rm_eo=regexpMatch.rm_eo;
 						selectionCount++;
+					} else {
+						if(!regexpCompilationError) {
+							// TODO fix broken messages - getting just escape sequences
+							// print_regexp_error(regexpErrorMessage);
+							regexpCompilationError=true;
+						}
 					}
 					break;
 				}
@@ -685,6 +711,7 @@ void loop_to_select(Hstr *hstr)
 	char pattern[SELECTION_PREFIX_MAX_LNG];
 	pattern[0]=0;
 	// TODO this is too late! > don't render twice
+	// TODO overflow
 	strcpy(pattern, hstr->cmdline);
 	while (!done) {
 		maxHistoryItems=get_max_history_items(stdscr);

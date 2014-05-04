@@ -18,12 +18,11 @@
 
 typedef struct {
 	bool caseSensitive;
-
 	HashSet cache;
 } HstrRegexp;
 
 void hstr_regexp_init(HstrRegexp *hstrRegexp);
-bool hstr_regexp_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatch_t *match);
+bool hstr_regexp_match(HstrRegexp *hstrRegexp, const char *regexp, const char *text, regmatch_t *match, char *errorMessage, const size_t errorMessageSize);
 void hstr_regexp_destroy(HstrRegexp *hstrRegexp);
 
 #endif

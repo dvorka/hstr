@@ -18,21 +18,26 @@ void hstr_regexp_init(HstrRegexp *hstrRegexp)
 	hashset_init(&hstrRegexp->cache);
 }
 
-bool hstr_regexp_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatch_t *match)
+bool hstr_regexp_match(
+		HstrRegexp *hstrRegexp,
+		const char *regexp,
+		const char *text,
+		regmatch_t *match,
+		char *errorMessage,
+		const size_t errorMessageSize)
 {
-	regex_t* compiled=malloc(sizeof(regex_t));
+	regex_t* compiled;
 	if(hashset_contains(&hstrRegexp->cache,regexp)) {
 		compiled=hashset_get(&hstrRegexp->cache, regexp);
 	} else {
+		compiled=malloc(sizeof(regex_t));
 		int compilationFlags=(hstrRegexp->caseSensitive?0:REG_ICASE);
-		//printf("Regular expressions matching:\n  '%s'\n  '%s'",text,regexp);
 		int compilationStatus=regcomp(compiled, regexp, compilationFlags);
-		//printf("\nCompilation: %d",compilationStatus);
 		if(!compilationStatus) {
 			hashset_put(&hstrRegexp->cache, hstr_strdup(regexp), compiled);
 		} else {
+			regerror(compilationStatus, compiled, errorMessage, errorMessageSize);
 			free(compiled);
-			// TODO error handling: regerror() to turn error codes to messages
 			return false;
 		}
 	}
@@ -41,12 +46,8 @@ bool hstr_regexp_match(HstrRegexp *hstrRegexp, char *regexp, char *text, regmatc
 	regmatch_t matchPtr[REGEXP_MATCH_BUFFER_SIZE];
 	int matchingFlags=0;
 	int matchingStatus=regexec(compiled, text, matches, matchPtr, matchingFlags);
-	//printf("\nMatching (status/matches): %s %d",(!matchingStatus?"match":"no-match"),matches);
-
 	if(!matchingStatus) {
-		//printf("\n  %d %d",matchPtr[0].rm_so, matchPtr[0].rm_eo);
 		if(matchPtr[0].rm_so != -1) {
-			//printf("\n* %d %d",matchPtr[0].rm_so,matchPtr[0].rm_eo);
 			match->rm_so=matchPtr[0].rm_so;
 			match->rm_eo=matchPtr[0].rm_eo;
 			return true;
@@ -59,4 +60,3 @@ void hstr_regexp_destroy(HstrRegexp *hstrRegexp)
 {
 	// TODO hashset_destroy();
 }
-
