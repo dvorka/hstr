@@ -39,6 +39,8 @@ void main() {
 				printf("\n* %d %d",matchPtr[i].rm_so,matchPtr[i].rm_eo);
 			}
 		}
+	} else {
+		regerror(matchingStatus);
 	}
 
 	printf("\n");

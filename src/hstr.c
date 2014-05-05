@@ -554,7 +554,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 		result=hstr->selection[0];
 	}
 
-	int height=get_max_history_items(stdscr);
+	int height=get_max_history_items();
 	int width=getmaxx(stdscr);
 	unsigned i;
 	int y=Y_OFFSET_ITEMS;
@@ -698,7 +698,7 @@ void loop_to_select(Hstr *hstr)
 	print_help_label();
 	print_history_label(hstr);
 	// TODO why do I print non-filtered selection when on command line there is a pattern?
-	hstr_print_selection(get_max_history_items(stdscr), NULL, hstr);
+	hstr_print_selection(get_max_history_items(), NULL, hstr);
 	color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
 	bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE;
@@ -714,7 +714,7 @@ void loop_to_select(Hstr *hstr)
 	// TODO overflow
 	strcpy(pattern, hstr->cmdline);
 	while (!done) {
-		maxHistoryItems=get_max_history_items(stdscr);
+		maxHistoryItems=get_max_history_items();
 
 		if(!skip) {
 			c = wgetch(stdscr);
