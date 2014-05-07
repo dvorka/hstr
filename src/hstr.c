@@ -781,7 +781,7 @@ void loop_to_select(Hstr *hstr)
 			hstr_next_view(hstr);
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
-			selectionCursorPosition=0;
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
 				print_prefix(pattern, y, basex);
 				cursorX=getcurx(stdscr);

@@ -8,9 +8,13 @@ automake --force-missing --add-missing
 autoconf
 
 rm -rvf autom*te.cache
-cp -vf /usr/share/automake-1.11/depcomp .
-cp -vf /usr/share/automake-1.11/install-sh .
-cp -vf /usr/share/automake-1.11/missing .
+
+if [ -d /usr/share/automake-1.11 ]
+then
+    cp -vf /usr/share/automake-1.11/depcomp .
+    cp -vf /usr/share/automake-1.11/install-sh .
+    cp -vf /usr/share/automake-1.11/missing .
+fi
 
 cd dist
 
