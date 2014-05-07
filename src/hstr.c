@@ -336,12 +336,13 @@ void print_history_label(Hstr *hstr)
 	int width=getmaxx(stdscr);
 
 	char screenLine[CMDLINE_LNG];
-	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d ",
+	snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
 			HH_VIEW_LABELS[hstr->historyView],
 			HH_MATCH_LABELS[hstr->historyMatch],
 			HH_CASE_LABELS[hstr->caseSensitive],
 			hstr->history->count,
-			hstr->history->rawCount);
+			hstr->history->rawCount,
+			hstr->favorites->count);
 	width -= strlen(screenLine);
 	unsigned i;
 	for (i=0; i < width; i++) {
@@ -758,7 +759,7 @@ void loop_to_select(Hstr *hstr)
 			// TODO make this a function
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
-			selectionCursorPosition=0;
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
 				print_prefix(pattern, y, basex);
 				cursorX=getcurx(stdscr);
@@ -770,7 +771,7 @@ void loop_to_select(Hstr *hstr)
 			hstr->regexp.caseSensitive=hstr->caseSensitive;
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
-			selectionCursorPosition=0;
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
 				print_prefix(pattern, y, basex);
 				cursorX=getcurx(stdscr);
@@ -800,14 +801,14 @@ void loop_to_select(Hstr *hstr)
 					printDefaultLabel=TRUE;
 				}
 				result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-				selectionCursorPosition=0;
+				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			}
 			break;
 		case KEY_RESIZE:
 			print_history_label(hstr);
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
-			selectionCursorPosition=0;
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			move(y, basex+strlen(pattern));
 			break;
 		case K_CTRL_U:
@@ -819,7 +820,7 @@ void loop_to_select(Hstr *hstr)
 			toggle_case(pattern, lowercase);
 			lowercase=!lowercase;
 			print_prefix(pattern, y, basex);
-			selectionCursorPosition=0;
+			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			break;
 		case K_CTRL_H:
 		case K_BACKSPACE:
@@ -879,8 +880,7 @@ void loop_to_select(Hstr *hstr)
 					favorites_choose(hstr->favorites,result);
 				}
 			} else {
-				executeResult=FALSE;
-				break;
+				result=(pattern==NULL?"":pattern);
 			}
 			done=TRUE;
 			break;

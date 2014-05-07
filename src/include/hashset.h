@@ -39,6 +39,6 @@ int hashset_put(HashSet *hm, const char *key, void *value);
 int hashset_remove(const HashSet *hm, const char *key);
 void hashset_stat(const HashSet *hm);
 
-void hashset_destroy(const HashSet *hs);
+void hashset_destroy(HashSet *hs);
 
 #endif

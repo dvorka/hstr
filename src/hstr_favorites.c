@@ -21,6 +21,7 @@ void favorites_init(FavoriteItems *favorites)
 	favorites->items=NULL;
 	favorites->count=0;
 	favorites->loaded=false;
+	favorites->set=malloc(sizeof(HashSet));
 }
 
 void favorites_show(FavoriteItems *favorites)
@@ -187,5 +188,6 @@ void favorites_destroy(FavoriteItems *favorites)
 			free(favorites->items[i]);
 		}
 		free(favorites);
+		hashset_destroy(favorites->set);
 	}
 }

@@ -100,7 +100,10 @@ char** hashset_keys(const HashSet *hs)
 	return NULL;
 }
 
-void hashset_destroy(const HashSet *hs)
+void hashset_destroy(HashSet *hs)
 {
 	// TODO to be implemented
+	if(hs) {
+		free(hs);
+	}
 }

@@ -12,6 +12,7 @@
 
 #include <stdlib.h>
 #include <stdbool.h>
+#include "hashset.h"
 
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
@@ -22,6 +23,7 @@ typedef struct {
 	char **items;
 	unsigned count;
 	bool loaded;
+	HashSet *set;
 } FavoriteItems;
 
 void favorites_init(FavoriteItems *favorites);
