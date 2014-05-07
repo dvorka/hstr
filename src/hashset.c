@@ -26,8 +26,8 @@ void hashset_init(HashSet * hs)
 {
     int i;
     hs->currentSize = 0;
-    for( i = 0; i < HASH_MAP_SIZE; i++ ) {
-        hs->lists[ i ] = NULL;
+    for(i = 0; i<HASH_MAP_SIZE; i++) {
+        hs->lists[i] = NULL;
     }
 }
 
@@ -49,18 +49,14 @@ int hashset_contains(const HashSet * hs, const char *key)
 
 int hashset_put(HashSet *hs, const char *key, void *value)
 {
-    struct HashSetNode *newNode;
-    int listNum;
-
-    if( hashset_get( hs, key ) )
+    if(hashset_get(hs, key)) {
         return 0;
+    }
 
-    listNum = hashmap_hash( key );
-
-
-    newNode=(struct HashSetNode *)malloc(sizeof(struct HashSetNode));
-    if( newNode == NULL ) {
-        fprintf( stderr,"Error allocating node");
+    int listNum = hashmap_hash( key );
+    struct HashSetNode *newNode=(struct HashSetNode *)malloc(sizeof(struct HashSetNode));
+    if(newNode == NULL) {
+        fprintf(stderr,"Unable to allocate hashset entry!");
         return 0;
     }
 
@@ -97,6 +93,18 @@ void hashset_stat(const HashSet *hs)
 char** hashset_keys(const HashSet *hs)
 {
 	// TODO to be implemented
+
+    char **result=malloc(sizeof(char*) * hs->currentSize);
+	int i=0, j=0;
+	for(i=0; i<HASH_MAP_SIZE; i++) {
+        if(hs->lists[i]) {
+        	while(hs->lists[i]->next) {
+        		printf(">>> %s",hs->lists[i]->key);
+        		result[j++]=hs->lists[i]->key;
+        	}
+    		result[j++]=hs->lists[i]->key;
+        }
+    }
 	return NULL;
 }
 
