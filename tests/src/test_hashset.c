@@ -11,7 +11,7 @@
 #include "../../src/include/hstr_utils.h"
 
 void testBlacklist() {
-	const char* commandBlacklist[] = { };
+	const char* commandBlacklist[] = { "a","b","c","d","e" };
 	HashSet blacklist;
 	int i;
 	hashset_init(&blacklist);
@@ -20,6 +20,16 @@ void testBlacklist() {
 	}
 	for (i = 0; i < 5; i++) {
 		printf("match %d\n", hashset_contains(&blacklist, hstr_strdup(commandBlacklist[i])));
+	}
+}
+
+void testGetKeys() {
+	const char* commandBlacklist[] = { "a","b","c","d","e" };
+	HashSet blacklist;
+	int i;
+	hashset_init(&blacklist);
+	for (i = 0; i < 5; i++) {
+		hashset_add(&blacklist, commandBlacklist[i]);
 	}
 
 	char **keys=hashset_keys(&blacklist);
@@ -32,5 +42,5 @@ void testBlacklist() {
 
 int main(int argc, char *argv[])
 {
-	testBlacklist();
+	testGetKeys();
 }

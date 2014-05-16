@@ -58,5 +58,5 @@ bool hstr_regexp_match(
 
 void hstr_regexp_destroy(HstrRegexp *hstrRegexp)
 {
-	// TODO hashset_destroy();
+	hashset_destroy(&hstrRegexp->cache, true);
 }

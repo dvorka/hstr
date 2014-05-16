@@ -13,6 +13,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
+#include <stdbool.h>
 
 #define HASH_MAP_SIZE 10007
 
@@ -39,6 +40,6 @@ int hashset_put(HashSet *hm, const char *key, void *value);
 int hashset_remove(const HashSet *hm, const char *key);
 void hashset_stat(const HashSet *hm);
 
-void hashset_destroy(HashSet *hs);
+void hashset_destroy(HashSet *hs, const bool freeValues);
 
 #endif

@@ -8,18 +8,19 @@
 */
 
 #include "include/hashset.h"
+#include "include/hstr_utils.h"
 
 unsigned int hashmap_hash(const char *str)
 {
     int i;
-    unsigned int result = 5381;
+    unsigned int result=5381;
 
-    for( i = 0; str[ i ] != '\0'; i++ )
-        result = result * 33 + str[ i ];
+    for(i=0; str[i]!='\0'; i++) {
+        result=result*33+str[i];
+    }
+    result = result^(result>>16);
 
-    result = result ^ (result >> 16);
-
-    return result % HASH_MAP_SIZE;
+    return result%HASH_MAP_SIZE;
 }
 
 void hashset_init(HashSet * hs)
@@ -84,34 +85,57 @@ void hashset_stat(const HashSet *hs)
 {
     int i;
     struct HashSetNode *ptr;
-
-    for( i = 0; i < HASH_MAP_SIZE; i++ )
-        for( ptr = hs->lists[ i ]; ptr != NULL; ptr = ptr->next )
-            printf( "%s\n", ptr->key );
+    for(i=0; i<HASH_MAP_SIZE; i++) {
+        for(ptr=hs->lists[i]; ptr!=NULL; ptr=ptr->next) {
+            printf("%s\n",ptr->key);
+        }
+    }
 }
 
 char** hashset_keys(const HashSet *hs)
 {
-	// TODO to be implemented
-
-    char **result=malloc(sizeof(char*) * hs->currentSize);
-	int i=0, j=0;
-	for(i=0; i<HASH_MAP_SIZE; i++) {
-        if(hs->lists[i]) {
-        	while(hs->lists[i]->next) {
-        		printf(">>> %s",hs->lists[i]->key);
-        		result[j++]=hs->lists[i]->key;
-        	}
-    		result[j++]=hs->lists[i]->key;
-        }
-    }
-	return NULL;
+	if(hs->currentSize) {
+	    char **result=malloc(sizeof(char*) * hs->currentSize);
+		int i=0, j=0;
+		struct HashSetNode *p;
+		for(i=0; i<HASH_MAP_SIZE; i++) {
+	    	p=hs->lists[i];
+	    	while(p && p->next) {
+	    		result[j++]=hstr_strdup(p->key);
+	    		p=p->next;
+	    	}
+	    	if(p) {
+		    	result[j++]=hstr_strdup(p->key);
+	    	}
+	    }
+		return result;
+	} else {
+		return NULL;
+	}
 }
 
-void hashset_destroy(HashSet *hs)
+void hashset_destroy(HashSet *hs, const bool freeValues)
 {
-	// TODO to be implemented
-	if(hs) {
-		free(hs);
+	// only hashset keys (and possibly values) are freed - caller must free hashset itself
+	if(hs && hs->currentSize) {
+		int i=0;
+		struct HashSetNode *p, *pp;
+		for(i=0; i<HASH_MAP_SIZE; i++) {
+			p=hs->lists[i];
+			while(p && p->next) {
+				if(p->key) {
+					free(p->key);
+					if(freeValues && p->value) free(p->value);
+				}
+				pp=p;
+				p=p->next;
+				free(pp);
+			}
+			if(p && p->key) {
+				free(p->key);
+				if(freeValues && p->value) free(p->value);
+				free(p);
+			}
+		}
 	}
 }

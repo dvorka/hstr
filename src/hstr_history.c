@@ -149,6 +149,7 @@ HistoryItems *get_prioritized_history()
 		}
 
 		radixsort_destroy(&rs);
+		// TODO rankmap (?) and blacklist (?) to be destroyed
 
 		return prioritizedHistory;
 	} else {

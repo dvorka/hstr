@@ -1007,37 +1007,16 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
 
 int main(int argc, char *argv[])
 {
-	const char* commandBlacklist[] = { };
-	HashSet blacklist;
-	int i;
-	hashset_init(&blacklist);
-	for (i = 0; i < 5; i++) {
-		hashset_add(&blacklist, commandBlacklist[i]);
-	}
-	for (i = 0; i < 5; i++) {
-		printf("match %d\n", hashset_contains(&blacklist, hstr_strdup(commandBlacklist[i])));
-	}
+	hstr=malloc(sizeof(Hstr));
 
-	char **keys=hashset_keys(&blacklist);
-	if(keys) {
-		for(i=0; i<hashset_size(&blacklist); i++) {
-			printf("\nKey: %s", keys[i]);
-		}
-	}
+	hstr_init(hstr);
+	hstr_get_env_configuration(hstr);
+	hstr_getopt(argc, argv, hstr);
+	hstr_init_favorites(hstr);
+	hstr_main(hstr);
 
+	favorites_destroy(hstr->favorites);
+	free(hstr);
 
-
-
-//	hstr=malloc(sizeof(Hstr));
-//
-//	hstr_init(hstr);
-//  hstr_get_env_configuration(hstr);
-//	hstr_getopt(argc, argv, hstr);
-//	hstr_init_favorites(hstr);
-//	hstr_main(hstr);
-//
-//	favorites_destroy(hstr->favorites);
-//	free(hstr);
-//
-//	return EXIT_SUCCESS;
+	return EXIT_SUCCESS;
 }

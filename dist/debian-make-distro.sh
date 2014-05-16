@@ -1,6 +1,6 @@
 #!/bin/bash
 
-. /home/dvorka/p/hstr/github/hstr/dist/debian-env.sh
+. ~/p/hstr/github/hstr/dist/debian-env.sh
 
 rm -rvf *.*~ ./debian
 

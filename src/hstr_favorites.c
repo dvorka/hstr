@@ -74,16 +74,20 @@ void favorites_get(FavoriteItems *favorites)
 				}
 
 			    favorites->items = malloc(sizeof(char*) * favorites->count);
-				int i = 0;
-				char *pb=file_contents, *pe;
+			    favorites->count=0;
+				char *pb=file_contents, *pe, *s;
 				pe=strchr(file_contents, '\n');
+				HashSet set;
+				hashset_init(&set);
 				while(pe!=NULL) {
-					favorites->items[i]=pb;
 					*pe=0;
-					favorites->items[i]=hstr_strdup(pb);
+					if(!hashset_contains(&set,pb)) {
+						s=hstr_strdup(pb);
+						favorites->items[favorites->count++]=s;
+						hashset_add(&set,s);
+					}
 					pb=pe+1;
 					pe=strchr(pb, '\n');
-					i++;
 				}
 				free(file_contents);
 			}
@@ -187,7 +191,7 @@ void favorites_destroy(FavoriteItems *favorites)
 		for(i=0; i<favorites->count; i++) {
 			free(favorites->items[i]);
 		}
+		hashset_destroy(&favorites->set, false);
 		free(favorites);
-		hashset_destroy(favorites->set);
 	}
 }
