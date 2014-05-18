@@ -782,6 +782,7 @@ void loop_to_select(Hstr *hstr)
 			hstr_next_view(hstr);
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
+			// TODO function
 			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
 				print_prefix(pattern, y, basex);
@@ -802,6 +803,12 @@ void loop_to_select(Hstr *hstr)
 				}
 				result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+				// TODO code review
+				if(strlen(pattern)<(width-basex-1)) {
+					print_prefix(pattern, y, basex);
+					cursorX=getcurx(stdscr);
+					cursorY=getcury(stdscr);
+				}
 			}
 			break;
 		case KEY_RESIZE:

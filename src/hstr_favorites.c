@@ -191,7 +191,7 @@ void favorites_destroy(FavoriteItems *favorites)
 		for(i=0; i<favorites->count; i++) {
 			free(favorites->items[i]);
 		}
-		hashset_destroy(&favorites->set, false);
+		hashset_destroy(favorites->set, false);
 		free(favorites);
 	}
 }
