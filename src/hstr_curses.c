@@ -17,6 +17,7 @@ void color_start()
 	terminalHasColors=has_colors();
 	if(terminalHasColors) {
 		start_color();
+		use_default_colors();
 	}
 }
 
