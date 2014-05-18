@@ -688,6 +688,7 @@ void loop_to_select(Hstr *hstr)
 	keypad(stdscr, TRUE);
 	noecho();
 	color_start();
+	// TODO move the code below to hstr_curses
 	color_init_pair(HH_COLOR_NORMAL, -1, -1);
 	if(hstr->hicolor) {
 		color_init_pair(HH_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
