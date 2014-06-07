@@ -16,7 +16,8 @@
 #define color_attr_off(C) if(terminal_has_colors()) { attroff(C); }
 #define color_init_pair(X, Y, Z) if(terminal_has_colors()) { init_pair(X, Y, Z); }
 
+void hstr_curses_start();
 bool terminal_has_colors();
-void color_start();
+void hstr_curses_stop();
 
 #endif

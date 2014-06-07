@@ -22,7 +22,8 @@ void echo_printable_characters()
 	}
 }
 
-void echo_keyb_characters() {
+void echo_keyb_characters() 
+{
 	int c;
 	while(1) {
 		c = getc(stdin);

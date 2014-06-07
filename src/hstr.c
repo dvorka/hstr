@@ -12,6 +12,7 @@
 #include <curses.h>
 #include <getopt.h>
 #include <regex.h>
+#include <locale.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -148,7 +149,7 @@ static const char *HELP_STRING=
 		"\n";
 
 static const char *VERSION_STRING=
-		"hh version \"1.12\""
+		"hh version \"1.13\""
 		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
@@ -649,7 +650,7 @@ void hstr_on_exit(Hstr *hstr)
 void signal_callback_handler_ctrl_c(int signum)
 {
 	if(signum==SIGINT) {
-		endwin();
+		hstr_curses_stop();
 		hstr_on_exit(hstr);
 		exit(signum);
 	}
@@ -684,10 +685,7 @@ void loop_to_select(Hstr *hstr)
 {
 	signal(SIGINT, signal_callback_handler_ctrl_c);
 
-	initscr();
-	keypad(stdscr, TRUE);
-	noecho();
-	color_start();
+	hstr_curses_start();
 	// TODO move the code below to hstr_curses
 	color_init_pair(HH_COLOR_NORMAL, -1, -1);
 	if(hstr->hicolor) {
@@ -923,7 +921,7 @@ void loop_to_select(Hstr *hstr)
 			break;
 		}
 	}
-	endwin();
+	hstr_curses_stop();
 
 	if(result!=NULL) {
 		fill_terminal_input(result, TRUE);
@@ -1015,6 +1013,8 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
 
 int main(int argc, char *argv[])
 {
+	setlocale(LC_ALL, "");
+
 	hstr=malloc(sizeof(Hstr));
 
 	hstr_init(hstr);

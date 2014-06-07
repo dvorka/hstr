@@ -12,8 +12,11 @@
 
 static bool terminalHasColors=FALSE;
 
-void color_start()
+void hstr_curses_start()
 {
+	initscr();
+	keypad(stdscr, TRUE);
+	noecho();
 	terminalHasColors=has_colors();
 	if(terminalHasColors) {
 		start_color();
@@ -23,4 +26,11 @@ void color_start()
 
 bool terminal_has_colors() {
 	return terminalHasColors;
+}
+
+void hstr_curses_stop() {
+    clear();
+    refresh();
+    doupdate();
+    endwin();
 }
