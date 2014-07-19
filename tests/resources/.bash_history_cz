@@ -1,2 +1,31 @@
 ěščřžýáíé
 ŘŠČŽ
+source ./hh-env-utf8.sh 
+set | grep HI
+ls -al /home/dvorka/p/hstr/github/tests/resources/.bash_history_cz
+ls -al /home/dvorka/p/hstr/github/tests/resources
+ls -al /home/dvorka/p/hstr/github/tests
+ls -al /home/dvorka/p/hstr/github
+cemacs hh-env-utf8.sh 
+source ./hh-env-utf8.sh 
+cemacs hh-env-utf8.sh 
+cd ..
+cd ..
+ls
+cd ..
+ls
+cd ..
+ls
+cd forks/
+ls
+cemacs hf.c 
+. hh-env-utf8.sh 
+set | grep HIS
+cd ..
+cd ..
+cd Debug/
+ls
+./hh
+š
+./hh
+tig

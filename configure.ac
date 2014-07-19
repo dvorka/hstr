@@ -17,7 +17,7 @@ AC_CONFIG_SRCDIR([src/hstr.c])
 AC_PROG_CC
 
 # Checks for libraries.
-AC_CHECK_LIB(ncurses, initscr, [], [AC_MSG_ERROR([Could  not find Curses library])])
+AC_CHECK_LIB(ncursesw, initscr, [], [AC_MSG_ERROR([Could  not find Curses library])])
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could  not find Math library])])
 AC_CHECK_LIB(readline, using_history, [], [AC_MSG_ERROR([Could  not find Readline library])])
 
