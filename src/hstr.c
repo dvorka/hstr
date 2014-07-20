@@ -21,6 +21,7 @@
 #include <string.h>
 #include <termios.h>
 #include <unistd.h>
+#include <wchar.h>
 #include <readline/chardefs.h>
 
 #include "include/hashset.h"
@@ -104,6 +105,14 @@
 #define LOGCURSOR(Y) mvprintw(Y, 0, "X/Y: %3d / %3d", getcurx(stdscr), getcury(stdscr))
 #else
 #define LOGCURSOR(Y)
+#endif
+
+#define DEBUG_UTF8
+
+#ifdef DEBUG_UTF8
+#define LOGUTF8(Y,P,C) mvprintw(Y, 0, "strlen(): %d, wcslen(): %d, getch(): %d ",strlen(P),wcslen(P),C)
+#else
+#define LOGUTF8(Y,P)
 #endif
 
 static const char *HH_VIEW_LABELS[]={
@@ -831,6 +840,11 @@ void loop_to_select(Hstr *hstr)
 		case K_CTRL_H:
 		case K_BACKSPACE:
 		case KEY_BACKSPACE:
+			TODO count how many characters to move back in case of utf8 strings/multibyte
+
+			> google strlen(pattern) for wide characters/multibyte
+			SOME SOLUTION: iterate over pattern and use function from debug to determine size of one char
+
 			if(strlen(pattern)>0) {
 				pattern[strlen(pattern)-1]=0;
 				x--;
@@ -908,6 +922,8 @@ void loop_to_select(Hstr *hstr)
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
 				if(strlen(pattern)<(width-basex-1)) {
+					LOGUTF8(Y_OFFSET_HELP,pattern,c);
+
 					strcat(pattern, (char*)(&c));
 					print_prefix(pattern, y, basex);
 					cursorX=getcurx(stdscr);
