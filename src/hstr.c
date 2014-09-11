@@ -107,7 +107,6 @@
 #define LOGCURSOR(Y)
 #endif
 
-#define DEBUG_UTF8
 #ifdef DEBUG_UTF8
 #define LOGUTF8(Y,P) mvprintw(Y, 0, "strlen() %zd, mbstowcs() %zd, hstr_strlen() %d",strlen(P),mbstowcs(NULL,P,0),hstr_strlen(P)); clrtoeol()
 #else
