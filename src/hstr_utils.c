@@ -19,8 +19,47 @@ char *hstr_strdup(const char * s)
 {
   size_t len = 1+strlen(s);
   char *p = malloc(len);
-
   return p ? memcpy(p, s, len) : NULL;
+}
+
+// wide char aware strlen()
+int hstr_strlen(const char *s)
+{
+	if(s) {
+	    int result=0;
+	    bool isHighBitSet=false;
+	    int i=0;
+	    while(s[i]) {
+	    	if(1<<7 & s[i]) {
+	    		if(isHighBitSet) {
+	    			isHighBitSet=false;
+		    		result++;
+	    		} else {
+	    			isHighBitSet=true;
+	    		}
+	    	} else {
+	    		result++;
+	    	}
+	    	i++;
+	    }
+	    return result;
+	} else {
+		return 0;
+	}
+}
+
+void hstr_chop(char *s)
+{
+	if(s) {
+		int i=strlen(s);
+		if(i) {
+			if(1<<7 & s[i-1]) {
+				s[i-2]=0;
+			} else {
+				s[i-1]=0;
+			}
+		}
+	}
 }
 
 void tiocsti()

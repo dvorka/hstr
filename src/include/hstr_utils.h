@@ -20,7 +20,9 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-char *hstr_strdup(const char * s);
+char *hstr_strdup(const char *s);
+int hstr_strlen(const char *s);
+void hstr_chop(char *s);
 void tiocsti();
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);

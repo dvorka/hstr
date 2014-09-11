@@ -108,9 +108,8 @@
 #endif
 
 #define DEBUG_UTF8
-
 #ifdef DEBUG_UTF8
-#define LOGUTF8(Y,P,C) mvprintw(Y, 0, "strlen(): %d, wcslen(): %d, getch(): %d ",strlen(P),wcslen(P),C)
+#define LOGUTF8(Y,P) mvprintw(Y, 0, "strlen() %zd, mbstowcs() %zd, hstr_strlen() %d",strlen(P),mbstowcs(NULL,P,0),hstr_strlen(P)); clrtoeol()
 #else
 #define LOGUTF8(Y,P)
 #endif
@@ -162,7 +161,7 @@ static const char *VERSION_STRING=
 		"\n   build   \""__DATE__" " __TIME__"\""
 		"\n";
 
-// TODO help screen - tig
+// TODO help screen - curses window (tig)
 static const char *LABEL_HELP=
 		 "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
@@ -370,7 +369,7 @@ void print_history_label(Hstr *hstr)
 	refresh();
 }
 
-void print_prefix(char *pattern, int y, int x)
+void print_pattern(char *pattern, int y, int x)
 {
 	color_attr_on(A_BOLD);
 	mvprintw(y, x, "%s", pattern);
@@ -722,6 +721,7 @@ void loop_to_select(Hstr *hstr)
 	// TODO this is too late! > don't render twice
 	// TODO overflow
 	strcpy(pattern, hstr->cmdline);
+
 	while (!done) {
 		maxHistoryItems=get_max_history_items();
 
@@ -769,7 +769,7 @@ void loop_to_select(Hstr *hstr)
 			print_history_label(hstr);
 			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
-				print_prefix(pattern, y, basex);
+				print_pattern(pattern, y, basex);
 				cursorX=getcurx(stdscr);
 				cursorY=getcury(stdscr);
 			}
@@ -781,7 +781,7 @@ void loop_to_select(Hstr *hstr)
 			print_history_label(hstr);
 			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
-				print_prefix(pattern, y, basex);
+				print_pattern(pattern, y, basex);
 				cursorX=getcurx(stdscr);
 				cursorY=getcury(stdscr);
 			}
@@ -793,7 +793,7 @@ void loop_to_select(Hstr *hstr)
 			// TODO function
 			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			if(strlen(pattern)<(width-basex-1)) {
-				print_prefix(pattern, y, basex);
+				print_pattern(pattern, y, basex);
 				cursorX=getcurx(stdscr);
 				cursorY=getcury(stdscr);
 			}
@@ -813,7 +813,7 @@ void loop_to_select(Hstr *hstr)
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 				// TODO code review
 				if(strlen(pattern)<(width-basex-1)) {
-					print_prefix(pattern, y, basex);
+					print_pattern(pattern, y, basex);
 					cursorX=getcurx(stdscr);
 					cursorY=getcury(stdscr);
 				}
@@ -829,26 +829,21 @@ void loop_to_select(Hstr *hstr)
 		case K_CTRL_U:
 		case K_CTRL_W: // TODO supposed to delete just one word backward
 			pattern[0]=0;
-			print_prefix(pattern, y, basex);
+			print_pattern(pattern, y, basex);
 			break;
 		case K_CTRL_L:
 			toggle_case(pattern, lowercase);
 			lowercase=!lowercase;
-			print_prefix(pattern, y, basex);
+			print_pattern(pattern, y, basex);
 			selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 			break;
 		case K_CTRL_H:
 		case K_BACKSPACE:
 		case KEY_BACKSPACE:
-			TODO count how many characters to move back in case of utf8 strings/multibyte
-
-			> google strlen(pattern) for wide characters/multibyte
-			SOME SOLUTION: iterate over pattern and use function from debug to determine size of one char
-
-			if(strlen(pattern)>0) {
-				pattern[strlen(pattern)-1]=0;
+			if(hstr_strlen(pattern)>0) {
+				hstr_chop(pattern);
 				x--;
-				print_prefix(pattern, y, basex);
+				print_pattern(pattern, y, basex);
 			}
 
 			// TODO why I make selection if it's done in print_selection?
@@ -859,7 +854,7 @@ void loop_to_select(Hstr *hstr)
 			}
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 
-			move(y, basex+strlen(pattern));
+			move(y, basex+hstr_strlen(pattern));
 			break;
 		case KEY_UP:
 			previousSelectionCursorPosition=selectionCursorPosition;
@@ -917,15 +912,14 @@ void loop_to_select(Hstr *hstr)
 		default:
 			LOGKEYS(Y_OFFSET_HELP, c);
 			LOGCURSOR(Y_OFFSET_HELP);
+			LOGUTF8(Y_OFFSET_HELP,pattern);
 
 			if(c>K_CTRL_Z) {
 				selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
 				if(strlen(pattern)<(width-basex-1)) {
-					LOGUTF8(Y_OFFSET_HELP,pattern,c);
-
 					strcat(pattern, (char*)(&c));
-					print_prefix(pattern, y, basex);
+					print_pattern(pattern, y, basex);
 					cursorX=getcurx(stdscr);
 					cursorY=getcury(stdscr);
 				}
