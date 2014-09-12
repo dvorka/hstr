@@ -9,10 +9,11 @@
 
 #define _GNU_SOURCE
 
-#include <ncursesw/curses.h>
 #include <getopt.h>
-#include <regex.h>
 #include <locale.h>
+#include <ncursesw/curses.h>
+#include <readline/chardefs.h>
+#include <regex.h>
 #include <signal.h>
 #include <stdbool.h>
 #include <stddef.h>
@@ -22,7 +23,6 @@
 #include <termios.h>
 #include <unistd.h>
 #include <wchar.h>
-#include <readline/chardefs.h>
 
 #include "include/hashset.h"
 #include "include/hstr_curses.h"
