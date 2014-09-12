@@ -1,13 +1,12 @@
 #!/bin/bash
 
-export HHBZRMSG="Favorites stabilization: deletion, reordering and highlighting."
-export VERSION=1.11.
+export HHBZRMSG="Internatialization and support for transparent terminals."
+export VERSION=1.13.
 export MINOR=1
 
-for DISTRO in precise quantal saucy trusty
+# precise quantal saucy trusty
+for DISTRO in precise trusty
 do
-
-MINOR=`expr $MINOR + 1`
 
 ./ubuntu-make-distro.sh ${DISTRO} ${VERSION}${MINOR} "${HHBZRMSG}"
 

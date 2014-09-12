@@ -9,7 +9,7 @@
 
 #define _GNU_SOURCE
 
-#include <curses.h>
+#include <ncursesw/curses.h>
 #include <getopt.h>
 #include <regex.h>
 #include <locale.h>

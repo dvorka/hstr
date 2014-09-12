@@ -7,7 +7,7 @@
  ============================================================================
 */
 
-#include <curses.h>
+#include <ncursesw/curses.h>
 #include <stdlib.h>
 
 int main(int argc, char *argv[])
