@@ -74,6 +74,7 @@
 #define HH_CONFIG_CASE      "casesensitive"
 #define HH_CONFIG_REGEXP    "regexp"
 #define HH_CONFIG_SUBSTRING "substring"
+#define HH_CONFIG_KEYWORDS  "keywords"
 #define HH_CONFIG_SORTING   "rawhistory"
 #define HH_CONFIG_FAVORITES "favorites"
 #define HH_CONFIG_DEBUG     "debug"
@@ -88,7 +89,10 @@
 #define HH_VIEW_FAVORITES	2
 
 #define HH_MATCH_SUBSTRING 	0
-#define HH_MATCH_REGEXP     1
+#define HH_MATCH_REGEXP         1
+#define HH_MATCH_KEYWORDS       2
+
+#define HH_NUM_HISTORY_MATCH    3
 
 #define HH_CASE_INSENSITIVE	0
 #define HH_CASE_SENSITIVE	1
@@ -113,6 +117,18 @@
 #define LOGUTF8(Y,P)
 #endif
 
+void logstring(char* str){
+	FILE *f = fopen("/home/tbabej/hh.log", "a");
+	if (f == NULL)
+	{
+            perror("fopen");
+	    printf("Error opening file!\n");
+	    exit(1);
+	}
+	fprintf(f, "Debug: %s \n", str);
+        fclose(f);
+}
+
 static const char *HH_VIEW_LABELS[]={
 		"ranking",
 		"history",
@@ -121,7 +137,8 @@ static const char *HH_VIEW_LABELS[]={
 
 static const char *HH_MATCH_LABELS[]={
 		"exact",
-		"regexp"
+		"regexp",
+		"keywords"
 };
 
 static const char *HH_CASE_LABELS[]={
@@ -235,7 +252,11 @@ void hstr_get_env_configuration(Hstr *hstr)
 		} else {
 			if(strstr(hstr_config,HH_CONFIG_SUBSTRING)) {
 				hstr->historyMatch=HH_MATCH_SUBSTRING;
-			}
+			} else {
+                        	if(strstr(hstr_config, HH_CONFIG_KEYWORDS)) {
+					hstr->historyMatch=HH_MATCH_KEYWORDS;
+                                }
+                        }
 		}
 		if(strstr(hstr_config,HH_CONFIG_SORTING)) {
 			hstr->historyView=HH_VIEW_HISTORY;
@@ -431,6 +452,11 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 	regmatch_t regexpMatch;
 	char regexpErrorMessage[CMDLINE_LNG];
 	bool regexpCompilationError=false;
+        bool keywordsAllMatch;
+        char *keywordsSavePtr;
+        char *keywordsToken;
+        char *keywordsParsedLine;
+	char *keywordsPointerToDelete;
 	for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
 		if(source[i]) {
 			if(!prefix || !strlen(prefix)) {
@@ -465,6 +491,27 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 						}
 					}
 					break;
+				case HH_MATCH_KEYWORDS:
+					// TODO: differentiate between case-sensitive and insensitive
+					keywordsParsedLine = strdup(prefix);
+                                        keywordsAllMatch = true;
+					keywordsPointerToDelete = keywordsParsedLine;
+					while (true) {
+						keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
+                                                keywordsParsedLine = NULL;
+						if (keywordsToken == NULL) {
+							break;
+						}
+
+						if (strcasestr(source[i], keywordsToken) == NULL) {
+							keywordsAllMatch = false;
+						}
+					}
+                                        if (keywordsAllMatch) {
+						hstr->selection[selectionCount++]=source[i];
+					}
+					free(keywordsPointerToDelete);
+					break;
 				}
 			}
 		}
@@ -493,6 +540,10 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 			case HH_MATCH_REGEXP:
 				// all regexps matched previously - user decides whether match ^ or infix
 			break;
+//			case HH_MATCH_KEYWORDS:
+//				keywordsParsedLine = 
+//				
+//			break;
 			}
 		}
 	}
@@ -526,6 +577,10 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 			}
 			break;
 		case HH_MATCH_REGEXP:
+			p=strstr(text, pattern);
+			mvprintw(y, 1+(p-text), "%s", pattern);
+			break;
+		case HH_MATCH_KEYWORDS:
 			p=strstr(text, pattern);
 			mvprintw(y, 1+(p-text), "%s", pattern);
 			break;
@@ -762,7 +817,7 @@ void loop_to_select(Hstr *hstr)
 			break;
 		case K_CTRL_E:
 			hstr->historyMatch++;
-			hstr->historyMatch=hstr->historyMatch%2;
+			hstr->historyMatch=hstr->historyMatch%HH_NUM_HISTORY_MATCH;
 			// TODO make this a function
 			result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 			print_history_label(hstr);
