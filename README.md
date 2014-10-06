@@ -191,7 +191,7 @@ export HH_CONFIG=warning
 ```
 show debug messages:
 ```bash
-export HH_CONFIG=warning
+export HH_CONFIG=debug
 ```
 more colors and case sensitive search:
 ```bash
