@@ -540,10 +540,10 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
             case HH_MATCH_REGEXP:
                 // all regexps matched previously - user decides whether match ^ or infix
             break;
-//            case HH_MATCH_KEYWORDS:
-//                keywordsParsedLine =
-//
-//            break;
+            case HH_MATCH_KEYWORDS:
+                // TODO MD consider adding lines that didn't matched all keywords, but some of them
+                //         (ordered by number of matched keywords)
+            break;
             }
         }
     }
