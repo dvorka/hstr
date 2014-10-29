@@ -11,11 +11,11 @@
 #include <math.h>
 
 void testLog() {
-	const int HISTORY_SIZE=2000;
-	int i;
-	for(i=0; i<HISTORY_SIZE; i++) {
-		printf("\n%d # l: %f # l10: %f # l2: %f", i, log(i), log10(i), log2(i));
-	}
+    const int HISTORY_SIZE=2000;
+    int i;
+    for(i=0; i<HISTORY_SIZE; i++) {
+        printf("\n%d # l: %f # l10: %f # l2: %f", i, log(i), log10(i), log2(i));
+    }
 }
 
 #define MAX_CHARACTER_CODE 10000
@@ -23,43 +23,43 @@ static char line[MAX_CHARACTER_CODE];
 
 void testGenerateHugeHistoryFileWithDifferentLines()
 {
-	FILE *file = fopen(".bash_history_huge","a");
-	fseek(file,0, SEEK_END);
+    FILE *file = fopen(".bash_history_huge","a");
+    fseek(file,0, SEEK_END);
 
-	line[0]=0;
-	int i;
-	for(i=0; i<MAX_CHARACTER_CODE; i++) {
-		sprintf(line,"%s%c",line,i);
-		fprintf(file,"%s\n",line);
-	}
-	fclose(file);
+    line[0]=0;
+    int i;
+    for(i=0; i<MAX_CHARACTER_CODE; i++) {
+        sprintf(line,"%s%c",line,i);
+        fprintf(file,"%s\n",line);
+    }
+    fclose(file);
 }
 
 
 void testGenerateHugeHistoryFileWithSameLines()
 {
-	FILE *file = fopen(".bash_history_same","a");
-	fseek(file,0, SEEK_END);
+    FILE *file = fopen(".bash_history_same","a");
+    fseek(file,0, SEEK_END);
 
-	int i;
-	for(i=0; i<100000; i++) {
-		fprintf(file,"find . | while read X; do echo $X; cat $X | grep -i ctrl; done | less\n",line);
-		fprintf(file,
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master#"
-				"git commit -a -m \"Code review and stabilization.\" && git push origin master\n",
-				line);
-	}
-	fclose(file);
+    int i;
+    for(i=0; i<100000; i++) {
+        fprintf(file,"find . | while read X; do echo $X; cat $X | grep -i ctrl; done | less\n",line);
+        fprintf(file,
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master#"
+                "git commit -a -m \"Code review and stabilization.\" && git push origin master\n",
+                line);
+    }
+    fclose(file);
 }
 
 
 int main(int argc, char *argv[])
 {
-	testGenerateHugeHistoryFileWithSameLines();
+    testGenerateHugeHistoryFileWithSameLines();
 }
 

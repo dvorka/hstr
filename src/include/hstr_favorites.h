@@ -20,10 +20,10 @@
 #define FILE_HH_RC ".hh_favorites"
 
 typedef struct {
-	char **items;
-	unsigned count;
-	bool loaded;
-	HashSet *set;
+    char **items;
+    unsigned count;
+    bool loaded;
+    HashSet *set;
 } FavoriteItems;
 
 void favorites_init(FavoriteItems *favorites);

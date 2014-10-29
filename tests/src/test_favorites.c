@@ -11,11 +11,11 @@
 
 int main(int argc, char *argv[])
 {
-	FavoriteItems favoriteItems;
+    FavoriteItems favoriteItems;
 
-	favorites_init(&favoriteItems);
-	favorites_get(&favoriteItems);
-	favorites_remove(&favoriteItems, "c");
+    favorites_init(&favoriteItems);
+    favorites_get(&favoriteItems);
+    favorites_remove(&favoriteItems, "c");
 
-	favorites_choose(&favoriteItems, "ccc");
+    favorites_choose(&favoriteItems, "ccc");
 }

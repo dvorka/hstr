@@ -17,8 +17,8 @@
 #include "hashset.h"
 
 typedef struct {
-	bool caseSensitive;
-	HashSet cache;
+    bool caseSensitive;
+    HashSet cache;
 } HstrRegexp;
 
 void hstr_regexp_init(HstrRegexp *hstrRegexp);

@@ -24,30 +24,30 @@
 #define RADIX_DEBUG_LEVEL_DEBUG 2
 
 typedef struct radixitem {
-	unsigned key;
-	void *data;
-	struct radixitem *next;
+    unsigned key;
+    void *data;
+    struct radixitem *next;
 } RadixItem;
 
 typedef struct radixslot {
-	unsigned min;
-	unsigned max;
-	unsigned size;
+    unsigned min;
+    unsigned max;
+    unsigned size;
 } RadixSlot;
 
 typedef struct {
-	unsigned size;
-	unsigned maxKey;
-	unsigned keyLimit;
-	RadixItem ***topDigits;
+    unsigned size;
+    unsigned maxKey;
+    unsigned keyLimit;
+    RadixItem ***topDigits;
 
-	bool optFloorAndInsertBigKeys;
-	bool optIgnoreBigKeys;
+    bool optFloorAndInsertBigKeys;
+    bool optIgnoreBigKeys;
 
-	RadixSlot **_slotDescriptors;
-	unsigned _slotsCount;
-	unsigned _topIndexLimit;
-	unsigned _debug;
+    RadixSlot **_slotDescriptors;
+    unsigned _slotsCount;
+    unsigned _topIndexLimit;
+    unsigned _debug;
 } RadixSorter;
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit);

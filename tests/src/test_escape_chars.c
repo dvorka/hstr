@@ -8,20 +8,20 @@
 */
 
 void generate_bash_history_with_special_chars() {
-	/*
-	 // crash
-	 %s
+    /*
+     // crash
+     %s
 
-	 // substituation > should not happen:
-	 date -d yesterday +%A
+     // substituation > should not happen:
+     date -d yesterday +%A
      date -d yesterday +0X1.4C41E000008P-895
 
      // crash
      mocp -Q "<%state> '%file'\n"
-	 */
+     */
 }
 
 void main() {
-	generate_bash_history_with_special_chars();
+    generate_bash_history_with_special_chars();
 }
 

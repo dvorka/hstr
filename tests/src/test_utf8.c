@@ -45,26 +45,26 @@ void console_echo_czech()
 }
 
 void loop_string() {
-//	  char *s="a";
-	  char *s="Ča";
-//	  char *s="Čeština";
-	  int i;
-	  for(i=0; i<10; i++) {
-		  printf("\n%d",s[i]);
-		  show_bits(s[i]);
-		  if(!s[i]) break;
-	  }
+//      char *s="a";
+      char *s="Ča";
+//      char *s="Čeština";
+      int i;
+      for(i=0; i<10; i++) {
+          printf("\n%d",s[i]);
+          show_bits(s[i]);
+          if(!s[i]) break;
+      }
 }
 
 void get_string_length() {
-	  char *s="Čeština";
-	  wchar_t *w=L"Čeština";
+      char *s="Čeština";
+      wchar_t *w=L"Čeština";
 
-	  printf("%s (7): strlen(): %zd, mbstowcs(): %zd, wcslen(): %zd",
-			  s,
-			  strlen(s),
-			  mbstowcs(NULL,s,0),
-			  wcslen(w));         // OK
+      printf("%s (7): strlen(): %zd, mbstowcs(): %zd, wcslen(): %zd",
+              s,
+              strlen(s),
+              mbstowcs(NULL,s,0),
+              wcslen(w));         // OK
 }
 
 void console_static_wide_czech()
@@ -74,12 +74,12 @@ void console_static_wide_czech()
   wchar_t *w=L"Čeština."; // wide
   char multibyte[100]; // multi-byte
   if(iswprint(*w)) {
-	  printf("\nString to be printed is UTF8 wide!");
-	  int offset=wctomb(multibyte, w);
-	  printf("\nStatic (wide) printf: %s", multibyte);
+      printf("\nString to be printed is UTF8 wide!");
+      int offset=wctomb(multibyte, w);
+      printf("\nStatic (wide) printf: %s", multibyte);
   } else {
-	  printf("\nString to be printed is NOT UTF8 wide!");
-	  wprintf(L"\nStatic wprintf: %ls", w);
+      printf("\nString to be printed is NOT UTF8 wide!");
+      wprintf(L"\nStatic wprintf: %ls", w);
   }
 }
 
@@ -112,7 +112,7 @@ void curses_wide_czech()
 }
 
 void print_char_bits(int y, int x, char c) {
-	int i;
+    int i;
     static int intSizeInBits = sizeof(char) * 8;
     static char symbol[2] = {'0','1'};
     char * binary = (char *)malloc(intSizeInBits + 1);
@@ -126,62 +126,62 @@ void print_char_bits(int y, int x, char c) {
 }
 
 void getch_with_counter_curses() {
-	// TODO implement getch with counter; getch result analysis (trip); append analysis; ...
+    // TODO implement getch with counter; getch result analysis (trip); append analysis; ...
 
-	initscr();
-	keypad(stdscr, TRUE);
-	noecho();
-	start_color();
-	use_default_colors();
+    initscr();
+    keypad(stdscr, TRUE);
+    noecho();
+    start_color();
+    use_default_colors();
 
-	char pattern[512];
-	int c;
+    char pattern[512];
+    int c;
 
-	pattern[0]=0;
-	while (1) {
-		c = wgetch(stdscr);
-		strcat(pattern, (char*)(&c));
-		mvprintw(2, 0, "Pattern '%s'", pattern);
-		mvprintw(3, 0, "Char    '%d'", c);
+    pattern[0]=0;
+    while (1) {
+        c = wgetch(stdscr);
+        strcat(pattern, (char*)(&c));
+        mvprintw(2, 0, "Pattern '%s'", pattern);
+        mvprintw(3, 0, "Char    '%d'", c);
 
-		mvprintw(6, 0, "strlen()   '%d'", strlen(pattern));
-		mvprintw(7, 0, "mbstowcs() '%d'", mbstowcs(NULL,pattern,0));
+        mvprintw(6, 0, "strlen()   '%d'", strlen(pattern));
+        mvprintw(7, 0, "mbstowcs() '%d'", mbstowcs(NULL,pattern,0));
 
-	    int i;
-	    int intSizeInBits = sizeof(int) * 8;
-	    char symbol[2] = {'0','1'};
-	    char * binary = (char *)malloc(intSizeInBits + 1);
-	    memset(binary, 0, intSizeInBits + 1);
-	    for (i=0; i< intSizeInBits; i++) {
-	        binary[intSizeInBits-i-1] = symbol[(c>>i) & 0x01];
-	    }
-	    mvprintw(10, 0, "bits:     %s", binary);
-	    free(binary);
+        int i;
+        int intSizeInBits = sizeof(int) * 8;
+        char symbol[2] = {'0','1'};
+        char * binary = (char *)malloc(intSizeInBits + 1);
+        memset(binary, 0, intSizeInBits + 1);
+        for (i=0; i< intSizeInBits; i++) {
+            binary[intSizeInBits-i-1] = symbol[(c>>i) & 0x01];
+        }
+        mvprintw(10, 0, "bits:     %s", binary);
+        free(binary);
 
-	    mvprintw(11, 0, "high bit: %d %d      ", 1<<7, 1<<7 & c);
+        mvprintw(11, 0, "high bit: %d %d      ", 1<<7, 1<<7 & c);
 
-	    char cc=pattern[0];
-	    i=0;
-	    int myStrlen=0;
-	    char isHighBitSet=0;
-	    while(cc) {
-	    	print_char_bits(12, 9*i-8, pattern[i++]);
-	    	cc=pattern[i];
+        char cc=pattern[0];
+        i=0;
+        int myStrlen=0;
+        char isHighBitSet=0;
+        while(cc) {
+            print_char_bits(12, 9*i-8, pattern[i++]);
+            cc=pattern[i];
 
-	    	if(1<<7 & pattern[i]) {
-	    		if(isHighBitSet) {
-	    			isHighBitSet=0;
-		    		myStrlen++;
-	    		} else {
-	    			isHighBitSet=1;
-	    		}
-	    	} else {
-	    		myStrlen++;
-	    	}
-	    }
+            if(1<<7 & pattern[i]) {
+                if(isHighBitSet) {
+                    isHighBitSet=0;
+                    myStrlen++;
+                } else {
+                    isHighBitSet=1;
+                }
+            } else {
+                myStrlen++;
+            }
+        }
 
-	    mvprintw(14, 0, "mystrlen(): %d   ", myStrlen);
-	}
+        mvprintw(14, 0, "mystrlen(): %d   ", myStrlen);
+    }
 
     clear();
     refresh();
@@ -190,7 +190,7 @@ void getch_with_counter_curses() {
 }
 
 void done() {
-	  printf("\n\n");
+      printf("\n\n");
 }
 
 int main(int argc, char *argv[])
@@ -203,6 +203,6 @@ int main(int argc, char *argv[])
   //get_string_length();
   //loop_string();
 
-	getch_with_counter_curses();
-	done();
+    getch_with_counter_curses();
+    done();
 }

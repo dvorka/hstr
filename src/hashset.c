@@ -46,7 +46,7 @@ void *hashset_get(const HashSet * hs, const char *key)
 
 int hashset_contains(const HashSet * hs, const char *key)
 {
-	return (hashset_get(hs, key) != NULL);
+    return (hashset_get(hs, key) != NULL);
 }
 
 int hashset_put(HashSet *hs, const char *key, void *value)
@@ -74,7 +74,7 @@ int hashset_put(HashSet *hs, const char *key, void *value)
 
 int hashset_add(HashSet * hs, const char *key)
 {
-	return hashset_put(hs, key, "nil");
+    return hashset_put(hs, key, "nil");
 }
 
 int hashset_size(const HashSet *hs)
@@ -95,48 +95,48 @@ void hashset_stat(const HashSet *hs)
 
 char** hashset_keys(const HashSet *hs)
 {
-	if(hs->currentSize) {
-	    char **result=malloc(sizeof(char*) * hs->currentSize);
-		int i=0, j=0;
-		struct HashSetNode *p;
-		for(i=0; i<HASH_MAP_SIZE; i++) {
-	    	p=hs->lists[i];
-	    	while(p && p->next) {
-	    		result[j++]=hstr_strdup(p->key);
-	    		p=p->next;
-	    	}
-	    	if(p) {
-		    	result[j++]=hstr_strdup(p->key);
-	    	}
-	    }
-		return result;
-	} else {
-		return NULL;
-	}
+    if(hs->currentSize) {
+        char **result=malloc(sizeof(char*) * hs->currentSize);
+        int i=0, j=0;
+        struct HashSetNode *p;
+        for(i=0; i<HASH_MAP_SIZE; i++) {
+            p=hs->lists[i];
+            while(p && p->next) {
+                result[j++]=hstr_strdup(p->key);
+                p=p->next;
+            }
+            if(p) {
+                result[j++]=hstr_strdup(p->key);
+            }
+        }
+        return result;
+    } else {
+        return NULL;
+    }
 }
 
 void hashset_destroy(HashSet *hs, const bool freeValues)
 {
-	// only hashset keys (and possibly values) are freed - caller must free hashset itself
-	if(hs && hs->currentSize) {
-		int i=0;
-		struct HashSetNode *p, *pp;
-		for(i=0; i<HASH_MAP_SIZE; i++) {
-			p=hs->lists[i];
-			while(p && p->next) {
-				if(p->key) {
-					free(p->key);
-					if(freeValues && p->value) free(p->value);
-				}
-				pp=p;
-				p=p->next;
-				free(pp);
-			}
-			if(p && p->key) {
-				free(p->key);
-				if(freeValues && p->value) free(p->value);
-				free(p);
-			}
-		}
-	}
+    // only hashset keys (and possibly values) are freed - caller must free hashset itself
+    if(hs && hs->currentSize) {
+        int i=0;
+        struct HashSetNode *p, *pp;
+        for(i=0; i<HASH_MAP_SIZE; i++) {
+            p=hs->lists[i];
+            while(p && p->next) {
+                if(p->key) {
+                    free(p->key);
+                    if(freeValues && p->value) free(p->value);
+                }
+                pp=p;
+                p=p->next;
+                free(pp);
+            }
+            if(p && p->key) {
+                free(p->key);
+                if(freeValues && p->value) free(p->value);
+                free(p);
+            }
+        }
+    }
 }

@@ -28,10 +28,10 @@
 #define FILE_DEFAULT_HISTORY ".bash_history"
 
 typedef struct {
-	char **items;
-	unsigned count;
-	char **raw;
-	unsigned rawCount;
+    char **items;
+    unsigned count;
+    char **raw;
+    unsigned rawCount;
 } HistoryItems;
 
 HistoryItems *get_prioritized_history();

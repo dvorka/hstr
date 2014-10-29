@@ -14,25 +14,25 @@
 
 int main(int argc, char *argv[])
 {
-	printf("%d",strchr("a\nb",10));
+    printf("%d",strchr("a\nb",10));
 
-	if(argc>0) {
-		int i;
-		char line[LINELNG];
-		line[0]=0;
-		for(i=0; i<argc; i++) {
-			if((strlen(line)+strlen(argv[i])*2)>LINELNG) break;
-			printf("%d %s\n", i, argv[i]);
-			if(strstr(argv[i], " ")) {
-				strcat(line, "\"");
-			}
-			strcat(line, argv[i]);
-			if(strstr(argv[i], " ")) {
-				strcat(line, "\"");
-			}
-			strcat(line, " ");
-		}
+    if(argc>0) {
+        int i;
+        char line[LINELNG];
+        line[0]=0;
+        for(i=0; i<argc; i++) {
+            if((strlen(line)+strlen(argv[i])*2)>LINELNG) break;
+            printf("%d %s\n", i, argv[i]);
+            if(strstr(argv[i], " ")) {
+                strcat(line, "\"");
+            }
+            strcat(line, argv[i]);
+            if(strstr(argv[i], " ")) {
+                strcat(line, "\"");
+            }
+            strcat(line, " ");
+        }
 
-		printf("#%s#", line);
-	}
+        printf("#%s#", line);
+    }
 }
