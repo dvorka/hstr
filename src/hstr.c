@@ -66,6 +66,7 @@
 #define HH_COLOR_INFO    2
 #define HH_COLOR_PROMPT  3
 #define HH_COLOR_DELETE  4
+#define HH_COLOR_MATCH   5
 
 #define HH_ENV_VAR_CONFIG    "HH_CONFIG"
 
@@ -559,8 +560,8 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 
     if(pattern && strlen(pattern)) {
         color_attr_on(A_BOLD);
+        color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
         char *p;
-        bool keywordsAllMatch;
         char *keywordsSavePtr;
         char *keywordsToken;
         char *keywordsParsedLine;
@@ -585,9 +586,7 @@ void print_selection_row(char *text, int y, int width, char *pattern)
             mvprintw(y, 1+(p-text), "%s", pattern);
             break;
         case HH_MATCH_KEYWORDS:
-            // TODO MD split pattern using space and highlight each segment
             keywordsParsedLine = strdup(pattern);
-            keywordsAllMatch = true;
             keywordsPointerToDelete = keywordsParsedLine;
             while (true) {
                 keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
@@ -602,6 +601,7 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 
             break;
         }
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
         color_attr_off(A_BOLD);
     }
 }
@@ -771,6 +771,7 @@ void loop_to_select(Hstr *hstr)
         color_init_pair(HH_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
         color_init_pair(HH_COLOR_PROMPT, COLOR_BLUE, -1);
         color_init_pair(HH_COLOR_DELETE, COLOR_WHITE, COLOR_RED);
+        color_init_pair(HH_COLOR_MATCH, COLOR_YELLOW, -1);
     }
 
     color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
