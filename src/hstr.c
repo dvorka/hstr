@@ -452,10 +452,10 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
     regmatch_t regexpMatch;
     char regexpErrorMessage[CMDLINE_LNG];
     bool regexpCompilationError=false;
-        bool keywordsAllMatch;
-        char *keywordsSavePtr;
-        char *keywordsToken;
-        char *keywordsParsedLine;
+    bool keywordsAllMatch;
+    char *keywordsSavePtr;
+    char *keywordsToken;
+    char *keywordsParsedLine;
     char *keywordsPointerToDelete;
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
@@ -492,22 +492,21 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
                     }
                     break;
                 case HH_MATCH_KEYWORDS:
-                    // TODO: differentiate between case-sensitive and insensitive
+                    // TODO differentiate between case-sensitive and insensitive
                     keywordsParsedLine = strdup(prefix);
-                                        keywordsAllMatch = true;
+                    keywordsAllMatch = true;
                     keywordsPointerToDelete = keywordsParsedLine;
                     while (true) {
                         keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
-                                                keywordsParsedLine = NULL;
+                        keywordsParsedLine = NULL;
                         if (keywordsToken == NULL) {
                             break;
                         }
-
                         if (strcasestr(source[i], keywordsToken) == NULL) {
                             keywordsAllMatch = false;
                         }
                     }
-                                        if (keywordsAllMatch) {
+                    if (keywordsAllMatch) {
                         hstr->selection[selectionCount++]=source[i];
                     }
                     free(keywordsPointerToDelete);
@@ -561,6 +560,11 @@ void print_selection_row(char *text, int y, int width, char *pattern)
     if(pattern && strlen(pattern)) {
         color_attr_on(A_BOLD);
         char *p;
+        bool keywordsAllMatch;
+        char *keywordsSavePtr;
+        char *keywordsToken;
+        char *keywordsParsedLine;
+        char *keywordsPointerToDelete;
 
         switch(hstr->historyMatch) {
         case HH_MATCH_SUBSTRING:
@@ -581,8 +585,21 @@ void print_selection_row(char *text, int y, int width, char *pattern)
             mvprintw(y, 1+(p-text), "%s", pattern);
             break;
         case HH_MATCH_KEYWORDS:
-            p=strstr(text, pattern);
-            mvprintw(y, 1+(p-text), "%s", pattern);
+            // TODO MD split pattern using space and highlight each segment
+            keywordsParsedLine = strdup(pattern);
+            keywordsAllMatch = true;
+            keywordsPointerToDelete = keywordsParsedLine;
+            while (true) {
+                keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
+                keywordsParsedLine = NULL;
+                if (keywordsToken == NULL) {
+                    break;
+                }
+                p=strstr(text, keywordsToken);
+                mvprintw(y, 1+(p-text), "%s", keywordsToken);
+            }
+            free(keywordsPointerToDelete);
+
             break;
         }
         color_attr_off(A_BOLD);
