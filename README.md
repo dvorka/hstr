@@ -1,9 +1,8 @@
 hstr
 ====
+BASH History Suggest Box.
 
-BASH History Suggest Box - [http://www.youtube.com/watch?v=sPF29NyXe2U](YOU http://www.youtube.com/watch?v=sPF29NyXe2U)
-
-[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-2.jpg "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
+[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-3.jpg "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
 
 DESCRIPTION
@@ -21,6 +20,7 @@ Apart to the completion, history can be managed (you can remove
 commands that e.g. contain sensitive information like
 passwords) and bookmark your favorite commands.
 
+Enjoy [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 UBUNTU INSTALLATION
 -------------------
