@@ -2,7 +2,7 @@ hstr
 ====
 BASH History Suggest Box.
 
-[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-3.jpg "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
+[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-3.png "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
 
 DESCRIPTION
