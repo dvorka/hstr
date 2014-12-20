@@ -958,6 +958,19 @@ void loop_to_select(Hstr *hstr)
         case K_ENTER:
         case KEY_ENTER:
             executeResult=TRUE;
+            if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+                result=hstr->selection[selectionCursorPosition];
+                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                    favorites_choose(hstr->favorites,result);
+                }
+            }
+            else {
+                if (hstr->selectionSize > 0) {
+                    result=hstr->selection[0];
+                }
+            }
+            done=TRUE;
+            break;
         case K_TAB:
         case KEY_LEFT:
         case KEY_RIGHT:
