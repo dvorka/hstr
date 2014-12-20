@@ -1,7 +1,9 @@
 hstr
 ====
 
-BASH History Suggest Box - [http://www.youtube.com/watch?v=sPF29NyXe2U](http://www.youtube.com/watch?v=sPF29NyXe2U)
+BASH History Suggest Box - [http://www.youtube.com/watch?v=sPF29NyXe2U](YOU http://www.youtube.com/watch?v=sPF29NyXe2U)
+
+[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-2.jpg "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
 
 DESCRIPTION
@@ -14,8 +16,6 @@ for a tool that is able to manage your favorite commands?
 HSTR is a command line utility that brings improved BASH command completion 
 from the history. It aims to make completion easier and more efficient
 than `Ctrl-r`.
-
-[![BASH History Suggest Box](http://mindforger.com/projects/images/hh-2.jpg "BASH History Suggest Box")](http://mindforger.com/projects/images/hh-2.jpg)
 
 Apart to the completion, history can be managed (you can remove 
 commands that e.g. contain sensitive information like
