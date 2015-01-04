@@ -118,9 +118,9 @@ void toggle_case(char *str, bool lowercase) {
         int i;
         for(i = 0; str[i]; i++){
             if(lowercase) {
-                str[i] = tolower(str[i]);
+                str[i] = tolower((unsigned char)str[i]);
             } else {
-                str[i] = toupper(str[i]);
+                str[i] = toupper((unsigned char)str[i]);
             }
         }
     }

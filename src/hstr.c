@@ -31,6 +31,10 @@
 #include "include/hstr_regexp.h"
 #include "include/hstr_utils.h"
 
+#ifdef __CYGWIN__
+  #define TIOCSTI 0x5412
+#endif
+
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 512
 #define CMDLINE_LNG 2048
