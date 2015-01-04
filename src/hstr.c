@@ -47,6 +47,10 @@
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
+
+#define K_CTRL_N 14
+#define K_CTRL_P 16
+
 #define K_CTRL_R 18
 #define K_CTRL_T 20
 #define K_CTRL_U 21
@@ -174,7 +178,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.14\""
+        "hh version \"1.15\""
         "\n   build   \""__DATE__" " __TIME__"\""
         "\n";
 
@@ -929,6 +933,7 @@ void loop_to_select(Hstr *hstr)
             move(y, basex+hstr_strlen(pattern));
             break;
         case KEY_UP:
+        case K_CTRL_P:
             previousSelectionCursorPosition=selectionCursorPosition;
             if(selectionCursorPosition>0) {
                 selectionCursorPosition--;
@@ -940,6 +945,7 @@ void loop_to_select(Hstr *hstr)
             break;
         case K_CTRL_R:
         case KEY_DOWN:
+        case K_CTRL_N:
             if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
                 selectionCursorPosition=previousSelectionCursorPosition=0;
             } else {
