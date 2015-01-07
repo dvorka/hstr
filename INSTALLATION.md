@@ -1,6 +1,6 @@
 hh INSTALLATION
 ===============
-Install `hh` using [distribution](#distribution-installation), from [source code](#installation-from-source-code), 
+Install `hh` using [distribution-installation](#distribution-installation), from [source code](#installation-from-source-code), 
 on [Ubuntu](#ubuntu), [Debian/Mint](#debianmint), [Arch Linux](#arch-linux) 
 or [Mac OS](#mac-os).  
 
