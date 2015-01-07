@@ -1,13 +1,26 @@
-CONFIGURATION EXPLANATION
-=========================
-`hh` works best with the optional configuration described in this section. 
-You can configure `hh` just by running:
+CONFIGURATION
+=============
+Get most of `hh` by configuring it with:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
+You may want to check:
+```bash
+hh --show-configuration
+```
+to determine what will be appended to your BASH profile.
 
-CONFIGURATION OPTIONS
----------------------
+This document describes `hh` related configuration in detail - 
+[binding hh to keyword shortcuts](#binding-hh-to-keyboard-shortcut),
+[colors](#colors),
+[default history view](#history-view)
+[BASH history settings](#bash-history-settings)
+and [examples](#examples).
+
+
+
+BINDING HH TO KEYBOARD SHORTCUT
+-------------------------------
 Bind `hh` to a BASH key e.g. to `Ctrl-r`:
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
@@ -31,11 +44,20 @@ type `Ctrl-v` and then press the key. Check your current bindings using:
 bind -S
 ```
 
+COLORS
+------
 Get `hh` in more colors:
 ```bash
 export HH_CONFIG=hicolor
 ```
-show normal history by default (instead of metrics-based view):
+or in black and white mode:
+```bash
+export HH_CONFIG=monochromatic
+```
+
+HISTORY VIEW
+------------
+Show normal history by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=rawhistory
 ```
@@ -43,10 +65,16 @@ show favorites by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=favorites
 ```
+
+FILTERING
+---------
 make search case sensitive (insensitive by default):
 ```bash
 export HH_CONFIG=casesensitive
 ```
+
+VERBOSE
+-------
 show warnings:
 ```bash
 export HH_CONFIG=warning
@@ -55,10 +83,28 @@ show debug messages:
 ```bash
 export HH_CONFIG=debug
 ```
-more colors and case sensitive search:
+
+EXAMPLES
+--------
+`hh` configuration examples.
+
+More colors with case sensitive search of history:
 ```bash
 export HH_CONFIG=hicolor,casesensitive
 ```
+Favorite commands view in black and white:
+```bash
+export HH_CONFIG=favorites,monochromatic
+```
+Keywords based search in colors with debug mode verbosity:
+```bash
+export HH_CONFIG=keywords,hicolor,debug
+```
+
+
+BASH HISTORY SETTINGS
+---------------------
+Use the following BASH settings to get most out of `hh`.
 
 Increase the size of history:
 ```bash

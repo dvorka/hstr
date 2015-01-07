@@ -73,7 +73,7 @@ Write changes to shell history and exit.
 \fBCtrl\-g\fR
 Exit with empty prompt.
 .SH ENVIRONMENT VARIABLES
-\fBhh\fR defines the following environment variable:
+\fBhh\fR defines the following environment variables:
 .TP
 \fBHH_CONFIG\fR
 Configuration options:
@@ -81,11 +81,17 @@ Configuration options:
 \fIhicolor\fR 
         Get more colors with this option (default is monochromatic).
 
+\fImonochromatic\fR 
+        Ensure black and white view with this option.
+
 \fIregexp\fR
         Filter command history using regular expressions (substring match is default) 
 
 \fIsubstring\fR
         Filter command history using substring.
+
+\fIkeywords\fR
+        Filter command history using keywords - item matches if contains all keywords in pattern in any order.
 
 \fIcasesensitive\fR
         Make history filtering case sensitive (it's case insensitive by default). 
@@ -103,7 +109,7 @@ Configuration options:
         Show debug information.
 
 Example:
-        \fBexport HH_CONFIG=hicolor,regexp\fR
+        \fBexport HH_CONFIG=hicolor,regexp,rawhistory\fR
 
 .TP
 \fBHH_PROMPT\fR
