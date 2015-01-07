@@ -1,8 +1,8 @@
 hh INSTALLATION
 ===============
-Install `hh` [distribution](#DISTRIBUTION INSTALLATION), from [source code](#INSTALLATION FROM SOURCE CODE), 
-on [Ubuntu](#UBUNTU), [Debian/Mint](#DEBIAN/MINT), [Arch Linux](#ARCH LINUX) 
-or [Mac OS](#MAC OS).  
+Install `hh` using [distribution](#distribution-installation), from [source code](#installation-from-source-code), 
+on [Ubuntu](#ubuntu), [Debian/Mint](#debianmint), [Arch Linux](#arch-linux) 
+or [Mac OS](#mac-os).  
 
 
 UBUNTU
@@ -13,7 +13,7 @@ sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
 sudo apt-get install hh
 ```
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
 
 
 INSTALLATION FROM SOURCE CODE
@@ -30,7 +30,7 @@ Install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
 
 
 DISTRIBUTION INSTALLATION 
@@ -43,7 +43,7 @@ Expand the archive and install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
 
 
 DEBIAN/MINT
@@ -67,7 +67,7 @@ Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
 
 
 ARCH LINUX
@@ -82,7 +82,7 @@ https://wiki.archlinux.org/index.php/PKGBUILD
 
 Install `hh`.
 
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
 
 
 MAC OS
@@ -101,4 +101,4 @@ Finish the installation
 make && make install
 ```
 
-Optionally [configure](CONFIGURATION.MD) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 

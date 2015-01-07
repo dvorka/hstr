@@ -25,9 +25,9 @@ Enjoy [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 INSTALLATION
 ------------
-Install `hh` [distribution](INSTALLATION.md), from [source code](INSTALLATION.md), 
-on [Ubuntu](INSTALLATION.md), [Debian/Mint](INSTALLATION.md), [Arch Linux](INSTALLATION.md) 
-or [Mac OS](INSTALLATION.md).  
+Install `hh` using [distribution](INSTALLATION.md#distribution-installation), from [source code](INSTALLATION.md#installation-from-source-code), 
+on [Ubuntu](INSTALLATION.md#ubuntu), [Debian/Mint](INSTALLATION.md#debianmint), [Arch Linux](INSTALLATION.md#arch-linux) 
+or [Mac OS](INSTALLATION.md#mac-os).  
 
 
 CONFIGURATION
@@ -36,7 +36,7 @@ You can configure `hh` just by running:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-For detailed `hh` configuration description please refer to [Configuration](CONFIGURATION.md) document.
+For detailed `hh` configuration description please refer to [Configuration](CONFIGURATION.md).
 
 
 DOCUMENTATION
