@@ -4,16 +4,13 @@ Get most of `hh` by configuring it with:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-You may want to check:
-```bash
-hh --show-configuration
-```
-to determine what will be appended to your BASH profile.
+Run `hh --show-configuration` to determine what will be appended to your BASH profile.
 
 This document describes `hh` related configuration in detail - 
-[binding hh to keyword shortcuts](#binding-hh-to-keyboard-shortcut),
+[binding hh to a keyboard shortcut](#binding-hh-to-keyboard-shortcut),
 [colors](#colors),
-[default history view](#history-view)
+[default history view](#history-view),
+[verbosity](#verbosity),
 [BASH history settings](#bash-history-settings)
 and [examples](#examples).
 
@@ -33,7 +30,7 @@ or `Ctrl-F12`:
 ```bash
 bind '"\e[24;5~":"\C-ahh \C-j"'
 ```
-bind `hh` to `Ctrl-r` only if this is interactive shell:
+Bind `hh` to `Ctrl-r` only if it is interactive shell:
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh \C-j"'; fi
 ```
@@ -50,7 +47,7 @@ Get `hh` in more colors:
 ```bash
 export HH_CONFIG=hicolor
 ```
-or in black and white mode:
+or ensure black and white mode:
 ```bash
 export HH_CONFIG=monochromatic
 ```
@@ -61,33 +58,31 @@ Show normal history by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=rawhistory
 ```
-show favorites by default (instead of metrics-based view):
+Show favorite commands by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=favorites
 ```
 
 FILTERING
 ---------
-make search case sensitive (insensitive by default):
+Make search case sensitive (insensitive by default):
 ```bash
 export HH_CONFIG=casesensitive
 ```
 
-VERBOSE
+VERBOSITY
 -------
-show warnings:
+Show warnings:
 ```bash
 export HH_CONFIG=warning
 ```
-show debug messages:
+Show debug messages:
 ```bash
 export HH_CONFIG=debug
 ```
 
 EXAMPLES
 --------
-`hh` configuration examples.
-
 More colors with case sensitive search of history:
 ```bash
 export HH_CONFIG=hicolor,casesensitive
@@ -106,14 +101,12 @@ BASH HISTORY SETTINGS
 ---------------------
 Use the following BASH settings to get most out of `hh`.
 
-Increase the size of history:
+Increase the size of history maintained by BASH - variables defined below increase the 
+number of history items and history file size (default value is 500):
 ```bash
 export HISTFILESIZE=10000
 export HISTSIZE=${HISTFILESIZE}
 ```
-Variables defined above increase the number of history items and history file size
-(default value is 500).
-
 Ensure syncing (flushing and reloading) of `.bash_history` with in-memory 
   history:
 ```bash

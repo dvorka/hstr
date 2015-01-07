@@ -32,11 +32,11 @@ or [Mac OS](INSTALLATION.md#mac-os).
 
 CONFIGURATION
 -------------
-You can configure `hh` just by running:
+Optionally configure `hh` just by running:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-For detailed `hh` configuration description please refer to [Configuration](CONFIGURATION.md).
+For detailed `hh` configuration documentation please refer to [Configuration](CONFIGURATION.md).
 
 
 DOCUMENTATION
