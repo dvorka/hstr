@@ -24,36 +24,36 @@ Enjoy [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 UBUNTU INSTALLATION
 -------------------
-* install `hh` on Ubuntu (12.04LTS/12.10/13.10/14.04LTS):
+Install `hh` on Ubuntu:
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
 sudo apt-get install hh
 ```
-
-* optionally configure `hh`: 
+Optionally configure `hh`: 
 ```bash
 hh --show-configuration >> ~/.bashrc
+```
+Check the documentation:
+```bash
+man hh
 ```
 
 INSTALLATION FROM SOURCE CODE
 -----------------------------
-* Clone Git repository:
+Clone Git repository:
 ```bash
 git clone https://github.com/dvorka/hstr.git
 ```
-
-* create build files using:
+Create build files using:
 ```bash
 cd ./dist && ./1-dist.sh && cd ..
 ```
-
-* install `hh` using:
+Install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-
-* optionally configure `hh`:
+Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
@@ -61,16 +61,15 @@ hh --show-configuration >> ~/.bashrc
 
 DISTRIBUTION INSTALLATION 
 -------------------------
-* download latest distribution from project Releases section:
+Download latest distribution from project Releases section:
 
 https://github.com/dvorka/hstr/releases
 
-* expand the archive and install `hh` using:
+Expand the archive and install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-
-* optionally configure `hh`:
+Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
@@ -78,7 +77,7 @@ hh --show-configuration >> ~/.bashrc
 
 DEBIAN/MINT INSTALLATION
 -------------------
-* install `hh` on Debian (Wheezy) or Mint (13) by registering the key:
+Install `hh` on Debian (Wheezy) or Mint (13) by registering the key:
 ```bash
 wget www.clfh.de/frankh.asc
 apt-key add frankh.asc
@@ -93,8 +92,7 @@ and installing it:
 apt-get update
 apt-get install hh
 ```
-
-* optionally configure `hh`: 
+Optionally configure `hh`: 
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
@@ -102,15 +100,15 @@ hh --show-configuration >> ~/.bashrc
 
 ARCH LINUX
 ----------
-* download latest distribution from project Releases section:
+Download latest distribution from project Releases section:
 
 https://github.com/dvorka/hstr/releases
 
-* use PKGBUILD in the root of the distribution to build package using `makepkg`:
+Use PKGBUILD in the root of the distribution to build package using `makepkg`:
 
 https://wiki.archlinux.org/index.php/PKGBUILD
 
-* install `hh`
+Install `hh`
 * optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
@@ -118,21 +116,21 @@ hh --show-configuration >> ~/.bashrc
 
 MAC OS
 ------
-* install MacPorts:
+Install MacPorts:
 
    http://www.macports.org
 
-* set the environment:
+Set the environment:
 ```bash
 env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure
 ```
 
-* finish the installation
+Finish the installation
 ```bash
 make && make install
 ```
 
-* optionally configure `hh`:
+Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```

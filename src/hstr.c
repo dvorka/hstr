@@ -77,6 +77,7 @@
 #define HH_COLOR_MATCH   5
 
 #define HH_ENV_VAR_CONFIG    "HH_CONFIG"
+#define HH_ENV_VAR_PROMPT    "HH_PROMPT"
 
 #define HH_CONFIG_MONO       "monochromatic"
 #define HH_CONFIG_HICOLOR    "hicolor"
@@ -287,19 +288,27 @@ void hstr_get_env_configuration(Hstr *hstr)
 
 int print_prompt(Hstr *hstr)
 {
-    char *user = getenv(ENV_VAR_USER);
-    char *hostname=malloc(HOSTNAME_BUFFER);
     int xoffset = 0, promptLength;
 
     if(hstr->hicolor) {
         color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
         color_attr_on(A_BOLD);
     }
-    user=(user?user:"me");
-    get_hostname(HOSTNAME_BUFFER, hostname);
-    mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
-    promptLength=strlen(user)+1+strlen(hostname)+1+1;
-    free(hostname);
+
+    char *prompt = getenv(HH_ENV_VAR_PROMPT);
+    if(prompt) {
+        mvprintw(Y_OFFSET_PROMPT, xoffset, "%s", prompt);
+        promptLength=strlen(prompt);
+    } else {
+        char *user = getenv(ENV_VAR_USER);
+        char *hostname=malloc(HOSTNAME_BUFFER);
+        user=(user?user:"me");
+        get_hostname(HOSTNAME_BUFFER, hostname);
+        mvprintw(Y_OFFSET_PROMPT, xoffset, "%s@%s$ ", user, hostname);
+        promptLength=strlen(user)+1+strlen(hostname)+1+1;
+        free(hostname);
+    }
+
     if(hstr->hicolor) {
         color_attr_off(A_BOLD);
         color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
