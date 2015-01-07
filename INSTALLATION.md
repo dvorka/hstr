@@ -13,7 +13,7 @@ sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
 sudo apt-get install hh
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
 
 
 INSTALLATION FROM SOURCE CODE
@@ -30,7 +30,7 @@ Install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
 
 
 DISTRIBUTION INSTALLATION
@@ -43,7 +43,7 @@ Expand the archive and install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
 
 
 DEBIAN/MINT
@@ -67,7 +67,7 @@ Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
 
 
 ARCH LINUX
@@ -82,7 +82,7 @@ https://wiki.archlinux.org/index.php/PKGBUILD
 
 Install `hh`.
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
 
 
 MAC OS
@@ -101,4 +101,4 @@ Finish the installation
 make && make install
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#DOCUMENTATION). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
