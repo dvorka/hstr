@@ -6,6 +6,11 @@
 #
 
 export UBUNTUVERSION=$1
+## https://wiki.ubuntu.com/Releases
+#export UBUNTUVERSION=precise
+#export UBUNTUVERSION=quantal
+#export UBUNTUVERSION=saucy
+#export UBUNTUVERSION=trusty
 export HHVERSION=$2
 export HHBZRMSG=$3
 
@@ -15,11 +20,6 @@ export HHRELEASE=hh_${HHFULLVERSION}
 export HHSRC=/home/dvorka/p/hstr/github/hstr
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export HHBUILD=hstr-${NOW}
-## https://wiki.ubuntu.com/Releases
-#export UBUNTUVERSION=precise
-#export UBUNTUVERSION=quantal
-#export UBUNTUVERSION=saucy
-#export UBUNTUVERSION=trusty
 
 # checkout hh from bazaar and make hstr ################################
 
@@ -105,10 +105,18 @@ createTarball
 bzr builddeb -- -us -uc
 bzr builddeb -S
 cd ../build-area
+
+
+echo -e "\n_ hh pbuilder-dist build  _______________________________________________\n"
+# BEGIN: bug workaround - pbuilder's caches in /var and /home must be on same physical drive
+export PBUILDFOLDER=/tmp/hh-tmp
+rm -rvf ${PBUILDFOLDER}
+mkdir -p ${PBUILDFOLDER}
+cp -rvf ~/pbuilder/*.tgz ${PBUILDFOLDER}
+# END
 pbuilder-dist ${UBUNTUVERSION} build ${HHRELEASE}.dsc
 
 # push .deb to Launchpad ########################################################
-#./3-ubuntu-push-deb.sh 
 
 # from buildarea/ to ./dist
 cd ../${HH}
