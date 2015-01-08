@@ -4,12 +4,14 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 1.13, martin.dvorak@mindforger.com)
-AM_INIT_AUTOMAKE(hh, 1.13)
+AC_INIT(hh, 1.15, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
 # Checks for src dir existence.
 AC_CONFIG_SRCDIR([src/hstr.c])
+
+# Init (no longer takes parameters).
+AM_INIT_AUTOMAKE
 
 # Checks for programs.
 AC_PROG_CC

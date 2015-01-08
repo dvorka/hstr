@@ -1,10 +1,10 @@
 #!/bin/bash
 
-export HHBZRMSG="Internatialization and support for transparent terminals."
-export VERSION=1.13.
+export HHBZRMSG="Enter first item auto-select, Vim keybinding, doc improvements."
+export VERSION=1.15.
 export MINOR=1
 
-# precise quantal saucy trusty
+# precise quantal saucy / precise trusty utopic
 for DISTRO in precise trusty
 do
 

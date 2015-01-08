@@ -1,5 +1,7 @@
 #!/bin/bash
 
+export AUTOMAKE_LIB=`automake --print-libdir`
+
 ./clean.sh
 
 cd ..
@@ -9,12 +11,17 @@ autoconf
 
 rm -rvf autom*te.cache
 
-if [ -d /usr/share/automake-1.11 ]
+if [ -d ${AUTOMAKE_LIB} ]
 then
-    rm -vf depcomp install-sh missing
-    cp -vf /usr/share/automake-1.11/depcomp .
-    cp -vf /usr/share/automake-1.11/install-sh .
-    cp -vf /usr/share/automake-1.11/missing .
+    rm -vf compile depcomp install-sh missing
+    cp -vf ${AUTOMAKE_LIB}/compile .
+    cp -vf ${AUTOMAKE_LIB}/depcomp .
+    cp -vf ${AUTOMAKE_LIB}/install-sh .
+    cp -vf ${AUTOMAKE_LIB}/missing .
+else 
+    echo "****************************************************************"
+    echo "Error: automake ${AUTOMAKE_LIB} not found - exiting!"
+    exit 1
 fi
 
 cd dist

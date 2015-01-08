@@ -471,7 +471,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
     char regexpErrorMessage[CMDLINE_LNG];
     bool regexpCompilationError=false;
     bool keywordsAllMatch;
-    char *keywordsSavePtr;
+    char *keywordsSavePtr=NULL;
     char *keywordsToken;
     char *keywordsParsedLine;
     char *keywordsPointerToDelete;
@@ -514,7 +514,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
                     keywordsParsedLine = strdup(prefix);
                     keywordsAllMatch = true;
                     keywordsPointerToDelete = keywordsParsedLine;
-                    while (true) {
+                    while(true) {
                         keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
                         keywordsParsedLine = NULL;
                         if (keywordsToken == NULL) {
