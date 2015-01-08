@@ -125,6 +125,7 @@ echo "Before bzr push: " `pwd`
 bzr push lp:~ultradvorka/+junk/hh-package
 cd ..
 echo "Before dput push: " `pwd`
-dput ppa:ultradvorka ${HHRELEASE}_source.changes
+# recently added /ppa to fix the path and package rejections
+dput ppa:ultradvorka/ppa ${HHRELEASE}_source.changes
 
 # eof

@@ -2,7 +2,7 @@
 
 export HHBZRMSG="Enter first item auto-select, Vim keybinding, doc improvements."
 export VERSION=1.15.
-export MINOR=1
+export MINOR=3
 
 # precise quantal saucy / precise trusty utopic
 for DISTRO in trusty utopic
