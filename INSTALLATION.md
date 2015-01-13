@@ -1,8 +1,8 @@
 INSTALLATION
 ============
-Install `hh` using [distribution](#distribution-installation), from [source code](#installation-from-source-code), 
-on [Ubuntu](#ubuntu), [Debian/Mint](#debianmint), [Arch Linux](#arch-linux) 
-or [Mac OS](#mac-os).  
+Install `hh` using [distribution](#distribution-installation), from [source code](#installation-from-source-code),
+on [Ubuntu](#ubuntu), [Debian/Mint](#debianmint), [Arch Linux](#arch-linux)
+or [Mac OS](#mac-os).
 
 
 UBUNTU
@@ -13,7 +13,7 @@ sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
 sudo apt-get install hh
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 INSTALLATION FROM SOURCE CODE
@@ -30,7 +30,7 @@ Install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 DISTRIBUTION INSTALLATION
@@ -43,7 +43,7 @@ Expand the archive and install `hh` using:
 ```bash
 ./configure && make && make install
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 DEBIAN/MINT
@@ -63,11 +63,11 @@ and installing it:
 apt-get update
 apt-get install hh
 ```
-Optionally configure `hh`: 
+Optionally configure `hh`:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 ARCH LINUX
@@ -82,7 +82,7 @@ https://wiki.archlinux.org/index.php/PKGBUILD
 
 Install `hh`.
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 MAC OS
@@ -90,6 +90,13 @@ MAC OS
 Install MacPorts:
 
    http://www.macports.org
+
+And then install readline and ncurses:
+
+```
+port install readline
+port install ncurses
+```
 
 Set the environment:
 ```bash
@@ -101,4 +108,4 @@ Finish the installation
 make && make install
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation). 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).

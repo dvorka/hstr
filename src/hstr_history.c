@@ -67,6 +67,36 @@ void dump_prioritized_history(HistoryItems *ph)
     printf("\n"); fflush(stdout);
 }
 
+int get_item_offset(char *historyFileName)
+{
+    int itemOffset = 0;
+
+    // If user use zsh, the name of history file is .zsh_history
+    int historyFileLen = strlen(historyFileName);
+    int zshFileNameLen = strlen(FILE_ZSH_HISTORY);
+    if (historyFileLen >= zshFileNameLen) {
+        int i = historyFileLen - zshFileNameLen;
+        for (int j = 0; i < historyFileLen; i++, j++) {
+            if (historyFileName[i] != FILE_ZSH_HISTORY[j]) {
+                break;
+            }
+        }
+        if (i == historyFileLen) {
+            // In zsh history file, the format of item is
+            // [:][blank][unix_timestamp][:][0][;][cmd]
+            // Such as:
+            // : 1420549651:0;ls /tmp/b
+            // : 1420549680:0;touch /tmp/c
+            // : 1420549686:0;ln -s /tmp/c /tmp/b
+            // And the limit of unix timestamp 9999999999 is 2289/11/21,
+            // so we could skip first 15 chars in every zsh history item to get the cmd.
+            itemOffset = ZSH_HISTORY_ITEM_OFFSET;
+        }
+    }
+
+    return itemOffset;
+}
+
 HistoryItems *get_prioritized_history()
 {
     using_history();
@@ -77,6 +107,8 @@ HistoryItems *get_prioritized_history()
         exit(EXIT_FAILURE);
     }
     HISTORY_STATE *historyState=history_get_history_state();
+
+    int itemOffset = get_item_offset(historyFile);
 
     if(historyState->length > 0) {
         HashSet rankmap;
@@ -142,7 +174,9 @@ HistoryItems *get_prioritized_history()
         prioritizedHistory->raw=rawHistory;
         for(i=0; i<rs.size; i++) {
             if(prioritizedRadix[i]->data) {
-                prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+                char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+                item += itemOffset;
+                prioritizedHistory->items[i]=item;
             }
             free(prioritizedRadix[i]->data);
             free(prioritizedRadix[i]);

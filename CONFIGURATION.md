@@ -6,7 +6,7 @@ hh --show-configuration >> ~/.bashrc
 ```
 Run `hh --show-configuration` to determine what will be appended to your BASH profile.
 
-This document describes `hh` related configuration in detail - 
+This document describes `hh` related configuration in detail -
 [binding hh to a keyboard shortcut](#binding-hh-to-keyboard-shortcut),
 [colors](#colors),
 [default history view](#history-view),
@@ -35,7 +35,7 @@ Bind `hh` to `Ctrl-r` only if it is interactive shell:
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh \C-j"'; fi
 ```
 
-To determine the character sequence emitted by a pressed key in terminal, 
+To determine the character sequence emitted by a pressed key in terminal,
 type `Ctrl-v` and then press the key. Check your current bindings using:
 ```bash
 bind -S
@@ -101,20 +101,20 @@ BASH HISTORY SETTINGS
 ---------------------
 Use the following BASH settings to get most out of `hh`.
 
-Increase the size of history maintained by BASH - variables defined below increase the 
+Increase the size of history maintained by BASH - variables defined below increase the
 number of history items and history file size (default value is 500):
 ```bash
 export HISTFILESIZE=10000
 export HISTSIZE=${HISTFILESIZE}
 ```
-Ensure syncing (flushing and reloading) of `.bash_history` with in-memory 
+Ensure syncing (flushing and reloading) of `.bash_history` with in-memory
   history:
 ```bash
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 ```
 
-Force appending of in-memory history to `.bash_history` 
-  (instead of overwriting): 
+Force appending of in-memory history to `.bash_history`
+  (instead of overwriting):
 ```bash
 shopt -s histappend
 ```
@@ -124,3 +124,11 @@ Use leading space to hide commands from history:
 export HISTCONTROL=ignorespace
 ```
 Suitable for a sensitive information like passwords.
+
+ZSH HISTORY SETTINGS
+--------------------
+If you use zsh, set HISTFILE environment variable in ~/.zshrc:
+
+```
+export HISTFILE=~/.zsh_history
+```
