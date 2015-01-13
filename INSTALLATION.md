@@ -108,12 +108,4 @@ Finish the installation
 make && make install
 ```
 
-ZSH
-___
-Set HISTFILE environment variable in ~/.zshrc:
-
-```
-export HISTFILE=~/.zsh_history
-```
-
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).

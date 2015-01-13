@@ -79,6 +79,8 @@ HistoryItems *get_prioritized_history()
     HISTORY_STATE *historyState=history_get_history_state();
 
     int itemOffset = 0;
+
+    // If user use zsh, the name of history file is .zsh_history
     char* zshFileName = ".zsh_history";
     int historyFileLen = strlen(historyFile);
     int zshFileNameLen = strlen(zshFileName);
@@ -90,6 +92,14 @@ HistoryItems *get_prioritized_history()
             }
         }
         if (i == historyFileLen) {
+            // In zsh history file, the format of item is
+            // [:][blank][unix_timestamp][:][0][;][cmd]
+            // Such as:
+            // : 1420549651:0;ls /tmp/b
+            // : 1420549680:0;touch /tmp/c
+            // : 1420549686:0;ln -s /tmp/c /tmp/b
+            // And the limit of unix timestamp 9999999999 is 2289/11/21,
+            // so we could skip first 15 chars in every zsh history item to get the cmd.
             itemOffset = ZSH_HISTORY_ITEM_OFFSET;
         }
     }
