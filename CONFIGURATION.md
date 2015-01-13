@@ -6,8 +6,8 @@ This document describes `hh` related configuration in detail:
 * [default history view](#history-view)
 * [verbosity](#verbosity)
 * [Bash history settings](#bash-history-settings)
+* [zsh history settings](#zsh-history-settings)
 * [examples](#examples)
-* [zsh](#zsh-history-settings)
 
 Get most of `hh` by configuring it with:
 ```bash
