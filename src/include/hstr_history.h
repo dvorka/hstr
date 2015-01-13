@@ -25,6 +25,8 @@
 
 #define ENV_VAR_HISTFILE "HISTFILE"
 
+#define ZSH_HISTORY_ITEM_OFFSET 15
+
 #define FILE_DEFAULT_HISTORY ".bash_history"
 
 typedef struct {

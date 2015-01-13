@@ -78,6 +78,22 @@ HistoryItems *get_prioritized_history()
     }
     HISTORY_STATE *historyState=history_get_history_state();
 
+    int itemOffset = 0;
+    char* zshFileName = ".zsh_history";
+    int historyFileLen = strlen(historyFile);
+    int zshFileNameLen = strlen(zshFileName);
+    if (historyFileLen >= zshFileNameLen) {
+        int i = historyFileLen - zshFileNameLen;
+        for (int j = 0; i < historyFileLen; i++, j++) {
+            if (historyFile[i] != zshFileName[j]) {
+                break;
+            }
+        }
+        if (i == historyFileLen) {
+            itemOffset = ZSH_HISTORY_ITEM_OFFSET;
+        }
+    }
+
     if(historyState->length > 0) {
         HashSet rankmap;
         hashset_init(&rankmap);
@@ -142,7 +158,9 @@ HistoryItems *get_prioritized_history()
         prioritizedHistory->raw=rawHistory;
         for(i=0; i<rs.size; i++) {
             if(prioritizedRadix[i]->data) {
-                prioritizedHistory->items[i]=((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+                char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+                item += itemOffset;
+                prioritizedHistory->items[i]=item;
             }
             free(prioritizedRadix[i]->data);
             free(prioritizedRadix[i]);
