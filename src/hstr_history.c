@@ -67,27 +67,17 @@ void dump_prioritized_history(HistoryItems *ph)
     printf("\n"); fflush(stdout);
 }
 
-HistoryItems *get_prioritized_history()
+int get_item_offset(char *historyFileName)
 {
-    using_history();
-
-    char *historyFile = get_history_file_name();
-    if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
-        exit(EXIT_FAILURE);
-    }
-    HISTORY_STATE *historyState=history_get_history_state();
-
     int itemOffset = 0;
 
     // If user use zsh, the name of history file is .zsh_history
-    char* zshFileName = ".zsh_history";
-    int historyFileLen = strlen(historyFile);
-    int zshFileNameLen = strlen(zshFileName);
+    int historyFileLen = strlen(historyFileName);
+    int zshFileNameLen = strlen(FILE_ZSH_HISTORY);
     if (historyFileLen >= zshFileNameLen) {
         int i = historyFileLen - zshFileNameLen;
         for (int j = 0; i < historyFileLen; i++, j++) {
-            if (historyFile[i] != zshFileName[j]) {
+            if (historyFileName[i] != FILE_ZSH_HISTORY[j]) {
                 break;
             }
         }
@@ -103,6 +93,22 @@ HistoryItems *get_prioritized_history()
             itemOffset = ZSH_HISTORY_ITEM_OFFSET;
         }
     }
+
+    return itemOffset;
+}
+
+HistoryItems *get_prioritized_history()
+{
+    using_history();
+
+    char *historyFile = get_history_file_name();
+    if(read_history(historyFile)!=0) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
+        exit(EXIT_FAILURE);
+    }
+    HISTORY_STATE *historyState=history_get_history_state();
+
+    int itemOffset = get_item_offset(historyFile);
 
     if(historyState->length > 0) {
         HashSet rankmap;

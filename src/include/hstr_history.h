@@ -28,6 +28,7 @@
 #define ZSH_HISTORY_ITEM_OFFSET 15
 
 #define FILE_DEFAULT_HISTORY ".bash_history"
+#define FILE_ZSH_HISTORY ".zsh_history"
 
 typedef struct {
     char **items;
