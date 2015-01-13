@@ -1,18 +1,19 @@
 CONFIGURATION
 =============
+This document describes `hh` related configuration in detail:
+* [binding hh to a keyboard shortcut](#binding-hh-to-keyboard-shortcut)
+* [colors](#colors)
+* [default history view](#history-view)
+* [verbosity](#verbosity)
+* [Bash history settings](#bash-history-settings)
+* [examples](#examples)
+* [zsh](#zsh-history-settings)
+
 Get most of `hh` by configuring it with:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
 Run `hh --show-configuration` to determine what will be appended to your BASH profile.
-
-This document describes `hh` related configuration in detail -
-[binding hh to a keyboard shortcut](#binding-hh-to-keyboard-shortcut),
-[colors](#colors),
-[default history view](#history-view),
-[verbosity](#verbosity),
-[BASH history settings](#bash-history-settings)
-and [examples](#examples).
 
 
 
@@ -127,7 +128,7 @@ Suitable for a sensitive information like passwords.
 
 ZSH HISTORY SETTINGS
 --------------------
-If you use zsh, set HISTFILE environment variable in ~/.zshrc:
+If you use `zsh`, set HISTFILE environment variable in ~/.zshrc:
 
 ```
 export HISTFILE=~/.zsh_history
