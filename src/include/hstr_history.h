@@ -25,10 +25,11 @@
 
 #define ENV_VAR_HISTFILE "HISTFILE"
 
-#define ZSH_HISTORY_ITEM_OFFSET 15
-
 #define FILE_DEFAULT_HISTORY ".bash_history"
 #define FILE_ZSH_HISTORY ".zsh_history"
+
+#define ZSH_HISTORY_ITEM_OFFSET 15
+#define BASH_HISTORY_ITEM_OFFSET 0
 
 typedef struct {
     char **items;

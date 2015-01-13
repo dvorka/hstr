@@ -69,32 +69,17 @@ void dump_prioritized_history(HistoryItems *ph)
 
 int get_item_offset(char *historyFileName)
 {
-    int itemOffset = 0;
-
-    // If user use zsh, the name of history file is .zsh_history
-    int historyFileLen = strlen(historyFileName);
-    int zshFileNameLen = strlen(FILE_ZSH_HISTORY);
-    if (historyFileLen >= zshFileNameLen) {
-        int i = historyFileLen - zshFileNameLen;
-        for (int j = 0; i < historyFileLen; i++, j++) {
-            if (historyFileName[i] != FILE_ZSH_HISTORY[j]) {
-                break;
-            }
-        }
-        if (i == historyFileLen) {
-            // In zsh history file, the format of item is
-            // [:][blank][unix_timestamp][:][0][;][cmd]
-            // Such as:
-            // : 1420549651:0;ls /tmp/b
-            // : 1420549680:0;touch /tmp/c
-            // : 1420549686:0;ln -s /tmp/c /tmp/b
-            // And the limit of unix timestamp 9999999999 is 2289/11/21,
-            // so we could skip first 15 chars in every zsh history item to get the cmd.
-            itemOffset = ZSH_HISTORY_ITEM_OFFSET;
-        }
+    if(strstr(historyFileName,"zsh")) {
+        // In zsh history file, the format of item is
+        // [:][blank][unix_timestamp][:][0][;][cmd]
+        // Such as:
+        // : 1420549651:0;ls /tmp/b
+        // And the limit of unix timestamp 9999999999 is 2289/11/21,
+        // so we could skip first 15 chars in every zsh history item to get the cmd.
+        return ZSH_HISTORY_ITEM_OFFSET;
+    } else {
+        return BASH_HISTORY_ITEM_OFFSET;
     }
-
-    return itemOffset;
 }
 
 HistoryItems *get_prioritized_history()
@@ -134,7 +119,11 @@ HistoryItems *get_prioritized_history()
         int rawOffset=historyState->length-1;
         char *line;
         for(i=0; i<historyState->length; i++, rawOffset--) {
-            line=historyList[i]->line;
+            if(line && strlen(historyList[i]->line)>itemOffset) {
+                line=historyList[i]->line+itemOffset;
+            } else {
+                line=historyList[i]->line;
+            }
             rawHistory[rawOffset]=line;
             if(hashset_contains(&blacklist, line)) {
                 continue;
@@ -175,7 +164,9 @@ HistoryItems *get_prioritized_history()
         for(i=0; i<rs.size; i++) {
             if(prioritizedRadix[i]->data) {
                 char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
-                item += itemOffset;
+                if(strlen(item)>itemOffset) {
+                    item += itemOffset;
+                }
                 prioritizedHistory->items[i]=item;
             }
             free(prioritizedRadix[i]->data);
