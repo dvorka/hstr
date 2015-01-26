@@ -798,7 +798,7 @@ void loop_to_select(Hstr *hstr)
     hstr_print_selection(get_max_history_items(), NULL, hstr);
     color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
-    bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE;
+    bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE, fixCommand=FALSE;
     int basex=print_prompt(hstr);
     int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
     int width=getmaxx(stdscr);
@@ -990,8 +990,10 @@ void loop_to_select(Hstr *hstr)
             }
             done=TRUE;
             break;
-        case K_TAB:
         case KEY_LEFT:
+            fixCommand=TRUE;
+            executeResult=TRUE;
+        case K_TAB:
         case KEY_RIGHT:
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=hstr->selection[selectionCursorPosition];
@@ -1038,7 +1040,13 @@ void loop_to_select(Hstr *hstr)
     hstr_curses_stop();
 
     if(result!=NULL) {
+        if(fixCommand) {
+            fill_terminal_input("fc \"", FALSE);
+        }
         fill_terminal_input(result, TRUE);
+        if(fixCommand) {
+            fill_terminal_input("\"", FALSE);
+        }
         if(executeResult) {
             fill_terminal_input("\n", FALSE);
         }
