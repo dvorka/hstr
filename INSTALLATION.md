@@ -76,9 +76,9 @@ Download latest distribution from project Releases section:
 
 https://github.com/dvorka/hstr/releases
 
-Use PKGBUILD in the root of the distribution to build package using `makepkg`:
+Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`:
 
-https://wiki.archlinux.org/index.php/PKGBUILD
+https://aur.archlinux.org/packages/hstr-git/
 
 Install `hh`.
 
