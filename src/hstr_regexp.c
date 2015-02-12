@@ -60,3 +60,18 @@ void hstr_regexp_destroy(HstrRegexp *hstrRegexp)
 {
     hashset_destroy(&hstrRegexp->cache, true);
 }
+
+int regexp_compile(regex_t *regexp, const char *regexpText)
+{
+    return regcomp(regexp, regexpText, 0);
+    //return regcomp(regexp, regexpText, REG_NEWLINE);
+}
+
+int regexp_match(regex_t *regexp, const char *text)
+{
+    const char *p = text;
+    // TODO study multi matches and make this safe
+    const int n_matches = 100;
+    regmatch_t m[n_matches];
+    return regexec(regexp, p, n_matches, m, 0);
+}

@@ -11,6 +11,7 @@
 #include <limits.h>
 #include <readline/history.h>
 #include "include/hstr_history.h"
+#include "include/hstr_regexp.h"
 
 #define NDEBUG
 #include <assert.h>
@@ -112,6 +113,12 @@ HistoryItems *get_prioritized_history()
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
         rs.optFloorAndInsertBigKeys=true;
 
+        regex_t regexp;
+        // HISTTIMEFORMAT defined > ^#1234567890$
+        const char *histtimeformatTimestamp
+          = "^#[[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]]$";
+        regexp_compile(&regexp, histtimeformatTimestamp);
+
         RankedHistoryItem *r;
         RadixItem *radixItem;
         HIST_ENTRY **historyList=history_list();
@@ -119,6 +126,10 @@ HistoryItems *get_prioritized_history()
         int rawOffset=historyState->length-1;
         char *line;
         for(i=0; i<historyState->length; i++, rawOffset--) {
+            if(!regexp_match(&regexp, historyList[i]->line)) {
+                continue;
+            }
+
             if(line && strlen(historyList[i]->line)>itemOffset) {
                 line=historyList[i]->line+itemOffset;
             } else {
@@ -152,6 +163,8 @@ HistoryItems *get_prioritized_history()
                 }
             }
         }
+
+        regfree(&regexp);
 
         DEBUG_RADIXSORT();
 
