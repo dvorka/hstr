@@ -1,6 +1,6 @@
 hstr
 ====
-Bash/[zsh](CONFIGURATION.md#zsh-history-settings) command history suggest box.
+Shell command history suggest box for Bash and [Zsh](CONFIGURATION.md#zsh-history-settings).
 
 [![BASH History Suggest Box](http://mindforger.com/projects/images/hh-3.png "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
