@@ -68,9 +68,9 @@ void dump_prioritized_history(HistoryItems *ph)
     printf("\n"); fflush(stdout);
 }
 
-int get_item_offset(char *historyFileName)
+int get_item_offset()
 {
-    if(strstr(historyFileName,"zsh")) {
+    if(isZshParentShell()) {
         // In zsh history file, the format of item is
         // [:][blank][unix_timestamp][:][0][;][cmd]
         // Such as:
@@ -94,7 +94,7 @@ HistoryItems *get_prioritized_history()
     }
     HISTORY_STATE *historyState=history_get_history_state();
 
-    int itemOffset = get_item_offset(historyFile);
+    int itemOffset = get_item_offset();
 
     if(historyState->length > 0) {
         HashSet rankmap;

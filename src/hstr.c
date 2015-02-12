@@ -76,8 +76,8 @@
 #define HH_COLOR_DELETE  4
 #define HH_COLOR_MATCH   5
 
-#define HH_ENV_VAR_CONFIG    "HH_CONFIG"
-#define HH_ENV_VAR_PROMPT    "HH_PROMPT"
+#define HH_ENV_VAR_CONFIG      "HH_CONFIG"
+#define HH_ENV_VAR_PROMPT      "HH_PROMPT"
 
 #define HH_CONFIG_MONO       "monochromatic"
 #define HH_CONFIG_HICOLOR    "hicolor"
@@ -156,7 +156,7 @@ static const char *HH_CASE_LABELS[]={
         "sensitive"
 };
 
-static const char *INSTALL_STRING=
+static const char *INSTALL_BASH_STRING=
         "\n# add this configuration to ~/.bashrc"
         "\nexport HH_CONFIG=hicolor         # get more colors"
         "\nshopt -s histappend              # append new history items to .bash_history"
@@ -166,6 +166,12 @@ static const char *INSTALL_STRING=
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r"
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh \\C-j\"'; fi"
+        "\n\n";
+
+static const char *INSTALL_ZSH_STRING=
+        "\n# add this configuration to ~/.zshrc"
+        "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
+        "\nexport HH_CONFIG=hicolor         # get more colors"
         "\n\n";
 
 static const char *HELP_STRING=
@@ -1117,7 +1123,12 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
             printf("%s", HELP_STRING);
             exit(EXIT_SUCCESS);
         case 's':
-            printf("%s", INSTALL_STRING);
+            // ZSH_VERSION is not exported by Zsh > detected by parent process
+            if(isZshParentShell()) {
+                printf("%s", INSTALL_ZSH_STRING);
+            } else {
+                printf("%s", INSTALL_BASH_STRING);
+            }
             exit(EXIT_SUCCESS);
 
         case '?':
