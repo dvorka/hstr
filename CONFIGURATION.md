@@ -61,7 +61,7 @@ Bind `hh` to a Bash key e.g. to `Ctrl-r`:
 bind '"\C-r": "\C-ahh \C-j"'
 ```
 
-## ZSH EMACS
+## ZSH EMACS KEYMAP (DEFAULT)
 Bind `hh` to a Zsh key e.g. to `Ctrl-r`:
 ```bash
 bindkey -s "\C-r" "\eqhh\n"
