@@ -13,7 +13,7 @@
 
 #define DEFAULT_COMMAND "pwd"
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
-// TODO PID_BUFFER 11+ characters might be enough
+// TODO PID_BUFFER 20+ characters might be enough
 #define PID_BUFFER_SIZE 128
 
 // strdup() not in ISO C
