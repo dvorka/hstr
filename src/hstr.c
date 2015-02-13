@@ -173,6 +173,9 @@ static const char *INSTALL_ZSH_STRING=
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HH_CONFIG=hicolor        # get more colors"
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        // alternate binding options in zsh:
+        //   bindkey -s '^R' '^Ahh ^M'
+        //   bindkey -s "\C-r" "\C-ahh \C-j"
         "\n\n";
 
 static const char *HELP_STRING=

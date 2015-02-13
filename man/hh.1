@@ -149,6 +149,13 @@ export HH_CONFIG=hicolor         # get more colors
 bindkey -s "\eC\-r" "\eeqhh\en"      # bind hh to Ctrl-r (for Vi mode check doc)
 .sp
 .fi
+.SH EXAMPLES
+.TP
+\fBhh --non-interactive git\fR
+Print history items containing 'git' to standard output and exit.
+.TP
+\fBhh --show-configuration >> ~/.bashrc\fR
+Append default \fBhh\fR configuration to your Bash profile.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS
