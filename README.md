@@ -1,6 +1,6 @@
 hstr
 ====
-Easily view, navigate, sort and use your command history with shell history suggest box for Bash and 
+Easily view, navigate, search and use your command history with shell history suggest box for Bash and 
 [Zsh](CONFIGURATION.md#zsh-history-settings). 
 
 [![BASH History Suggest Box](http://mindforger.com/projects/images/hh-animated-01.gif "BASH History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)

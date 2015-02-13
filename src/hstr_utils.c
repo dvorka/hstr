@@ -13,6 +13,8 @@
 
 #define DEFAULT_COMMAND "pwd"
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
+// TODO PID_BUFFER 11+ characters might be enough
+#define PID_BUFFER_SIZE 128
 
 // strdup() not in ISO C
 char *hstr_strdup(const char * s)
@@ -128,12 +130,12 @@ void toggle_case(char *str, bool lowercase) {
 
 char *get_process_name_by_pid(const int pid)
 {
-    char* name = (char*)calloc(10,sizeof(char));
+    char* name = (char*)calloc(PID_BUFFER_SIZE,sizeof(char));
     if(name){
         sprintf(name, "/proc/%d/cmdline",pid);
         FILE* f = fopen(name,"r");
         if(f){
-            size_t size = fread(name, sizeof(char), 10, f);
+            size_t size = fread(name, sizeof(char), PID_BUFFER_SIZE-1, f);
             if(size>0){
                 if('\n'==name[size-1]) {
                     name[size-1]='\0';
