@@ -1,6 +1,6 @@
 .TH HH 1
 .SH NAME
-\fBhh\fR \- shell history suggest box
+\fBhh\fR \-  easily view, navigate, sort and use your command history with shell history suggest box. 
 .SH SYNOPSIS
 .B hh [option] [arg1] [arg2]...
 .SH DESCRIPTION
@@ -11,7 +11,7 @@ file that is filtered as you type a command substring. Commands
 are not just filtered, but also ordered by a ranking algorithm
 that considers number of occurences, length and timestamp. 
 Favorite and frequently used commands can be bookmarked. In addition
-hh allows removal of commands from history - for instance with a typo 
+\fBhh\fR allows removal of commands from history - for instance with a typo 
 or with a sensitive content.
 .SH OPTIONS
 .TP 
@@ -116,7 +116,7 @@ Example:
 
 .TP
 \fBHH_PROMPT\fR
-Change prompt string which is "user@host$ " by default.
+Change prompt string which is \fBuser@host$\fR by default.
 
 Example:
         \fBexport HH_PROMPT="$ "\fR
@@ -124,7 +124,7 @@ Example:
 .SH FILES
 \fB~/.hh_favorites\fR bookmarked favorite commands
 
-.SH CONFIGURATION
+.SH BASH CONFIGURATION
 Optionally add the following lines to ~/.bashrc:
 .nf
 .sp
@@ -134,12 +134,21 @@ export HISTCONTROL=ignorespace   # leading space hides commands from history
 export HISTFILESIZE=10000        # increase history file size (default is 500)
 export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
-# if this is interactive shell, then bind hh to Ctrl-r
+# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)
 if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hh \eC-j"'; fi
 .sp
 .fi
 The prompt command ensures synchronization of the history between BASH memory 
 and history file.
+.SH ZSH CONFIGURATION
+Optionally add the following lines to ~/.zshrc:
+.nf
+.sp
+export HISTFILE=~/.zsh_history   # ensure history file visibility
+export HH_CONFIG=hicolor         # get more colors
+bindkey -s "\eC\-r" "\eeqhh\en"      # bind hh to Ctrl-r (for Vi mode check doc)
+.sp
+.fi
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS

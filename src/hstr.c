@@ -164,14 +164,15 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
-        "\n# if this is interactive shell, then bind hh to Ctrl-r"
+        "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh \\C-j\"'; fi"
         "\n\n";
 
 static const char *INSTALL_ZSH_STRING=
         "\n# add this configuration to ~/.zshrc"
-        "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
-        "\nexport HH_CONFIG=hicolor         # get more colors"
+        "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
+        "\nexport HH_CONFIG=hicolor        # get more colors"
+        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
         "\n\n";
 
 static const char *HELP_STRING=

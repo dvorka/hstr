@@ -1,7 +1,7 @@
 CONFIGURATION
 =============
-This document describes `hh` related configuration in detail:
-* [binding hh to a keyboard shortcut](#binding-hh-to-keyboard-shortcut)
+This document describes HSTR related configuration in detail:
+* bind hh command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
 * [colors](#colors)
 * [default history view](#history-view)
 * [verbosity](#verbosity)
@@ -9,17 +9,36 @@ This document describes `hh` related configuration in detail:
 * [zsh history settings](#zsh-history-settings)
 * [examples](#examples)
 
-Get most of `hh` by configuring it with:
+Get most of HSTR by configuring it with:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
-Run `hh --show-configuration` to determine what will be appended to your BASH profile.
+Run `hh --show-configuration` to determine what will be appended to your Bash profile.
 
 
 
-BINDING HH TO KEYBOARD SHORTCUT
--------------------------------
-Bind `hh` to a BASH key e.g. to `Ctrl-r`:
+BINDING HSTR TO KEYBOARD SHORTCUT
+---------------------------------
+Bash uses *Emacs* style keyboard shortcuts by default. There is
+also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
+based on the style you prefer below.
+
+Check your active Bash keymap with:
+```bash
+bind -v | grep editing-mode
+bind -v | grep keymap
+``` 
+
+To determine character sequence emitted by a pressed key in 
+terminal, type `Ctrl-v` and then press the key. Check your 
+current bindings using:
+```bash
+bind -S
+```
+
+
+## BASH EMACS KEYMAP (DEFAULT)
+Bind `hh` to a Bash key e.g. to `Ctrl-r`:
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
@@ -36,11 +55,18 @@ Bind `hh` to `Ctrl-r` only if it is interactive shell:
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh \C-j"'; fi
 ```
 
-To determine the character sequence emitted by a pressed key in terminal,
-type `Ctrl-v` and then press the key. Check your current bindings using:
+## BASH VI KEYMAP
+Bind `hh` to a Bash key e.g. to `Ctrl-r`:
 ```bash
-bind -S
+bind '"\C-r": "\C-ahh \C-j"'
 ```
+
+## ZSH EMACS
+Bind `hh` to a Zsh key e.g. to `Ctrl-r`:
+```bash
+bindkey -s "\C-r" "\eqhh\n"
+```
+
 
 COLORS
 ------
