@@ -115,8 +115,7 @@ HistoryItems *get_prioritized_history()
 
         regex_t regexp;
         // HISTTIMEFORMAT defined > ^#1234567890$
-        const char *histtimeformatTimestamp
-          = "^#[[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]][[:digit:]]$";
+        const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
         regexp_compile(&regexp, histtimeformatTimestamp);
 
         RankedHistoryItem *r;
