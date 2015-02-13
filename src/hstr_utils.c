@@ -126,17 +126,18 @@ void toggle_case(char *str, bool lowercase) {
     }
 }
 
-const char* get_process_name_by_pid(const int pid)
+char *get_process_name_by_pid(const int pid)
 {
-    char* name = (char*)calloc(256,sizeof(char));
+    char* name = (char*)calloc(10,sizeof(char));
     if(name){
         sprintf(name, "/proc/%d/cmdline",pid);
         FILE* f = fopen(name,"r");
         if(f){
-            size_t size = fread(name, sizeof(char), 256, f);
+            size_t size = fread(name, sizeof(char), 10, f);
             if(size>0){
-                if('\n'==name[size-1])
+                if('\n'==name[size-1]) {
                     name[size-1]='\0';
+                }
             }
             fclose(f);
         }
@@ -146,7 +147,7 @@ const char* get_process_name_by_pid(const int pid)
 
 bool isZshParentShell() {
     pid_t parentPid=getppid();
-    const char* cmdline=get_process_name_by_pid(parentPid);
+    char* cmdline=get_process_name_by_pid(parentPid);
     bool result=cmdline && strstr(cmdline, "zsh");
     free(cmdline);
     return result;

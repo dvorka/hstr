@@ -129,8 +129,7 @@ HistoryItems *get_prioritized_history()
             if(!regexp_match(&regexp, historyList[i]->line)) {
                 continue;
             }
-
-            if(line && strlen(historyList[i]->line)>itemOffset) {
+            if(historyList[i]->line && strlen(historyList[i]->line)>itemOffset) {
                 line=historyList[i]->line+itemOffset;
             } else {
                 line=historyList[i]->line;
