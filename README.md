@@ -13,7 +13,7 @@ want to  avoid the need to write **long commands** over and over
 again despite you used them recently? Are you looking
 for a tool that is able to manage your **favorite** commands?
 
-HSTR is a command line utility that brings improved BASH command completion 
+HSTR is a command line utility that brings improved Bash command completion 
 from the history. It aims to make completion **easier** and more **efficient**
 than `Ctrl-r`.
 
@@ -26,14 +26,18 @@ Enjoy [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 INSTALLATION
 ------------
-Install `hh` using [distribution](INSTALLATION.md#distribution-installation), from [source code](INSTALLATION.md#installation-from-source-code), 
-on [Ubuntu](INSTALLATION.md#ubuntu), [Debian/Mint](INSTALLATION.md#debianmint), [Arch Linux](INSTALLATION.md#arch-linux) 
-or [Mac OS](INSTALLATION.md#mac-os).  
+Install HSTR:
+* download [distribution](INSTALLATION.md#distribution-installation)
+* build from [source code](INSTALLATION.md#installation-from-source-code)
+* [Ubuntu](INSTALLATION.md#ubuntu)
+* [Debian/Mint](INSTALLATION.md#debianmint)
+* [Arch Linux](INSTALLATION.md#arch-linux)
+* [Mac OS](INSTALLATION.md#mac-os)
 
 
 CONFIGURATION
 -------------
-Optionally configure `hh` just by running:
+Optionally configure HSTR just by running:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
