@@ -30,7 +30,8 @@ Install HSTR:
 * download [distribution](INSTALLATION.md#distribution-installation)
 * build from [source code](INSTALLATION.md#installation-from-source-code)
 * [Ubuntu](INSTALLATION.md#ubuntu)
-* [Debian/Mint](INSTALLATION.md#debianmint)
+* [Debian](INSTALLATION.md#debianmint)
+* [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Mac OS](INSTALLATION.md#mac-os)
 

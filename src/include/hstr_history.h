@@ -32,9 +32,11 @@
 #define BASH_HISTORY_ITEM_OFFSET 0
 
 typedef struct {
+    // ranked history
     char **items;
     unsigned count;
-    char **raw;
+    // raw history
+    char **rawItems;
     unsigned rawCount;
 } HistoryItems;
 
@@ -48,7 +50,8 @@ void free_prioritized_history();
 
 void history_mgmt_open();
 void history_clear_dirty();
-int history_mgmt_remove(char *cmd);
+int history_mgmt_remove_from_system_history(char *cmd);
+int history_mgmt_remove_from_hh_raw(char *cmd, HistoryItems *historyItems);
 void history_mgmt_flush();
 
 #endif

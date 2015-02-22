@@ -463,7 +463,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
 
     switch(hstr->historyView) {
     case HH_VIEW_HISTORY:
-        source=history->raw;
+        source=history->rawItems;
         count=history->rawCount;
         break;
     case HH_VIEW_FAVORITES:
@@ -765,7 +765,15 @@ void signal_callback_handler_ctrl_c(int signum)
 int seletion_source_remove(char *delete, Hstr *hstr)
 {
     if(hstr->historyView!=HH_VIEW_FAVORITES) {
-        return history_mgmt_remove(delete);
+        // raw history is pruned first as its items point to system history lines (freed right after)
+        int systemOccurences, rawOccurences=history_mgmt_remove_from_hh_raw(delete, hstr->history);
+        if(rawOccurences) {
+            systemOccurences=history_mgmt_remove_from_system_history(delete);
+        }
+        if(systemOccurences!=rawOccurences) {
+            fprintf(stderr, "WARNING: system and raw items deletion mismatch %d / %d\n", systemOccurences, rawOccurences);
+        }
+        return systemOccurences;
     } else {
         return favorites_remove(hstr->favorites, delete);
     }
@@ -810,7 +818,7 @@ void loop_to_select(Hstr *hstr)
 
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE, fixCommand=FALSE;
     int basex=print_prompt(hstr);
-    int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deleteOccurences;
+    int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -852,13 +860,17 @@ void loop_to_select(Hstr *hstr)
                 msg=malloc(strlen(delete)+1);
                 strcpy(msg,delete);
                 selection_remove(delete, hstr);
-                deleteOccurences=seletion_source_remove(delete, hstr);
+                deletedOccurences=seletion_source_remove(delete, hstr);
                 result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-                print_cmd_deleted_label(msg, deleteOccurences, hstr);
+                print_cmd_deleted_label(msg, deletedOccurences, hstr);
                 move(y, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
             }
             print_history_label(hstr);
+            // TODO new code - coredump on view rotation
+//            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+//            move(y, basex+strlen(pattern));
+            // TODO end new code
             break;
         case K_CTRL_E:
             hstr->historyMatch++;
@@ -1127,7 +1139,7 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
             printf("%s", HELP_STRING);
             exit(EXIT_SUCCESS);
         case 's':
-            // ZSH_VERSION is not exported by Zsh > detected by parent process
+            // ZSH_VERSION is not exported by Zsh > detected by parent process name
             if(isZshParentShell()) {
                 printf("%s", INSTALL_ZSH_STRING);
             } else {

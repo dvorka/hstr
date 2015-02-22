@@ -24,6 +24,7 @@ typedef struct {
 static HistoryItems *prioritizedHistory;
 static bool dirty;
 
+// TODO to be externalized to a file .hh_blacklist; hh --blacklist to print default blacklist
 static const char *commandBlacklist[] = {
         "ls", "pwd", "cd", "cd ..", "hh", "mc",
         "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
@@ -54,13 +55,13 @@ char *get_history_file_name()
     return historyFile;
 }
 
-void dump_prioritized_history(HistoryItems *ph)
+void dump_prioritized_history(HistoryItems *historyItems)
 {
     printf("\n\nPrioritized history:");
     int i;
-    for(i=0; i<ph->count; i++) {
-        if(ph->items[i]!=NULL) {
-            printf("\n%s",ph->items[i]); fflush(stdout);
+    for(i=0; i<historyItems->count; i++) {
+        if(historyItems->items[i]!=NULL) {
+            printf("\n%s",historyItems->items[i]); fflush(stdout);
         } else {
             printf("\n %d NULL",i); fflush(stdout);
         }
@@ -171,7 +172,7 @@ HistoryItems *get_prioritized_history()
         prioritizedHistory->count=rs.size;
         prioritizedHistory->rawCount=historyState->length;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
-        prioritizedHistory->raw=rawHistory;
+        prioritizedHistory->rawItems=rawHistory;
         for(i=0; i<rs.size; i++) {
             if(prioritizedRadix[i]->data) {
                 char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
@@ -209,7 +210,7 @@ void history_clear_dirty()
     dirty=false;
 }
 
-int history_mgmt_remove(char *cmd)
+int history_mgmt_remove_from_system_history(char *cmd)
 {
     int offset=history_search_pos(cmd, 0, 0), occurences=0;
     char *l;
@@ -227,6 +228,27 @@ int history_mgmt_remove(char *cmd)
         dirty=true;
     }
     return occurences;
+}
+
+int history_mgmt_remove_from_hh_raw(char *cmd, HistoryItems *historyItems) {
+    int delta=0;
+    if(historyItems->rawCount) {
+        int i, newRawCount=historyItems->rawCount;
+        for(i=0; i<historyItems->rawCount; i++) {
+            if(!strcmp(cmd, historyItems->rawItems[i])) {
+                delta++;
+                historyItems->rawItems[i-delta]=historyItems->rawItems[i];
+            } else {
+                if(delta) {
+                    historyItems->rawItems[i-delta]=historyItems->rawItems[i];
+                }
+            }
+        }
+        if(delta) {
+            historyItems->rawCount-=delta;
+        }
+    }
+    return delta;
 }
 
 void history_mgmt_flush()
