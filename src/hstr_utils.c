@@ -144,6 +144,14 @@ char *get_process_name_by_pid(const int pid)
             fclose(f);
         }
     }
+    // if name isn't e.g. bash/zsh at this point, fall back to $SHELL
+    if(strlen(name) > 4){
+      char* shell = strrchr(getenv("SHELL"),'/');
+      if(shell != NULL){
+        shell++;
+        strncpy(name,shell,sizeof(char)*sizeof(name));
+      }
+    }
     return name;
 }
 
