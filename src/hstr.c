@@ -127,6 +127,12 @@
 #define LOGUTF8(Y,P)
 #endif
 
+#ifdef DEBUG_SELECTION
+#define LOGSELECTION(Y,SCREEN,MODEL) mvprintw(Y, 0, "Selection: screen %3d, model %3d", SCREEN, MODEL); clrtoeol()
+#else
+#define LOGSELECTION(Y,SCREEN,MODEL)
+#endif
+
 void logstring(char* str){
     FILE *f = fopen("/home/tbabej/hh.log", "a");
     if (f == NULL)
@@ -219,8 +225,8 @@ typedef struct {
     FavoriteItems *favorites;
 
     char **selection;
-    regmatch_t *selectionRegexpMatch;
     unsigned selectionSize;
+    regmatch_t *selectionRegexpMatch;
 
     int historyMatch; // TODO patternMatching: exact, regexp
     int historyView; // TODO view: favs, ...
@@ -838,10 +844,6 @@ void loop_to_select(Hstr *hstr)
 
         switch (c) {
         case KEY_DC: // DEL
-            // TODO verification  - still broken:
-            //  > use 3 items history configuration
-            //  > delete 2nd item in raw view > blank line
-            //  > delete one of items in raw view > garbage
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 delete=hstr->selection[selectionCursorPosition];
                 msg=malloc(strlen(delete)+1);
@@ -852,11 +854,15 @@ void loop_to_select(Hstr *hstr)
                 move(y, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
                 print_history_label(hstr);
+
+                if(selectionCursorPosition>0) {
+                    selectionCursorPosition--;
+                } else {
+                    selectionCursorPosition=hstr->selectionSize-1;
+                }
+                highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern, hstr);
+                move(y, basex+strlen(pattern));
             }
-            // TODO new code - coredump on view rotation
-//            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-//            move(y, basex+strlen(pattern));
-            // TODO end new code
             break;
         case K_CTRL_E:
             hstr->historyMatch++;
@@ -1027,6 +1033,7 @@ void loop_to_select(Hstr *hstr)
             LOGKEYS(Y_OFFSET_HELP, c);
             LOGCURSOR(Y_OFFSET_HELP);
             LOGUTF8(Y_OFFSET_HELP,pattern);
+            LOGSELECTION(Y_OFFSET_HELP,getmaxy(stdscr),hstr->selectionSize);
 
             if(c>K_CTRL_Z) {
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
