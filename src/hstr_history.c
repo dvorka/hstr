@@ -230,25 +230,32 @@ int history_mgmt_remove_from_system_history(char *cmd)
     return occurences;
 }
 
-int history_mgmt_remove_from_hh_raw(char *cmd, HistoryItems *historyItems) {
-    int delta=0;
-    if(historyItems->rawCount) {
-        int i, newRawCount=historyItems->rawCount;
-        for(i=0; i<historyItems->rawCount; i++) {
-            if(!strcmp(cmd, historyItems->rawItems[i])) {
-                delta++;
-                historyItems->rawItems[i-delta]=historyItems->rawItems[i];
-            } else {
-                if(delta) {
-                    historyItems->rawItems[i-delta]=historyItems->rawItems[i];
-                }
+int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
+    int occurences=history->rawCount;
+    if(history->rawCount) {
+        int i, ii;
+        for(i=0, ii=0; i<history->rawCount; i++) {
+            if(strcmp(cmd, history->rawItems[i])) {
+                history->rawItems[ii++]=history->rawItems[i];
             }
         }
-        if(delta) {
-            historyItems->rawCount-=delta;
-        }
+        history->rawCount=ii;
     }
-    return delta;
+    return occurences-history->rawCount;
+}
+
+int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
+    int occurences=history->count;
+    if(history->count) {
+        int i, ii;
+        for(i=0, ii=0; i<history->count; i++) {
+            if(strcmp(cmd, history->items[i])) {
+                history->items[ii++]=history->items[i];
+            }
+        }
+        history->count=ii;
+    }
+    return occurences-history->count;
 }
 
 void history_mgmt_flush()

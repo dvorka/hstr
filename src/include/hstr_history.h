@@ -51,7 +51,8 @@ void free_prioritized_history();
 void history_mgmt_open();
 void history_clear_dirty();
 int history_mgmt_remove_from_system_history(char *cmd);
-int history_mgmt_remove_from_hh_raw(char *cmd, HistoryItems *historyItems);
+int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history);
+int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history);
 void history_mgmt_flush();
 
 #endif

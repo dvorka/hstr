@@ -729,24 +729,6 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
     }
 }
 
-void selection_remove(char *cmd, Hstr *hstr)
-{
-    if(hstr->historyView==HH_VIEW_FAVORITES) {
-        favorites_remove(hstr->favorites, cmd);
-    } else {
-        if(hstr->history->count) {
-            int i, w;
-            for(i=0, w=0; i<hstr->history->count; i++) {
-                if(strcmp(hstr->history->items[i], cmd)) {
-                    hstr->history->items[w]=hstr->history->items[i];
-                    w++;
-                }
-            }
-            hstr->history->count=w;
-        }
-    }
-}
-
 void hstr_on_exit(Hstr *hstr)
 {
     history_mgmt_flush();
@@ -762,11 +744,14 @@ void signal_callback_handler_ctrl_c(int signum)
     }
 }
 
-int seletion_source_remove(char *delete, Hstr *hstr)
+int remove_from_history_model(char *delete, Hstr *hstr)
 {
-    if(hstr->historyView!=HH_VIEW_FAVORITES) {
-        // raw history is pruned first as its items point to system history lines (freed right after)
-        int systemOccurences, rawOccurences=history_mgmt_remove_from_hh_raw(delete, hstr->history);
+    if(hstr->historyView==HH_VIEW_FAVORITES) {
+        return favorites_remove(hstr->favorites, delete);
+    } else {
+        // raw & ranked history is pruned first as its items point to system history lines
+        int systemOccurences, rawOccurences=history_mgmt_remove_from_raw(delete, hstr->history);
+        history_mgmt_remove_from_ranked(delete, hstr->history);
         if(rawOccurences) {
             systemOccurences=history_mgmt_remove_from_system_history(delete);
         }
@@ -774,8 +759,6 @@ int seletion_source_remove(char *delete, Hstr *hstr)
             fprintf(stderr, "WARNING: system and raw items deletion mismatch %d / %d\n", systemOccurences, rawOccurences);
         }
         return systemOccurences;
-    } else {
-        return favorites_remove(hstr->favorites, delete);
     }
 }
 
@@ -855,18 +838,21 @@ void loop_to_select(Hstr *hstr)
 
         switch (c) {
         case KEY_DC: // DEL
+            // TODO verification  - still broken:
+            //  > use 3 items history configuration
+            //  > delete 2nd item in raw view > blank line
+            //  > delete one of items in raw view > garbage
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 delete=hstr->selection[selectionCursorPosition];
                 msg=malloc(strlen(delete)+1);
                 strcpy(msg,delete);
-                selection_remove(delete, hstr);
-                deletedOccurences=seletion_source_remove(delete, hstr);
+                deletedOccurences=remove_from_history_model(delete, hstr);
                 result=hstr_print_selection(maxHistoryItems, pattern, hstr);
                 print_cmd_deleted_label(msg, deletedOccurences, hstr);
                 move(y, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
+                print_history_label(hstr);
             }
-            print_history_label(hstr);
             // TODO new code - coredump on view rotation
 //            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
 //            move(y, basex+strlen(pattern));
