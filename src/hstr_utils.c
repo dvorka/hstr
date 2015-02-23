@@ -149,7 +149,7 @@ char *get_process_name_by_pid(const int pid)
       char* shell = strrchr(getenv("SHELL"),'/');
       if(shell != NULL){
         shell++;
-        strncpy(name,shell,sizeof(char)*sizeof(name));
+        strncpy(name,shell,sizeof(char)*strlen(shell));
       }
     }
     return name;
