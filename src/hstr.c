@@ -760,7 +760,7 @@ int remove_from_history_model(char *delete, Hstr *hstr)
         return favorites_remove(hstr->favorites, delete);
     } else {
         // raw & ranked history is pruned first as its items point to system history lines
-        int systemOccurences, rawOccurences=history_mgmt_remove_from_raw(delete, hstr->history);
+        int systemOccurences=0, rawOccurences=history_mgmt_remove_from_raw(delete, hstr->history);
         history_mgmt_remove_from_ranked(delete, hstr->history);
         if(rawOccurences) {
             systemOccurences=history_mgmt_remove_from_system_history(delete);
