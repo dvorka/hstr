@@ -11,7 +11,11 @@
 
 #include <getopt.h>
 #include <locale.h>
+#ifdef __APPLE__
+#include <curses.h>
+#else
 #include <ncursesw/curses.h>
+#endif
 #include <readline/chardefs.h>
 #include <regex.h>
 #include <signal.h>

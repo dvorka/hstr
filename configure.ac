@@ -16,8 +16,20 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_CC
 
+# Mac-specific ncurses check
+AC_CANONICAL_HOST
+case $host_os in
+  darwin*)
+    AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could  not find ncurses library])])
+    AC_CHECK_HEADER(curses.h)
+    ;;
+  *)
+    AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could  not find ncursesw library])])
+    AC_CHECK_HEADER(ncursesw/curses.h)
+    ;;
+esac
+
 # Checks for libraries.
-AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could  not find ncursesw library])])
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could not find m library])])
 AC_CHECK_LIB(readline, using_history, [], [AC_MSG_ERROR([Could not find readline library])])
 
@@ -28,7 +40,6 @@ AC_CHECK_HEADER(fcntl.h)
 AC_CHECK_HEADER(getopt.h)
 AC_CHECK_HEADER(locale.h)
 AC_CHECK_HEADER(math.h)
-AC_CHECK_HEADER(ncursesw/curses.h)
 AC_CHECK_HEADER(readline/history.h)
 AC_CHECK_HEADER(regex.h)
 AC_CHECK_HEADER(signal.h)
