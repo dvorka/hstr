@@ -36,10 +36,12 @@ static const char *commandBlacklist[] = {
 #define DEBUG_RADIXSORT()
 #endif
 
+// TODO make this configurable from command line as option
+#define METRICS_LOGARITHM(RANK,ORDER,LENGTH) RANK+(log(ORDER)*10.0)+LENGTH
+#define METRICS_ADDITIVE(RANK,ORDER,LENGTH)  RANK+ORDER/10+LENGTH
+
 unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t length) {
-    long metrics=rank+(log(newOccurenceOrder)*10.0)+length;
-    // alternative metrics:
-    //   rank+newOccurenceOrder/10+length
+    long metrics=METRICS_LOGARITHM(rank, newOccurenceOrder, length);
     assert(metrics<UINT_MAX);
     return metrics;
 }
@@ -123,10 +125,12 @@ HistoryItems *get_prioritized_history()
         RadixItem *radixItem;
         HIST_ENTRY **historyList=history_list();
         char **rawHistory=malloc(sizeof(char*) * historyState->length);
-        int rawOffset=historyState->length-1;
+        int rawOffset=historyState->length-1, rawTimestamps=0;
         char *line;
         for(i=0; i<historyState->length; i++, rawOffset--) {
             if(!regexp_match(&regexp, historyList[i]->line)) {
+                rawHistory[rawOffset]=0;
+                rawTimestamps++;
                 continue;
             }
             if(historyList[i]->line && strlen(historyList[i]->line)>itemOffset) {
@@ -162,6 +166,14 @@ HistoryItems *get_prioritized_history()
                 }
             }
         }
+        if(rawTimestamps) {
+            rawOffset=0;
+            for(i=0; i<historyState->length; i++) {
+                if(rawHistory[i]) {
+                    rawHistory[rawOffset++]=rawHistory[i];
+                }
+            }
+        }
 
         regfree(&regexp);
 
@@ -170,7 +182,7 @@ HistoryItems *get_prioritized_history()
         RadixItem **prioritizedRadix=radixsort_dump(&rs);
         prioritizedHistory=malloc(sizeof(HistoryItems));
         prioritizedHistory->count=rs.size;
-        prioritizedHistory->rawCount=historyState->length;
+        prioritizedHistory->rawCount=historyState->length-rawTimestamps;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
         for(i=0; i<rs.size; i++) {
