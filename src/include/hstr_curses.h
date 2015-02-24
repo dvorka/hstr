@@ -10,7 +10,11 @@
 #ifndef _HSTR_CURSES_H
 #define _HSTR_CURSES_H
 
+#ifdef __APPLE__
+#include <curses.h>
+#else
 #include <ncursesw/curses.h>
+#endif
 
 #define color_attr_on(C) if(terminal_has_colors()) { attron(C); }
 #define color_attr_off(C) if(terminal_has_colors()) { attroff(C); }
