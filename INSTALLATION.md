@@ -98,14 +98,11 @@ port install readline
 port install ncurses
 ```
 
-Set the environment:
+Build and install:
 ```bash
-env CFLAGS="-I/opt/local/include -I/usr/include" LDFLAGS="-L/opt/local/lib -L/usr/lib" ./configure
-```
-
-Finish the installation
-```bash
-make && make install
+autoreconf -fvi
+./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
+make
 ```
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
