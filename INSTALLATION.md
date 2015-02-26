@@ -100,6 +100,7 @@ port install ncurses
 
 Build and install:
 ```bash
+cp -vf dist/mac/configure.ac configure.ac
 autoreconf -fvi
 ./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
 make
