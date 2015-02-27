@@ -16,9 +16,19 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_CC
 
-# ncurses check.
-AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
-AC_CHECK_HEADER(ncursesw/curses.h)
+# Platform specific ncurses check.
+AC_CANONICAL_HOST
+AS_CASE([$host_os],
+  [darwin*],
+    [
+      AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could not find ncurses library])])
+      AC_CHECK_HEADER(curses.h)
+    ],
+  [
+    AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
+    AC_CHECK_HEADER(ncursesw/curses.h)
+  ]
+)
 
 # Checks for libraries.
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could not find m library])])

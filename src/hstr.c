@@ -203,7 +203,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.15\""
+        "hh version \"1.17\""
         "\n   build   \""__DATE__" " __TIME__"\""
         "\n";
 

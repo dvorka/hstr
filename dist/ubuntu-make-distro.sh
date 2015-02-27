@@ -11,6 +11,7 @@ export UBUNTUVERSION=$1
 #export UBUNTUVERSION=quantal
 #export UBUNTUVERSION=saucy
 #export UBUNTUVERSION=trusty
+#export UBUNTUVERSION=utopic
 export HHVERSION=$2
 export HHBZRMSG=$3
 
@@ -35,8 +36,6 @@ function checkout_hh() {
   mv ../.bzr .
   cp -rvf ${HHSRC}/* ${HHSRC}/*.*  .
   cd ..
-  #tar zcf ${HH}.tgz ${HH}
-  #cp -vf ${H}.tgz ${HH}.orig.tar.gz
   mv -v ${HH} hh
   cd ./hh/dist && ./1-dist.sh && cd ../..
 }
