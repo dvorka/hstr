@@ -1,6 +1,11 @@
 #!/bin/bash
 
-# update github-env.sh to put there version and release comment
+# Release checklist:
+# - update version in the source code (hstr.c)
+# - update version in configure.ac
+# - update version github-env.sh
+# - run this script from this directory
+
 . ./github-env.sh
 export SCRIPT_HOME=`pwd`
 

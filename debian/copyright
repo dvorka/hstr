@@ -3,7 +3,7 @@ Upstream-Name: hh
 Source: https://github.com/dvorka/hstr
 
 Files: debian/*
-Copyright: 2013 Martin Dvorak <martin.dvorak@mindforger.com>
+Copyright: 2015 Martin Dvorak <martin.dvorak@mindforger.com>
 License: Apache-2.0
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.

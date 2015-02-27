@@ -5,6 +5,5 @@ export GH_RELEASE_DIR=~/p/hstr/release
 export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
 
 export HHVERSION="1.16"
-export GH_MSG="History timestamps, Zsh support and management fixes."
 
 # eof
