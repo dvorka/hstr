@@ -87,7 +87,13 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 MAC OS
 ------
-Install MacPorts:
+You can either install `hh` from [Homebrew](http://brew.sh/):
+
+```bash
+brew install hh
+```
+
+or from from the source code as described further in this section. First install MacPorts:
 
    http://www.macports.org
 
@@ -100,7 +106,6 @@ port install ncurses
 
 Build and install:
 ```bash
-cp -vf dist/mac/configure.ac configure.ac
 autoreconf -fvi
 ./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
 make
