@@ -93,7 +93,7 @@ You can either install `hh` from [Homebrew](http://brew.sh/):
 brew install hh
 ```
 
-or from from the source code as described further in this section. First install MacPorts:
+or from the source code as described further in this section. First install MacPorts:
 
    http://www.macports.org
 

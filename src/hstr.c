@@ -765,7 +765,7 @@ int remove_from_history_model(char *delete, Hstr *hstr)
         if(rawOccurences) {
             systemOccurences=history_mgmt_remove_from_system_history(delete);
         }
-        if(systemOccurences!=rawOccurences) {
+        if(systemOccurences!=rawOccurences && hstr->debugLevel>HH_DEBUG_LEVEL_NONE) {
             fprintf(stderr, "WARNING: system and raw items deletion mismatch %d / %d\n", systemOccurences, rawOccurences);
         }
         return systemOccurences;
@@ -852,7 +852,7 @@ void loop_to_select(Hstr *hstr)
                 delete=hstr->selection[selectionCursorPosition];
                 msg=malloc(strlen(delete)+1);
                 strcpy(msg,delete);
-                deletedOccurences=remove_from_history_model(delete, hstr);
+                deletedOccurences=remove_from_history_model(msg, hstr);
                 result=hstr_print_selection(maxHistoryItems, pattern, hstr);
                 print_cmd_deleted_label(msg, deletedOccurences, hstr);
                 move(y, basex+strlen(pattern));
