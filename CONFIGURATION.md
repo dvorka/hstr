@@ -1,20 +1,20 @@
 CONFIGURATION
 =============
-This document describes HSTR related configuration in detail:
-* bind hh command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
-* [colors](#colors)
-* [default history view](#history-view)
-* [verbosity](#verbosity)
-* [Bash history settings](#bash-history-settings)
-* [zsh history settings](#zsh-history-settings)
-* [examples](#examples)
-
 Get most of HSTR by configuring it with:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
 Run `hh --show-configuration` to determine what will be appended to your Bash profile.
 
+For more configuration options details please refer to:
+* bind `hh` command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
+* get more [colors](#colors)
+* choose [default history view](#history-view)
+* [verbosity](#verbosity)
+* [Bash history settings](#bash-history-settings)
+* [zsh history settings](#zsh-history-settings)
+
+Check also configuration [examples](#examples).
 
 
 BINDING HSTR TO KEYBOARD SHORTCUT
@@ -79,6 +79,7 @@ or ensure black and white mode:
 export HH_CONFIG=monochromatic
 ```
 
+
 HISTORY VIEW
 ------------
 Show normal history by default (instead of metrics-based view):
@@ -89,6 +90,7 @@ Show favorite commands by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=favorites
 ```
+
 
 FILTERING
 ---------
@@ -106,21 +108,6 @@ export HH_CONFIG=warning
 Show debug messages:
 ```bash
 export HH_CONFIG=debug
-```
-
-EXAMPLES
---------
-More colors with case sensitive search of history:
-```bash
-export HH_CONFIG=hicolor,casesensitive
-```
-Favorite commands view in black and white:
-```bash
-export HH_CONFIG=favorites,monochromatic
-```
-Keywords based search in colors with debug mode verbosity:
-```bash
-export HH_CONFIG=keywords,hicolor,debug
 ```
 
 
@@ -158,4 +145,20 @@ If you use `zsh`, set HISTFILE environment variable in ~/.zshrc:
 
 ```
 export HISTFILE=~/.zsh_history
+```
+
+
+EXAMPLES
+--------
+More colors with case sensitive search of history:
+```bash
+export HH_CONFIG=hicolor,casesensitive
+```
+Favorite commands view in black and white:
+```bash
+export HH_CONFIG=favorites,monochromatic
+```
+Keywords based search in colors with debug mode verbosity:
+```bash
+export HH_CONFIG=keywords,hicolor,debug
 ```
