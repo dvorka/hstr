@@ -10,6 +10,7 @@
 #ifndef RADIXSORT_H_
 #define RADIXSORT_H_
 
+#include <stdbool.h>
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -18,6 +19,10 @@
 #include "hstr_utils.h"
 
 #define RADIX_SLOT_SIZE 1000
+
+#define RADIX_BIG_KEYS_SKIP     0
+#define RADIX_BIG_KEYS_FLOOR    1
+#define RADIX_BIG_KEYS_EXIT     2
 
 #define RADIX_DEBUG_LEVEL_NONE  0
 #define RADIX_DEBUG_LEVEL_WARN  1
@@ -41,8 +46,7 @@ typedef struct {
     unsigned keyLimit;
     RadixItem ***topDigits;
 
-    bool optFloorAndInsertBigKeys;
-    bool optIgnoreBigKeys;
+    int optionBigKeys;
 
     RadixSlot **_slotDescriptors;
     unsigned _slotsCount;

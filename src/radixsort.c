@@ -14,8 +14,7 @@
 
 void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 {
-    rs->optFloorAndInsertBigKeys=false;
-    rs->optIgnoreBigKeys=false;
+    rs->optionBigKeys=RADIX_BIG_KEYS_SKIP;
 
     rs->_topIndexLimit=GET_TOP_INDEX(keyLimit);
     rs->size=0;
@@ -54,10 +53,10 @@ void radixsort_add(RadixSorter *rs, RadixItem *item)
         if(rs->_debug > RADIX_DEBUG_LEVEL_NONE) {
             fprintf(stderr, "WARNING: Radix sort overflow - inserted key is bigger than limit (%u): %u\n", rs->keyLimit, item->key);
         }
-        if(rs->optFloorAndInsertBigKeys) {
+        if(rs->optionBigKeys==RADIX_BIG_KEYS_FLOOR) {
             item->key = rs->keyLimit-1;
         } else {
-            if(rs->optIgnoreBigKeys) {
+            if(rs->optionBigKeys==RADIX_BIG_KEYS_SKIP) {
                 return;
             } else {
                 exit(0);

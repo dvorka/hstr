@@ -41,7 +41,7 @@ Toggle regular expression and substring search.
 Toggle case sensitive search.
 .TP 
 \fBCtrl\-/\fR, \fBCtrl\-7\fR
-Rotate view of history as provided by BASH, ranked history ordered by the number of occurences/length/timestamp and favorites.
+Rotate view of history as provided by Bash, ranked history ordered by the number of occurences/length/timestamp and favorites.
 .TP 
 \fBCtrl\-f\fR
 Add currently selected command to favorites.
@@ -56,7 +56,7 @@ Navigate in the history list.
 Choose currently selected item for completion and let user to edit it on the command prompt.
 .TP
 \fBLEFT\fR arrow
-Choose currently selected item for completion and let user to edit it editor (fix command).
+Choose currently selected item for completion and let user to edit it in editor (fix command).
 .TP
 \fBENTER\fR
 Choose currently selected item for completion and execute it.
@@ -85,7 +85,7 @@ Configuration options:
         Get more colors with this option (default is monochromatic).
 
 \fImonochromatic\fR 
-        Ensure black and white view with this option.
+        Ensure black and white view.
 
 \fIregexp\fR
         Filter command history using regular expressions (substring match is default) 
@@ -104,6 +104,15 @@ Configuration options:
 
 \fIfavorites\fR 
         Show favorites as a default view (metric-based view is shown otherwise).
+
+\fIbigkeysskip\fR
+        Skip big history entries i.e. very long lines (default).
+        
+\fIbigkeysfloor\fR
+        Use different sorting slot for big keys when building metrics-based view (big keys are skipped by default).
+        
+\fIbigkeysexit\fR
+        Exit (fail) on presence of a big key in history (big keys are skipped by default).
 
 \fIwarning\fR
         Show warning.
@@ -151,11 +160,14 @@ bindkey -s "\eC\-r" "\eeqhh\en"      # bind hh to Ctrl-r (for Vi mode check doc)
 .fi
 .SH EXAMPLES
 .TP
+\fBhh git\fR
+ Start `hh` and show only history items containing 'git'.
+.TP
 \fBhh --non-interactive git\fR
-Print history items containing 'git' to standard output and exit.
+ Print history items containing 'git' to standard output and exit.
 .TP
 \fBhh --show-configuration >> ~/.bashrc\fR
-Append default \fBhh\fR configuration to your Bash profile.
+ Append default \fBhh\fR configuration to your Bash profile.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS

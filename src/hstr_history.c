@@ -86,7 +86,7 @@ int get_item_offset()
     }
 }
 
-HistoryItems *get_prioritized_history()
+HistoryItems *get_prioritized_history(int optionBigKeys)
 {
     using_history();
 
@@ -114,7 +114,7 @@ HistoryItems *get_prioritized_history()
         RadixSorter rs;
         unsigned radixMaxKeyEstimate=historyState->size*1000;
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
-        rs.optFloorAndInsertBigKeys=true;
+        rs.optionBigKeys=optionBigKeys;
 
         regex_t regexp;
         // HISTTIMEFORMAT defined > ^#1234567890$

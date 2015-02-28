@@ -93,6 +93,9 @@
 #define HH_CONFIG_FAVORITES  "favorites"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
+#define HH_CONFIG_BIG_KEYS_SKIP  "bigkeysskip"
+#define HH_CONFIG_BIG_KEYS_FLOOR "bigkeysfloor"
+#define HH_CONFIG_BIG_KEYS_EXIT  "bigkeysexit"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -239,6 +242,7 @@ typedef struct {
     bool interactive;
 
     bool hicolor;
+    int bigKeys;
     int debugLevel;
 
     HstrRegexp regexp;
@@ -261,8 +265,9 @@ void hstr_init(Hstr *hstr)
     hstr->interactive=true;
 
     hstr->hicolor=FALSE;
-
+    hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+
     hstr->cmdline[0]=0;
     hstr_regexp_init(&hstr->regexp);
 }
@@ -293,6 +298,15 @@ void hstr_get_env_configuration(Hstr *hstr)
         } else {
             if(strstr(hstr_config,HH_CONFIG_FAVORITES)) {
                 hstr->historyView=HH_VIEW_FAVORITES;
+            }
+        }
+        if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_EXIT)) {
+            hstr->bigKeys=RADIX_BIG_KEYS_EXIT;
+        } else {
+            if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_FLOOR)) {
+                hstr->bigKeys=RADIX_BIG_KEYS_FLOOR;
+            } else {
+                hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
             }
         }
 
@@ -1103,7 +1117,7 @@ void hstr_init_favorites(Hstr *hstr)
 
 void hstr_main(Hstr *hstr)
 {
-    hstr->history=get_prioritized_history();
+    hstr->history=get_prioritized_history(hstr->bigKeys);
     if(hstr->history) {
         history_mgmt_open();
         if(hstr->interactive) {
