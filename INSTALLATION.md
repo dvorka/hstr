@@ -15,6 +15,23 @@ sudo apt-get install hh
 ```
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
+FEDORA & RHEL
+-------------
+
+With ```dnf``` available:
+
+```bash
+sudo dnf copr enable tbabej/hstr -y
+sudo dnf install hstr -y
+```
+
+For Fedora based systems without dnf available:
+
+1. Download the repo directly from the
+[copr page](https://copr.fedoraproject.org/coprs/tbabej/hstr/)
+and save it into ```/etc/yum.repos.d/``` directory.
+1. ```sudo yum install hstr -y```
+
 
 INSTALLATION FROM SOURCE CODE
 -----------------------------
