@@ -869,6 +869,7 @@ void loop_to_select(Hstr *hstr)
                 deletedOccurences=remove_from_history_model(msg, hstr);
                 result=hstr_print_selection(maxHistoryItems, pattern, hstr);
                 print_cmd_deleted_label(msg, deletedOccurences, hstr);
+                free(msg);
                 move(y, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
                 print_history_label(hstr);

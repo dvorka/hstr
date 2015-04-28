@@ -22,6 +22,7 @@ void favorites_init(FavoriteItems *favorites)
     favorites->count=0;
     favorites->loaded=false;
     favorites->set=malloc(sizeof(HashSet));
+    hashset_init(favorites->set);
 }
 
 void favorites_show(FavoriteItems *favorites)
@@ -39,10 +40,10 @@ void favorites_show(FavoriteItems *favorites)
 char* favorites_get_filename()
 {
     char *home = getenv(ENV_VAR_HOME);
-    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_RC) + 1);
+    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_FAVORITES) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
-    strcat(fileName, FILE_HH_RC);
+    strcat(fileName, FILE_HH_FAVORITES);
     return fileName;
 }
 
@@ -74,17 +75,15 @@ void favorites_get(FavoriteItems *favorites)
                 }
 
                 favorites->items = malloc(sizeof(char*) * favorites->count);
-                favorites->count=0;
+                favorites->count = 0;
                 char *pb=file_contents, *pe, *s;
                 pe=strchr(file_contents, '\n');
-                HashSet set;
-                hashset_init(&set);
                 while(pe!=NULL) {
                     *pe=0;
-                    if(!hashset_contains(&set,pb)) {
+                    if(!hashset_contains(favorites->set,pb)) {
                         s=hstr_strdup(pb);
                         favorites->items[favorites->count++]=s;
-                        hashset_add(&set,s);
+                        hashset_add(favorites->set,s);
                     }
                     pb=pe+1;
                     pe=strchr(pb, '\n');
@@ -139,6 +138,7 @@ void favorites_add(FavoriteItems *favorites, char *newFavorite)
     }
 
     favorites_save(favorites);
+    hashset_add(favorites->set, newFavorite);
 }
 
 void favorites_choose(FavoriteItems *favorites, char *choice)
@@ -178,6 +178,7 @@ bool favorites_remove(FavoriteItems *favorites, char *almostDead)
             }
         }
         favorites_save(favorites);
+        // kept in set and removed/freed on favs destroy
         return true;
     } else {
         return false;
@@ -187,11 +188,14 @@ bool favorites_remove(FavoriteItems *favorites, char *almostDead)
 void favorites_destroy(FavoriteItems *favorites)
 {
     if(favorites) {
+        // TODO hashset destroys keys - no need to destroy items!
         int i;
         for(i=0; i<favorites->count; i++) {
             free(favorites->items[i]);
         }
+        // TODO hashset destroys keys - no need to destroy items!
         hashset_destroy(favorites->set, false);
+        free(favorites->set);
         free(favorites);
     }
 }
