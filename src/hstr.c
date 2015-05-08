@@ -50,6 +50,8 @@
 #define Y_OFFSET_HISTORY 2
 #define Y_OFFSET_ITEMS 3
 
+#define PG_JUMP_SIZE 10
+
 #define K_CTRL_A 1
 #define K_CTRL_E 5
 #define K_CTRL_F 6
@@ -872,6 +874,12 @@ void loop_to_select(Hstr *hstr)
         }
 
         switch (c) {
+        case KEY_HOME:
+            // TODO implement in pattern cursor jump to beginning
+            break;
+        case KEY_END:
+            // TODO implement in pattern cursor jump to end
+            break;
         case KEY_DC: // DEL
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 delete=hstr->selection[selectionCursorPosition];
@@ -1000,6 +1008,16 @@ void loop_to_select(Hstr *hstr)
             highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
             move(y, basex+strlen(pattern));
             break;
+        case KEY_PPAGE:
+            previousSelectionCursorPosition=selectionCursorPosition;
+            if(selectionCursorPosition>=PG_JUMP_SIZE) {
+                selectionCursorPosition=selectionCursorPosition-PG_JUMP_SIZE;
+            } else {
+                selectionCursorPosition=0;
+            }
+            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+            move(y, basex+strlen(pattern));
+            break;
         case K_CTRL_R:
         case KEY_DOWN:
         case K_CTRL_N:
@@ -1011,6 +1029,22 @@ void loop_to_select(Hstr *hstr)
                     selectionCursorPosition++;
                 } else {
                     selectionCursorPosition=0;
+                }
+            }
+            if(hstr->selectionSize) {
+                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+            }
+            move(y, basex+strlen(pattern));
+            break;
+        case KEY_NPAGE:
+            if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
+                selectionCursorPosition=previousSelectionCursorPosition=0;
+            } else {
+                previousSelectionCursorPosition=selectionCursorPosition;
+                if((selectionCursorPosition+PG_JUMP_SIZE)<hstr->selectionSize) {
+                    selectionCursorPosition = selectionCursorPosition+PG_JUMP_SIZE;
+                } else {
+                    selectionCursorPosition=hstr->selectionSize-1;
                 }
             }
             if(hstr->selectionSize) {
