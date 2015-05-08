@@ -864,10 +864,10 @@ void loop_to_select(Hstr *hstr)
 
         switch (c) {
         case KEY_HOME:
-            // TODO implement in pattern cursor jump to beginning
+            // avoids printing of wild chars in search prompt
             break;
         case KEY_END:
-            // TODO implement in pattern cursor jump to end
+            // avoids printing of wild chars in search prompt
             break;
         case KEY_DC: // DEL
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
