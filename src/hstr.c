@@ -76,6 +76,11 @@
 #define K_BACKSPACE 127
 #define K_ENTER 10
 
+#define HH_THEME_MONO   0
+#define HH_THEME_COLOR  1<<7
+#define HH_THEME_LIGHT  1|HH_THEME_COLOR
+#define HH_THEME_DARK   2|HH_THEME_COLOR
+
 #define HH_COLOR_NORMAL  1
 #define HH_COLOR_HIROW   2
 #define HH_COLOR_INFO    2
@@ -86,8 +91,8 @@
 #define HH_ENV_VAR_CONFIG      "HH_CONFIG"
 #define HH_ENV_VAR_PROMPT      "HH_PROMPT"
 
-#define HH_CONFIG_MONO       "monochromatic"
-#define HH_CONFIG_HICOLOR    "hicolor"
+#define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
+#define HH_CONFIG_THEME_HICOLOR         "hicolor"
 #define HH_CONFIG_CASE       "casesensitive"
 #define HH_CONFIG_REGEXP     "regexp"
 #define HH_CONFIG_SUBSTRING  "substring"
@@ -97,9 +102,9 @@
 #define HH_CONFIG_BLACKLIST  "blacklist"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
-#define HH_CONFIG_BIG_KEYS_SKIP  "bigkeysskip"
-#define HH_CONFIG_BIG_KEYS_FLOOR "bigkeysfloor"
-#define HH_CONFIG_BIG_KEYS_EXIT  "bigkeysexit"
+#define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
+#define HH_CONFIG_BIG_KEYS_FLOOR "big-keys-floor"
+#define HH_CONFIG_BIG_KEYS_EXIT  "big-keys-exit"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -143,18 +148,6 @@
 #else
 #define LOGSELECTION(Y,SCREEN,MODEL)
 #endif
-
-void logstring(char* str){
-    FILE *f = fopen("/home/tbabej/hh.log", "a");
-    if (f == NULL)
-    {
-            perror("fopen");
-        printf("Error opening file!\n");
-        exit(1);
-    }
-    fprintf(f, "Debug: %s \n", str);
-        fclose(f);
-}
 
 static const char *HH_VIEW_LABELS[]={
         "ranking",
@@ -247,7 +240,7 @@ typedef struct {
 
     bool interactive;
 
-    bool hicolor;
+    unsigned char theme;
     int bigKeys;
     int debugLevel;
 
@@ -272,7 +265,7 @@ void hstr_init(Hstr *hstr)
 
     hstr->interactive=true;
 
-    hstr->hicolor=FALSE;
+    hstr->theme=HH_THEME_MONO;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
 
@@ -286,8 +279,12 @@ void hstr_get_env_configuration(Hstr *hstr)
 {
     char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
     if(hstr_config && strlen(hstr_config)>0) {
-        if(strstr(hstr_config,HH_CONFIG_HICOLOR)) {
-            hstr->hicolor=TRUE;
+        if(strstr(hstr_config,HH_CONFIG_THEME_MONOCHROMATIC)) {
+            hstr->theme=HH_THEME_MONO;
+        } else {
+            if(strstr(hstr_config,HH_CONFIG_THEME_HICOLOR)) {
+                hstr->theme=HH_THEME_DARK;
+            }
         }
         if(strstr(hstr_config,HH_CONFIG_CASE)) {
             hstr->caseSensitive=HH_CASE_SENSITIVE;
@@ -337,7 +334,7 @@ int print_prompt(Hstr *hstr)
 {
     int xoffset = 0, promptLength;
 
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
         color_attr_on(A_BOLD);
     }
@@ -356,7 +353,7 @@ int print_prompt(Hstr *hstr)
         free(hostname);
     }
 
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
     }
@@ -378,12 +375,12 @@ void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
     // TODO make this function
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
     mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
     }
@@ -395,12 +392,12 @@ void print_regexp_error(const char *errorMessage)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", errorMessage);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
     mvprintw(Y_OFFSET_HELP, 0, "%s", screenLine);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
     }
@@ -412,12 +409,12 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
     mvprintw(Y_OFFSET_HELP, 0, screenLine);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
     }
@@ -442,13 +439,13 @@ void print_history_label(Hstr *hstr)
     for (i=0; i < width; i++) {
         strcat(screenLine, "-");
     }
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(A_BOLD);
     }
     color_attr_on(A_REVERSE);
     mvprintw(Y_OFFSET_HISTORY, 0, "%s", screenLine);
     color_attr_off(A_REVERSE);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
     }
     refresh();
@@ -624,7 +621,9 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 
     if(pattern && strlen(pattern)) {
         color_attr_on(A_BOLD);
-        color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
+        if(hstr->theme & HH_THEME_COLOR) {
+            color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
+        }
         char *p;
         char *keywordsSavePtr;
         char *keywordsToken;
@@ -665,7 +664,9 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 
             break;
         }
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        if(hstr->theme & HH_THEME_COLOR) {
+            color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        }
         color_attr_off(A_BOLD);
     }
 }
@@ -673,7 +674,7 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hstr)
 {
     color_attr_on(A_BOLD);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(2));
     } else {
         color_attr_on(A_REVERSE);
@@ -683,7 +684,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
             "%s%s" SPACE_PADDING SPACE_PADDING SPACE_PADDING,
             (terminal_has_colors()?" ":">"), text);
     mvprintw(y, 0, "%s", screenLine);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(1));
     } else {
         color_attr_off(A_REVERSE);
@@ -822,11 +823,12 @@ void loop_to_select(Hstr *hstr)
     hstr_curses_start();
     // TODO move the code below to hstr_curses
     color_init_pair(HH_COLOR_NORMAL, -1, -1);
-    if(hstr->hicolor) {
+    if(hstr->theme & HH_THEME_COLOR) {
         color_init_pair(HH_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
         color_init_pair(HH_COLOR_PROMPT, COLOR_BLUE, -1);
         color_init_pair(HH_COLOR_DELETE, COLOR_WHITE, COLOR_RED);
-        color_init_pair(HH_COLOR_MATCH, COLOR_YELLOW, -1);
+
+        color_init_pair(HH_COLOR_MATCH, COLOR_RED, -1);
     }
 
     color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
