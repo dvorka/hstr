@@ -124,10 +124,17 @@ port install readline
 port install ncurses
 ```
 
-Build and install:
+Build and install (if using Homebrew):
 ```bash
 autoreconf -fvi
 ./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
+make
+```
+
+Alternative if using MacPorts:
+```bash
+autoreconf -fvi
+./configure CFLAGS=-I/opt/local/include/ LDFLAGS=-L/opt/local/lib
 make
 ```
 
