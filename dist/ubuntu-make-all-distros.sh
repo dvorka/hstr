@@ -9,8 +9,8 @@
 # - check minor version in this file
 # - run this script from ~/p/hstr/launchpad
 
-export HHBZRMSG="History timestamps, Zsh support and management fixes."
-export VERSION=1.16.
+export HHBZRMSG="History management and color themes fixes."
+export VERSION=1.17.
 export MINOR=1
 
 # precise quantal saucy precise / trusty utopic
