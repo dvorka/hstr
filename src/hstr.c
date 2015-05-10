@@ -1212,7 +1212,6 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
 
         case '?':
         default:
-            printf("Unrecognized option: '%s'", HELP_STRING);
             printf("%s", HELP_STRING);
             exit(EXIT_SUCCESS);
         }
