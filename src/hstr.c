@@ -201,7 +201,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.17\""
+        "hh version \"1.18\""
         "\n   build   \""__DATE__" " __TIME__"\""
         "\n";
 
@@ -1196,7 +1196,6 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
 
         case '?':
         default:
-            printf("Unrecognized option: '%s'", HELP_STRING);
             printf("%s", HELP_STRING);
             exit(EXIT_SUCCESS);
         }
