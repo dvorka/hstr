@@ -192,12 +192,13 @@ static const char *HELP_STRING=
         "Usage: hh [option] [arg1] [arg2]..."
         "\nShell history suggest box:"
         "\n"
-        "\n  --favorites          -f ... show favorites view"
-        "\n  --non-interactive    -n ... print filtered history and exit"
-        "\n  --show-configuration -s ... show configuration to be added to ~/.bashrc"
+        "\n  --favorites              -f ... show favorites view"
+        "\n  --non-interactive        -n ... print filtered history and exit"
+        "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
+        "\n  --show-zsh-configuration -z ... show Zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist     -b ... show commands to skip on history indexation"
-        "\n  --version            -V ... show version details"
-        "\n  --help               -h ... help"
+        "\n  --version                -V ... show version details"
+        "\n  --help                   -h ... help"
         "\n"
         "\nReport bugs to martin.dvorak@mindforger.com"
         "\nHome page: https://github.com/dvorka/hstr"
@@ -217,13 +218,14 @@ static const char *LABEL_HELP=
 #define GETOPT_OPTIONAL_ARGUMENT     2
 
 static const struct option long_options[] = {
-        {"favorites",          GETOPT_NO_ARGUMENT, NULL, 'f'},
-        {"version",            GETOPT_NO_ARGUMENT, NULL, 'V'},
-        {"help",               GETOPT_NO_ARGUMENT, NULL, 'h'},
-        {"non-interactive",    GETOPT_NO_ARGUMENT, NULL, 'n'},
-        {"show-configuration", GETOPT_NO_ARGUMENT, NULL, 's'},
-        {"show-blacklist",     GETOPT_NO_ARGUMENT, NULL, 'b'},
-        {0,                    0,                  NULL,  0 }
+        {"favorites",              GETOPT_NO_ARGUMENT, NULL, 'f'},
+        {"version",                GETOPT_NO_ARGUMENT, NULL, 'V'},
+        {"help",                   GETOPT_NO_ARGUMENT, NULL, 'h'},
+        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL, 'n'},
+        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL, 's'},
+        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL, 'z'},
+        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL, 'b'},
+        {0,                        0,                  NULL,  0 }
 };
 
 typedef struct {
@@ -1182,7 +1184,7 @@ void hstr_main(Hstr *hstr)
 void hstr_getopt(int argc, char **argv, Hstr *hstr)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fVhnsb", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fVhnszb", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1200,6 +1202,9 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
             exit(EXIT_SUCCESS);
         case 'h':
             printf("%s", HELP_STRING);
+            exit(EXIT_SUCCESS);
+        case 'z':
+            printf("%s", INSTALL_ZSH_STRING);
             exit(EXIT_SUCCESS);
         case 's':
             // ZSH_VERSION is not exported by Zsh > detected by parent process name
