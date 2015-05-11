@@ -1,0 +1,18 @@
+# .travis.yml for HSTR
+
+language: c
+
+os: linux
+
+compiler: gcc
+
+notifications:
+  email:
+    on_success: change
+    on_failure: change
+
+before_install:
+  - sudo apt-get update -qq
+  - sudo apt-get install -qq autotools-dev libreadline-dev libncursesw5-dev
+
+# eof
