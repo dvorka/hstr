@@ -1,4 +1,4 @@
-hstr
+hstr [![](https://travis-ci.org/dvorka/hstr.svg)](https://travis-ci.org/dvorka/hstr)
 ====
 Easily view, navigate, search and use your command history with shell history suggest box for Bash and
 [Zsh](CONFIGURATION.md#zsh-history-settings).
