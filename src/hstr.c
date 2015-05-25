@@ -897,9 +897,7 @@ void loop_to_select(Hstr *hstr)
                 printDefaultLabel=TRUE;
                 print_history_label(hstr);
 
-                if(selectionCursorPosition>0) {
-                    selectionCursorPosition--;
-                } else {
+                if(selectionCursorPosition>=hstr->selectionSize) {
                     selectionCursorPosition=hstr->selectionSize-1;
                 }
                 highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern, hstr);
