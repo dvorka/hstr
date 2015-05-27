@@ -13,15 +13,16 @@
 
 #include "include/hstr_blacklist.h"
 
-static const char *implicitCommandBlacklist[] = {
+static const char *defaultCommandBlacklist[] = {
         "ls", "pwd", "cd", "cd ..", "hh", "mc",
         "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
 };
 
 void blacklist_init(Blacklist *blacklist)
 {
-    blacklist->loaded=false;
-    blacklist->implicit=false;
+    blacklist->useFile=false;
+    blacklist->isLoaded=false;
+    blacklist->isDefault=false;
     blacklist->set=malloc(sizeof(HashSet));
     hashset_init(blacklist->set);
 }
@@ -36,53 +37,62 @@ char* blacklist_get_filename()
     return fileName;
 }
 
-void blacklist_get(Blacklist *blacklist)
+void blacklist_load_default(Blacklist* blacklist) {
+    blacklist->isLoaded = true;
+    blacklist->isDefault = true;
+    int i, length = sizeof(defaultCommandBlacklist) / sizeof(defaultCommandBlacklist[0]);
+    for (i = 0; i < length; i++) {
+        hashset_add(blacklist->set, defaultCommandBlacklist[i]);
+    }
+}
+
+void blacklist_load(Blacklist *blacklist)
 {
-    if(!blacklist->loaded) {
-        char* fileName = favorites_get_filename();
-        char *file_contents=NULL;
-        if(access(fileName, F_OK) != -1) {
-            long input_file_size;
+    if(!blacklist->isLoaded) {
+        if(blacklist->useFile) {
+            char* fileName = blacklist_get_filename();
+            char *fileContent=NULL;
+            if(access(fileName, F_OK) != -1) {
+                long fileSize;
 
-            FILE *input_file = fopen(fileName, "rb");
-            fseek(input_file, 0, SEEK_END);
-            input_file_size = ftell(input_file);
-            rewind(input_file);
-            file_contents = malloc((input_file_size + 1) * (sizeof(char)));
-            if(fread(file_contents, sizeof(char), input_file_size, input_file)==-1) {
-                exit(EXIT_FAILURE);
-            }
-            fclose(input_file);
-            file_contents[input_file_size] = 0;
-
-            if(file_contents && strlen(file_contents)) {
-                char *p=strchr(file_contents,'\n');
-                while (p!=NULL) {
-                    p=strchr(p+1,'\n');
+                FILE *file = fopen(fileName, "rb");
+                fseek(file, 0, SEEK_END);
+                fileSize = ftell(file);
+                rewind(file);
+                fileContent = malloc((fileSize + 1) * (sizeof(char)));
+                if(fread(fileContent, sizeof(char), fileSize, file)==-1) {
+                    exit(EXIT_FAILURE);
                 }
-                char *pb=file_contents, *pe, *s;
-                pe=strchr(file_contents, '\n');
-                while(pe!=NULL) {
-                    *pe=0;
-                    if(!hashset_contains(blacklist->set,pb)) {
-                        s=hstr_strdup(pb);
-                        hashset_add(blacklist->set,s);
+                fclose(file);
+                fileContent[fileSize] = 0;
+
+                if(fileContent && strlen(fileContent)) {
+                    char *p=strchr(fileContent,'\n');
+                    while (p!=NULL) {
+                        p=strchr(p+1,'\n');
                     }
-                    pb=pe+1;
-                    pe=strchr(pb, '\n');
+                    char *pb=fileContent, *pe, *s;
+                    pe=strchr(fileContent, '\n');
+                    while(pe!=NULL) {
+                        *pe=0;
+                        if(!hashset_contains(blacklist->set,pb)) {
+                            s=hstr_strdup(pb);
+                            hashset_add(blacklist->set,s);
+                        }
+                        pb=pe+1;
+                        pe=strchr(pb, '\n');
+                    }
+                    free(fileContent);
                 }
-                free(file_contents);
+            } else {
+                // blacklist file not found > use default in-memory one (flushed on exit)
+                blacklist_load_default(blacklist);
             }
+            free(fileName);
         } else {
-            // blacklist not found - use default one (flushed on exit)
-            blacklist->loaded=true;
-            blacklist->implicit=true;
-            int i, length=sizeof(implicitCommandBlacklist)/sizeof(implicitCommandBlacklist[0]);
-            for(i=0; i<length; i++) {
-                hashset_add(blacklist->set, implicitCommandBlacklist[i]);
-            }
+            // don't use file
+            blacklist_load_default(blacklist);
         }
-        free(fileName);
     }
 }
 
@@ -91,11 +101,50 @@ bool blacklist_in(Blacklist *blacklist, char *cmd)
     return hashset_contains(blacklist->set, cmd);
 }
 
+void blacklist_dump(Blacklist *blacklist)
+{
+    if(blacklist) {
+        int size=hashset_size(blacklist->set);
+        if(size) {
+            printf("Command blacklist (%d):\n",size);
+            int i;
+            char **keys=hashset_keys(blacklist->set);
+            for(i=0; i<size; i++) {
+                printf("  '%s'\n",keys[i]);
+            }
+            return;
+        }
+    }
+    printf("Command blacklist is empty\n");
+}
+
 void blacklist_destroy(Blacklist *blacklist)
 {
     if(blacklist) {
-        if(blacklist->implicit) {
-            // TODO save blacklist to file if implicit
+        if(blacklist->useFile) {
+            char* fileName = blacklist_get_filename();
+            int size=hashset_size(blacklist->set);
+            if(size) {
+                FILE *output_file = fopen(fileName, "wb");
+                rewind(output_file);
+                int i;
+                char **keys=hashset_keys(blacklist->set);
+                for(i=0; i<size; i++) {
+                    if(fwrite(keys[i], sizeof(char), strlen(keys[i]), output_file)==-1) {
+                        exit(EXIT_FAILURE);
+                    }
+                    if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
+                        exit(EXIT_FAILURE);
+                    }
+                }
+                fclose(output_file);
+            } else {
+                if(access(fileName, F_OK) != -1) {
+                    FILE *output_file = fopen(fileName, "wb");
+                    fclose(output_file);
+                }
+            }
+            free(fileName);
         }
         hashset_destroy(blacklist->set, false);
         free(blacklist->set);

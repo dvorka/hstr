@@ -20,14 +20,16 @@
 #define FILE_HH_BLACKLIST ".hh_blacklist"
 
 typedef struct {
-    bool loaded;
-    bool implicit;
+    bool useFile;
+    bool isLoaded;
+    bool isDefault;
     HashSet *set;
 } Blacklist;
 
 void blacklist_init(Blacklist *blacklist);
-void blacklist_get(Blacklist *blacklist);
+void blacklist_load(Blacklist *blacklist);
 bool blacklist_in(Blacklist *blacklist, char *cmd);
+void blacklist_dump(Blacklist *blacklist);
 void blacklist_destroy(Blacklist *blacklist);
 
 #endif

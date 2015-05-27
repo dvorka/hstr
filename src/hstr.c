@@ -30,6 +30,7 @@
 
 #include "include/hashset.h"
 #include "include/hstr_curses.h"
+#include "include/hstr_blacklist.h"
 #include "include/hstr_favorites.h"
 #include "include/hstr_history.h"
 #include "include/hstr_regexp.h"
@@ -91,6 +92,7 @@
 #define HH_CONFIG_KEYWORDS   "keywords"
 #define HH_CONFIG_SORTING    "rawhistory"
 #define HH_CONFIG_FAVORITES  "favorites"
+#define HH_CONFIG_BLACKLIST  "blacklist"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
 #define HH_CONFIG_BIG_KEYS_SKIP  "bigkeysskip"
@@ -198,6 +200,7 @@ static const char *HELP_STRING=
         "\n  --favorites          -f ... show favorites view"
         "\n  --non-interactive    -n ... print filtered history and exit"
         "\n  --show-configuration -s ... show configuration to be added to ~/.bashrc"
+        "\n  --show-blacklist     -b ... show commands to skip on history indexation"
         "\n  --version            -V ... show version details"
         "\n  --help               -h ... help"
         "\n"
@@ -206,7 +209,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.17\""
+        "hh version \"1.18\""
         "\n   build   \""__DATE__" " __TIME__"\""
         "\n";
 
@@ -214,7 +217,7 @@ static const char *VERSION_STRING=
 static const char *LABEL_HELP=
          "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
-#define GETOPT_NO_ARGUMENT             0
+#define GETOPT_NO_ARGUMENT           0
 #define GETOPT_REQUIRED_ARGUMENT     1
 #define GETOPT_OPTIONAL_ARGUMENT     2
 
@@ -224,6 +227,7 @@ static const struct option long_options[] = {
         {"help",               GETOPT_NO_ARGUMENT, NULL, 'h'},
         {"non-interactive",    GETOPT_NO_ARGUMENT, NULL, 'n'},
         {"show-configuration", GETOPT_NO_ARGUMENT, NULL, 's'},
+        {"show-blacklist",     GETOPT_NO_ARGUMENT, NULL, 'b'},
         {0,                    0,                  NULL,  0 }
 };
 
@@ -247,6 +251,8 @@ typedef struct {
 
     HstrRegexp regexp;
 
+    Blacklist blacklist;
+
     char cmdline[CMDLINE_LNG];
 } Hstr;
 
@@ -267,6 +273,8 @@ void hstr_init(Hstr *hstr)
     hstr->hicolor=FALSE;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+
+    blacklist_init(&hstr->blacklist);
 
     hstr->cmdline[0]=0;
     hstr_regexp_init(&hstr->regexp);
@@ -308,6 +316,9 @@ void hstr_get_env_configuration(Hstr *hstr)
             } else {
                 hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
             }
+        }
+        if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
+            hstr->blacklist.useFile=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
@@ -1118,7 +1129,7 @@ void hstr_init_favorites(Hstr *hstr)
 
 void hstr_main(Hstr *hstr)
 {
-    hstr->history=get_prioritized_history(hstr->bigKeys);
+    hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
     if(hstr->history) {
         history_mgmt_open();
         if(hstr->interactive) {
@@ -1135,7 +1146,7 @@ void hstr_main(Hstr *hstr)
 void hstr_getopt(int argc, char **argv, Hstr *hstr)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fVhns", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fVhnsb", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1144,6 +1155,10 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
         case 'n':
             hstr->interactive=false;
             break;
+        case 'b':
+            blacklist_load(&hstr->blacklist);
+            blacklist_dump(&hstr->blacklist);
+            exit(EXIT_SUCCESS);
         case 'V':
             printf("%s", VERSION_STRING);
             exit(EXIT_SUCCESS);
@@ -1182,6 +1197,7 @@ int main(int argc, char *argv[])
     hstr_get_env_configuration(hstr);
     hstr_getopt(argc, argv, hstr);
     hstr_init_favorites(hstr);
+    blacklist_load(&hstr->blacklist);
     hstr_main(hstr);
 
     favorites_destroy(hstr->favorites);

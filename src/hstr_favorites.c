@@ -51,24 +51,24 @@ void favorites_get(FavoriteItems *favorites)
 {
     if(!favorites->loaded) {
         char* fileName = favorites_get_filename();
-        char *file_contents=NULL;
+        char *fileContent=NULL;
         if(access(fileName, F_OK) != -1) {
-            long input_file_size;
+            long inputFileSize;
 
-            FILE *input_file = fopen(fileName, "rb");
-            fseek(input_file, 0, SEEK_END);
-            input_file_size = ftell(input_file);
-            rewind(input_file);
-            file_contents = malloc((input_file_size + 1) * (sizeof(char)));
-            if(fread(file_contents, sizeof(char), input_file_size, input_file)==-1) {
+            FILE *inputFile = fopen(fileName, "rb");
+            fseek(inputFile, 0, SEEK_END);
+            inputFileSize = ftell(inputFile);
+            rewind(inputFile);
+            fileContent = malloc((inputFileSize + 1) * (sizeof(char)));
+            if(fread(fileContent, sizeof(char), inputFileSize, inputFile)==-1) {
                 exit(EXIT_FAILURE);
             }
-            fclose(input_file);
-            file_contents[input_file_size] = 0;
+            fclose(inputFile);
+            fileContent[inputFileSize] = 0;
 
-            if(file_contents && strlen(file_contents)) {
+            if(fileContent && strlen(fileContent)) {
                 favorites->count = 0;
-                char *p=strchr(file_contents,'\n');
+                char *p=strchr(fileContent,'\n');
                 while (p!=NULL) {
                     favorites->count++;
                     p=strchr(p+1,'\n');
@@ -76,8 +76,8 @@ void favorites_get(FavoriteItems *favorites)
 
                 favorites->items = malloc(sizeof(char*) * favorites->count);
                 favorites->count = 0;
-                char *pb=file_contents, *pe, *s;
-                pe=strchr(file_contents, '\n');
+                char *pb=fileContent, *pe, *s;
+                pe=strchr(fileContent, '\n');
                 while(pe!=NULL) {
                     *pe=0;
                     if(!hashset_contains(favorites->set,pb)) {
@@ -88,7 +88,7 @@ void favorites_get(FavoriteItems *favorites)
                     pb=pe+1;
                     pe=strchr(pb, '\n');
                 }
-                free(file_contents);
+                free(fileContent);
             }
         } else {
             // favorites file not found > favorites don't exist yet

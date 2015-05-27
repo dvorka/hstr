@@ -40,7 +40,7 @@ typedef struct {
     unsigned rawCount;
 } HistoryItems;
 
-HistoryItems *get_prioritized_history(int optionBigKeys);
+HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist);
 
 HistoryItems *get_history_items();
 void free_history_items();

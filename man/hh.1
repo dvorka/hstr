@@ -27,6 +27,9 @@ Show favorites view immediately
 \fB-s --show-configuration\fR
 Show configuration that can be added to ~/.bashrc
 .TP 
+\fB-b --show-blacklist\fR
+Show blacklist of commands to be filtered out before history processing
+.TP 
 \fB-V --version\fR
 Show version information
 .SH KEYS
@@ -102,15 +105,18 @@ Configuration options:
 \fIrawhistory\fR
         Show normal history as a default view (metric-based view is shown otherwise). 
 
-\fIfavorites\fR 
+\fIfavorites\fR
         Show favorites as a default view (metric-based view is shown otherwise).
+
+\fIblacklist\fR
+        Load list of commands to skip when processing history from ~/.hh_blacklist (built-in blacklist used otherwise).
 
 \fIbigkeysskip\fR
         Skip big history entries i.e. very long lines (default).
-        
+
 \fIbigkeysfloor\fR
         Use different sorting slot for big keys when building metrics-based view (big keys are skipped by default).
-        
+
 \fIbigkeysexit\fR
         Exit (fail) on presence of a big key in history (big keys are skipped by default).
 
@@ -131,7 +137,12 @@ Example:
         \fBexport HH_PROMPT="$ "\fR
 
 .SH FILES
-\fB~/.hh_favorites\fR bookmarked favorite commands
+.TP
+\fB~/.hh_favorites\fR 
+ Bookmarked favorite commands.
+.TP
+\fB~/.hh_blacklist\fR 
+ Command blacklist.
 
 .SH BASH CONFIGURATION
 Optionally add the following lines to ~/.bashrc:
@@ -168,6 +179,9 @@ bindkey -s "\eC\-r" "\eeqhh\en"      # bind hh to Ctrl-r (for Vi mode check doc)
 .TP
 \fBhh --show-configuration >> ~/.bashrc\fR
  Append default \fBhh\fR configuration to your Bash profile.
+.TP
+\fBhh --show-blacklist\fR
+ Show blacklist configured for history processing.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS

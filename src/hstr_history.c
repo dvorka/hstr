@@ -25,10 +25,10 @@ static HistoryItems *prioritizedHistory;
 static bool dirty;
 
 // TODO to be externalized to a file .hh_blacklist; hh --blacklist to print default blacklist
-static const char *commandBlacklist[] = {
-        "ls", "pwd", "cd", "cd ..", "hh", "mc",
-        "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
-};
+//static const char *commandBlacklist[] = {
+//        "ls", "pwd", "cd", "cd ..", "hh", "mc",
+//        "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
+//};
 
 #ifdef DEBUG_RADIX
 #define DEBUG_RADIXSORT() radixsort_stat(&rs, false); exit(0)
@@ -86,7 +86,7 @@ int get_item_offset()
     }
 }
 
-HistoryItems *get_prioritized_history(int optionBigKeys)
+HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
 
@@ -103,14 +103,13 @@ HistoryItems *get_prioritized_history(int optionBigKeys)
         HashSet rankmap;
         hashset_init(&rankmap);
 
-        HashSet blacklist;
         int i;
-        hashset_init(&blacklist);
-        int length=sizeof(commandBlacklist)/sizeof(commandBlacklist[0]);
-        for(i=0; i<length; i++) {
-            hashset_add(&blacklist, commandBlacklist[i]);
-        }
-
+//        HashSet blacklist;
+//        hashset_init(&blacklist);
+//        int length=sizeof(commandBlacklist)/sizeof(commandBlacklist[0]);
+//        for(i=0; i<length; i++) {
+//            hashset_add(&blacklist, commandBlacklist[i]);
+//        }
         RadixSorter rs;
         unsigned radixMaxKeyEstimate=historyState->size*1000;
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
@@ -139,7 +138,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys)
                 line=historyList[i]->line;
             }
             rawHistory[rawOffset]=line;
-            if(hashset_contains(&blacklist, line)) {
+            if(hashset_contains(blacklist, line)) {
                 continue;
             }
             if((r=hashset_get(&rankmap, line))==NULL) {
