@@ -12,6 +12,7 @@
 #include <unistd.h>
 
 #include "include/hstr_blacklist.h"
+#include "include/hstr_utils.h"
 
 static const char *defaultCommandBlacklist[] = {
         "ls", "pwd", "cd", "cd ..", "hh", "mc",
