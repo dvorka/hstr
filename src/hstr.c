@@ -196,7 +196,7 @@ static const char *HELP_STRING=
         "\n  --non-interactive        -n ... print filtered history and exit"
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show Zsh configuration to be added to ~/.zshrc"
-        "\n  --show-blacklist     -b ... show commands to skip on history indexation"
+        "\n  --show-blacklist         -b ... show commands to skip on history indexation"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
