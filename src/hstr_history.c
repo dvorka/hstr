@@ -24,12 +24,6 @@ typedef struct {
 static HistoryItems *prioritizedHistory;
 static bool dirty;
 
-// TODO to be externalized to a file .hh_blacklist; hh --blacklist to print default blacklist
-//static const char *commandBlacklist[] = {
-//        "ls", "pwd", "cd", "cd ..", "hh", "mc",
-//        "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
-//};
-
 #ifdef DEBUG_RADIX
 #define DEBUG_RADIXSORT() radixsort_stat(&rs, false); exit(0)
 #else
@@ -104,12 +98,6 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         hashset_init(&rankmap);
 
         int i;
-//        HashSet blacklist;
-//        hashset_init(&blacklist);
-//        int length=sizeof(commandBlacklist)/sizeof(commandBlacklist[0]);
-//        for(i=0; i<length; i++) {
-//            hashset_add(&blacklist, commandBlacklist[i]);
-//        }
         RadixSorter rs;
         unsigned radixMaxKeyEstimate=historyState->size*1000;
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
