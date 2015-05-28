@@ -33,7 +33,7 @@ Table of contents:
 
 Features
 --------
-`hh` is typically started by pressing `Ctrl-r` after
+`hh` is typically started by pressing <kbd>Ctrl-r</kbd> after
 you configure it for this shorcut for your shell. However,
 you can run it as a normal program just by typing:
 ```bash
@@ -80,10 +80,10 @@ Favorite Commands
 commands. 
 
 A new favorite command can be added from
-ranking or raw history view by pressing `Ctrl-f`.
+ranking or raw history view by pressing <kbd>Ctrl-f</kbd>.
 
 You can check your favorite commands by choosing 
-favorite view - rotate views using `Ctrl-/` or start
+favorite view - rotate views using <kbd>Ctrl-/</kbd> or start
 `hh` by adding `favorites` to `HH_CONFIG` environment
 property. A favorite command can be choosen just
 by pressing `ENTER` when on command in favorite view.

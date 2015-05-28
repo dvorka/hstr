@@ -38,31 +38,31 @@ bind -S
 
 
 ## BASH EMACS KEYMAP (DEFAULT)
-Bind `hh` to a Bash key e.g. to `Ctrl-r`:
+Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
-or `Ctrl-Alt-r`:
+or <kbd>Ctrl-Alt-r</kbd>:
 ```bash
 bind '"\e\C-r":"\C-ahh \C-j"'
 ```
-or `Ctrl-F12`:
+or <kbd>Ctrl-F12</kbd>:
 ```bash
 bind '"\e[24;5~":"\C-ahh \C-j"'
 ```
-Bind `hh` to `Ctrl-r` only if it is interactive shell:
+Bind `hh` to <kbd>Ctrl-r</kbd> only if it is interactive shell:
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh \C-j"'; fi
 ```
 
 ## BASH VI KEYMAP
-Bind `hh` to a Bash key e.g. to `Ctrl-r`:
+Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bind '"\C-r": "\C-ahh \C-j"'
 ```
 
 ## ZSH EMACS KEYMAP (DEFAULT)
-Bind `hh` to a Zsh key e.g. to `Ctrl-r`:
+Bind `hh` to a Zsh key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bindkey -s "\C-r" "\eqhh\n"
 ```

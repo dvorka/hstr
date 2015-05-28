@@ -15,7 +15,7 @@ for a tool that is able to manage your **favorite** commands?
 
 HSTR is a command line utility that brings improved Bash command completion
 from the history. It aims to make completion **easier** and more **efficient**
-than `Ctrl-r`.
+than <kbd>Ctrl-r</kbd>.
 
 Apart to the completion, history can be **managed** (you can remove
 commands that e.g. contain sensitive information like
