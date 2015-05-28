@@ -30,7 +30,7 @@ bind -v | grep keymap
 ``` 
 
 To determine character sequence emitted by a pressed key in 
-terminal, type `Ctrl-v` and then press the key. Check your 
+terminal, type <kbd>Ctrl-v</kbd> and then press the key. Check your 
 current bindings using:
 ```bash
 bind -S
