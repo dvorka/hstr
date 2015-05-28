@@ -10,6 +10,7 @@ For more configuration options details please refer to:
 * bind `hh` command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
 * get more [colors](#colors)
 * choose [default history view](#history-view)
+* [command blacklist](#blacklist)
 * [verbosity](#verbosity)
 * [Bash history settings](#bash-history-settings)
 * [zsh history settings](#zsh-history-settings)
@@ -99,8 +100,24 @@ Make search case sensitive (insensitive by default):
 export HH_CONFIG=casesensitive
 ```
 
+BLACKLIST
+---------
+Skip commands when processing history i.e. make sure that these commands
+will *not* be shown in any view:
+```bash
+export HH_CONFIG=blacklist
+```
+Commands to be stored in `~/.hh_blacklist` file with trailing empty line. For instance:
+```
+cd
+my-private-command
+ls
+ll
+
+```
+
 VERBOSITY
--------
+---------
 Show warnings:
 ```bash
 export HH_CONFIG=warning
