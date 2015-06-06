@@ -18,6 +18,10 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#ifdef __CYGWIN__
+  #define TIOCSTI 0x5412
+#endif
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
