@@ -836,7 +836,7 @@ void loop_to_select(Hstr *hstr)
     hstr_print_selection(get_max_history_items(), NULL, hstr);
     color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
-    bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE, fixCommand=FALSE;
+    bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE, printDefaultLabel=FALSE, fixCommand=FALSE, editCommand=FALSE;
     int basex=print_prompt(hstr);
     int x=basex, y=0, c, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
@@ -1069,8 +1069,19 @@ void loop_to_select(Hstr *hstr)
         case KEY_LEFT:
             fixCommand=TRUE;
             executeResult=TRUE;
+            if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
+                result=hstr->selection[selectionCursorPosition];
+                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                    favorites_choose(hstr->favorites,result);
+                }
+            } else {
+                result=(pattern==NULL?"":pattern);
+            }
+            done=TRUE;
+            break;
         case K_TAB:
         case KEY_RIGHT:
+            editCommand=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=hstr->selection[selectionCursorPosition];
                 if(hstr->historyView==HH_VIEW_FAVORITES) {
@@ -1120,7 +1131,7 @@ void loop_to_select(Hstr *hstr)
         if(fixCommand) {
             fill_terminal_input("fc \"", FALSE);
         }
-        fill_terminal_input(result, TRUE);
+        fill_terminal_input(result, editCommand);
         if(fixCommand) {
             fill_terminal_input("\"", FALSE);
         }
