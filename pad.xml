@@ -1,0 +1,98 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<XML_DIZ_INFO>
+	<MASTER_PAD_VERSION_INFO>
+		<MASTER_PAD_VERSION>3.10</MASTER_PAD_VERSION>
+		<MASTER_PAD_EDITOR>http://www.padbuilder.com</MASTER_PAD_EDITOR>
+		<MASTER_PAD_INFO>Portable Application Description, or PAD for short, is a data set that is used by shareware authors to disseminate information to anyone interested in their software products. To find out more go to http://www.asp-shareware.org/pad</MASTER_PAD_INFO>
+	</MASTER_PAD_VERSION_INFO>
+	<Company_Info>
+		<Company_Name>MindForger</Company_Name>
+		<Address_1 />
+		<Address_2 />
+		<City_Town>Prague</City_Town>
+		<State_Province />
+		<Zip_Postal_Code />
+		<Country>Czech Republic</Country>
+		<Company_WebSite_URL>http://www.mindforger.com</Company_WebSite_URL>
+		<Contact_Info>
+			<Author_First_Name>Martin</Author_First_Name>
+			<Author_Last_Name>Dvorak</Author_Last_Name>
+			<Author_Email>martin.dvorak@mindforger.com</Author_Email>
+			<Contact_First_Name>Martin</Contact_First_Name>
+			<Contact_Last_Name>Dvorak</Contact_Last_Name>
+			<Contact_Email>martin.dvorak@mindforger.com</Contact_Email>
+		</Contact_Info>
+		<Support_Info>
+			<Sales_Email />
+			<Support_Email>info@mindforger.com</Support_Email>
+			<General_Email />
+			<Sales_Phone />
+			<Support_Phone />
+			<General_Phone />
+			<Fax_Phone />
+		</Support_Info>
+	</Company_Info>
+	<Program_Info>
+		<Program_Name>HSTR</Program_Name>
+		<Program_Version>1.17</Program_Version>
+		<Program_Release_Month>05</Program_Release_Month>
+		<Program_Release_Day>09</Program_Release_Day>
+		<Program_Release_Year>2015</Program_Release_Year>
+		<Program_Cost_Dollars />
+		<Program_Cost_Other_Code>USD</Program_Cost_Other_Code>
+		<Program_Cost_Other />
+		<Program_Type>Freeware</Program_Type>
+		<Program_Release_Status>Major Update</Program_Release_Status>
+		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
+		<Program_OS_Support>Linux,Linux Console,Linux Open Source,Mac OS X</Program_OS_Support>
+		<Program_Language>English</Program_Language>
+		<Program_Change_Info />
+		<Program_Specific_Category>Utilities</Program_Specific_Category>
+		<Program_Category_Class>System Utilities::Shell Tools</Program_Category_Class>
+		<Program_Categories />
+		<Program_System_Requirements />
+		<File_Info>
+			<File_Size_Bytes>39472</File_Size_Bytes>
+			<File_Size_K>38.55</File_Size_K>
+			<File_Size_MB>0.04</File_Size_MB>
+		</File_Info>
+		<Expire_Info>
+			<Has_Expire_Info>N</Has_Expire_Info>
+			<Expire_Count />
+			<Expire_Based_On />
+			<Expire_Other_Info />
+			<Expire_Month />
+			<Expire_Day />
+			<Expire_Year />
+		</Expire_Info>
+	</Program_Info>
+	<Program_Descriptions>
+		<English>
+			<Keywords>shell, history, bash, zsh</Keywords>
+			<Char_Desc_45>Shell History Suggest Box</Char_Desc_45>
+			<Char_Desc_80>Shell history suggest box - easily view, navigate, search and manage your command history.</Char_Desc_80>
+			<Char_Desc_250>Are you looking for a command that you used recently? Do you want to avoid the need to write long commands over and over again despite you used them recently? Are you looking for a tool that is able to manage your favorite commands?  HSTR is a comman</Char_Desc_250>
+			<Char_Desc_450 />
+			<Char_Desc_2000 />
+		</English>
+	</Program_Descriptions>
+	<Web_Info>
+		<Application_URLs>
+			<Application_Info_URL>https://github.com/dvorka/hstr</Application_Info_URL>
+			<Application_Order_URL />
+			<Application_Screenshot_URL>http://mindforger.com/projects/images/hh-1.jpg</Application_Screenshot_URL>
+			<Application_Icon_URL />
+			<Application_XML_File_URL>http://mindforger.com/project/hstr/pad-hstr.xml</Application_XML_File_URL>
+		</Application_URLs>
+		<Download_URLs>
+			<Primary_Download_URL>https://github.com/dvorka/hstr/releases</Primary_Download_URL>
+			<Secondary_Download_URL />
+			<Additional_Download_URL_1 />
+			<Additional_Download_URL_2 />
+		</Download_URLs>
+	</Web_Info>
+	<Permissions>
+		<Distribution_Permissions />
+		<EULA />
+	</Permissions>
+</XML_DIZ_INFO>
