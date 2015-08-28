@@ -90,6 +90,15 @@ hh --show-configuration >> ~/.bashrc
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
+GENTOO
+------
+hstr has been added to Portage, see this [bug](https://bugs.gentoo.org/show_bug.cgi?id=527122).
+To install hstr, emerge it like so:
+```
+emerge app-shells/hstr
+```
+and you should be all set.
+
 ARCH LINUX
 ----------
 Download latest distribution from project Releases section:
