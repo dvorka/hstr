@@ -15,3 +15,5 @@ hh_SOURCES = 									\
 	hstr_regexp.c include/hstr_regexp.h			\
 	radixsort.c include/radixsort.h 			\
 	hstr.c 
+
+hh_LDADD = $(NCURSES_LIBS)
