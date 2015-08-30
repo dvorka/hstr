@@ -31,6 +31,7 @@ Install HSTR:
 * build from [source code](INSTALLATION.md#installation-from-source-code)
 * [Ubuntu](INSTALLATION.md#ubuntu)
 * [Fedora](#fedorarhelcentos)
+* [Gentoo](#gentoo)
 * [CentOS](#fedorarhelcentos)
 * [RHEL](#fedorarhelcentos)
 * [Debian](INSTALLATION.md#debianmint)
