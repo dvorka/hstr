@@ -1,10 +1,19 @@
 /*
- ============================================================================
- Name        : test_utf8.c
- Author      : martin.dvorak@mindforger.com
- Copyright   : Apache 2.0
- Description : A test
- ============================================================================
+ test_*.c       HSTR test
+
+ Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
 */
 
 #include <locale.h>
@@ -35,7 +44,7 @@ void show_bits(INTEGRAL_TYPE x) {
 }
 
 void console_echo_czech()
-{    
+{
     int c;
     while(1) {
       c = getc(stdin);
@@ -87,18 +96,18 @@ void console_static_czech()
 {
   setlocale(LC_ALL, "");
 
-  char *s="Čeština ěščřžýáíé.";  
+  char *s="Čeština ěščřžýáíé.";
   printf("\nStatic printf: %s", s);
 }
 
-void console_check() 
+void console_check()
 {
   printf("\nEnglish string.");
 }
 
 void curses_wide_czech()
 {
-  char *s="Čeština ěščřžýáíé.";  
+  char *s="Čeština ěščřžýáíé.";
   printf("Going to print the following string in Curses: '%s'", s);
   getch();
 
