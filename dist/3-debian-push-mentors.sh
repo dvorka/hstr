@@ -3,6 +3,6 @@
 . ./debian-env.sh
 
 cd ../..
-dput mentors hh*source.changes
+dput mentors hstr*source.changes
 
 # eof

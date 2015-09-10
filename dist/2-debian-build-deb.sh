@@ -7,7 +7,7 @@ export SCRIPTHOME=`pwd`
 function createChangelog() {
   export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
   echo "Changelog timestamp: ${MYTS}"
-  echo -e "hh (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+  echo -e "hstr (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
   echo -e "\n" >> $1
   echo -e "  * ${HHBZRMSG}" >> $1
   echo -e "\n" >> $1
@@ -26,18 +26,18 @@ function createTarball() {
   cd ../${HH}
 }
 
-echo -e "\n_ hh deb build  _______________________________________________\n"
+echo -e "\n_ HSTR deb build  _______________________________________________\n"
 
 rm -rvf ../debian
 cp -rvf ${HHSRC}/debian ..
 
 createChangelog ../debian/changelog
 cp -vf debian/rules ../debian/rules
-cp -vf debian/hh.dirs ../debian/hh.dirs
+cp -vf debian/hstr.dirs ../debian/hstr.dirs
 cp -vf debian/watch ../debian/watch
 
 cd ../..
-mv hh ${HH}
+mv hstr ${HH}
 cd ${HH}
 
 createTarball
