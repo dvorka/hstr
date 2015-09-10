@@ -2,7 +2,7 @@
 
 . ~/p/hstr/github/hstr/dist/debian-env.sh
 
-rm -rvf *.*~ ./debian
+rm -rvf *.*~ ./debian ./bin
 
 mkdir ${HHBUILD}
 cd ${HHBUILD}
@@ -15,14 +15,14 @@ tar zcf ${HH}.tgz ${HH}
 rm -rvf ${HH}
 
 #bzr dh-make -v packagename version tarball
-bzr dh_make -v hh ${HHVERSION} ${HH}.tgz
+bzr dh_make -v hstr ${HHVERSION} ${HH}.tgz
 
 # rewrite to native dh_make:
 #dh_make --single --createorig 
 
 rm -vf *.orig.tar.gz
 
-cd hh/dist
+cd hstr/dist
 ./2-debian-build-deb.sh
 
 pwd
