@@ -5,7 +5,7 @@ export SCRIPTHOME=`pwd`
 . ./debian-env.sh
 
 function createChangelog() {
-  # crazily strict Debian tool: 
+  # Debian tooling changelog hints: 
   # - signature line MUST have one whitespace prefix
   # - signature line MUST have double space between email and timestamp
   # - traling lines must have exactly one space
@@ -16,7 +16,7 @@ function createChangelog() {
   echo " " >> $1
   echo -e "  * ${HHBZRMSG}" >> $1
   echo " " >> $1
-  echo " -- Martin Dvorak <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
+  echo " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
 }
 
 function createTarball() {
