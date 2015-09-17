@@ -40,6 +40,9 @@ cp -vf debian/rules ../debian/rules
 cp -vf debian/hstr.dirs ../debian/hstr.dirs
 cp -vf debian/watch ../debian/watch
 
+# cleanup
+rm -vrf ../dist ../bin ../doc ../pad.xml
+
 cd ../..
 mv hstr ${HH}
 cd ${HH}

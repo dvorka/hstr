@@ -14,7 +14,7 @@ mv hstr ${HH}
 tar zcf ${HH}.tgz ${HH}
 rm -rvf ${HH}
 
-#bzr dh-make -v packagename version tarball
+# bzr dh-make -v packagename version tarball
 bzr dh_make -v hstr ${HHVERSION} ${HH}.tgz
 
 # rewrite to native dh_make:
