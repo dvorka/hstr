@@ -5,14 +5,18 @@ export SCRIPTHOME=`pwd`
 . ./debian-env.sh
 
 function createChangelog() {
+  # crazily strict Debian tool: 
+  # - signature line MUST have one whitespace prefix
+  # - signature line MUST have double space between email and timestamp
+  # - traling lines must have exactly one space
+
   export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
   echo "Changelog timestamp: ${MYTS}"
   echo -e "hstr (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
-  echo -e "\n" >> $1
+  echo " " >> $1
   echo -e "  * ${HHBZRMSG}" >> $1
-  echo -e "\n" >> $1
-  echo -e " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com> ${MYTS} +0100" >> $1
-  echo -e "\n" >> $1
+  echo " " >> $1
+  echo " -- Martin Dvorak <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
 }
 
 function createTarball() {
