@@ -1,5 +1,5 @@
 Format: http://www.debian.org/doc/packaging-manuals/copyright-format/1.0/
-Upstream-Name: hh
+Upstream-Name: hstr
 Source: https://github.com/dvorka/hstr
 
 Files: debian/*
