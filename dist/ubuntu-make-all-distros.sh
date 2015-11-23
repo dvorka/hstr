@@ -13,8 +13,8 @@ export HHBZRMSG="History management and color themes fixes."
 export VERSION=1.18.
 export MINOR=2
 
-# precise quantal saucy precise / trusty utopic vivid wily
-for DISTRO in trusty utopic vivid
+# precise quantal saucy precise utopic / trusty vivid wily
+for DISTRO in trusty vivid wily
 do
 
 ./ubuntu-make-distro.sh ${DISTRO} ${VERSION}${MINOR} "${HHBZRMSG}"
