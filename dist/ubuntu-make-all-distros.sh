@@ -10,8 +10,8 @@
 # - run this script from ~/p/hstr/launchpad
 
 export HHBZRMSG="History management and color themes fixes."
-export VERSION=1.17.
-export MINOR=6
+export VERSION=1.18.
+export MINOR=1
 
 # precise quantal saucy precise / trusty utopic vivid
 for DISTRO in trusty utopic vivid
