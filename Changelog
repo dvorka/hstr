@@ -1,3 +1,10 @@
+2015-11-23  Martin Dvorak  <martin.dvorak@mindforger.com>
+ 
+    * Released v1.18 - Blacklists, Debian and Gentoo
+    * This minor release bring blacklist configurable from
+      a file (commands that are ignored). It also improves
+      Debian and Gentoo distribution builders.
+
 2015-05-09  Martin Dvorak  <martin.dvorak@mindforger.com>
  
 	* Released v1.17 - History Management and Color Profiles
