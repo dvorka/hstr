@@ -715,7 +715,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
     move(Y_OFFSET_ITEMS, 0);
     clrtobot();
 
-    int start, end;
+    int start, count;
     char screenLine[CMDLINE_LNG];
     for (i = 0; i<height; ++i) {
         if(i<hstr->selectionSize) {
@@ -723,11 +723,14 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
             if(pattern && strlen(pattern)) {
                 if(hstr->historyMatch==HH_MATCH_REGEXP) {
                     start=hstr->selectionRegexpMatch[i].rm_so;
-                    end=hstr->selectionRegexpMatch[i].rm_eo-start;
+                    count=hstr->selectionRegexpMatch[i].rm_eo-start;
+                    if(count>CMDLINE_LNG) {
+                        count=CMDLINE_LNG-1;
+                    }
                     strncpy(screenLine,
                             hstr->selection[i]+start,
-                            end);
-                    screenLine[end]=0;
+                            count);
+                    screenLine[count]=0;
                 } else {
                     strcpy(screenLine, pattern);
                 }
