@@ -1,7 +1,7 @@
 # Maintainer: Christian Wieden <wiedenchr at gmail dot com
 # Contributer: Ricardo Band <me at xengi dot de>
 pkgname=hh
-pkgver=1.18
+pkgver=1.19
 pkgrel=1
 pkgdesc="A command line utility that brings improved BASH command completion from the history. It aims to make completion easier and more efficient than Ctrl-r."
 arch=('any')

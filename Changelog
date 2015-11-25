@@ -1,68 +1,73 @@
+2015-11-25  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.19 - Stabilization release
+  * This minor release brings fixes of regexp mode.
+
 2015-11-23  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.18 - Blacklists, Debian and Gentoo
-	* This minor release bring blacklist configurable from
-	  a file (commands that are ignored). It also improves
-          Debian and Gentoo distribution builders.
+  * Released v1.18 - Blacklists, Debian and Gentoo
+  * This minor release bring blacklist configurable from
+    a file (commands that are ignored). It also improves
+    Debian and Gentoo distribution builders.
 
 2015-05-09  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.17 - History Management and Color Profiles
-	* This release brings improvements and stabilization
-	  of the history management along with terminal
-	  background agnostic color profiles.
+  * Released v1.17 - History Management and Color Profiles
+  * This release brings improvements and stabilization
+    of the history management along with terminal
+    background agnostic color profiles.
 
 2015-01-08  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.15 - First Item Autoselect and Vim Binding
-	* Minor release that brings first history item
-	  autoselect on empty prompt selection, Vim style
-	  history navigation binding and several bug fixes.
+  * Released v1.15 - First Item Autoselect and Vim Binding
+  * Minor release that brings first history item
+    autoselect on empty prompt selection, Vim style
+    history navigation binding and several bug fixes.
 
 2014-10-29  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.14 - Keyboard Search and Improved Highlighting
-	* New release brings keyboard based search i.e. matching
-	  of history entries by occurrence of words in arbitrary
-	  order.
+  * Released v1.14 - Keyboard Search and Improved Highlighting
+  * New release brings keyboard based search i.e. matching
+    of history entries by occurrence of words in arbitrary
+    order.
         * In addition highlighting of matching segments in history
-	  entries has been improved.
+    entries has been improved.
 
 2014-09-11  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.13 - Transparent terminal and Internationalization
-	* New release brings support for transparent terminals.
-	* Internationalization problems were finally solved - use
-	  of Czech, German, Chinese, ... special characters w/
-	  and w/o diacritics should be smooth.
+  * Released v1.13 - Transparent terminal and Internationalization
+  * New release brings support for transparent terminals.
+  * Internationalization problems were finally solved - use
+    of Czech, German, Chinese, ... special characters w/
+    and w/o diacritics should be smooth.
 
 2014-05-05  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.12 - Regexp
-	* New release brings regexp based filtering of command
-	  history. In addition it's possible to use HSTR in
-	  non-interactive mode i.e. filtered output is written
-	  to standard output. openSUSE became newly supported
-	  distribution.
+  * Released v1.12 - Regexp
+  * New release brings regexp based filtering of command
+    history. In addition it's possible to use HSTR in
+    non-interactive mode i.e. filtered output is written
+    to standard output. openSUSE became newly supported
+    distribution.
 
 2014-04-14  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.10 - Favorites
-	* Major release that brings favorites - favorite
-	  commands can be bookmarked for later use and managed
-	  in a brand new view
+  * Released v1.10 - Favorites
+  * Major release that brings favorites - favorite
+    commands can be bookmarked for later use and managed
+    in a brand new view
 
 2014-03-16  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.3 - Radix Sort Stabilization
-	* A stabilization release that enables loading of huge
-	  history files and makes internal radix sort
-	  implementation more efficient.
+  * Released v1.3 - Radix Sort Stabilization
+  * A stabilization release that enables loading of huge
+    history files and makes internal radix sort
+    implementation more efficient.
 
 2014-01-25  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v1.0 - The First Stable Release
+  * Released v1.0 - The First Stable Release
 
 2013-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-	* Released v0.2 - Initial Release
+  * Released v0.2 - Initial Release
