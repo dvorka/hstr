@@ -9,7 +9,7 @@
 # - check minor version in this file
 # - run this script from ~/p/hstr/launchpad
 
-export HHBZRMSG="History management and color themes fixes."
+export HHBZRMSG="Buffer overflow fix of regexp mode."
 export VERSION=1.19.
 export MINOR=1
 
