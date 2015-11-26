@@ -228,6 +228,13 @@ int history_mgmt_remove_from_system_history(char *cmd)
         if(offset<historyState->length && !strcmp(cmd, l)) {
             occurences++;
             free_history_entry(remove_history(offset));
+            if(offset>0) {
+                l=historyState->entries[offset-1]->line;
+                if(l && strlen(l) && l[0] == '#') {
+                    // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
+                    free_history_entry(remove_history(offset-1));
+                }
+            }
         }
         offset=history_search_pos(cmd, 0, ++offset);
     }

@@ -1,0 +1,54 @@
+#1448570565
+history -a
+#1448570586
+ll
+#1448570601
+less a
+#1448570608
+cemacs .bash_history
+#1448570612
+history -a
+#1448570608
+cemacs .bash_history
+#1448570612
+history -a
+#1448570633
+cemacs .bash_history
+#1448570663
+cemacs .bash_history
+#1448571017
+history -a
+#1448571021
+cemacs .bash_history
+#1448571038
+cemacs .bash_history
+#1448571041
+history -a
+#1448571043
+cemacs .bash_history
+#1448571340
+cd p/hstr/github/hstr/
+#1448571341
+ll
+#1448571343
+cd tests/
+#1448571344
+ll
+#1448571358
+cp test_bug124.sh test_bug176.sh
+#1448571364
+cd
+#1448571371
+pop
+#1448570363
+cd
+#1448570370
+less .bash_history
+#1448570512
+man tail
+#1448570529
+tail -n 100 .bash_history 
+#1448570545
+tail -n 50 .bash_history > .bash_history
+#1448570547
+bash
