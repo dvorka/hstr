@@ -38,7 +38,7 @@ bool terminal_has_colors() {
 }
 
 void hstr_curses_stop() {
-    clear();
+    // removed to leave content in case of alternative page - clear();
     refresh();
     doupdate();
     endwin();
