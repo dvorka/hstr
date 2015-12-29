@@ -110,6 +110,7 @@
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
 #define HH_CONFIG_BIG_KEYS_FLOOR "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT  "big-keys-exit"
+#define HH_CONFIG_UNIQUE_OFF "unique-off"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -246,6 +247,7 @@ typedef struct {
     int caseSensitive;
 
     bool interactive;
+    bool unique;
 
     unsigned char theme;
     int bigKeys;
@@ -271,6 +273,7 @@ void hstr_init(Hstr *hstr)
     hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
     hstr->interactive=true;
+    hstr->unique=true;
 
     hstr->theme=HH_THEME_MONO;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
@@ -334,6 +337,10 @@ void hstr_get_env_configuration(Hstr *hstr)
                 hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
             }
         }
+
+        if(strstr(hstr_config,HH_CONFIG_UNIQUE_OFF)) {
+            hstr->unique=false;
+        }
     }
 }
 
@@ -367,6 +374,25 @@ int print_prompt(Hstr *hstr)
     refresh();
 
     return promptLength;
+}
+
+void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
+{
+    if (hstr->unique) {
+        // Search the selection for occurences of the line being added
+        for (int i = 0; i < *index; i++) {
+            if (strcmp(hstr->selection[i], line) == 0) {
+                // This line already in selection, skipping
+                return;
+            }
+        }
+    }
+
+    // Add the line to the selection
+    hstr->selection[*index]=line;
+
+    // Increment the selection index
+    *index = *index + 1;
 }
 
 void print_help_label()
@@ -529,19 +555,19 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
-                hstr->selection[selectionCount++]=source[i];
+                add_to_selection(hstr, source[i], &selectionCount);
             } else {
                 switch(hstr->historyMatch) {
                 case HH_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HH_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
-                            hstr->selection[selectionCount++]=source[i];
+                            add_to_selection(hstr, source[i], &selectionCount);
                         }
                         break;
                     case HH_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
-                            hstr->selection[selectionCount++]=source[i];
+                            add_to_selection(hstr, source[i], &selectionCount);
                         }
                         break;
                     }
@@ -576,7 +602,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
                         }
                     }
                     if (keywordsAllMatch) {
-                        hstr->selection[selectionCount++]=source[i];
+                        add_to_selection(hstr, source[i], &selectionCount);
                     }
                     free(keywordsPointerToDelete);
                     break;
@@ -594,13 +620,13 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
                 case HH_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        hstr->selection[selectionCount++]=source[i];
+                        add_to_selection(hstr, source[i], &selectionCount);
                     }
                     break;
                 case HH_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        hstr->selection[selectionCount++]=source[i];
+                        add_to_selection(hstr, source[i], &selectionCount);
                     }
                     break;
                 }
