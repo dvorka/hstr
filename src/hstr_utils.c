@@ -137,7 +137,7 @@ void toggle_case(char *str, bool lowercase) {
     }
 }
 
-char *get_process_name_by_pid(const int pid)
+char *get_shell_name_by_ppid(const int pid)
 {
     char* name = (char*)calloc(PID_BUFFER_SIZE,sizeof(char));
     if(name){
@@ -155,10 +155,13 @@ char *get_process_name_by_pid(const int pid)
     }
     // if name isn't e.g. bash/zsh at this point, fall back to $SHELL
     if(strlen(name) > 4){
-      char* shell = strrchr(getenv("SHELL"),'/');
-      if(shell != NULL){
-        shell++;
-        strncpy(name,shell,sizeof(char)*strlen(shell));
+      char* shell = getenv("SHELL");
+      if(shell != NULL) {
+	      shell=strrchr(shell,'/');
+	      if(shell != NULL) {
+		shell++;
+		strncpy(name,shell,sizeof(char)*strlen(shell));
+	}
       }
     }
     return name;
@@ -166,7 +169,7 @@ char *get_process_name_by_pid(const int pid)
 
 bool isZshParentShell() {
     pid_t parentPid=getppid();
-    char* cmdline=get_process_name_by_pid(parentPid);
+    char* cmdline=get_shell_name_by_ppid(parentPid);
     bool result=cmdline && strstr(cmdline, "zsh");
     free(cmdline);
     return result;
