@@ -1087,7 +1087,7 @@ void loop_to_select(Hstr *hstr)
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
-                result=(pattern==NULL?"":pattern);
+                result=pattern;
             }
             done=TRUE;
             break;
@@ -1100,7 +1100,7 @@ void loop_to_select(Hstr *hstr)
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
-                result=(pattern==NULL?"":pattern);
+                result=pattern;
             }
             done=TRUE;
             break;
