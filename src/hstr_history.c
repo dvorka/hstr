@@ -223,6 +223,13 @@ int history_mgmt_remove_from_system_history(char *cmd)
     int offset=history_search_pos(cmd, 0, 0), occurences=0;
     char *l;
     HISTORY_STATE *historyState=history_get_history_state();
+
+    // TODO refactor this code to have this in source exactly once
+    regex_t regexp;
+    // HISTTIMEFORMAT defined > ^#1234567890$
+    const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
+    regexp_compile(&regexp, histtimeformatTimestamp);
+
     while(offset>=0) {
         l=historyState->entries[offset]->line;
         if(offset<historyState->length && !strcmp(cmd, l)) {
@@ -230,9 +237,11 @@ int history_mgmt_remove_from_system_history(char *cmd)
             free_history_entry(remove_history(offset));
             if(offset>0) {
                 l=historyState->entries[offset-1]->line;
-                if(l && strlen(l) && l[0] == '#') {
-                    // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
-                    free_history_entry(remove_history(offset-1));
+                if(l && strlen(l)) {
+                    if(!regexp_match(&regexp, l)) {
+                        // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
+                        free_history_entry(remove_history(offset-1));
+                    }
                 }
             }
         }
