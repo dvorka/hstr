@@ -99,6 +99,11 @@ Make search case sensitive (insensitive by default):
 ```bash
 export HH_CONFIG=casesensitive
 ```
+Keep duplicates in `rawhistory` view (duplicates discarded by default):
+```bash
+export HH_CONFIG=duplicates
+```
+
 
 BLACKLIST
 ---------

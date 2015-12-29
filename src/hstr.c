@@ -110,7 +110,7 @@
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
 #define HH_CONFIG_BIG_KEYS_FLOOR "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT  "big-keys-exit"
-#define HH_CONFIG_UNIQUE_OFF "unique-off"
+#define HH_CONFIG_DUPLICATES "duplicates"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -338,7 +338,7 @@ void hstr_get_env_configuration(Hstr *hstr)
             }
         }
 
-        if(strstr(hstr_config,HH_CONFIG_UNIQUE_OFF)) {
+        if(strstr(hstr_config,HH_CONFIG_DUPLICATES)) {
             hstr->unique=false;
         }
     }
