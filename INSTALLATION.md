@@ -36,6 +36,17 @@ and save it into ```/etc/yum.repos.d/``` directory.
 
 
 
+openSUSE
+--------
+For openSUSE Leap 42.1 run the following as root:
+
+```bash
+zypper addrepo http://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
+zypper refresh
+zypper install hstr
+```
+
+
 INSTALLATION FROM SOURCE CODE
 -----------------------------
 Clone Git repository:
