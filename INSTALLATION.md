@@ -2,7 +2,7 @@ INSTALLATION
 ============
 Install `hh` using [distribution](#distribution-installation), 
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
-[Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [Debian/Mint](#debianmint),
+[Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [openSUSE](#opensuse), [Debian/Mint](#debianmint),
 [Gentoo](#gentoo), [Arch Linux](#arch-linux) or [Mac OS](#mac-os).
 
 
