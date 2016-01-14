@@ -33,6 +33,7 @@ Install HSTR:
 * [Fedora](INSTALLATION.md#fedorarhelcentos)
 * [Gentoo](INSTALLATION.md#gentoo)
 * [CentOS](INSTALLATION.md#fedorarhelcentos)
+* [openSUSE](INSTALLATION.md#opensuse)
 * [RHEL](INSTALLATION.md#fedorarhelcentos)
 * [Debian](INSTALLATION.md#debianmint)
 * [Mint](INSTALLATION.md#debianmint)
