@@ -2,7 +2,7 @@ INSTALLATION
 ============
 Install `hh` using [distribution](#distribution-installation),
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
-[Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [Debian/Mint](#debianmint),
+[Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [openSUSE](#opensuse), [Debian/Mint](#debianmint),
 [Gentoo](#gentoo), [Arch Linux](#arch-linux) or [Mac OS](#mac-os).
 
 
@@ -27,6 +27,17 @@ sudo dnf|yum install hstr -y
 ```
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
+
+
+openSUSE
+--------
+For openSUSE Leap 42.1 run the following as root:
+
+```bash
+zypper addrepo http://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
+zypper refresh
+zypper install hstr
+```
 
 
 INSTALLATION FROM SOURCE CODE
