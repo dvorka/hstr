@@ -1,6 +1,6 @@
 INSTALLATION
 ============
-Install `hh` using [distribution](#distribution-installation), 
+Install `hh` using [distribution](#distribution-installation),
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
 [Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [Debian/Mint](#debianmint),
 [Gentoo](#gentoo), [Arch Linux](#arch-linux) or [Mac OS](#mac-os).
@@ -20,19 +20,12 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 FEDORA/RHEL/CENTOS
 ------------------
-With `dnf` available:
+Install `hh` on Fedora, RHEL or CentOS:
 
 ```bash
-sudo dnf copr enable tbabej/hstr -y
-sudo dnf install hstr -y
+sudo dnf|yum install hstr -y
 ```
-
-For Fedora based systems without `dnf`:
-
-1. Download the repo directly from the
-[copr page](https://copr.fedoraproject.org/coprs/tbabej/hstr/)
-and save it into ```/etc/yum.repos.d/``` directory.
-1. ```sudo yum install hstr -y```
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 
