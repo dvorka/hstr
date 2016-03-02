@@ -1,7 +1,7 @@
 /*
  hstr.c     BASH history completion utility
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2016 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -217,7 +217,7 @@ static const char *VERSION_STRING=
 
 // TODO help screen - curses window (tig)
 static const char *LABEL_HELP=
-         "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
+        "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 #define GETOPT_NO_ARGUMENT           0
 #define GETOPT_REQUIRED_ARGUMENT     1
@@ -460,7 +460,7 @@ void print_history_label(Hstr *hstr)
     int width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
+    snprintf(screenLine, width, "- HISTORY - view:%s (C-7) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
             HH_VIEW_LABELS[hstr->historyView],
             HH_MATCH_LABELS[hstr->historyMatch],
             HH_CASE_LABELS[hstr->caseSensitive],
