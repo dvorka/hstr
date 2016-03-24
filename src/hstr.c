@@ -1060,7 +1060,7 @@ void loop_to_select(Hstr *hstr)
                 } else {
                     favorites_add(hstr->favorites, result);
                 }
-                result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+                hstr_print_selection(maxHistoryItems, pattern, hstr);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
                 if(hstr->historyView!=HH_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result, hstr);
