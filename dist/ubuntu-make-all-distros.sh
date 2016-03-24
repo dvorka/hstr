@@ -10,7 +10,7 @@
 # - run this script from ~/p/hstr/launchpad
 
 export HHBZRMSG="Buffer overflow fix of regexp mode."
-export VERSION=1.19.
+export VERSION=1.20.
 export MINOR=1
 
 # precise quantal saucy precise utopic / trusty vivid wily
