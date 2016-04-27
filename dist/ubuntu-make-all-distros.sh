@@ -13,8 +13,8 @@ export HHBZRMSG="Buffer overflow fix of regexp mode."
 export VERSION=1.20.
 export MINOR=1
 
-# precise quantal saucy precise utopic / trusty vivid wily
-for DISTRO in trusty vivid wily
+# precise quantal saucy precise utopic / trusty vivid wily xenial
+for DISTRO in xenial
 do
 
 ./ubuntu-make-distro.sh ${DISTRO} ${VERSION}${MINOR} "${HHBZRMSG}"
