@@ -1,3 +1,10 @@
+2016-04-27  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.20 - Bottom prompt
+  * This release rewrite of screen rendering allowing to
+    choose prompt and help location - top or bottom. In
+    addition Ubuntu 16.04 LST is supported.
+
 2015-11-25  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.19 - Stabilization release
