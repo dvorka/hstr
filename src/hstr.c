@@ -178,7 +178,7 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh \\C-j\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind -m vi-insert '\"\\C-r\": \"\\C-[ddihh \\C-j\"' && bind -m vi-command '\"\\C-r\": \"ddihh \\C-j\"'; fi
         "\n\n";
 
 static const char *INSTALL_ZSH_STRING=
