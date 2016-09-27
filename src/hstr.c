@@ -178,7 +178,7 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh \\C-j\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
         "\n\n";
 
 static const char *INSTALL_ZSH_STRING=
@@ -186,6 +186,8 @@ static const char *INSTALL_ZSH_STRING=
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HH_CONFIG=hicolor        # get more colors"
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        // TODO try variant with arg/pars separation
+        //"\nbindkey -s \"\\C-r\" \"\\eqhh --\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
         // alternate binding options in zsh:
         //   bindkey -s '^R' '^Ahh ^M'
         //   bindkey -s "\C-r" "\C-ahh \C-j"
