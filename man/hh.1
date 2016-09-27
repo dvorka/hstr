@@ -163,7 +163,7 @@ export HISTFILESIZE=10000        # increase history file size (default is 500)
 export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
 # if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)
-if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hh \eC-j"'; fi
+if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hh -- \eC-j"'; fi
 .sp
 .fi
 The prompt command ensures synchronization of the history between BASH memory 
@@ -174,7 +174,7 @@ Optionally add the following lines to ~/.zshrc:
 .sp
 export HISTFILE=~/.zsh_history   # ensure history file visibility
 export HH_CONFIG=hicolor         # get more colors
-bindkey -s "\eC\-r" "\eeqhh\en"      # bind hh to Ctrl-r (for Vi mode check doc)
+bindkey -s "\eC\-r" "\eeqhh\en"  # bind hh to Ctrl-r (for Vi mode check doc, experiment with --)
 .sp
 .fi
 .SH EXAMPLES
