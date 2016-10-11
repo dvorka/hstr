@@ -8,7 +8,11 @@ from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
 
 UBUNTU
 ------
-Install `hh` on Ubuntu:
+Install `hh` on Ubuntu - one-liner:
+```bash
+sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-get install hh && hh --show-configuration >> ~/.bashrc
+```
+... or step by step:
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
