@@ -12,6 +12,8 @@ export UBUNTUVERSION=$1
 #export UBUNTUVERSION=saucy
 #export UBUNTUVERSION=trusty
 #export UBUNTUVERSION=utopic
+#export UBUNTUVERSION=xenial
+#export UBUNTUVERSION=yakkety
 export HHVERSION=$2
 export HHBZRMSG=$3
 

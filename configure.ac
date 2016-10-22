@@ -17,7 +17,7 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 1.20, martin.dvorak@mindforger.com)
+AC_INIT(hh, 1.21, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
 # Checks for src dir existence.

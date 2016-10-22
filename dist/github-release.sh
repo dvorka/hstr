@@ -4,6 +4,7 @@
 # - update version in the source code (hstr.c)
 # - update version in configure.ac
 # - update version github-env.sh
+# - ... search for old version using Eclipse/grep
 # - run this script from this directory
 
 . ./github-env.sh
