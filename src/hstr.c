@@ -612,21 +612,29 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
                     }
                     break;
                 case HH_MATCH_KEYWORDS:
-                    // TODO differentiate between case-sensitive and insensitive
                     keywordsParsedLine = strdup(prefix);
                     keywordsAllMatch = true;
                     keywordsPointerToDelete = keywordsParsedLine;
                     while(true) {
                         keywordsToken = strtok_r(keywordsParsedLine, " ", &keywordsSavePtr);
-                        keywordsParsedLine = NULL;
                         if (keywordsToken == NULL) {
                             break;
                         }
-                        if (strcasestr(source[i], keywordsToken) == NULL) {
-                            keywordsAllMatch = false;
+                        keywordsParsedLine = NULL;
+                        switch(hstr->caseSensitive) {
+                        case HH_CASE_SENSITIVE:
+                            if(strstr(source[i], keywordsToken) == NULL) {
+                                keywordsAllMatch = false;
+                            }
+                            break;
+                        case HH_CASE_INSENSITIVE:
+                            if(strcasestr(source[i], keywordsToken) == NULL) {
+                                keywordsAllMatch = false;
+                            }
+                            break;
                         }
                     }
-                    if (keywordsAllMatch) {
+                    if(keywordsAllMatch) {
                         add_to_selection(hstr, source[i], &selectionCount);
                     }
                     free(keywordsPointerToDelete);
@@ -682,11 +690,12 @@ void print_selection_row(char *text, int y, int width, char *pattern)
         if(hstr->theme & HH_THEME_COLOR) {
             color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
         }
-        char *p;
-        char *keywordsSavePtr;
-        char *keywordsToken;
-        char *keywordsParsedLine;
-        char *keywordsPointerToDelete;
+        char* p;
+        char* pp;
+        char* keywordsSavePtr;
+        char* keywordsToken;
+        char* keywordsParsedLine;
+        char* keywordsPointerToDelete;
 
         switch(hstr->historyMatch) {
         case HH_MATCH_SUBSTRING:
@@ -715,8 +724,19 @@ void print_selection_row(char *text, int y, int width, char *pattern)
                 if (keywordsToken == NULL) {
                     break;
                 }
-                p=strstr(text, keywordsToken);
-                mvprintw(y, 1+(p-text), "%s", keywordsToken);
+                switch(hstr->caseSensitive) {
+                case HH_CASE_SENSITIVE:
+                    p=strstr(text, keywordsToken);
+                    mvprintw(y, 1+(p-text), "%s", keywordsToken);
+                    break;
+                case HH_CASE_INSENSITIVE:
+                    p=strcasestr(text, keywordsToken);
+                    pp=strdup(p);
+                    pp[strlen(keywordsToken)]=0;
+                    mvprintw(y, 1+(p-text), "%s", pp);
+                    free(pp);
+                    break;
+                }
             }
             free(keywordsPointerToDelete);
 
