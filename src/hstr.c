@@ -431,6 +431,24 @@ void print_help_label()
     refresh();
 }
 
+void print_confirm_delete(const char *cmd, Hstr *hstr)
+{
+    char screenLine[CMDLINE_LNG];
+    snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
+    // TODO make this function
+    if(hstr->theme & HH_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
+        color_attr_on(A_BOLD);
+    }
+    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    if(hstr->theme & HH_THEME_COLOR) {
+        color_attr_off(A_BOLD);
+        color_attr_on(COLOR_PAIR(1));
+    }
+    clrtoeol();
+    refresh();
+}
+
 void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
 {
     char screenLine[CMDLINE_LNG];
@@ -963,7 +981,7 @@ void loop_to_select(Hstr *hstr)
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
     bool printDefaultLabel=TRUE, fixCommand=FALSE, editCommand=FALSE;
     int basex=print_prompt();
-    int x=basex, c, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
+    int x=basex, c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1010,9 +1028,16 @@ void loop_to_select(Hstr *hstr)
                 delete=getResultFromSelection(selectionCursorPosition, hstr, result);
                 msg=malloc(strlen(delete)+1);
                 strcpy(msg,delete);
-                deletedOccurences=remove_from_history_model(msg, hstr);
-                result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-                print_cmd_deleted_label(msg, deletedOccurences, hstr);
+
+                print_confirm_delete(msg, hstr);
+                cc = wgetch(stdscr);
+                if(cc == 'y') {
+                    deletedOccurences=remove_from_history_model(msg, hstr);
+                    result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+                    print_cmd_deleted_label(msg, deletedOccurences, hstr);
+                } else {
+                    print_help_label();
+                }
                 free(msg);
                 move(hstr->promptY, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
