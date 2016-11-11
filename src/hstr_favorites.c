@@ -25,7 +25,7 @@
 
 #define FAVORITE_SEGMENT_SIZE 10
 
-void favorites_init(FavoriteItems *favorites)
+void favorites_init(FavoriteItems* favorites)
 {
     favorites->items=NULL;
     favorites->count=0;
@@ -48,23 +48,23 @@ void favorites_show(FavoriteItems *favorites)
 
 char* favorites_get_filename()
 {
-    char *home = getenv(ENV_VAR_HOME);
-    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_FAVORITES) + 1);
+    char* home = getenv(ENV_VAR_HOME);
+    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_FAVORITES) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
     strcat(fileName, FILE_HH_FAVORITES);
     return fileName;
 }
 
-void favorites_get(FavoriteItems *favorites)
+void favorites_get(FavoriteItems* favorites)
 {
     if(!favorites->loaded) {
         char* fileName = favorites_get_filename();
-        char *fileContent=NULL;
+        char* fileContent = NULL;
         if(access(fileName, F_OK) != -1) {
             long inputFileSize;
 
-            FILE *inputFile = fopen(fileName, "rb");
+            FILE* inputFile = fopen(fileName, "rb");
             fseek(inputFile, 0, SEEK_END);
             inputFileSize = ftell(inputFile);
             rewind(inputFile);
@@ -77,7 +77,7 @@ void favorites_get(FavoriteItems *favorites)
 
             if(fileContent && strlen(fileContent)) {
                 favorites->count = 0;
-                char *p=strchr(fileContent,'\n');
+                char* p=strchr(fileContent,'\n');
                 while (p!=NULL) {
                     favorites->count++;
                     p=strchr(p+1,'\n');
@@ -85,7 +85,7 @@ void favorites_get(FavoriteItems *favorites)
 
                 favorites->items = malloc(sizeof(char*) * favorites->count);
                 favorites->count = 0;
-                char *pb=fileContent, *pe, *s;
+                char* pb=fileContent, *pe, *s;
                 pe=strchr(fileContent, '\n');
                 while(pe!=NULL) {
                     *pe=0;
@@ -102,18 +102,17 @@ void favorites_get(FavoriteItems *favorites)
         } else {
             // favorites file not found > favorites don't exist yet
             favorites->loaded=true;
-            return;
         }
         free(fileName);
     }
 }
 
-void favorites_save(FavoriteItems *favorites)
+void favorites_save(FavoriteItems* favorites)
 {
-    char *fileName=favorites_get_filename();
+    char* fileName=favorites_get_filename();
 
     if(favorites->count) {
-        FILE *output_file = fopen(fileName, "wb");
+        FILE* output_file = fopen(fileName, "wb");
         rewind(output_file);
         int i;
         for(i=0; i<favorites->count; i++) {
@@ -134,10 +133,10 @@ void favorites_save(FavoriteItems *favorites)
     free(fileName);
 }
 
-void favorites_add(FavoriteItems *favorites, char *newFavorite)
+void favorites_add(FavoriteItems* favorites, char* newFavorite)
 {
     if(favorites->count) {
-        favorites->items=realloc(favorites->items, sizeof(char *) * ++favorites->count);
+        favorites->items=realloc(favorites->items, sizeof(char*) * ++favorites->count);
         favorites->items[favorites->count-1]=hstr_strdup(newFavorite);
         favorites_choose(favorites, newFavorite);
     } else {
@@ -150,11 +149,11 @@ void favorites_add(FavoriteItems *favorites, char *newFavorite)
     hashset_add(favorites->set, newFavorite);
 }
 
-void favorites_choose(FavoriteItems *favorites, char *choice)
+void favorites_choose(FavoriteItems* favorites, char* choice)
 {
     if(favorites->count && choice) {
         int r;
-        char *b=NULL, *next;
+        char* b=NULL, *next;
         for(r=0; r<favorites->count; r++) {
             if(!strcmp(favorites->items[r],choice)) {
                 favorites->items[0]=favorites->items[r];
@@ -171,7 +170,7 @@ void favorites_choose(FavoriteItems *favorites, char *choice)
     }
 }
 
-bool favorites_remove(FavoriteItems *favorites, char *almostDead)
+bool favorites_remove(FavoriteItems* favorites, char* almostDead)
 {
     if(favorites->count) {
         int r, w, count;
@@ -194,7 +193,7 @@ bool favorites_remove(FavoriteItems *favorites, char *almostDead)
     }
 }
 
-void favorites_destroy(FavoriteItems *favorites)
+void favorites_destroy(FavoriteItems* favorites)
 {
     if(favorites) {
         // TODO hashset destroys keys - no need to destroy items!
