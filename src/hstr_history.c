@@ -225,25 +225,34 @@ int history_mgmt_remove_from_system_history(char *cmd)
     HISTORY_STATE *historyState=history_get_history_state();
 
     // TODO refactor this code to have this in source exactly once
-    regex_t regexp;
+    regex_t tsRegexp;
+    regex_t zshRegexp;
     // HISTTIMEFORMAT defined > ^#1234567890$
     const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
-    regexp_compile(&regexp, histtimeformatTimestamp);
+    regexp_compile(&tsRegexp, histtimeformatTimestamp);
+
+    const char *zshTimestamp = "^: [[:digit:]]\\{10,\\}:[[:digit:]];.*";
+    regexp_compile(&zshRegexp, zshTimestamp);
 
     while(offset>=0) {
         l=historyState->entries[offset]->line;
-        if(offset<historyState->length && !strcmp(cmd, l)) {
-            occurences++;
-            free_history_entry(remove_history(offset));
-            if(offset>0) {
-                l=historyState->entries[offset-1]->line;
-                if(l && strlen(l)) {
-                    if(!regexp_match(&regexp, l)) {
-                        // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
-                        free_history_entry(remove_history(offset-1));
-                    }
-                }
-            }
+        if(offset<historyState->length) {
+           if(!regexp_match(&zshRegexp, l)) {
+               l=l+15; //: 1485023566:0;whoami
+           }
+           if(!strcmp(cmd, l)) {
+               occurences++;
+               free_history_entry(remove_history(offset));
+               if(offset>0) {
+                   l=historyState->entries[offset-1]->line;
+                   if(l && strlen(l)) {
+                       if(!regexp_match(&tsRegexp, l)) {
+                           // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
+                           free_history_entry(remove_history(offset-1));
+                       }
+                   }
+               }
+           }
         }
         offset=history_search_pos(cmd, 0, ++offset);
     }
