@@ -148,7 +148,7 @@ autoreconf -fvi
 make
 ```
 
-Alternative if using MacPorts:
+Alternative if using MacPorts ([macports.com](https://www.macports.org/ports.php?by=name&substr=hstr)/[GitHub](https://github.com/macports/macports-ports/blob/master/shells/hstr/Portfile)):
 ```bash
 autoreconf -fvi
 ./configure CFLAGS=-I/opt/local/include/ LDFLAGS=-L/opt/local/lib
