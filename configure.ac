@@ -29,11 +29,14 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_CC
 
-# Platform specific ncurses check.
+# Determine OS for NCURSES check
 AC_CANONICAL_HOST
-PKG_CHECK_MODULES([NCURSES], [ncursesw], [], [
-  PKG_CHECK_MODULES([NCURSES], [ncurses], [], [
-    AS_CASE([$host_os],
+# Platform specific ncurses check: if NCURSES not found, then look for ncurses
+PKG_CHECK_MODULES([NCURSES], [ncursesw], 
+  [AC_DEFINE([HAVE_NCURSESW],[1],[Use NCURSESW])], 
+  [PKG_CHECK_MODULES([NCURSES], [ncurses], 
+    [AC_DEFINE([HAVE_NCURSES],[1],[Use NCURSES])], 
+    [AS_CASE([$host_os],
       [darwin*],
         [
           AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could not find ncurses library])])
@@ -42,10 +45,11 @@ PKG_CHECK_MODULES([NCURSES], [ncursesw], [], [
       [
         AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
         AC_CHECK_HEADER(ncursesw/curses.h)
-      ]
-    )
-  ])
-])
+      ])
+    ]
+  )
+ ]
+)
 
 # Checks for libraries.
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could not find m library])])
