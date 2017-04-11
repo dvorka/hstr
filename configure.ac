@@ -32,10 +32,11 @@ AC_PROG_CC
 # Determine OS for NCURSES check
 AC_CANONICAL_HOST
 # Platform specific ncurses check: if NCURSES not found, then look for ncurses
+AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-tools installed - it's needed to run this script])
 PKG_CHECK_MODULES([NCURSES], [ncursesw], 
-  [AC_DEFINE([HAVE_NCURSESW],[1],[Use NCURSESW])], 
+  [AC_MSG_NOTICE([Module ncursesw found])], 
   [PKG_CHECK_MODULES([NCURSES], [ncurses], 
-    [AC_DEFINE([HAVE_NCURSES],[1],[Use NCURSES])], 
+    [AC_MSG_NOTICE([Module ncurses found])], 
     [AS_CASE([$host_os],
       [darwin*],
         [
