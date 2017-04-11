@@ -1,7 +1,7 @@
 # configure.ac      Autoconf configuration file
 #                   process this file with autoconf to produce a configure script
 #
-# Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2017  Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -29,28 +29,41 @@ AM_INIT_AUTOMAKE
 # Checks for programs.
 AC_PROG_CC
 
-# Determine OS for NCURSES check
+# NCURSES check w/o PKG_CHECK_MODULES macro 
+# Determine OS
 AC_CANONICAL_HOST
-# Platform specific ncurses check: if NCURSES not found, then look for ncurses
-AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-tools installed - it's needed to run this script])
-PKG_CHECK_MODULES([NCURSES], [ncursesw], 
-  [AC_MSG_NOTICE([Module ncursesw found])], 
-  [PKG_CHECK_MODULES([NCURSES], [ncurses], 
-    [AC_MSG_NOTICE([Module ncurses found])], 
-    [AS_CASE([$host_os],
-      [darwin*],
-        [
-          AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could not find ncurses library])])
-          AC_CHECK_HEADER(curses.h)
-        ],
-      [
-        AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
-        AC_CHECK_HEADER(ncursesw/curses.h)
-      ])
-    ]
-  )
- ]
-)
+# Notify user that pkg-tools are required
+AC_MSG_NOTICE([===================================================================================])
+AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
+AC_MSG_NOTICE([===================================================================================])
+# PKG_CHECK_MODULES macro is NOT used to avoid confusing syntax errors in case that pkg-config is NOT installed
+AC_SUBST([NCURSESW_CFLAGS])
+AC_SUBST([NCURSESW_LIBS])
+if pkg-config --exists ncursesw
+then
+    AC_MSG_NOTICE([Module ncursesw found])
+    NCURSESW_CFLAGS=`pkg-config --cflags ncursesw`
+    NCURSESW_LIBS=`pkg-config --libs ncursesw`
+else
+    if pkg-config --exists ncurses
+    then
+        AC_MSG_NOTICE([Module ncurses found])
+        NCURSESW_CFLAGS=`pkg-config --cflags ncursesw`
+        NCURSESW_LIBS=`pkg-config --libs ncurses`
+    else
+        AS_CASE([$host_os],
+          [darwin*],
+            [
+              AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could not find ncurses library])])
+              AC_CHECK_HEADER(curses.h)
+            ],
+          [
+            AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
+            AC_CHECK_HEADER(ncursesw/curses.h)
+          ]
+        )
+    fi
+fi
 
 # Checks for libraries.
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could not find m library])])
