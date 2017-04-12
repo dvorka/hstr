@@ -1413,21 +1413,28 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
     }
 }
 
+void hstr_destroy()
+{
+    favorites_destroy(hstr->favorites);
+    hstr_regexp_destroy(&hstr->regexp);
+    blacklist_destroy(&hstr->blacklist);
+
+    free(hstr);
+}
+
 int main(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
 
     hstr=malloc(sizeof(Hstr));
-
     hstr_init();
     hstr_get_env_configuration(hstr);
     hstr_getopt(argc, argv, hstr);
     hstr_init_favorites(hstr);
     blacklist_load(&hstr->blacklist);
+
     hstr_main(hstr);
 
-    favorites_destroy(hstr->favorites);
-    free(hstr);
-
+    hstr_destroy();
     return EXIT_SUCCESS;
 }
