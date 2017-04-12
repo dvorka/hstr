@@ -1,3 +1,10 @@
+2017-xx-xx  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.23 - Autotools and memory leaks.
+  * This release removes problematic PKG_CHECK_MODULES
+    Autoools macro for ncurses detection. It also brings
+    number of memory leak fixes.
+
 2017-01-21  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.22 - Zsh history mgmt improvements (delete).
