@@ -39,6 +39,7 @@ Install HSTR:
 * [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
+* [Solus OS](INSTALLATION.md#solus-os)
 * [Mac OS](INSTALLATION.md#mac-os)
 
 

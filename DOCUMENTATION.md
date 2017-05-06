@@ -10,6 +10,7 @@ Table of contents:
   * Debian
   * Mint
   * Arch
+  * Solus OS
   * Mac OS
 * Configuration
   * Keyboard shortcut
