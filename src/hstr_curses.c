@@ -26,6 +26,7 @@ void hstr_curses_start()
     initscr();
     keypad(stdscr, TRUE);
     noecho();
+    nonl();
     terminalHasColors=has_colors();
     if(terminalHasColors) {
         start_color();
