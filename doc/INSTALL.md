@@ -112,3 +112,11 @@ make && make install
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
+
+CYGWIN
+------
+* install from source
+* configure `hh` (required on Cygwin for terminal autocompletion):
+```bash
+hh --show-configuration >> ~/.bashrc
+```

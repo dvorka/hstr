@@ -178,7 +178,20 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
+#ifndef __CYGWIN__
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
+#else
+        "\nfunction hstr_cygwin {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  tmp_file=$(mktemp -t hstr.XXXXXXX)"
+        "\n  </dev/tty hstr ${READLINE_LINE:0:offset} 2>$tmp_file"
+        "\n  READLINE_LINE=$(<$tmp_file)"
+        "\n  rm -f $tmp_file"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
+#endif
         "\n\n";
 
 static const char *INSTALL_ZSH_STRING=
