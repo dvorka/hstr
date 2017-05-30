@@ -73,6 +73,7 @@ void hstr_chop(char *s)
     }
 }
 
+#ifndef __CYGWIN__
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -81,10 +82,12 @@ void tiocsti()
         ioctl(0, TIOCSTI, &buf[i]);
     }
 }
+#endif
 
 void fill_terminal_input(char *cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
+#ifndef __CYGWIN__
         size_t size = strlen(cmd);
         unsigned i;
         char *c;
@@ -95,6 +98,10 @@ void fill_terminal_input(char *cmd, bool padding)
         }
         // echo, but don't flush to terminal
         if(padding) printf("\n");
+#else
+		fprintf(stderr,cmd);
+		if(padding) fprintf(stderr,"\n");
+#endif
     }
 }
 
