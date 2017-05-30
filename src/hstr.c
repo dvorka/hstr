@@ -178,16 +178,16 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
-#ifndef __CYGWIN__
+#ifdef TIOCSTI
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
 #else
-        "\nfunction hstr_cygwin {"
+        "\nfunction hstr_notiocsti {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
         "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_notiocsti\"'; fi"
 #endif
         "\n\n";
 

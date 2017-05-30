@@ -33,7 +33,7 @@
 char *hstr_strdup(const char *s);
 int hstr_strlen(const char *s);
 void hstr_chop(char *s);
-#ifndef __CYGWIN__
+#ifdef TIOCSTI
 void tiocsti();
 #endif
 void fill_terminal_input(char* cmd, bool padding);
