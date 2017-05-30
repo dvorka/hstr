@@ -113,10 +113,10 @@ make && make install
 hh --show-configuration >> ~/.bashrc
 ```
 
-CYGWIN
-------
+CYGWIN/WINDOWS
+--------------
 * install from source
-* configure `hh` (required on Cygwin for terminal autocompletion):
+* configure `hh` (required for for terminal autocompletion, as TIOCSTI ioctl syscall is missing.):
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```

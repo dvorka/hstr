@@ -73,7 +73,7 @@ void hstr_chop(char *s)
     }
 }
 
-#ifndef __CYGWIN__
+#ifdef TIOCSTI
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -87,7 +87,7 @@ void tiocsti()
 void fill_terminal_input(char *cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#ifndef __CYGWIN__
+#ifdef TIOCSTI
         size_t size = strlen(cmd);
         unsigned i;
         char *c;
