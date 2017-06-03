@@ -3,7 +3,7 @@ INSTALLATION
 Install `hh` using [distribution](#distribution-installation),
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
 [Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [openSUSE](#opensuse), [Debian/Mint](#debianmint),
-[Gentoo](#gentoo), [Arch Linux](#arch-linux) or [Mac OS](#mac-os).
+[Gentoo](#gentoo), [Arch Linux](#arch-linux), [Cygwin](#cygwin) or [Mac OS](#mac-os).
 
 
 UBUNTU
@@ -21,7 +21,6 @@ sudo apt-get install hh
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-
 FEDORA/RHEL/CENTOS
 ------------------
 Install `hh` on Fedora, RHEL or CentOS:
@@ -30,7 +29,6 @@ Install `hh` on Fedora, RHEL or CentOS:
 sudo dnf|yum install hstr -y
 ```
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
 
 
 openSUSE
@@ -107,6 +105,7 @@ emerge app-shells/hstr
 ```
 and you should be all set.
 
+
 ARCH LINUX
 ----------
 Download latest distribution from project Releases section:
@@ -155,4 +154,25 @@ autoreconf -fvi
 make
 ```
 
+Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+
+
+CYGWIN
+------
+To install `hh` on [Cygwin](https://www.cygwin.com) clone Git repository:
+```bash
+git clone https://github.com/dvorka/hstr.git
+```
+Create build files using:
+```bash
+cd ./dist && ./1-dist.sh && cd ..
+```
+Finish installation `hh` using:
+```bash
+./configure && make && make install
+```
+In order to get autocompletion on Cygwin you must configure `hh` using:
+```bash
+hh --show-configuration >> ~/.bashrc
+```
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
