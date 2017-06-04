@@ -47,6 +47,7 @@
 
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 512
+#define LABEL_DISABLED_Y -1
 #define CMDLINE_LNG 2048
 #define HOSTNAME_BUFFER 128
 
@@ -108,6 +109,7 @@
 #define HH_CONFIG_BIG_KEYS_FLOOR "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT  "big-keys-exit"
 #define HH_CONFIG_DUPLICATES "duplicates"
+#define HH_CONFIG_MINIMAL    "minimal"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -257,6 +259,7 @@ typedef struct {
 
     bool interactive;
     bool unique;
+    bool showHelp;
 
     unsigned char theme;
     int bigKeys;
@@ -271,7 +274,7 @@ typedef struct {
     bool promptBottom;
     int promptY;
     int promptYHelp;
-    int promptYHistory;
+    int promptYStatus;
     int promptYItemsStart;
     int promptYItemsEnd;
     int promptItems;
@@ -291,6 +294,7 @@ void hstr_init()
 
     hstr->interactive=true;
     hstr->unique=true;
+    hstr->showHelp = true;
 
     hstr->theme=HH_THEME_MONO;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
@@ -304,20 +308,20 @@ void hstr_init()
 
 unsigned recalculate_max_history_items()
 {
-    hstr->promptItems = getmaxy(stdscr) - 3;
+    int top = 0;
+    int bottom = getmaxy(stdscr) - 1;
     if(hstr->promptBottom) {
-        hstr->promptY = getmaxy(stdscr) - 1;
-        hstr->promptYHelp = hstr->promptY - 1;
-        hstr->promptYHistory = hstr->promptY - 2;
-        hstr->promptYItemsStart = 0;
-        hstr->promptYItemsEnd = hstr->promptItems-1;
+        hstr->promptY = bottom--;
+        hstr->promptYHelp = hstr->showHelp ? bottom-- : LABEL_DISABLED_Y;
+        hstr->promptYStatus = bottom--;
     } else {
-        hstr->promptY = 0;
-        hstr->promptYHelp = 1;
-        hstr->promptYHistory = 2;
-        hstr->promptYItemsStart = 3;
-        hstr->promptYItemsEnd = getmaxy(stdscr);
+        hstr->promptY = top++;
+        hstr->promptYHelp = hstr->showHelp ? top++ : LABEL_DISABLED_Y;
+        hstr->promptYStatus = top++;
     }
+    hstr->promptYItemsStart = top;
+    hstr->promptYItemsEnd = bottom;
+    hstr->promptItems = bottom - top + 1; // +1 as bottom is inclusive
     return hstr->promptItems;
 }
 
@@ -383,6 +387,11 @@ void hstr_get_env_configuration(Hstr *hstr)
         } else {
             hstr->promptBottom = false;
         }
+
+        if(strstr(hstr_config,HH_CONFIG_MINIMAL)) {
+            hstr->showHelp=false;
+        }
+
         recalculate_max_history_items();
     }
 }
@@ -435,6 +444,10 @@ void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
 
 void print_help_label()
 {
+    if (hstr->promptYHelp == LABEL_DISABLED_Y) {
+        return;
+    }
+
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine); clrtoeol();
@@ -450,7 +463,7 @@ void print_confirm_delete(const char *cmd, Hstr *hstr)
         color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYStatus, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
@@ -468,7 +481,7 @@ void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
         color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYStatus, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
@@ -485,7 +498,7 @@ void print_regexp_error(const char *errorMessage)
         color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYStatus, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
@@ -502,7 +515,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
         color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, screenLine);
+    mvprintw(hstr->promptYStatus, 0, screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(1));
@@ -511,7 +524,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
     refresh();
 }
 
-void print_history_label()
+void print_status_label()
 {
     int width=getmaxx(stdscr);
 
@@ -532,7 +545,7 @@ void print_history_label()
         color_attr_on(A_BOLD);
     }
     color_attr_on(A_REVERSE);
-    mvprintw(hstr->promptYHistory, 0, "%s", screenLine);
+    mvprintw(hstr->promptYStatus, 0, "%s", screenLine);
     color_attr_off(A_REVERSE);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
@@ -815,7 +828,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
     clrtobot();
     if(hstr->promptBottom) {
         print_help_label();
-        print_history_label();
+        print_status_label();
         print_pattern(pattern, hstr->promptY, print_prompt());
         y=hstr->promptYItemsEnd;
     } else {
@@ -985,7 +998,7 @@ void loop_to_select(Hstr *hstr)
     color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
     if(!hstr->promptBottom) {
         print_help_label();
-        print_history_label();
+        print_status_label();
     }
 
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
@@ -1022,7 +1035,7 @@ void loop_to_select(Hstr *hstr)
         }
 
         if(printDefaultLabel) {
-            print_help_label();
+            print_status_label();
             printDefaultLabel=FALSE;
         }
 
@@ -1046,12 +1059,11 @@ void loop_to_select(Hstr *hstr)
                     result=hstr_print_selection(maxHistoryItems, pattern, hstr);
                     print_cmd_deleted_label(msg, deletedOccurences, hstr);
                 } else {
-                    print_help_label();
+                    print_status_label();
                 }
                 free(msg);
                 move(hstr->promptY, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
-                print_history_label();
 
                 if(hstr->promptBottom) {
                     if(selectionCursorPosition <= hstr->promptYItemsEnd-hstr->selectionSize+1) {
@@ -1071,7 +1083,7 @@ void loop_to_select(Hstr *hstr)
             hstr->historyMatch=hstr->historyMatch%HH_NUM_HISTORY_MATCH;
             // TODO make this a function
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-            print_history_label();
+            print_status_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
                 print_pattern(pattern, hstr->promptY, basex);
@@ -1083,7 +1095,7 @@ void loop_to_select(Hstr *hstr)
             hstr->caseSensitive=!hstr->caseSensitive;
             hstr->regexp.caseSensitive=hstr->caseSensitive;
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-            print_history_label();
+            print_status_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
                 print_pattern(pattern, hstr->promptY, basex);
@@ -1094,7 +1106,7 @@ void loop_to_select(Hstr *hstr)
         case K_CTRL_SLASH:
             hstr_next_view(hstr);
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-            print_history_label();
+            print_status_label();
             // TODO function
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
@@ -1126,9 +1138,9 @@ void loop_to_select(Hstr *hstr)
             }
             break;
         case KEY_RESIZE:
-            print_history_label();
+            print_status_label();
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-            print_history_label();
+            print_status_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             move(hstr->promptY, basex+strlen(pattern));
             break;
