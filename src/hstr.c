@@ -178,9 +178,7 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
-#ifndef __CYGWIN__
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
-#else
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
         "\nfunction hstr_cygwin {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
@@ -188,6 +186,8 @@ static const char *INSTALL_BASH_STRING=
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
+#else
+        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
 #endif
         "\n\n";
 

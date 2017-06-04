@@ -27,6 +27,24 @@ else
     exit 1
 fi
 
+# detect Bash@Ubuntu@Windows
+export VENDOR_FILE=/proc/vendor
+export HINT_FILE=/tmp/hh-ms-wsl
+
+if [ -e "${VENDOR_FILE}" ]
+then
+    IS_MS=`grep Microsoft ${VENDOR_FILE}`
+    if [[ ! -z "${IS_MS}" ]]
+    then
+	echo "DETECTED Bash on Linux on Windows (MS WSL)"
+	touch ${HINT_FILE}
+    else
+	rm -vf ${HINT_FILE}
+    fi
+else
+    rm -vf ${HINT_FILE}
+fi
+
 cd dist
 
 # eof

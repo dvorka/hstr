@@ -106,4 +106,7 @@ AC_TYPE_SIZE_T
 AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strdup strstr])
 
+# Bash@Ubuntu@Windows
+AC_CHECK_FILE(/tmp/hh-ms-wsl,AC_DEFINE(__MS_WSL__), [])
+
 AC_OUTPUT
