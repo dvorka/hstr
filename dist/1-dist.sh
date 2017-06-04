@@ -28,7 +28,7 @@ else
 fi
 
 # detect Bash@Ubuntu@Windows
-export VENDOR_FILE=/proc/vendor
+export VENDOR_FILE=/proc/version
 export HINT_FILE=/tmp/hh-ms-wsl
 
 if [ -e "${VENDOR_FILE}" ]
