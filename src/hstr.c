@@ -313,8 +313,8 @@ unsigned recalculate_max_history_items()
     int bottom = getmaxy(stdscr) - 1;
     if(hstr->promptBottom) {
         hstr->promptY = bottom--;
-        hstr->promptYHelp = hstr->showHelp ? bottom-- : LABEL_DISABLED_Y;
-        hstr->promptYStatus = bottom--;
+        hstr->promptYHelp = hstr->showHelp ? top++ : LABEL_DISABLED_Y;
+        hstr->promptYStatus = top++;
     } else {
         hstr->promptY = top++;
         hstr->promptYHelp = hstr->showHelp ? top++ : LABEL_DISABLED_Y;
