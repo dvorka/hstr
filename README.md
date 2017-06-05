@@ -39,6 +39,7 @@ Install HSTR:
 * [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
+* [Bash on Ubuntu on Windows (WLS)](INSTALLATION.md#wls)
 * [Cygwin on Windows](INSTALLATION.md#cygwin)
 * [Mac OS](INSTALLATION.md#mac-os)
 
