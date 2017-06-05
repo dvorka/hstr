@@ -88,8 +88,8 @@ void fill_terminal_input(char *cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)
-        fprintf(stderr,cmd);
-        if(padding) fprintf(stderr,"\n");
+        fprintf(stderr, "%s", cmd);
+        if(padding) fprintf(stderr, "%s", "\n");
 #else
         size_t size = strlen(cmd);
         unsigned i;
