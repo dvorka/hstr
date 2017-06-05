@@ -296,6 +296,7 @@ void hstr_init()
     hstr->interactive=true;
     hstr->unique=true;
     hstr->showHelp = true;
+    hstr->promptBottom = false;
 
     hstr->theme=HH_THEME_MONO;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
@@ -328,73 +329,53 @@ unsigned recalculate_max_history_items()
 
 void hstr_get_env_configuration(Hstr *hstr)
 {
-    char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
-    if(hstr_config && strlen(hstr_config)>0) {
-        if(strstr(hstr_config,HH_CONFIG_THEME_MONOCHROMATIC)) {
-            hstr->theme=HH_THEME_MONO;
-        } else {
-            if(strstr(hstr_config,HH_CONFIG_THEME_HICOLOR)) {
-                hstr->theme=HH_THEME_DARK;
-            }
-        }
-        if(strstr(hstr_config,HH_CONFIG_CASE)) {
-            hstr->caseSensitive=HH_CASE_SENSITIVE;
-        }
-        if(strstr(hstr_config,HH_CONFIG_REGEXP)) {
-            hstr->historyMatch=HH_MATCH_REGEXP;
-        } else {
-            if(strstr(hstr_config,HH_CONFIG_SUBSTRING)) {
-                hstr->historyMatch=HH_MATCH_SUBSTRING;
-            } else {
-                if(strstr(hstr_config, HH_CONFIG_KEYWORDS)) {
-                    hstr->historyMatch=HH_MATCH_KEYWORDS;
-                }
-            }
-        }
-        if(strstr(hstr_config,HH_CONFIG_SORTING)) {
-            hstr->historyView=HH_VIEW_HISTORY;
-        } else {
-            if(strstr(hstr_config,HH_CONFIG_FAVORITES)) {
-                hstr->historyView=HH_VIEW_FAVORITES;
-            }
-        }
-        if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_EXIT)) {
-            hstr->bigKeys=RADIX_BIG_KEYS_EXIT;
-        } else {
-            if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_FLOOR)) {
-                hstr->bigKeys=RADIX_BIG_KEYS_FLOOR;
-            } else {
-                hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
-            }
-        }
-        if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
-            hstr->blacklist.useFile=true;
-        }
-
-        if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
-            hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
-        } else {
-            if(strstr(hstr_config,HH_CONFIG_WARN)) {
-                hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
-            }
-        }
-
-        if(strstr(hstr_config,HH_CONFIG_DUPLICATES)) {
-            hstr->unique=false;
-        }
-
-        if(strstr(hstr_config,HH_CONFIG_PROMPT_BOTTOM)) {
-            hstr->promptBottom = true;
-        } else {
-            hstr->promptBottom = false;
-        }
-
-        if(strstr(hstr_config,HH_CONFIG_MINIMAL)) {
-            hstr->showHelp=false;
-        }
-
-        recalculate_max_history_items();
+    const char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
+    if (!hstr_config || !strlen(hstr_config)) {
+        return;
     }
+    size_t const len = strlen(hstr_config)+1;
+    char* config_items = malloc(len);
+    memcpy(config_items, hstr_config, len);
+    char* saveptr = config_items;
+    char* item;
+    while ((item = strtok_r(saveptr, ",", &saveptr)) != NULL) {
+        if(strcmp(item,HH_CONFIG_THEME_MONOCHROMATIC)==0) {
+            hstr->theme=HH_THEME_MONO;
+        } else if(strcmp(item,HH_CONFIG_THEME_HICOLOR)==0) {
+            hstr->theme=HH_THEME_DARK;
+        } else if(strcmp(item,HH_CONFIG_CASE)==0) {
+            hstr->caseSensitive=HH_CASE_SENSITIVE;
+        } else if(strcmp(item,HH_CONFIG_REGEXP)==0) {
+            hstr->historyMatch=HH_MATCH_REGEXP;
+        } else if(strcmp(item,HH_CONFIG_SUBSTRING)==0) {
+            hstr->historyMatch=HH_MATCH_SUBSTRING;
+        } else if(strcmp(item, HH_CONFIG_KEYWORDS)==0) {
+            hstr->historyMatch=HH_MATCH_KEYWORDS;
+        } else if(strcmp(item,HH_CONFIG_SORTING)==0) {
+            hstr->historyView=HH_VIEW_HISTORY;
+        } else if(strcmp(item,HH_CONFIG_FAVORITES)==0) {
+            hstr->historyView=HH_VIEW_FAVORITES;
+        } else if(strcmp(item,HH_CONFIG_BIG_KEYS_EXIT)==0) {
+            hstr->bigKeys=RADIX_BIG_KEYS_EXIT;
+        } else if(strcmp(item,HH_CONFIG_BIG_KEYS_FLOOR)==0) {
+            hstr->bigKeys=RADIX_BIG_KEYS_FLOOR;
+        } else if(strcmp(item,HH_CONFIG_BLACKLIST)==0) {
+            hstr->blacklist.useFile=true;
+        } else if(strcmp(item,HH_CONFIG_DEBUG)==0) {
+            hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
+        } else if(strcmp(item,HH_CONFIG_WARN)==0) {
+            hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
+        } else if(strcmp(item,HH_CONFIG_DUPLICATES)==0) {
+            hstr->unique=false;
+        } else if(strcmp(item,HH_CONFIG_PROMPT_BOTTOM)==0) {
+            hstr->promptBottom = true;
+        } else if(strcmp(item,HH_CONFIG_MINIMAL)==0) {
+            hstr->showHelp=false;
+        } else {
+            fprintf(stderr, "WARNING: unknown item in %s: %s\n", HH_ENV_VAR_CONFIG, item);
+        }
+    }
+    free(config_items);
 }
 
 int print_prompt()
