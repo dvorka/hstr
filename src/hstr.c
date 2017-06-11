@@ -104,7 +104,7 @@
 // MVP: model is the same regardless prompt is top or bottom - view is different
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
 #define HH_CONFIG_BLACKLIST  "blacklist"
-#define HH_CONFIG_KEEP_PAGE  "keepage"
+#define HH_CONFIG_KEEP_PAGE  "keep-page"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
