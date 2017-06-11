@@ -26,7 +26,7 @@ void hstr_curses_start()
     initscr();
     keypad(stdscr, TRUE);
     noecho();
-    nonl();
+    nonl(); // prevent carriage return from being mapped to newline
     terminalHasColors=has_colors();
     if(terminalHasColors) {
         start_color();
@@ -38,8 +38,10 @@ bool terminal_has_colors() {
     return terminalHasColors;
 }
 
-void hstr_curses_stop() {
-    // removed to leave content in case of alternative page - clear();
+void hstr_curses_stop(bool keepPage) {
+    if(!keepPage) {
+        clear();
+    }
     refresh();
     doupdate();
     endwin();

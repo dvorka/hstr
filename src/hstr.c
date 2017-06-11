@@ -104,6 +104,7 @@
 // MVP: model is the same regardless prompt is top or bottom - view is different
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
 #define HH_CONFIG_BLACKLIST  "blacklist"
+#define HH_CONFIG_KEEP_PAGE  "keepage"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
@@ -271,6 +272,7 @@ typedef struct {
     bool unique;
 
     unsigned char theme;
+    bool keepPage; // do NOT clear page w/ selection on HH exit
     int bigKeys;
     int debugLevel;
 
@@ -376,6 +378,9 @@ void hstr_get_env_configuration(Hstr *hstr)
         }
         if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
             hstr->blacklist.useFile=true;
+        }
+        if(strstr(hstr_config,HH_CONFIG_KEEP_PAGE)) {
+            hstr->keepPage=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
@@ -1330,7 +1335,7 @@ void loop_to_select(Hstr *hstr)
             break;
         }
     }
-    hstr_curses_stop();
+    hstr_curses_stop(hstr->keepPage);
 
     if(result!=NULL) {
         if(fixCommand) {
