@@ -933,7 +933,7 @@ void hstr_on_exit(Hstr *hstr)
 void signal_callback_handler_ctrl_c(int signum)
 {
     if(signum==SIGINT) {
-        hstr_curses_stop();
+        hstr_curses_stop(false);
         hstr_on_exit(hstr);
         exit(signum);
     }
