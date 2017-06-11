@@ -58,6 +58,8 @@
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
+#define K_CTRL_J 10
+#define K_CTRL_K 11
 
 #define K_CTRL_N 14
 #define K_CTRL_P 16
@@ -74,7 +76,7 @@
 #define K_ESC 27
 #define K_TAB 9
 #define K_BACKSPACE 127
-#define K_ENTER 10
+#define K_ENTER 13
 
 #define HH_THEME_MONO   0
 #define HH_THEME_COLOR  1<<7
@@ -1173,6 +1175,7 @@ void loop_to_select(Hstr *hstr)
             move(hstr->promptY, basex+hstr_strlen(pattern));
             break;
         case KEY_UP:
+        case K_CTRL_K:
         case K_CTRL_P:
             previousSelectionCursorPosition=selectionCursorPosition;
             if(selectionCursorPosition>0) {
@@ -1207,6 +1210,7 @@ void loop_to_select(Hstr *hstr)
             break;
         case K_CTRL_R:
         case KEY_DOWN:
+        case K_CTRL_J:
         case K_CTRL_N:
             if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
                 if(hstr->promptBottom) {
