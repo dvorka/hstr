@@ -73,6 +73,7 @@ void hstr_chop(char *s)
     }
 }
 
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -81,10 +82,15 @@ void tiocsti()
         ioctl(0, TIOCSTI, &buf[i]);
     }
 }
+#endif
 
 void fill_terminal_input(char *cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
+        fprintf(stderr, "%s", cmd);
+        if(padding) fprintf(stderr, "%s", "\n");
+#else
         size_t size = strlen(cmd);
         unsigned i;
         char *c;
@@ -95,6 +101,7 @@ void fill_terminal_input(char *cmd, bool padding)
         }
         // echo, but don't flush to terminal
         if(padding) printf("\n");
+#endif
     }
 }
 
@@ -157,11 +164,11 @@ char *get_shell_name_by_ppid(const int pid)
     if(strlen(name) > 4){
       char* shell = getenv("SHELL");
       if(shell != NULL) {
-	      shell=strrchr(shell,'/');
-	      if(shell != NULL) {
-		shell++;
-		strncpy(name,shell,sizeof(char)*strlen(shell));
-	}
+          shell=strrchr(shell,'/');
+          if(shell != NULL) {
+              shell++;
+              strncpy(name,shell,sizeof(char)*strlen(shell));
+          }
       }
     }
     return name;

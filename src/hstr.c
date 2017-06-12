@@ -58,6 +58,8 @@
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
+#define K_CTRL_J 10
+#define K_CTRL_K 11
 
 #define K_CTRL_N 14
 #define K_CTRL_P 16
@@ -74,7 +76,7 @@
 #define K_ESC 27
 #define K_TAB 9
 #define K_BACKSPACE 127
-#define K_ENTER 10
+#define K_ENTER 13
 
 #define HH_THEME_MONO   0
 #define HH_THEME_COLOR  1<<7
@@ -102,6 +104,7 @@
 // MVP: model is the same regardless prompt is top or bottom - view is different
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
 #define HH_CONFIG_BLACKLIST  "blacklist"
+#define HH_CONFIG_KEEP_PAGE  "keep-page"
 #define HH_CONFIG_DEBUG      "debug"
 #define HH_CONFIG_WARN       "warning"
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
@@ -178,7 +181,27 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
+// IMPROVE hh (win10) vs. hstr (cygwin) binary on various platforms must be resolved
+#if defined(__MS_WSL__)
+        // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
+        "\nfunction hstr_winwls {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  { READLINE_LINE=$(</dev/tty hh ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_winwls\"'; fi"
+#elif defined(__CYGWIN__)
+        "\nfunction hstr_cygwin {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
+#else
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
+#endif
         "\n\n";
 
 static const char *INSTALL_ZSH_STRING=
@@ -249,6 +272,7 @@ typedef struct {
     bool unique;
 
     unsigned char theme;
+    bool keepPage; // do NOT clear page w/ selection on HH exit
     int bigKeys;
     int debugLevel;
 
@@ -354,6 +378,9 @@ void hstr_get_env_configuration(Hstr *hstr)
         }
         if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
             hstr->blacklist.useFile=true;
+        }
+        if(strstr(hstr_config,HH_CONFIG_KEEP_PAGE)) {
+            hstr->keepPage=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
@@ -906,7 +933,7 @@ void hstr_on_exit(Hstr *hstr)
 void signal_callback_handler_ctrl_c(int signum)
 {
     if(signum==SIGINT) {
-        hstr_curses_stop();
+        hstr_curses_stop(false);
         hstr_on_exit(hstr);
         exit(signum);
     }
@@ -1153,6 +1180,7 @@ void loop_to_select(Hstr *hstr)
             move(hstr->promptY, basex+hstr_strlen(pattern));
             break;
         case KEY_UP:
+        case K_CTRL_K:
         case K_CTRL_P:
             previousSelectionCursorPosition=selectionCursorPosition;
             if(selectionCursorPosition>0) {
@@ -1187,6 +1215,7 @@ void loop_to_select(Hstr *hstr)
             break;
         case K_CTRL_R:
         case KEY_DOWN:
+        case K_CTRL_J:
         case K_CTRL_N:
             if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
                 if(hstr->promptBottom) {
@@ -1306,7 +1335,7 @@ void loop_to_select(Hstr *hstr)
             break;
         }
     }
-    hstr_curses_stop();
+    hstr_curses_stop(hstr->keepPage);
 
     if(result!=NULL) {
         if(fixCommand) {

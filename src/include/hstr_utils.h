@@ -27,17 +27,15 @@
 #include <stdbool.h>
 #include <unistd.h>
 
-#ifdef __CYGWIN__
-  #define TIOCSTI 0x5412
-#endif
-
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 char *hstr_strdup(const char *s);
 int hstr_strlen(const char *s);
 void hstr_chop(char *s);
+#ifndef __CYGWIN__
 void tiocsti();
+#endif
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);
 void get_hostname(int bufferSize, char *buffer);

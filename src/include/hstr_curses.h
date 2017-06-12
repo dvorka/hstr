@@ -31,6 +31,6 @@
 
 void hstr_curses_start();
 bool terminal_has_colors();
-void hstr_curses_stop();
+void hstr_curses_stop(bool keepPage);
 
 #endif
