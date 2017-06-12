@@ -21,17 +21,17 @@ Check also configuration [examples](#examples).
 BINDING HSTR TO KEYBOARD SHORTCUT
 ---------------------------------
 Bash uses *Emacs* style keyboard shortcuts by default. There is
-also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
+also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut
 based on the style you prefer below.
 
 Check your active Bash keymap with:
 ```bash
 bind -v | grep editing-mode
 bind -v | grep keymap
-``` 
+```
 
-To determine character sequence emitted by a pressed key in 
-terminal, type <kbd>Ctrl-v</kbd> and then press the key. Check your 
+To determine character sequence emitted by a pressed key in
+terminal, type <kbd>Ctrl-v</kbd> and then press the key. Check your
 current bindings using:
 ```bash
 bind -S
@@ -90,6 +90,14 @@ export HH_CONFIG=rawhistory
 Show favorite commands by default (instead of metrics-based view):
 ```bash
 export HH_CONFIG=favorites
+```
+Flip the view so the prompt is at the bottom:
+```bash
+export HH_CONFIG=prompt-bottom
+```
+Choose a minimal layout (currently this just removes the help bar):
+```bash
+export HH_CONFIG=minimal
 ```
 
 
