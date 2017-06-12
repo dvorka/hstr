@@ -97,6 +97,7 @@ AC_CHECK_HEADER(sys/ioctl.h)
 AC_CHECK_HEADER(termios.h)
 AC_CHECK_HEADER(unistd.h)
 AC_CHECK_HEADER(wchar.h)
+AC_CHECK_HEADER(assert.h)
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_CHECK_HEADER_STDBOOL
