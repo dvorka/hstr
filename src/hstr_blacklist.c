@@ -158,6 +158,5 @@ void blacklist_destroy(Blacklist *blacklist)
         }
         hashset_destroy(blacklist->set, false);
         free(blacklist->set);
-        free(blacklist);
     }
 }

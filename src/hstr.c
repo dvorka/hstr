@@ -1415,7 +1415,10 @@ int main(int argc, char *argv[])
     blacklist_load(&hstr->blacklist);
     hstr_main(hstr);
 
+    hstr_realloc_selection(0, hstr);
     favorites_destroy(hstr->favorites);
+    blacklist_destroy(&hstr->blacklist);
+    hstr_regexp_destroy(&hstr->regexp);
     free(hstr);
 
     return EXIT_SUCCESS;

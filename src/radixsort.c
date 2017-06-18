@@ -235,4 +235,7 @@ void radixsort_destroy(RadixSorter *rs)
             free(rs->_slotDescriptors[topIndex]);
         }
     } while(--topIndex>=0);
+
+    free(rs->topDigits);
+    free(rs->_slotDescriptors);
 }
