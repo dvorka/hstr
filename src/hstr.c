@@ -80,11 +80,11 @@
 #define K_BACKSPACE 127
 #define K_ENTER 13
 
-#define HH_THEME_NONE      0
+#define HH_THEME_NONE      (1<<7) // must be greater than other options
 #define HH_THEME_MONO      1
-#define HH_THEME_COLOR     (1<<7)
-#define HH_THEME_LIGHT     ((1<<6)|HH_THEME_COLOR)
-#define HH_THEME_DARK      ((1<<5)|HH_THEME_COLOR)
+#define HH_THEME_COLOR     (1<<6)
+#define HH_THEME_LIGHT     ((1<<5)|HH_THEME_COLOR)
+#define HH_THEME_DARK      ((1<<4)|HH_THEME_COLOR)
 
 #define HH_COLOR_NORMAL  1
 #define HH_COLOR_HIROW   2
@@ -267,6 +267,7 @@ typedef struct {
     char **selection;
     unsigned selectionSize;
     regmatch_t *selectionRegexpMatch;
+    const char* customPrompt;
 
     int historyMatch; // TODO patternMatching: exact, regexp
     int historyView; // TODO view: favorites, ...
@@ -275,6 +276,7 @@ typedef struct {
     bool interactive;
     bool unique;
     bool showHelp;
+    bool statusInPrompt;
 
     unsigned char theme;
     bool keepPage; // do NOT clear page w/ selection on HH exit
@@ -294,6 +296,8 @@ typedef struct {
     int promptYItemsStart;
     int promptYItemsEnd;
     int promptItems;
+
+    int promptX;
 } Hstr;
 
 static Hstr *hstr;
@@ -304,6 +308,8 @@ void hstr_init()
     hstr->selectionRegexpMatch=NULL;
     hstr->selectionSize=0;
 
+    hstr->customPrompt = NULL;
+
     hstr->historyMatch=HH_MATCH_SUBSTRING;
     hstr->historyView=HH_VIEW_RANKING;
     hstr->caseSensitive=HH_CASE_INSENSITIVE;
@@ -311,6 +317,7 @@ void hstr_init()
     hstr->interactive=true;
     hstr->unique=true;
     hstr->showHelp = true;
+    hstr->statusInPrompt = false;
     hstr->promptBottom = false;
 
     hstr->theme=HH_THEME_NONE; // allow config to override
@@ -330,11 +337,11 @@ unsigned recalculate_max_history_items()
     if(hstr->promptBottom) {
         hstr->promptY = bottom--;
         hstr->promptYHelp = hstr->showHelp ? top++ : LABEL_DISABLED_Y;
-        hstr->promptYStatus = top++;
+        hstr->promptYStatus = hstr->statusInPrompt ? top : top++;
     } else {
         hstr->promptY = top++;
         hstr->promptYHelp = hstr->showHelp ? top++ : LABEL_DISABLED_Y;
-        hstr->promptYStatus = top++;
+        hstr->promptYStatus = hstr->statusInPrompt ? top : top++;
     }
     hstr->promptYItemsStart = top;
     hstr->promptYItemsEnd = bottom;
@@ -351,8 +358,8 @@ void hstr_get_env_configuration(Hstr *hstr)
      */
 
     const char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
-    if (!hstr_config || !strlen(hstr_config)) {
-        return;
+    if (!hstr_config) {
+        hstr_config = "";
     }
     size_t const len = strlen(hstr_config)+1;
     char* config_items = malloc(len);
@@ -394,18 +401,28 @@ void hstr_get_env_configuration(Hstr *hstr)
             hstr->promptBottom = true;
         } else if(strcmp(item,HH_CONFIG_MINIMAL)==0) {
             hstr->showHelp=false;
+            hstr->statusInPrompt=true;
         } else {
             fprintf(stderr, "WARNING: unknown item in %s: %s\n", HH_ENV_VAR_CONFIG, item);
         }
     }
+
     free(config_items);
 
     if (hstr->theme == HH_THEME_NONE) {
         hstr->theme = HH_THEME_MONO;
     }
+
+    hstr->customPrompt = getenv(HH_ENV_VAR_PROMPT);
+#if 0
+    if (!strlen(hstr->customPrompt)) {
+        // ignore empty prompt
+        hstr->customPrompt = NULL;
+    }
+#endif
 }
 
-int print_prompt()
+int print_prompt(Hstr *hstr)
 {
     int xoffset = 0, promptLength;
 
@@ -414,10 +431,19 @@ int print_prompt()
         color_attr_on(A_BOLD);
     }
 
-    char *prompt = getenv(HH_ENV_VAR_PROMPT);
-    if(prompt) {
-        mvprintw(hstr->promptY, xoffset, "%s", prompt);
-        promptLength=strlen(prompt);
+    if(hstr->customPrompt) {
+        // might be useful to include dynamic substitution here
+        // maybe https://stackoverflow.com/questions/10060500/bash-how-to-evaluate-ps1-ps2
+        mvprintw(hstr->promptY, xoffset, "%s", hstr->customPrompt);
+        promptLength=strlen(hstr->customPrompt);
+    } else if (hstr->statusInPrompt) {
+        char screenLine[CMDLINE_LNG];
+        snprintf(screenLine, CMDLINE_LNG, "(^/)%s-(^e)%s-(^t)%s> ",
+                HH_VIEW_LABELS[hstr->historyView],
+                HH_MATCH_LABELS[hstr->historyMatch],
+                HH_CASE_LABELS[hstr->caseSensitive]);
+        mvprintw(hstr->promptY, xoffset, "%s", screenLine);
+        promptLength = strlen(screenLine);
     } else {
         char *user = getenv(ENV_VAR_USER);
         char *hostname=malloc(HOSTNAME_BUFFER);
@@ -434,7 +460,8 @@ int print_prompt()
     }
     refresh();
 
-    return xoffset + promptLength;
+    hstr->promptX = xoffset + promptLength;
+    return hstr->promptX;
 }
 
 void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
@@ -533,8 +560,13 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
     refresh();
 }
 
-void print_status_label()
+void print_status_label(Hstr *hstr)
 {
+    if (hstr->statusInPrompt) {
+        print_prompt(hstr);
+        return;
+    }
+
     int width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
@@ -562,11 +594,11 @@ void print_status_label()
     refresh();
 }
 
-void print_pattern(char *pattern, int y, int x)
+void print_pattern(Hstr *hstr, char *pattern)
 {
     if(pattern) {
         color_attr_on(A_BOLD);
-        mvprintw(y, x, "%s", pattern);
+        mvprintw(hstr->promptY, hstr->promptX, "%s", pattern);
         color_attr_off(A_BOLD);
         clrtoeol();
     }
@@ -820,13 +852,8 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
     color_attr_off(A_BOLD);
 }
 
-char *hstr_print_selection(char *pattern, Hstr *hstr)
+void hstr_print_selection(char *pattern, Hstr *hstr)
 {
-    char *result=NULL;
-    if (hstr->selectionSize > 0) {
-        result=hstr->selection[0];
-    }
-
     if (!strlen(pattern)) {
         pattern = NULL;
     }
@@ -867,14 +894,25 @@ char *hstr_print_selection(char *pattern, Hstr *hstr)
         }
     }
     refresh();
-
-    return result;
 }
 
-char *hstr_make_and_print_selection(char *pattern, Hstr *hstr)
+void hstr_make_and_print_selection(char *pattern, Hstr *hstr)
 {
     hstr_make_selection(pattern, hstr->history, hstr->promptItems, hstr);
-    return hstr_print_selection(pattern, hstr);
+    hstr_print_selection(pattern, hstr);
+}
+
+void clean_status_message(Hstr *hstr, char *pattern)
+{
+    if (hstr->statusInPrompt) {
+        // could be in help or the first line. could be more efficient, but for now
+        // just refresh the lot
+        print_help_label();
+        // pattern needed to highlight matches
+        hstr_print_selection(pattern, hstr);
+    } else {
+        print_status_label(hstr);
+    }
 }
 
 void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *pattern, Hstr *hstr)
@@ -1000,12 +1038,12 @@ void loop_to_select(Hstr *hstr)
 
     bool done=FALSE, executeResult=FALSE, lowercase=TRUE;
     bool dirtyStatusLabel=TRUE, fixCommand=FALSE, editCommand=FALSE;
-    int basex=0;
+    bool patternChanged = true;
     int c, cc, cursorX=0, cursorY=0, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-    char *result="", *msg, *delete;
+    char *result=NULL, *msg, *delete;
     char pattern[SELECTION_PREFIX_MAX_LNG];
     pattern[0]=0;
     // TODO this is too late! > don't render twice
@@ -1015,31 +1053,41 @@ void loop_to_select(Hstr *hstr)
     recalculate_max_history_items();
 
     // print prompt before pattern
-    basex=print_prompt();
+    print_prompt(hstr);
 
     // print current pattern
-    print_pattern(pattern, hstr->promptY, basex);
+    print_pattern(hstr, pattern);
     cursorX=getcurx(stdscr);
     cursorY=getcury(stdscr);
 
     // initialize history list
-    result=hstr_make_and_print_selection(pattern, hstr);
+    hstr_make_and_print_selection(pattern, hstr);
     color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
 
     // initialize info rows
-    print_status_label();
+    print_status_label(hstr);
     print_help_label(); // help is static and almost never needs updating
 
-    // finally, put cursor back at the prompt
-    move(cursorY, cursorX);
-
     while (!done) {
+        if (patternChanged) {
+            patternChanged = false;
+            if (hstr->selectionSize > 0) {
+                selectionCursorPosition=0;
+                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+            } else {
+                selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+                result=NULL;
+            }
+        }
+
+        // finally, put cursor back at the prompt
+        move(cursorY, cursorX);
+
         c = wgetch(stdscr);
 
         // if a message was displayed on the status label, clear it on next keypress
         if(dirtyStatusLabel) {
-            print_status_label();
-            dirtyStatusLabel=FALSE;
+            clean_status_message(hstr, pattern);
         }
 
         switch (c) {
@@ -1059,29 +1107,29 @@ void loop_to_select(Hstr *hstr)
                 cc = wgetch(stdscr);
                 if(cc == 'y') {
                     deletedOccurences=remove_from_history_model(msg, hstr);
-                    result=hstr_make_and_print_selection(pattern, hstr);
+                    hstr_make_and_print_selection(pattern, hstr);
                     print_cmd_deleted_label(msg, deletedOccurences, hstr);
                 } else {
-                    print_status_label();
+                    clean_status_message(hstr, pattern);
                 }
                 free(msg);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
                 dirtyStatusLabel=TRUE;
 
                 selectionCursorPosition = MIN(MAX(selectionCursorPosition, 0), hstr->selectionSize-1);
                 highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern, hstr);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
             }
             break;
         case K_CTRL_E:
             hstr->historyMatch++;
             hstr->historyMatch=hstr->historyMatch%HH_NUM_HISTORY_MATCH;
             // TODO make this a function
-            result=hstr_make_and_print_selection(pattern, hstr);
-            print_status_label();
+            hstr_make_and_print_selection(pattern, hstr);
+            print_status_label(hstr);
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(strlen(pattern)<(width-basex-1)) {
-                print_pattern(pattern, hstr->promptY, basex);
+            if(strlen(pattern)<(width-hstr->promptX-1)) {
+                print_pattern(hstr, pattern);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
             }
@@ -1089,23 +1137,23 @@ void loop_to_select(Hstr *hstr)
         case K_CTRL_T:
             hstr->caseSensitive=!hstr->caseSensitive;
             hstr->regexp.caseSensitive=hstr->caseSensitive;
-            result=hstr_make_and_print_selection(pattern, hstr);
-            print_status_label();
+            hstr_make_and_print_selection(pattern, hstr);
+            print_status_label(hstr);
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(strlen(pattern)<(width-basex-1)) {
-                print_pattern(pattern, hstr->promptY, basex);
+            if(strlen(pattern)<(width-hstr->promptX-1)) {
+                print_pattern(hstr, pattern);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
             }
             break;
         case K_CTRL_SLASH:
             hstr_next_view(hstr);
-            result=hstr_make_and_print_selection(pattern, hstr);
-            print_status_label();
+            hstr_make_and_print_selection(pattern, hstr);
+            print_status_label(hstr);
             // TODO function
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(strlen(pattern)<(width-basex-1)) {
-                print_pattern(pattern, hstr->promptY, basex);
+            if(strlen(pattern)<(width-hstr->promptX-1)) {
+                print_pattern(hstr, pattern);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
             }
@@ -1125,8 +1173,8 @@ void loop_to_select(Hstr *hstr)
                     dirtyStatusLabel=TRUE;
                 }
                 // TODO code review
-                if(strlen(pattern)<(width-basex-1)) {
-                    print_pattern(pattern, hstr->promptY, basex);
+                if(strlen(pattern)<(width-hstr->promptX-1)) {
+                    print_pattern(hstr, pattern);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);
                 }
@@ -1135,20 +1183,20 @@ void loop_to_select(Hstr *hstr)
         case KEY_RESIZE:
             recalculate_max_history_items();
             print_help_label();
-            print_status_label();
-            result=hstr_make_and_print_selection(pattern, hstr);
+            print_status_label(hstr);
+            hstr_make_and_print_selection(pattern, hstr);
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            move(hstr->promptY, basex+strlen(pattern));
+            move(hstr->promptY, hstr->promptX+strlen(pattern));
             break;
         case K_CTRL_U:
         case K_CTRL_W: // TODO supposed to delete just one word backward
             pattern[0]=0;
-            print_pattern(pattern, hstr->promptY, basex);
+            print_pattern(hstr, pattern);
             break;
         case K_CTRL_L:
             toggle_case(pattern, lowercase);
             lowercase=!lowercase;
-            print_pattern(pattern, hstr->promptY, basex);
+            print_pattern(hstr, pattern);
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             break;
         case K_CTRL_H:
@@ -1156,12 +1204,16 @@ void loop_to_select(Hstr *hstr)
         case KEY_BACKSPACE:
             if(hstr_strlen(pattern)>0) {
                 hstr_chop(pattern);
-                print_pattern(pattern, hstr->promptY, basex);
+                print_pattern(hstr, pattern);
+                cursorX=getcurx(stdscr);
+                cursorY=getcury(stdscr);
             }
 
-            result=hstr_make_and_print_selection(pattern, hstr);
+            previousSelectionCursorPosition = SELECTION_CURSOR_IN_PROMPT;
+            hstr_make_and_print_selection(pattern, hstr);
+            patternChanged = true;
 
-            move(hstr->promptY, basex+hstr_strlen(pattern));
+            move(hstr->promptY, hstr->promptX+hstr_strlen(pattern));
             break;
         case KEY_UP:
         case K_CTRL_K:
@@ -1175,7 +1227,7 @@ void loop_to_select(Hstr *hstr)
                 }
                 selectionCursorPosition = (MAX(-1, selectionCursorPosition) + hstr->selectionSize) % hstr->selectionSize;
                 highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
             }
             break;
         case KEY_PPAGE:
@@ -1188,7 +1240,7 @@ void loop_to_select(Hstr *hstr)
                 }
                 selectionCursorPosition = MIN(MAX(selectionCursorPosition, 0), hstr->selectionSize-1);
                 highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
             }
             break;
         case K_CTRL_R:
@@ -1204,7 +1256,7 @@ void loop_to_select(Hstr *hstr)
                 }
                 selectionCursorPosition = (MAX(-1, selectionCursorPosition) + hstr->selectionSize) % hstr->selectionSize;
                 highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
             }
             break;
         case KEY_NPAGE:
@@ -1217,7 +1269,7 @@ void loop_to_select(Hstr *hstr)
                 }
                 selectionCursorPosition = MIN(MAX(selectionCursorPosition, 0), hstr->selectionSize-1);
                 highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-                move(hstr->promptY, basex+strlen(pattern));
+                move(hstr->promptY, hstr->promptX+strlen(pattern));
             }
             break;
         case K_ENTER:
@@ -1230,9 +1282,11 @@ void loop_to_select(Hstr *hstr)
                 }
             }
             else {
-                if (hstr->selectionSize > 0) {
-                    result=hstr->selection[0];
-                }
+                // list should be empty. otherwise there's always a selection
+                assert(hstr->selectionSize == 0);
+
+                // ENTER with no list aborts
+                assert(result == NULL);
             }
             done=TRUE;
             break;
@@ -1279,21 +1333,17 @@ void loop_to_select(Hstr *hstr)
             LOGSELECTION(Y_OFFSET_HELP,getmaxy(stdscr),hstr->selectionSize);
 
             if(c>K_CTRL_Z) {
-                if(strlen(pattern)<(width-basex-1)) {
+                if(strlen(pattern)<(width-hstr->promptX-1)) {
                     strcat(pattern, (char*)(&c));
-                    print_pattern(pattern, hstr->promptY, basex);
+                    print_pattern(hstr, pattern);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);
                 }
 
                 previousSelectionCursorPosition = SELECTION_CURSOR_IN_PROMPT;
-                result = hstr_make_and_print_selection(pattern, hstr);
-                if (hstr->selectionSize > 0) {
-                    selectionCursorPosition=0;
-                    highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
-                } else {
-                    selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-                }
+                hstr_make_and_print_selection(pattern, hstr);
+                patternChanged = true;
+
                 move(cursorY, cursorX);
                 refresh();
             }
