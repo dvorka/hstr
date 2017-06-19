@@ -80,10 +80,11 @@
 #define K_BACKSPACE 127
 #define K_ENTER 13
 
-#define HH_THEME_MONO   0
-#define HH_THEME_COLOR  1<<7
-#define HH_THEME_LIGHT  1|HH_THEME_COLOR
-#define HH_THEME_DARK   2|HH_THEME_COLOR
+#define HH_THEME_NONE      0
+#define HH_THEME_MONO      1
+#define HH_THEME_COLOR     (1<<7)
+#define HH_THEME_LIGHT     ((1<<6)|HH_THEME_COLOR)
+#define HH_THEME_DARK      ((1<<5)|HH_THEME_COLOR)
 
 #define HH_COLOR_NORMAL  1
 #define HH_COLOR_HIROW   2
@@ -120,12 +121,12 @@
 #define HH_DEBUG_LEVEL_DEBUG 2
 
 #define HH_VIEW_RANKING      0
-#define HH_VIEW_HISTORY      1
-#define HH_VIEW_FAVORITES    2
+#define HH_VIEW_FAVORITES    1
+#define HH_VIEW_HISTORY      2
 
-#define HH_MATCH_SUBSTRING   0
-#define HH_MATCH_REGEXP      1
-#define HH_MATCH_KEYWORDS    2
+#define HH_MATCH_KEYWORDS    0
+#define HH_MATCH_SUBSTRING   1
+#define HH_MATCH_REGEXP      2
 
 #define HH_NUM_HISTORY_MATCH 3
 
@@ -312,7 +313,7 @@ void hstr_init()
     hstr->showHelp = true;
     hstr->promptBottom = false;
 
-    hstr->theme=HH_THEME_MONO;
+    hstr->theme=HH_THEME_NONE; // allow config to override
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
 
@@ -343,6 +344,12 @@ unsigned recalculate_max_history_items()
 
 void hstr_get_env_configuration(Hstr *hstr)
 {
+    /* To provide config priorities the MAX or MIN is taken.
+     * This means the constants must be in order of priority.
+     * In some cases where the default is not the lowest priority,
+     * an _NONE option is used and the default is set if unchanged
+     */
+
     const char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
     if (!hstr_config || !strlen(hstr_config)) {
         return;
@@ -354,39 +361,33 @@ void hstr_get_env_configuration(Hstr *hstr)
     char* item;
     while ((item = strtok_r(saveptr, ",", &saveptr)) != NULL) {
         if(strcmp(item,HH_CONFIG_THEME_MONOCHROMATIC)==0) {
-            hstr->theme=HH_THEME_MONO;
+            hstr->theme=MIN(hstr->theme, HH_THEME_MONO);
         } else if(strcmp(item,HH_CONFIG_THEME_HICOLOR)==0) {
-            hstr->theme=HH_THEME_DARK;
+            hstr->theme=MIN(hstr->theme, HH_THEME_DARK);
         } else if(strcmp(item,HH_CONFIG_CASE)==0) {
             hstr->caseSensitive=HH_CASE_SENSITIVE;
         } else if(strcmp(item,HH_CONFIG_REGEXP)==0) {
-            hstr->historyMatch=HH_MATCH_REGEXP;
+            hstr->historyMatch=MAX(hstr->historyMatch, HH_MATCH_REGEXP);
         } else if(strcmp(item,HH_CONFIG_SUBSTRING)==0) {
-            hstr->historyMatch=HH_MATCH_SUBSTRING;
+            hstr->historyMatch=MAX(hstr->historyMatch, HH_MATCH_SUBSTRING);
         } else if(strcmp(item, HH_CONFIG_KEYWORDS)==0) {
-            hstr->historyMatch=HH_MATCH_KEYWORDS;
+            hstr->historyMatch=MAX(hstr->historyMatch, HH_MATCH_KEYWORDS);
         } else if(strcmp(item,HH_CONFIG_SORTING)==0) {
-            hstr->historyView=HH_VIEW_HISTORY;
+            hstr->historyView=MAX(hstr->historyView, HH_VIEW_HISTORY);
         } else if(strcmp(item,HH_CONFIG_FAVORITES)==0) {
-            hstr->historyView=HH_VIEW_FAVORITES;
+            hstr->historyView=MAX(hstr->historyView, HH_VIEW_FAVORITES);
         } else if(strcmp(item,HH_CONFIG_BIG_KEYS_EXIT)==0) {
-            hstr->bigKeys=RADIX_BIG_KEYS_EXIT;
+            hstr->bigKeys=MAX(hstr->bigKeys, RADIX_BIG_KEYS_EXIT);
         } else if(strcmp(item,HH_CONFIG_BIG_KEYS_FLOOR)==0) {
-            hstr->bigKeys=RADIX_BIG_KEYS_FLOOR;
+            hstr->bigKeys=MAX(hstr->bigKeys, RADIX_BIG_KEYS_FLOOR);
         } else if(strcmp(item,HH_CONFIG_BLACKLIST)==0) {
             hstr->blacklist.useFile=true;
-/* TODO content of while loop to be reverted to original code
-        }
-        if(strstr(hstr_config,HH_CONFIG_KEEP_PAGE)) {
+        } else if(strcmp(hstr_config,HH_CONFIG_KEEP_PAGE)==0) {
             hstr->keepPage=true;
-        }
-
-        if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
-*/
         } else if(strcmp(item,HH_CONFIG_DEBUG)==0) {
-            hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
+            hstr->debugLevel=MIN(hstr->debugLevel, HH_DEBUG_LEVEL_DEBUG);
         } else if(strcmp(item,HH_CONFIG_WARN)==0) {
-            hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
+            hstr->debugLevel=MIN(hstr->debugLevel, HH_DEBUG_LEVEL_WARN);
         } else if(strcmp(item,HH_CONFIG_DUPLICATES)==0) {
             hstr->unique=false;
         } else if(strcmp(item,HH_CONFIG_PROMPT_BOTTOM)==0) {
@@ -398,6 +399,10 @@ void hstr_get_env_configuration(Hstr *hstr)
         }
     }
     free(config_items);
+
+    if (hstr->theme == HH_THEME_NONE) {
+        hstr->theme = HH_THEME_MONO;
+    }
 }
 
 int print_prompt()
