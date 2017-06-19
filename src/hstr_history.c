@@ -91,9 +91,12 @@ int get_item_offset()
 
 HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
 {
+    assert(prioritizedHistory == NULL);
+
     using_history();
 
     char *historyFile = get_history_file_name();
+    // TODO: clear_history() here?
     if(read_history(historyFile)!=0) {
         fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
         exit(EXIT_FAILURE);
@@ -192,20 +195,23 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
             free(prioritizedRadix[i]->data);
             free(prioritizedRadix[i]);
         }
+        free(prioritizedRadix);
 
         radixsort_destroy(&rs);
-        // TODO rankmap (?) and blacklist (?) to be destroyed
-
-        return prioritizedHistory;
-    } else {
-        return NULL;
+        hashset_destroy(&rankmap, false); // FIXME: free items true/false?
     }
+
+    return prioritizedHistory;
 }
 
 void free_prioritized_history()
 {
     free(prioritizedHistory->items);
+    free(prioritizedHistory->rawItems);
     free(prioritizedHistory);
+
+    // free memory (do not write_history after this!)
+    clear_history();
 }
 
 void history_mgmt_open()
@@ -260,6 +266,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
         write_history(get_history_file_name());
         dirty=true;
     }
+
     return occurences;
 }
 
