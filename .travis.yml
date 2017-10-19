@@ -2,9 +2,31 @@
 
 language: c
 
-os: linux
+os:
+  - linux
+  - osx
+  
+addons:
+  apt:
+    packages:
+      - autotools-dev
+      - libreadline-dev
+      - libncursesw5-dev
 
-compiler: gcc
+compiler:
+  - gcc
+  - clang
+
+matrix:
+  include:
+    - if: branch = master
+      compiler: gcc
+      os: osx
+      script: brew install --HEAD jq && brew test jq
+    - if: branch = master
+      compiler: clang
+      os: osx
+      script: brew install --HEAD jq && brew test jq
 
 notifications:
   email:
@@ -12,10 +34,6 @@ notifications:
     on_failure: change
 
 before_install:
-  - sudo apt-get update -qq
-  - sudo apt-get install -qq autotools-dev libreadline-dev libncursesw5-dev
   - aclocal
   - automake --force-missing --add-missing
   - autoconf
-
-# eof
