@@ -22,6 +22,8 @@
 #include <locale.h>
 #ifdef __APPLE__
 #include <curses.h>
+#elif defined(__FreeBSD__)
+#include <ncurses.h>
 #else
 #include <ncursesw/curses.h>
 #endif
