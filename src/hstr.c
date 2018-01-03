@@ -103,6 +103,7 @@
 #define HH_CONFIG_KEYWORDS   "keywords"
 #define HH_CONFIG_SORTING    "rawhistory"
 #define HH_CONFIG_FAVORITES  "favorites"
+#define HH_CONFIG_NOCONFIRM  "noconfirm"
 // MVP: model is the same regardless prompt is top or bottom - view is different
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
 #define HH_CONFIG_BLACKLIST  "blacklist"
@@ -274,6 +275,7 @@ typedef struct {
 
     unsigned char theme;
     bool keepPage; // do NOT clear page w/ selection on HH exit
+    bool noConfirm; // do NOT ask for confirmation on history entry delete
     int bigKeys;
     int debugLevel;
 
@@ -382,6 +384,9 @@ void hstr_get_env_configuration(Hstr *hstr)
         }
         if(strstr(hstr_config,HH_CONFIG_KEEP_PAGE)) {
             hstr->keepPage=true;
+        }
+        if(strstr(hstr_config,HH_CONFIG_NOCONFIRM)) {
+            hstr->noConfirm=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
@@ -1057,9 +1062,11 @@ void loop_to_select(Hstr *hstr)
                 msg=malloc(strlen(delete)+1);
                 strcpy(msg,delete);
 
-                print_confirm_delete(msg, hstr);
-                cc = wgetch(stdscr);
-                if(cc == 'y') {
+                if(!hstr->noConfirm) {
+                    print_confirm_delete(msg, hstr);
+                    cc = wgetch(stdscr);
+                }
+                if(hstr->noConfirm || cc == 'y') {
                     deletedOccurences=remove_from_history_model(msg, hstr);
                     result=hstr_print_selection(maxHistoryItems, pattern, hstr);
                     print_cmd_deleted_label(msg, deletedOccurences, hstr);
