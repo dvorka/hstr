@@ -16,11 +16,11 @@ then
 fi
 
 export HHBZRMSG="Top and bottom prompt."
-export VERSION=1.23.
-export MINOR=1
+export VERSION=1.24.
+export MINOR=0
 
-# precise quantal saucy precise utopic vivid wily yakkety / trusty xenial  
-for DISTRO in zesty
+# precise quantal saucy precise utopic vivid wily yakkety / trusty xenial zesty artful
+for DISTRO in trustry xenial zesty artful
 do
 
 ./ubuntu-make-distro.sh ${DISTRO} ${VERSION}${MINOR} "${HHBZRMSG}"

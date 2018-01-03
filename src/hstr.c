@@ -1,7 +1,7 @@
 /*
  hstr.c     BASH history completion utility
 
- Copyright (C) 2014-2016 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -235,8 +235,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.23\""
-        "\n   build   \""__DATE__" " __TIME__"\""
+        "hh version \"1.24\" (2018-01-03T12:19:00)"
         "\n";
 
 // TODO help screen - curses window (tig)

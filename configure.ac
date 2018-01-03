@@ -1,7 +1,7 @@
 # configure.ac      Autoconf configuration file
 #                   process this file with autoconf to produce a configure script
 #
-# Copyright (C) 2014-2017  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -17,7 +17,7 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 1.23, martin.dvorak@mindforger.com)
+AC_INIT(hh, 1.24, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
 # Checks for src dir existence.

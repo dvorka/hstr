@@ -1,3 +1,7 @@
+2018-01-03  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.24 - Reproducible build and stabilization.
+
 2017-09-30  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.23 - WLS (Bash on Ubuntu on Windows 10) support

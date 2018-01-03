@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=zesty
+export DISTRO=artful
 
 sudo pbuilder --create $DISTRO
 rm -vf ~/pbuilder/${DISTRO}-base.tgz
