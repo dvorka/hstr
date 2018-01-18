@@ -3,7 +3,7 @@ INSTALLATION
 Install `hh` using [distribution](#distribution-installation),
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
 [Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [openSUSE](#opensuse), [Debian/Mint](#debianmint),
-[Gentoo](#gentoo), [Arch Linux](#arch-linux), [Bash on Ubuntu on Windows (WLS)](#wls), [Cygwin](#cygwin) or [Mac OS](#mac-os).
+[Gentoo](#gentoo), [Arch Linux](#arch-linux), [Bash on Ubuntu on Windows (WSL)](#wsl), [Cygwin](#cygwin) or [Mac OS](#mac-os).
 
 
 UBUNTU
@@ -157,9 +157,9 @@ make
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-WLS
+WSL
 ---
-To install `hh` on [Bash on Ubuntu on Windows (WLS)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
+To install `hh` on [Bash on Ubuntu on Windows (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
 ```bash
 git clone https://github.com/dvorka/hstr.git
 ```
