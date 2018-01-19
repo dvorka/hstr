@@ -187,13 +187,13 @@ static const char *INSTALL_BASH_STRING=
 // IMPROVE hh (win10) vs. hstr (cygwin) binary on various platforms must be resolved
 #if defined(__MS_WSL__)
         // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
-        "\nfunction hstr_winwls {"
+        "\nfunction hstr_winwsl {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
         "\n  { READLINE_LINE=$(</dev/tty hh ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_winwls\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_winwsl\"'; fi"
 #elif defined(__CYGWIN__)
         "\nfunction hstr_cygwin {"
         "\n  offset=${READLINE_POINT}"
