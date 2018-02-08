@@ -11,6 +11,7 @@ For more configuration options details please refer to:
 * get more [colors](#colors)
 * choose [default history view](#history-view)
 * [command blacklist](#blacklist)
+* disable [confirm on delete](#confirm-on-delete)
 * [verbosity](#verbosity)
 * [Bash history settings](#bash-history-settings)
 * [zsh history settings](#zsh-history-settings)
@@ -121,6 +122,13 @@ ll
 
 ```
 
+CONFIRM ON DELETE
+---------
+Do not prompt for confirmation when deleting history items:
+```bash
+export HH_CONFIG=noconfirm
+```
+
 VERBOSITY
 ---------
 Show warnings:
@@ -131,7 +139,6 @@ Show debug messages:
 ```bash
 export HH_CONFIG=debug
 ```
-
 
 BASH HISTORY SETTINGS
 ---------------------
