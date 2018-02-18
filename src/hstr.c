@@ -182,6 +182,16 @@ static const char *INSTALL_BASH_STRING=
         "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
         "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
         "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
+        // PROMPT_COMMAND considerations:
+        //   history -a ... append NEW entries from memory to .bash_history (i.e. flush to file where HSTR reads commands)
+        //   history -n ... append NEW entries from .bash_history to memory i.e. NOT entire history reload
+        //   history -c ... CLEAR in memory history (keeps .bash_history content)
+        //   history -r ... append ALL entries from .bash_history to memory (useful to sync DIFFERENT Bash sessions)
+        // Conclusion:
+        //   -a -n ... Fastest and almost-consistent option i.e. there is efficiency/integrity trade-off
+        //             It works correctly if memory entries are not deleted by HSTR. It doesn't synchronize history
+        //             across different Bash sessions.
+        //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different Bash sessions)
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
         "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
 // IMPROVE hh (win10) vs. hstr (cygwin) binary on various platforms must be resolved
