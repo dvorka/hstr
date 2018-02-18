@@ -188,7 +188,7 @@ static const char *INSTALL_BASH_STRING=
         //   history -c ... CLEAR in memory history (keeps .bash_history content)
         //   history -r ... append ALL entries from .bash_history to memory (useful to sync DIFFERENT Bash sessions)
         // Conclusion:
-        //   -a -n ... Fastest and almost-consistent option i.e. there is efficiency/integrity trade-off
+        //   -a -n ... Fastest and almost-consistent option i.e. there is efficiency/integrity trade-off.
         //             It works correctly if memory entries are not deleted by HSTR. It doesn't synchronize history
         //             across different Bash sessions.
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different Bash sessions)
