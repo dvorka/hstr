@@ -49,7 +49,7 @@ unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t l
     return metrics;
 }
 
-char *get_history_file_name()
+char *get_history_file_name(void)
 {
     char *historyFile=getenv(ENV_VAR_HISTFILE);
     if(!historyFile || strlen(historyFile)==0) {
@@ -74,7 +74,7 @@ void dump_prioritized_history(HistoryItems *historyItems)
     printf("\n"); fflush(stdout);
 }
 
-int get_item_offset()
+int get_item_offset(void)
 {
     if(isZshParentShell()) {
         // In zsh history file, the format of item is
@@ -202,18 +202,18 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
     }
 }
 
-void free_prioritized_history()
+void free_prioritized_history(void)
 {
     free(prioritizedHistory->items);
     free(prioritizedHistory);
 }
 
-void history_mgmt_open()
+void history_mgmt_open(void)
 {
     dirty=false;
 }
 
-void history_clear_dirty()
+void history_clear_dirty(void)
 {
     dirty=false;
 }
@@ -263,6 +263,27 @@ int history_mgmt_remove_from_system_history(char *cmd)
     return occurences;
 }
 
+bool history_mgmt_remove_last_history_entry()
+{
+    using_history();
+
+    char *historyFile = get_history_file_name();
+    if(read_history(historyFile)!=0) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
+        exit(EXIT_FAILURE);
+    }
+    HISTORY_STATE *historyState=history_get_history_state();
+    // delete the last command + the command that was used to run HSTR
+    if(historyState->length > 1) {
+        // length is NOT updated on history entry removal
+        free_history_entry(remove_history(historyState->length-1));
+        free_history_entry(remove_history(historyState->length-2));
+        write_history(get_history_file_name());
+        return true;
+    }
+    return false;
+}
+
 int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
     int occurences=history->rawCount;
     if(history->rawCount) {
@@ -291,7 +312,7 @@ int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
     return occurences-history->count;
 }
 
-void history_mgmt_flush()
+void history_mgmt_flush(void)
 {
     if(dirty) {
         fill_terminal_input("history -r\n", false);

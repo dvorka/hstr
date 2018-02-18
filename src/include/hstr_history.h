@@ -51,17 +51,18 @@ typedef struct {
 
 HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist);
 
-HistoryItems *get_history_items();
-void free_history_items();
+HistoryItems *get_history_items(void);
+void free_history_items(void);
 
 HistoryItems *prioritize_history(HistoryItems *historyFileItems);
-void free_prioritized_history();
+void free_prioritized_history(void);
 
-void history_mgmt_open();
-void history_clear_dirty();
+void history_mgmt_open(void);
+void history_clear_dirty(void);
 int history_mgmt_remove_from_system_history(char *cmd);
+bool history_mgmt_remove_last_history_entry();
 int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history);
 int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history);
-void history_mgmt_flush();
+void history_mgmt_flush(void);
 
 #endif

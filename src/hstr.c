@@ -234,6 +234,7 @@ static const char *HELP_STRING=
         "\nShell history suggest box:"
         "\n"
         "\n  --favorites              -f ... show favorites view"
+        "\n  --kill-last-command      -k ... delete last command in history"
         "\n  --non-interactive        -n ... print filtered history and exit"
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show Zsh configuration to be added to ~/.zshrc"
@@ -259,6 +260,7 @@ static const char *LABEL_HELP=
 
 static const struct option long_options[] = {
         {"favorites",              GETOPT_NO_ARGUMENT, NULL, 'f'},
+        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL, 'k'},
         {"version",                GETOPT_NO_ARGUMENT, NULL, 'V'},
         {"help",                   GETOPT_NO_ARGUMENT, NULL, 'h'},
         {"non-interactive",        GETOPT_NO_ARGUMENT, NULL, 'n'},
@@ -1417,7 +1419,7 @@ void hstr_main(Hstr *hstr)
 void hstr_getopt(int argc, char **argv, Hstr *hstr)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fVhnszb", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnszb", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1426,6 +1428,12 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
         case 'n':
             hstr->interactive=false;
             break;
+        case 'k':
+            if(history_mgmt_remove_last_history_entry()) {
+                exit(EXIT_SUCCESS);
+            } else {
+                exit(EXIT_FAILURE);
+            }
         case 'b':
             blacklist_load(&hstr->blacklist);
             blacklist_dump(&hstr->blacklist);
