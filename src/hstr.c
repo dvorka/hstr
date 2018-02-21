@@ -214,6 +214,8 @@ static const char *INSTALL_BASH_STRING=
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
 #else
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
+        "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"
+        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-xk\": \"\\C-a hh -k \\C-j\"'; fi"
 #endif
         "\n\n";
 

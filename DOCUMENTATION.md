@@ -28,6 +28,7 @@ Table of contents:
   * Choosing a command
   * Favorite commands
   * Blacklist
+  * Delete last command
 * Examples
   
 
@@ -127,6 +128,16 @@ Tips:
   ` echo "Skip this from history"` It's a Bash
   option that is configured using 
   `HISTCONTROL=ignorespace` environment variable.
+
+Blacklist
+---------
+Using `hh` you can easily delete the last command from history
+e.g. when you make a typo or write something sensitive:
+```
+hh --kill-last-command
+```
+See configuration section for how to bind this functionality to
+a key - bound to <kbd>Ctrl+x k</kbd> by default.
 
 
 Examples

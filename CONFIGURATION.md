@@ -56,6 +56,11 @@ Bind `hh` to <kbd>Ctrl-r</kbd> only if it is interactive shell:
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi
 ```
+You can bind also other `hh` commands like `-kill-last-command`:
+```bash
+if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hh -k \C-j"'; fi
+```
+
 
 ## BASH VI KEYMAP
 Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
@@ -131,6 +136,10 @@ export HH_CONFIG=noconfirm
 
 VERBOSITY
 ---------
+Show a message when deleting the last command from history:
+```bash
+export HH_CONFIG=verbose-kill
+```
 Show warnings:
 ```bash
 export HH_CONFIG=warning
