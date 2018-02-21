@@ -97,19 +97,19 @@
 
 #define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HH_CONFIG_THEME_HICOLOR         "hicolor"
-#define HH_CONFIG_CASE       "casesensitive"
-#define HH_CONFIG_REGEXP     "regexp"
-#define HH_CONFIG_SUBSTRING  "substring"
-#define HH_CONFIG_KEYWORDS   "keywords"
-#define HH_CONFIG_SORTING    "rawhistory"
-#define HH_CONFIG_FAVORITES  "favorites"
-#define HH_CONFIG_NOCONFIRM  "noconfirm"
-// MVP: model is the same regardless prompt is top or bottom - view is different
+#define HH_CONFIG_CASE          "casesensitive"
+#define HH_CONFIG_REGEXP        "regexp"
+#define HH_CONFIG_SUBSTRING     "substring"
+#define HH_CONFIG_KEYWORDS      "keywords"
+#define HH_CONFIG_SORTING       "rawhistory"
+#define HH_CONFIG_FAVORITES     "favorites"
+#define HH_CONFIG_NOCONFIRM     "noconfirm"
+#define HH_CONFIG_VERBOSE_KILL  "verbose-kill"
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
-#define HH_CONFIG_BLACKLIST  "blacklist"
-#define HH_CONFIG_KEEP_PAGE  "keep-page"
-#define HH_CONFIG_DEBUG      "debug"
-#define HH_CONFIG_WARN       "warning"
+#define HH_CONFIG_BLACKLIST     "blacklist"
+#define HH_CONFIG_KEEP_PAGE     "keep-page"
+#define HH_CONFIG_DEBUG         "debug"
+#define HH_CONFIG_WARN          "warning"
 #define HH_CONFIG_BIG_KEYS_SKIP  "big-keys-skip"
 #define HH_CONFIG_BIG_KEYS_FLOOR "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT  "big-keys-exit"
@@ -222,7 +222,7 @@ static const char *INSTALL_ZSH_STRING=
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HH_CONFIG=hicolor        # get more colors"
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
-        // TODO try variant with arg/pars separation
+        // TODO try variant with args/pars separation
         //"\nbindkey -s \"\\C-r\" \"\\eqhh --\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
         // alternate binding options in zsh:
         //   bindkey -s '^R' '^Ahh ^M'
@@ -288,6 +288,7 @@ typedef struct {
     unsigned char theme;
     bool keepPage; // do NOT clear page w/ selection on HH exit
     bool noConfirm; // do NOT ask for confirmation on history entry delete
+    bool verboseKill; // write a message on delete of the last command in history
     int bigKeys;
     int debugLevel;
 
@@ -390,6 +391,9 @@ void hstr_get_env_configuration(Hstr *hstr)
             } else {
                 hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
             }
+        }
+        if(strstr(hstr_config,HH_CONFIG_VERBOSE_KILL)) {
+            hstr->verboseKill=true;
         }
         if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
             hstr->blacklist.useFile=true;
@@ -1429,7 +1433,7 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
             hstr->interactive=false;
             break;
         case 'k':
-            if(history_mgmt_remove_last_history_entry()) {
+            if(history_mgmt_remove_last_history_entry(hstr->verboseKill)) {
                 exit(EXIT_SUCCESS);
             } else {
                 exit(EXIT_FAILURE);

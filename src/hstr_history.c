@@ -263,7 +263,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
     return occurences;
 }
 
-bool history_mgmt_remove_last_history_entry()
+bool history_mgmt_remove_last_history_entry(bool verbose)
 {
     using_history();
 
@@ -276,10 +276,16 @@ bool history_mgmt_remove_last_history_entry()
     // delete the last command + the command that was used to run HSTR
     if(historyState->length > 1) {
         // length is NOT updated on history entry removal
+        if(verbose) {
+            fprintf(stdout, "Deleting command '%s' from history\n", historyState->entries[historyState->length-2]->line);
+        }
         free_history_entry(remove_history(historyState->length-1));
         free_history_entry(remove_history(historyState->length-2));
         write_history(get_history_file_name());
         return true;
+    }
+    if(verbose) {
+        fprintf(stderr, "Unable to delete the last command from history.\n");
     }
     return false;
 }
