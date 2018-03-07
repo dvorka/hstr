@@ -641,7 +641,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
     regmatch_t regexpMatch;
     char regexpErrorMessage[CMDLINE_LNG];
     bool regexpCompilationError=false;
-    bool keywordsAllMatch=NULL;
+    bool keywordsAllMatch;
     char *keywordsSavePtr=NULL;
     char *keywordsToken=NULL;
     char *keywordsParsedLine=NULL;
