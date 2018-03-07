@@ -641,11 +641,11 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelecti
     regmatch_t regexpMatch;
     char regexpErrorMessage[CMDLINE_LNG];
     bool regexpCompilationError=false;
-    bool keywordsAllMatch;
+    bool keywordsAllMatch=NULL;
     char *keywordsSavePtr=NULL;
-    char *keywordsToken;
-    char *keywordsParsedLine;
-    char *keywordsPointerToDelete;
+    char *keywordsToken=NULL;
+    char *keywordsParsedLine=NULL;
+    char *keywordsPointerToDelete=NULL;
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
@@ -759,12 +759,12 @@ void print_selection_row(char *text, int y, int width, char *pattern)
         if(hstr->theme & HH_THEME_COLOR) {
             color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
         }
-        char* p;
-        char* pp;
-        char* keywordsSavePtr;
-        char* keywordsToken;
-        char* keywordsParsedLine;
-        char* keywordsPointerToDelete;
+        char* p=NULL;
+        char* pp=NULL;
+        char* keywordsSavePtr=NULL;
+        char* keywordsToken=NULL;
+        char* keywordsParsedLine=NULL;
+        char* keywordsPointerToDelete=NULL;
 
         switch(hstr->historyMatch) {
         case HH_MATCH_SUBSTRING:
