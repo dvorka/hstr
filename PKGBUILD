@@ -11,7 +11,7 @@ url="https://github.com/dvorka/hstr"
 license=('Apache')
 makedepends=('autoconf' 'automake' 'ncurses' 'readline')
 source=(${pkgname}-${pkgver}.tar.gz::https://github.com/dvorka/${pkgname}/archive/${pkgver}.tar.gz)
-sha256sums=('f0e9762f2a9587f0995bbd51cb64526ae852c2425ceb8ceee0747efba80ac6b3')
+sha256sums=('6c130afd8ca570ee1988a0c7d6a96efeeabd21be7e05ce1f3144bb3c86c74441')
 
 prepare() {
     cd "${pkgname}-${pkgver}"
