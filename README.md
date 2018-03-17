@@ -1,6 +1,6 @@
 hstr
 ====
-Easily view, navigate, search and use your **command history** with shell history suggest box for Bash and
+Easily view, navigate and search your **command history** with shell history suggest box for Bash and
 [Zsh](CONFIGURATION.md#zsh-history-settings).
 
 [![Shell History Suggest Box](http://me.mindforger.com/projects/images/hh-animated-01.gif "Shell History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
@@ -10,18 +10,18 @@ DESCRIPTION
 -----------
 Are you looking for a command that you used **recently**? Do you
 want to  avoid the need to write **long commands** over and over
-again despite you used them recently? Are you looking
-for a tool that is able to manage your **favorite** commands?
+again? Are you looking for a tool that is able to manage your 
+**favorite** commands?
 
 HSTR is a command line utility that brings improved Bash command completion
 from the history. It aims to make completion **easier** and more **efficient**
 than <kbd>Ctrl-r</kbd>.
 
-Apart to the completion, history can be **managed** (you can remove
-commands that e.g. contain sensitive information like
-passwords) and bookmark your favorite commands.
+HSTR can also **manage** your command history (for instance you can remove
+commands that are obsolete or contain a sensitive information) or **bookmark** 
+your favorite commands.
 
-Enjoy [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
+Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 
 INSTALLATION
