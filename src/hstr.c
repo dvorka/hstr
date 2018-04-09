@@ -132,8 +132,6 @@
 #define HH_CASE_INSENSITIVE  0
 #define HH_CASE_SENSITIVE    1
 
-#define SPACE_PADDING "                                                              "
-
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
 #else
@@ -827,9 +825,9 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
         color_attr_on(A_REVERSE);
     }
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, getmaxx(stdscr),
-            "%s%s" SPACE_PADDING SPACE_PADDING SPACE_PADDING,
-            (terminal_has_colors()?" ":">"), text);
+    snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
+            (terminal_has_colors()?" ":">"),
+            getmaxx(stdscr)-2, getmaxx(stdscr)-2, text);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(1));
