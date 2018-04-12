@@ -1168,6 +1168,7 @@ void loop_to_select(Hstr *hstr)
             break;
         case KEY_RESIZE:
             print_history_label();
+            maxHistoryItems=recalculate_max_history_items();
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
