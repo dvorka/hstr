@@ -492,7 +492,7 @@ void print_confirm_delete(const char *cmd, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -510,7 +510,7 @@ void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -527,7 +527,7 @@ void print_regexp_error(const char *errorMessage)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -544,7 +544,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -820,7 +820,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
 {
     color_attr_on(A_BOLD);
     if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(2));
+        color_attr_on(COLOR_PAIR(HH_COLOR_HIROW));
     } else {
         color_attr_on(A_REVERSE);
     }
@@ -830,7 +830,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
             getmaxx(stdscr)-2, getmaxx(stdscr)-2, text);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     } else {
         color_attr_off(A_REVERSE);
     }
