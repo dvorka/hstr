@@ -1065,6 +1065,10 @@ void loop_to_select(Hstr *hstr)
             printDefaultLabel=FALSE;
         }
 
+        if(c == K_CTRL_R) {
+            c = (hstr->promptBottom ? K_CTRL_P : K_CTRL_N);
+        }
+
         switch (c) {
         case KEY_HOME:
             // avoids printing of wild chars in search prompt
@@ -1238,7 +1242,6 @@ void loop_to_select(Hstr *hstr)
             highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
             move(hstr->promptY, basex+strlen(pattern));
             break;
-        case K_CTRL_R:
         case KEY_DOWN:
         case K_CTRL_J:
         case K_CTRL_N:
