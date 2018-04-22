@@ -16,6 +16,7 @@
  limitations under the License.
 */
 
+#include <ctype.h>
 #include <stdio.h>
 #include <limits.h>
 #include <readline/history.h>
@@ -89,6 +90,24 @@ int get_item_offset(void)
     }
 }
 
+bool is_hist_timestamp(const char *line)
+{
+    // HISTTIMEFORMAT defined > ^#1234567890$
+
+    if(line[0] != '#') {
+        return false;
+    }
+
+    int i;
+    for(i = 1; line[i] != '\0'; ++i) {
+        if(!isdigit(line[i])) {
+            return false;
+        }
+    }
+
+    return (i >= 11);
+}
+
 HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
@@ -112,11 +131,6 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
         rs.optionBigKeys=optionBigKeys;
 
-        regex_t regexp;
-        // HISTTIMEFORMAT defined > ^#1234567890$
-        const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
-        regexp_compile(&regexp, histtimeformatTimestamp);
-
         RankedHistoryItem *r;
         RadixItem *radixItem;
         HIST_ENTRY **historyList=history_list();
@@ -124,7 +138,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         int rawOffset=historyState->length-1, rawTimestamps=0;
         char *line;
         for(i=0; i<historyState->length; i++, rawOffset--) {
-            if(!regexp_match(&regexp, historyList[i]->line)) {
+            if(is_hist_timestamp(historyList[i]->line)) {
                 rawHistory[rawOffset]=0;
                 rawTimestamps++;
                 continue;
@@ -170,8 +184,6 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
                 }
             }
         }
-
-        regfree(&regexp);
 
         DEBUG_RADIXSORT();
 
@@ -224,13 +236,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
     char *l;
     HISTORY_STATE *historyState=history_get_history_state();
 
-    // TODO refactor this code to have this in source exactly once
-    regex_t tsRegexp;
     regex_t zshRegexp;
-    // HISTTIMEFORMAT defined > ^#1234567890$
-    const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
-    regexp_compile(&tsRegexp, histtimeformatTimestamp);
-
     const char *zshTimestamp = "^: [[:digit:]]\\{10,\\}:[[:digit:]];.*";
     regexp_compile(&zshRegexp, zshTimestamp);
 
@@ -246,7 +252,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
                if(offset>0) {
                    l=historyState->entries[offset-1]->line;
                    if(l && strlen(l)) {
-                       if(!regexp_match(&tsRegexp, l)) {
+                       if(is_hist_timestamp(l)) {
                            // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
                            free_history_entry(remove_history(offset-1));
                        }
