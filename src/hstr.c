@@ -315,7 +315,7 @@ void hstr_init()
     hstr->selectionRegexpMatch=NULL;
     hstr->selectionSize=0;
 
-    hstr->historyMatch=HH_MATCH_SUBSTRING;
+    hstr->historyMatch=HH_MATCH_KEYWORDS;
     hstr->historyView=HH_VIEW_RANKING;
     hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
