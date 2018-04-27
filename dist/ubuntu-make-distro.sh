@@ -103,6 +103,14 @@ bzr commit -m "Update for ${HH} at ${NOW}."
 
 createTarball
 
+    # x) start GPG agent if it's NOT running
+    if [ -e "${HOME}/.gnupg/S.gpg-agent" ]
+    then
+	echo "OK: GPG agent running."
+    else
+	gpg-agent --daemon
+    fi    
+
 bzr builddeb -- -us -uc
 bzr builddeb -S
 cd ../build-area
