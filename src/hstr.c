@@ -1103,6 +1103,12 @@ void loop_to_select(Hstr *hstr)
                 printDefaultLabel=TRUE;
                 print_history_label();
 
+                if(hstr->selectionSize == 0) {
+                    // just update the cursor, there are no elements to select
+                    move(hstr->promptY, basex+strlen(pattern));
+                    break;
+                }
+
                 if(hstr->promptBottom) {
                     if(selectionCursorPosition <= hstr->promptYItemsEnd-hstr->selectionSize+1) {
                         selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
