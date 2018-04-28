@@ -474,10 +474,15 @@ void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
 
 void print_help_label()
 {
+    int cursorX=getcurx(stdscr);
+    int cursorY=getcury(stdscr);
+
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine); clrtoeol();
     refresh();
+
+    move(cursorY, cursorX);
 }
 
 void print_confirm_delete(const char *cmd, Hstr *hstr)
