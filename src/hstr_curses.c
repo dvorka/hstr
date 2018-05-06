@@ -32,6 +32,14 @@ void hstr_curses_start()
         start_color();
         use_default_colors();
     }
+
+#if defined(NCURSES_EXT_FUNCS) && NCURSES_EXT_FUNCS >= 20081102
+    // Use ncurses specific function to make delay after pressing escape key
+    // unnoticeable.  Can be zero, but in some corner cases multiple bytes
+    // composing a functional key code might be handled to the application with
+    // a delay, so small delay is safer.
+    set_escdelay(5);
+#endif
 }
 
 bool terminal_has_colors() {

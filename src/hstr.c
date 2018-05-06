@@ -474,10 +474,15 @@ void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
 
 void print_help_label()
 {
+    int cursorX=getcurx(stdscr);
+    int cursorY=getcury(stdscr);
+
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", LABEL_HELP);
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine); clrtoeol();
     refresh();
+
+    move(cursorY, cursorX);
 }
 
 void print_confirm_delete(const char *cmd, Hstr *hstr)
@@ -492,7 +497,7 @@ void print_confirm_delete(const char *cmd, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -510,7 +515,7 @@ void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -527,7 +532,7 @@ void print_regexp_error(const char *errorMessage)
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -544,7 +549,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
     mvprintw(hstr->promptYHelp, 0, screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -820,7 +825,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
 {
     color_attr_on(A_BOLD);
     if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(2));
+        color_attr_on(COLOR_PAIR(HH_COLOR_HIROW));
     } else {
         color_attr_on(A_REVERSE);
     }
@@ -830,7 +835,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
             getmaxx(stdscr)-2, getmaxx(stdscr)-2, text);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(1));
+        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     } else {
         color_attr_off(A_REVERSE);
     }
@@ -1065,6 +1070,10 @@ void loop_to_select(Hstr *hstr)
             printDefaultLabel=FALSE;
         }
 
+        if(c == K_CTRL_R) {
+            c = (hstr->promptBottom ? K_CTRL_P : K_CTRL_N);
+        }
+
         switch (c) {
         case KEY_HOME:
             // avoids printing of wild chars in search prompt
@@ -1093,6 +1102,12 @@ void loop_to_select(Hstr *hstr)
                 move(hstr->promptY, basex+strlen(pattern));
                 printDefaultLabel=TRUE;
                 print_history_label();
+
+                if(hstr->selectionSize == 0) {
+                    // just update the cursor, there are no elements to select
+                    move(hstr->promptY, basex+strlen(pattern));
+                    break;
+                }
 
                 if(hstr->promptBottom) {
                     if(selectionCursorPosition <= hstr->promptYItemsEnd-hstr->selectionSize+1) {
@@ -1168,6 +1183,7 @@ void loop_to_select(Hstr *hstr)
             break;
         case KEY_RESIZE:
             print_history_label();
+            maxHistoryItems=recalculate_max_history_items();
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1237,7 +1253,6 @@ void loop_to_select(Hstr *hstr)
             highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
             move(hstr->promptY, basex+strlen(pattern));
             break;
-        case K_CTRL_R:
         case KEY_DOWN:
         case K_CTRL_J:
         case K_CTRL_N:
