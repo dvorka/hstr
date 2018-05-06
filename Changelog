@@ -1,3 +1,7 @@
+2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.25 - Community contributed fixes and improvements. Keyword search is default.
+
 2018-01-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.24 - Reproducible build and stabilization.

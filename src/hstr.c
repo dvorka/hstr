@@ -247,7 +247,7 @@ static const char *HELP_STRING=
         "\n";
 
 static const char *VERSION_STRING=
-        "hh version \"1.24\" (2018-02-18T11:00:00)"
+        "hh version \"1.25\" (2018-05-06T19:30:00)"
         "\n";
 
 // TODO help screen - curses window (tig)
