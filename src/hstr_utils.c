@@ -148,8 +148,16 @@ char *get_shell_name_by_ppid(const int pid)
 {
     char* name = (char*)calloc(PID_BUFFER_SIZE,sizeof(char));
     if(name){
-        sprintf(name, "/proc/%d/cmdline",pid);
+        // First we should try to open /proc/[pid]/comm (since Linux 2.6.33) and only if it missing
+        // then use /proc/[pid]/cmdline. Second way have problems in some cases - when for example
+        // we open session with using "su - [username]". Then /proc/[pid]/cmdline will contains
+        // "-su" instead real shell name, which is present in the /proc/[pid]/comm file.
+        sprintf(name, "/proc/%d/comm",pid);
         FILE* f = fopen(name,"r");
+        if (!f){
+            sprintf(name, "/proc/%d/cmdline",pid);
+            f = fopen(name,"r");
+        }
         if(f){
             size_t size = fread(name, sizeof(char), PID_BUFFER_SIZE-1, f);
             if(size>0){
