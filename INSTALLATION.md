@@ -79,7 +79,8 @@ section of the project:
 ```bash
 dpkg -i hstr_1...deb
 ```
-Alternatively use PPA to install `hh` on Debian (Wheezy) or Mint (13) by registering the key:
+Alternatively use (not always up to date) PPA to install `hh` on 
+Debian (Wheezy) or Mint (13) by registering the key:
 ```bash
 wget www.clfh.de/frankh.asc
 apt-key add frankh.asc
