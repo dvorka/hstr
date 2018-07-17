@@ -1,8 +1,10 @@
 hstr
 ====
+<!--
 [![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka/hstr/issues)
 [![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka/hstr/releases)
+-->
 
 Easily view, navigate and search your **command history** with shell history suggest box for Bash and
 [Zsh](CONFIGURATION.md#zsh-history-settings).
