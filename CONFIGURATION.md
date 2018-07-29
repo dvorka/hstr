@@ -65,7 +65,7 @@ if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hh -k \C-j"'; fi
 ## BASH VI KEYMAP
 Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
-bind '"\C-r": "\C-ahh -- \C-j"'
+bind '"\C-r": "\e0ihh -- \C-j"'
 ```
 
 ## ZSH EMACS KEYMAP (DEFAULT)
