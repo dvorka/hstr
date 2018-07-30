@@ -246,8 +246,9 @@ static const char *HELP_STRING=
         "\nHome page: https://github.com/dvorka/hstr"
         "\n";
 
+// major.minor.revision
 static const char *VERSION_STRING=
-        "hh version \"1.25\" (2018-05-06T19:30:00)"
+        "hh version \"1.27.0\" (2018-08-1T13:00:00)"
         "\n";
 
 // TODO help screen - curses window (tig)
