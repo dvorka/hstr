@@ -1,3 +1,7 @@
+2018-08-01  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.27.0 - Stabilizations, fixes, QtCreator IDE migration, build, distributions.
+
 2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.25 - Community contributed fixes and improvements. Keyword search is default.
