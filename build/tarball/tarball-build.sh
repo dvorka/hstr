@@ -13,8 +13,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+
+# Script used to build HSTR using autotools.
+# 
+# HSTR release method:
 #
-# Method:
 # 1. Tarball release checklist:
 #   - git grep <previous version>
 #   - update version in the source code (hstr.c)
@@ -22,26 +25,36 @@
 #   - update version github-env.sh
 #   - ... search for old version using Eclipse/grep
 #
-# 2. Run this script from this directory.
-#
+# 2. Run this script from Git repository - it will copy repository content
+#    to a release directory
 
-. ./tarball-env.sh
 export SCRIPT_HOME=`pwd`
 
+export HH_VERSION="1.27.0"
+
+export NOW=`date +%Y-%m-%d--%H-%M-%S`
+export GH_RELEASE_DIR=~/p/hstr/release
+export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
+
 function makeTarballRelease() {
-    cp -vrf ${SCRIPT_HOME}/../../hstr .
-    cd hstr && rm -vrf debian doc tests && cd dist && ./1-dist.sh
-    if [ $? -ne 0 ]
+    cp -vrf ${SCRIPT_HOME}/../../../hstr .
+    cd hstr && rm -vrf debian doc test && cd build/tarball && ./tarball-automake.sh --purge
+    if [ ${?} -ne 0 ]
     then
-       exit 1;
+        echo "ERROR: automake prepare phase failed"
+        exit 1;
     fi
-    cd ../..
-    tar zcfv hh-${HHVERSION}-src.tgz hstr
+    cd ../../..
+    tar zcfv hh-${HH_VERSION}-tarball.tgz hstr
     cd hstr && ./configure && make && cp src/hh ..
     cd ..
-    tar zcfv hh-${HHVERSION}-bin-64b.tgz hh
+    strip -v hh
+    tar zcfv hh-${HH_VERSION}-bin-64b.tgz hh
 }
 
+# ############################################################################
+# # Main #
+# ############################################################################
 
 mkdir -v ${GH_DISTRO_DIR}
 cd ${GH_DISTRO_DIR} && makeTarballRelease
