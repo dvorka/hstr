@@ -14,10 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export NOW=`date +%Y-%m-%d--%H-%M-%S`
-export GH_RELEASE_DIR=~/p/hstr/release
-export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
+export HH_VERSION="1.27.0"
 
-export HHVERSION="1.27.0"
+export NOW=`date +%Y-%m-%d--%H-%M-%S`
+export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
+export GH_RELEASE_DIR=~/p/hstr/release
 
 # eof

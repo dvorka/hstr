@@ -106,7 +106,7 @@ GENTOO
 ------
 hstr has been added to Portage, see this [bug](https://bugs.gentoo.org/show_bug.cgi?id=527122).
 To install hstr, emerge it like so:
-```
+```bash
 emerge app-shells/hstr
 ```
 and you should be all set.
@@ -141,7 +141,7 @@ or from the source code as described further in this section. First install MacP
 
 And then install readline and ncurses:
 
-```
+```bash
 port install readline
 port install ncurses
 ```
