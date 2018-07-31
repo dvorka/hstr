@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Script used to build HSTR using autotools.
+# Script used to create TARBALL and to build HSTR using autotools.
 # 
 # HSTR release method:
 #

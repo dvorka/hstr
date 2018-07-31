@@ -14,7 +14,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Script used to prepare HSTR to be build using autotools - creates configure script:
+# Script used to prepare HSTR to be build using autotools:
 #   --purge ... remove Git and IDE related (meta)files that are commited in Git repository
 #               (only transient/temporary files are deleted otherwise)
 
