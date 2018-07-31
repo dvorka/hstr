@@ -24,7 +24,8 @@ function tarballClean() {
     if [ "${1}" = "--purge" ]
     then
 	# development files
-	rm -vrf .git .gitignore .settings Debug Release .cproject .project hstr.pro
+	rm -vrf build .git .gitignore .settings Debug Release .cproject .project hstr.pro
+	rm -vf .travis.yml pad.xml _config.yml
     fi
     # garbage
     find . -name "*.*~" | xargs rm -vf {}
