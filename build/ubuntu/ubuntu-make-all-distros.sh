@@ -23,15 +23,19 @@
 # - check minor version in this file
 # - run this script from ~/p/hstr/launchpad
 
+export HHBZRMSG="Top and bottom prompt."
+export VERSION=1.27.
+export MINOR=1
+
+change it - script to be run from GIT repo, launchpad dir is hardcoded
+
 if [ -e "../.git" ]
 then
   echo "This script MUST NOT be run from Git repository - run it e.g. from ~/p/hstr/launchpad instead"
   exit 1
 fi
 
-export HHBZRMSG="Top and bottom prompt."
-export VERSION=1.25.
-export MINOR=1
+update this based on MF
 
 # precise quantal saucy precise utopic vivid wily yakkety zesty / trusty xenial artful bionic
 for DISTRO in trusty xenial artful bionic
