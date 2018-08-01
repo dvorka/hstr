@@ -14,19 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Script used to create TARBALL and to build HSTR using autotools.
-# 
-# HSTR release method:
-#
-# 1. Tarball release checklist:
-#   - git grep <previous version>
-#   - update version in the source code (hstr.c)
-#   - update version in configure.ac
-#   - update version github-env.sh
-#   - ... search for old version using Eclipse/grep
-#
-# 2. Run this script from Git repository - it will copy repository content
-#    to a release directory
+# Script used to create TARBALL and to build HSTR using autotools:
+#  - run this script from Git repository.
+#  - it copies repository content and result to given release directory
 
 export SCRIPT_HOME=`pwd`
 
@@ -55,6 +45,18 @@ function makeTarballRelease() {
 # ############################################################################
 # # Main #
 # ############################################################################
+
+echo "HSTR tarball and binary builder"
+if [ ! -e "../../.git" ]
+then
+    echo "ERROR: this script must be run FROM Git repository"
+    exit 1
+fi
+if [ ! -e "../../.git" ]
+then
+    echo "ERROR: release directory must exist: ${GH_RELEASE_DIR}"
+    exit 1
+fi
 
 mkdir -v ${GH_DISTRO_DIR}
 cd ${GH_DISTRO_DIR} && makeTarballRelease
