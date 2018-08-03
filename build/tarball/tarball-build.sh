@@ -52,7 +52,7 @@ then
     echo "ERROR: this script must be run FROM Git repository"
     exit 1
 fi
-if [ ! -e "../../.git" ]
+if [ ! -e "${GH_RELEASE_DIR}" ]
 then
     echo "ERROR: release directory must exist: ${GH_RELEASE_DIR}"
     exit 1
