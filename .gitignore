@@ -17,3 +17,4 @@ Makefile.in
 *.snap
 hstr.pro.user
 *.*~
+hstr
