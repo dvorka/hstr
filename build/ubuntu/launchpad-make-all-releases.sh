@@ -161,15 +161,14 @@ then
     exit 1
 fi
 
-export ARG_BAZAAR_MSG="Experimental packaging."
+export ARG_BAZAAR_MSG="Release 1.27.x"
 export ARG_MAJOR_VERSION=1.27.
 export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
 # old: precise quantal saucy precise utopic vivid wily yakkety artful
 # current: trusty xenial bionic
-for UBUNTU_VERSION in xenial
-#for UBUNTU_VERSION in trusty xenial bionic
+for UBUNTU_VERSION in trusty xenial bionic
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
