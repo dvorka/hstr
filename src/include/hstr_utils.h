@@ -27,6 +27,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#define UNUSED_ARG(expr) do { (void)(expr); } while (0)
+
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 

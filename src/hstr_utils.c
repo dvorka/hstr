@@ -77,8 +77,8 @@ void hstr_chop(char *s)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
-    int i;
-    for (i = 0; i < sizeof buf - 1; i++) {
+    unsigned i;
+    for (i=0; i<sizeof buf-1; i++) {
         ioctl(0, TIOCSTI, &buf[i]);
     }
 }

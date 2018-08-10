@@ -19,9 +19,7 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
-QMAKE_CXX = ccache g++
-
-# -L where to look for library, -l link the library
+# -L for where to look for library, -l for linking the library
 LIBS += -lm -lreadline -lncursesw
 
 SOURCES += \
@@ -44,3 +42,7 @@ HEADERS += \
     src/include/hstr_regexp.h \
     src/include/hstr_utils.h \
     src/include/radixsort.h
+
+# compiler and linker
+QMAKE_CC = ccache gcc
+QMAKE_LINK = gcc

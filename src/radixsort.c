@@ -97,6 +97,8 @@ void radixsort_add(RadixSorter *rs, RadixItem *item)
 
 void radix_dec_slot_descriptor_size(RadixSorter *rs, RadixSlot *descriptor, unsigned key, unsigned topIndex)
 {
+    UNUSED_ARG(key);
+
     descriptor->size--;
     if(!descriptor->size) {
         descriptor->min=rs->keyLimit;

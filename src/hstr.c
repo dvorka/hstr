@@ -427,9 +427,9 @@ void hstr_get_env_configuration(Hstr *hstr)
     }
 }
 
-int print_prompt()
+unsigned print_prompt()
 {
-    int xoffset = 0, promptLength;
+    unsigned xoffset = 0, promptLength;
 
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
@@ -462,7 +462,7 @@ int print_prompt()
 void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
 {
     if (hstr->unique) {
-        int i;
+        unsigned i;
         for(i = 0; i < *index; i++) {
             if (strcmp(hstr->selection[i], line) == 0) {
                 return;
@@ -558,7 +558,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
 
 void print_history_label()
 {
-    int width=getmaxx(stdscr);
+    unsigned width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, width, "- HISTORY - view:%s (C-7) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
@@ -570,7 +570,7 @@ void print_history_label()
             hstr->favorites->count);
     width -= strlen(screenLine);
     unsigned i;
-    for (i=0; i < width; i++) {
+    for(i=0; i<width; i++) {
         strcat(screenLine, "-");
     }
     if(hstr->theme & HH_THEME_COLOR) {
@@ -618,7 +618,7 @@ void hstr_realloc_selection(unsigned size, Hstr *hstr)
     }
 }
 
-unsigned hstr_make_selection(char *prefix, HistoryItems *history, int maxSelectionCount, Hstr *hstr)
+unsigned hstr_make_selection(char *prefix, HistoryItems *history, unsigned maxSelectionCount, Hstr *hstr)
 {
     hstr_realloc_selection(maxSelectionCount, hstr);
 
@@ -824,6 +824,8 @@ void print_selection_row(char *text, int y, int width, char *pattern)
 
 void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hstr)
 {
+    UNUSED_ARG(width);
+
     color_attr_on(A_BOLD);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_HIROW));
@@ -851,8 +853,8 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
         result=hstr->selection[0];
     }
 
-    int height=recalculate_max_history_items();
-    int width=getmaxx(stdscr);
+    unsigned height=recalculate_max_history_items();
+    unsigned width=getmaxx(stdscr);
     unsigned i;
     int y;
 
@@ -869,7 +871,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
 
     int start, count;
     char screenLine[CMDLINE_LNG];
-    for (i = 0; i<height; ++i) {
+    for(i=0; i<height; ++i) {
         if(i<hstr->selectionSize) {
             // TODO make this function
             if(pattern && strlen(pattern)) {
@@ -952,7 +954,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
     }
 }
 
-void hstr_on_exit(Hstr *hstr)
+void hstr_on_exit(void)
 {
     history_mgmt_flush();
     free_prioritized_history();
@@ -962,12 +964,12 @@ void signal_callback_handler_ctrl_c(int signum)
 {
     if(signum==SIGINT) {
         hstr_curses_stop(false);
-        hstr_on_exit(hstr);
+        hstr_on_exit();
         exit(signum);
     }
 }
 
-int remove_from_history_model(char *delete, Hstr *hstr)
+int remove_from_history_model(char* delete, Hstr *hstr)
 {
     if(hstr->historyView==HH_VIEW_FAVORITES) {
         return favorites_remove(hstr->favorites, delete);
@@ -994,7 +996,7 @@ void hstr_next_view(Hstr *hstr)
 void stdout_history_and_return(Hstr *hstr) {
     unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount, hstr);
     if (selectionCount > 0) {
-        int i;
+        unsigned i;
         for(i=0; i<selectionCount; i++) {
             printf("%s\n",hstr->selection[i]);
         }
@@ -1035,7 +1037,7 @@ void loop_to_select(Hstr *hstr)
 
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
     bool printDefaultLabel=TRUE, fixCommand=FALSE, editCommand=FALSE;
-    int basex=print_prompt();
+    unsigned basex=print_prompt();
     int x=basex, c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1111,12 +1113,12 @@ void loop_to_select(Hstr *hstr)
                 }
 
                 if(hstr->promptBottom) {
-                    if(selectionCursorPosition <= hstr->promptYItemsEnd-hstr->selectionSize+1) {
+                    if(selectionCursorPosition <= (int)(hstr->promptYItemsEnd-hstr->selectionSize+1)) {
                         selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
                     }
                 } else {
-                    if(selectionCursorPosition>=hstr->selectionSize) {
-                        selectionCursorPosition=hstr->selectionSize-1;
+                    if(selectionCursorPosition >= (int)hstr->selectionSize) {
+                        selectionCursorPosition = hstr->selectionSize - 1;
                     }
                 }
                 highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern, hstr);
@@ -1226,7 +1228,7 @@ void loop_to_select(Hstr *hstr)
             previousSelectionCursorPosition=selectionCursorPosition;
             if(selectionCursorPosition>0) {
                 if(hstr->promptBottom) {
-                    if(selectionCursorPosition <= hstr->promptYItemsEnd-hstr->selectionSize+1) {
+                    if(selectionCursorPosition <= (int)(hstr->promptYItemsEnd-hstr->selectionSize+1)) {
                         selectionCursorPosition=hstr->promptYItemsEnd;
                     } else {
                         selectionCursorPosition--;
@@ -1272,7 +1274,7 @@ void loop_to_select(Hstr *hstr)
                         selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
                     }
                 } else {
-                    if((selectionCursorPosition+1)<hstr->selectionSize) {
+                    if((selectionCursorPosition+1) < (int)hstr->selectionSize) {
                         selectionCursorPosition++;
                     } else {
                         selectionCursorPosition=0;
@@ -1289,7 +1291,7 @@ void loop_to_select(Hstr *hstr)
                 selectionCursorPosition=previousSelectionCursorPosition=0;
             } else {
                 previousSelectionCursorPosition=selectionCursorPosition;
-                if((selectionCursorPosition+PG_JUMP_SIZE)<hstr->selectionSize) {
+                if((selectionCursorPosition+PG_JUMP_SIZE) < (int)hstr->selectionSize) {
                     selectionCursorPosition = selectionCursorPosition+PG_JUMP_SIZE;
                 } else {
                     selectionCursorPosition=hstr->selectionSize-1;
@@ -1430,7 +1432,7 @@ void hstr_main(Hstr *hstr)
         } else {
             stdout_history_and_return(hstr);
         }
-        hstr_on_exit(hstr);
+        hstr_on_exit();
     } else {
         printf("No history - nothing to suggest...\n");
     }
