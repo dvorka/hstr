@@ -34,6 +34,7 @@ void radixsort_init(RadixSorter *rs, unsigned keyLimit)
 
     rs->_slotDescriptors=malloc(rs->_topIndexLimit * sizeof(RadixSlot **));
     rs->_slotsCount=0;
+    rs->_debug=RADIX_DEBUG_LEVEL_NONE;
 }
 
 void radixsort_set_debug_level(RadixSorter *rs, unsigned debugLevel)
