@@ -16,3 +16,4 @@ Makefile.in
 *.o
 hstr.pro.user
 *.*~
+hstr
