@@ -64,7 +64,7 @@ char *get_history_file_name(void)
 void dump_prioritized_history(HistoryItems *historyItems)
 {
     printf("\n\nPrioritized history:");
-    int i;
+    unsigned i;
     for(i=0; i<historyItems->count; i++) {
         if(historyItems->items[i]!=NULL) {
             printf("\n%s",historyItems->items[i]); fflush(stdout);
@@ -75,7 +75,7 @@ void dump_prioritized_history(HistoryItems *historyItems)
     printf("\n"); fflush(stdout);
 }
 
-int get_item_offset(void)
+unsigned get_item_offset(void)
 {
     if(isZshParentShell()) {
         // In zsh history file, the format of item is
@@ -119,13 +119,12 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
     }
     HISTORY_STATE *historyState=history_get_history_state();
 
-    int itemOffset = get_item_offset();
+    unsigned itemOffset = get_item_offset();
 
     if(historyState->length > 0) {
         HashSet rankmap;
         hashset_init(&rankmap);
 
-        int i;
         RadixSorter rs;
         unsigned radixMaxKeyEstimate=historyState->size*1000;
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
@@ -137,6 +136,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         char **rawHistory=malloc(sizeof(char*) * historyState->length);
         int rawOffset=historyState->length-1, rawTimestamps=0;
         char *line;
+        int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
             if(is_hist_timestamp(historyList[i]->line)) {
                 rawHistory[rawOffset]=0;
@@ -193,16 +193,17 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         prioritizedHistory->rawCount=historyState->length-rawTimestamps;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
-        for(i=0; i<rs.size; i++) {
-            if(prioritizedRadix[i]->data) {
-                char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
+        unsigned u;
+        for(u=0; u<rs.size; u++) {
+            if(prioritizedRadix[u]->data) {
+                char* item = ((RankedHistoryItem *)(prioritizedRadix[u]->data))->item;
                 if(strlen(item)>itemOffset) {
                     item += itemOffset;
                 }
-                prioritizedHistory->items[i]=item;
+                prioritizedHistory->items[u]=item;
             }
-            free(prioritizedRadix[i]->data);
-            free(prioritizedRadix[i]);
+            free(prioritizedRadix[u]->data);
+            free(prioritizedRadix[u]);
         }
 
         radixsort_destroy(&rs);
@@ -297,9 +298,9 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
 }
 
 int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
-    int occurences=history->rawCount;
+    unsigned occurences=history->rawCount;
     if(history->rawCount) {
-        int i, ii;
+        unsigned i, ii;
         for(i=0, ii=0; i<history->rawCount; i++) {
             if(strcmp(cmd, history->rawItems[i])) {
                 history->rawItems[ii++]=history->rawItems[i];
@@ -311,9 +312,9 @@ int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
 }
 
 int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
-    int occurences=history->count;
+    unsigned occurences=history->count;
     if(history->count) {
-        int i, ii;
+        unsigned i, ii;
         for(i=0, ii=0; i<history->count; i++) {
             if(strcmp(cmd, history->items[i])) {
                 history->items[ii++]=history->items[i];

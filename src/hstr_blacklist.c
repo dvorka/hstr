@@ -70,8 +70,10 @@ void blacklist_load(Blacklist *blacklist)
                 fileSize = ftell(file);
                 rewind(file);
                 fileContent = malloc((fileSize + 1) * (sizeof(char)));
-                if(fread(fileContent, sizeof(char), fileSize, file)==-1) {
-                    exit(EXIT_FAILURE);
+                if(!fread(fileContent, sizeof(char), fileSize, file)) {
+                    if(ferror(file)) {
+                        exit(EXIT_FAILURE);
+                    }
                 }
                 fclose(file);
                 fileContent[fileSize] = 0;
@@ -135,23 +137,27 @@ void blacklist_destroy(Blacklist *blacklist)
             char* fileName = blacklist_get_filename();
             int size=hashset_size(blacklist->set);
             if(size) {
-                FILE *output_file = fopen(fileName, "wb");
-                rewind(output_file);
+                FILE *outputFile = fopen(fileName, "wb");
+                rewind(outputFile);
                 int i;
                 char **keys=hashset_keys(blacklist->set);
                 for(i=0; i<size; i++) {
-                    if(fwrite(keys[i], sizeof(char), strlen(keys[i]), output_file)==-1) {
-                        exit(EXIT_FAILURE);
+                    if(!fwrite(keys[i], sizeof(char), strlen(keys[i]), outputFile)) {
+                        if(ferror(outputFile)) {
+                            exit(EXIT_FAILURE);
+                        }
                     }
-                    if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
-                        exit(EXIT_FAILURE);
+                    if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
+                        if(ferror(outputFile)) {
+                            exit(EXIT_FAILURE);
+                        }
                     }
                 }
-                fclose(output_file);
+                fclose(outputFile);
             } else {
                 if(access(fileName, F_OK) != -1) {
-                    FILE *output_file = fopen(fileName, "wb");
-                    fclose(output_file);
+                    FILE *outputFile = fopen(fileName, "wb");
+                    fclose(outputFile);
                 }
             }
             free(fileName);
