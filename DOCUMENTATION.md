@@ -3,6 +3,7 @@ This document is an unfinished draft.
 HSTR DOCUMENTATION
 ==================
 Table of contents:
+
 * Installation
   * Distribution
   * Source code

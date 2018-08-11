@@ -7,6 +7,7 @@ hh --show-configuration >> ~/.bashrc
 Run `hh --show-configuration` to determine what will be appended to your Bash profile.
 
 For more configuration options details please refer to:
+
 * bind `hh` command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
 * get more [colors](#colors)
 * choose [default history view](#history-view)
@@ -124,11 +125,9 @@ cd
 my-private-command
 ls
 ll
-
 ```
-
 CONFIRM ON DELETE
----------
+-----------------
 Do not prompt for confirmation when deleting history items:
 ```bash
 export HH_CONFIG=noconfirm
