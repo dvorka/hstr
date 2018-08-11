@@ -14,40 +14,42 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-language: c
-
 os:
   - linux
-  - osx
-  
-addons:
-  apt:
-    packages:
-      - autotools-dev
-      - libreadline-dev
-      - libncursesw5-dev
 
+language: c
 compiler:
   - gcc
-  - clang
 
 matrix:
   include:
-    - if: branch = master
-      compiler: gcc
-      os: osx
-      script: brew install --HEAD jq && brew test jq
-    - if: branch = master
-      compiler: clang
-      os: osx
-      script: brew install --HEAD jq && brew test jq
+    - os: linux
 
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+sudo: required
+dist: trusty # Travis CI provides Precise and Trusty only
 
 before_install:
-  - aclocal
-  - automake --force-missing --add-missing
-  - autoconf
+  - sudo apt-get update -qq
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"  
+  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+  - sudo apt-get update -qq
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - sudo apt-get install -qq qttools5-dev-tools
+  - sudo apt-get install -qq ccache
+  - sudo apt-get install -qq libgtest-dev
+  - "export HSTRHOME=`pwd`"
+  - cd /usr/src/gtest # I have to build Google Test Framework myself
+  - sudo apt-get install -qq cmake
+  - sudo cmake .
+  - sudo make
+  - sudo mv libg* /usr/lib/
+
+script: # make lib unit tests > run lib unit tests > make MF > install MF
+  - cd "${HSTRHOME}"
+  - eval "${MATRIX_EVAL}"
+  - qmake hstr.pro
+  - make
+  - sudo make install
