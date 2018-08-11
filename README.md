@@ -1,5 +1,4 @@
-HSTR
-====
+# HSTR
 [![Travis CI](https://travis-ci.org/dvorka/hstr.svg?branch=master)](https://travis-ci.org/dvorka/hstr)
 <!--
 [![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
@@ -13,8 +12,7 @@ Easily view, navigate and search your **command history** with shell history sug
 [![Shell History Suggest Box](http://me.mindforger.com/projects/images/hh-animated-01.gif "Shell History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
 
-Description
------------
+## Description
 Are you looking for a command that you used **recently**? Do you
 want to  avoid the need to write **long commands** over and over
 again? Are you looking for a tool that is able to manage your 
@@ -31,12 +29,9 @@ your favorite commands.
 Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
 
-Installation
-------------
-Install HSTR:
+## Installation
+Install:
 
-* download [distribution](INSTALLATION.md#distribution-installation)
-* build from [source code](INSTALLATION.md#installation-from-source-code)
 * [Ubuntu](INSTALLATION.md#ubuntu)
 * [Fedora](INSTALLATION.md#fedorarhelcentos)
 * [Gentoo](INSTALLATION.md#gentoo)
@@ -48,12 +43,22 @@ Install HSTR:
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
 * [Windows Subsystem for Linux (WSL)](INSTALLATION.md#wsl)
-* [Cygwin](INSTALLATION.md#cygwin)
 * [macOS](INSTALLATION.md#macos)
 
+Build:
 
-Configuration
--------------
+* [build on any Linux distro](INSTALLATION.md#build-on-any-linux-distro)
+* [build on Ubuntu](INSTALLATION.md#build-on-ubuntu)
+* [build on Debian](INSTALLATION.md#build-on-debian)
+* [build on Fedora](INSTALLATION.md#build-on-fedora)
+* [build on WSL](INSTALLATION.md#build-on-wsl)
+* [build on Cygwin](INSTALLATION.md#build-on-cygwin)
+
+Tarball:
+
+* [build and install tarball](INSTALLATION.md#build-and-install-tarball)
+
+## Configuration
 Optionally configure HSTR just by running:
 ```bash
 hh --show-configuration >> ~/.bashrc
@@ -61,18 +66,16 @@ hh --show-configuration >> ~/.bashrc
 For detailed `hh` configuration documentation please refer to [Configuration](CONFIGURATION.md).
 
 
-Documentation
--------------
+## Documentation
 Check `hh` man page:
+
 ```bash
 man hh
 ```
 
-In the News
------------
+## In the News
 Read about `hh` in [LinuxMagazine](http://www.linux-magazine.com/Issues/2014/164/Bash-History-on-Steroids), [UbuntuGeek](http://www.ubuntugeek.com/tag/hstr-bash-history), [DebianAdmin](http://www.debianadmin.com/hstr-easily-view-navigate-search-and-use-your-command-history-with-shell-history.html), [Tuxdiary](https://tuxdiary.com/2015/02/17/hstr/) or [Softpedia](http://linux.softpedia.com/get/Terminals/BASH-Command-History-Completion-103155.shtml).
 
 
-Bugs
-----
+## Bugs
 https://github.com/dvorka/hstr/issues
