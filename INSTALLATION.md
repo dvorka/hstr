@@ -1,12 +1,12 @@
-INSTALLATION
+Installation
 ============
-Install `hh` using [distribution](#distribution-installation),
+Install HSTR using [distribution](#distribution-installation),
 from [source code](#installation-from-source-code), on [Ubuntu](#ubuntu),
 [Fedora/RHEL/CentOS/ScientificLinux](#fedorarhelcentos), [openSUSE](#opensuse), [Debian/Mint](#debianmint),
-[Gentoo](#gentoo), [Arch Linux](#arch-linux), [Bash on Ubuntu on Windows (WSL)](#wsl), [Cygwin](#cygwin) or [Mac OS](#mac-os).
+[Gentoo](#gentoo), [Arch Linux](#arch-linux), [Bash on Ubuntu on Windows (WSL)](#wsl), [Cygwin](#cygwin) or [Mac OS](#macos).
 
 
-UBUNTU
+Ubuntu
 ------
 Install `hh` on Ubuntu - one-liner:
 ```bash
@@ -21,7 +21,7 @@ sudo apt-get install hh
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-FEDORA/RHEL/CENTOS
+Fedora/Rhel/Centos
 ------------------
 Install `hh` on Fedora, RHEL or CentOS:
 
@@ -42,7 +42,7 @@ zypper install hstr
 ```
 
 
-INSTALLATION FROM SOURCE CODE
+Installation from Source Code
 -----------------------------
 Clone Git repository:
 ```bash
@@ -59,7 +59,7 @@ Install `hh` using:
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-DISTRIBUTION INSTALLATION
+Distribution Installation
 -------------------------
 Download latest distribution from project Releases section:
 
@@ -72,7 +72,7 @@ Expand the archive and install `hh` using:
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-DEBIAN/MINT
+Debian/Mint
 -----------
 Either download and install `.deb` archive from [releases](https://github.com/dvorka/hstr/releases)
 section of the project:
@@ -102,7 +102,7 @@ hh --show-configuration >> ~/.bashrc
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-GENTOO
+Gentoo
 ------
 hstr has been added to Portage, see this [bug](https://bugs.gentoo.org/show_bug.cgi?id=527122).
 To install hstr, emerge it like so:
@@ -112,7 +112,7 @@ emerge app-shells/hstr
 and you should be all set.
 
 
-ARCH LINUX
+Arch Linux
 ----------
 Download latest distribution from project Releases section:
 
@@ -127,7 +127,7 @@ Install `hh`.
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
-MAC OS
+macOS
 ------
 You can either install `hh` from [Homebrew](http://brew.sh/):
 
@@ -165,7 +165,7 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 WSL
 ---
-To install `hh` on [Bash on Ubuntu on Windows (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
+To install `hh` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
 ```bash
 git clone https://github.com/dvorka/hstr.git
 ```
@@ -185,7 +185,7 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 
 
-CYGWIN
+Cygwin
 ------
 To install `hh` on [Cygwin](https://www.cygwin.com) clone Git repository:
 ```bash
