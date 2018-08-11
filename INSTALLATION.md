@@ -166,22 +166,6 @@ make
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
-## WSL
-Install `hh` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) using one-liner:
-
-```bash
-sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-get install hh && hh --show-configuration >> ~/.bashrc
-```
-
-... or step by step:
-
-```bash
-sudo add-apt-repository ppa:ultradvorka/ppa
-sudo apt update
-sudo apt install hh
-```
-
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 # Build
 Build HSTR from source code.
@@ -313,7 +297,7 @@ hh
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on WSL
-To build `hh` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
+To build `hstr` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -331,13 +315,24 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install `hstr` using:
 
 ```bash
 ./configure && make && make install
 ```
 
+It's **important** to finish installation by configuration of `hstr` binding
+which ensures propagation of chosen commands to the prompt:
+
+```bash
+hstr --show-configuration >> ~/.bashrc
+. ~/.bashrc
+```
+
+**Make sure to run** `hstr` using <kbd>Ctrl+r</kbd> - otherwise commands wont be copied to prompt.
+
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+
 
 ## Build on Cygwin
 To build `hh` on [Cygwin](https://www.cygwin.com) clone Git repository:
