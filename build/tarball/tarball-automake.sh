@@ -80,15 +80,14 @@ function tarballBuildUsingAutomake() {
 # # Main #
 # ############################################################################
 
-cd ../../..
-if [ `pwd` == '/home/dvorka/p/hstr/github' ]
+if [ `pwd` == '/home/dvorka/p/hstr/github/hstr/build/tarball' ]
 then
     echo "This script must not be run from development directory ~/p/hstr/github/hstr"
     exit 1
 fi
 
 # functions expect to be run from HSTR home directory
-cd hstr
+cd ../..
 
 tarballClean ${1}
 tarballBuildUsingAutomake

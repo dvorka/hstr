@@ -101,7 +101,6 @@ function releaseForParticularUbuntuVersion() {
     # commit changes to Bazaar
     cd hstr
     cp -rvf ${HHSRC}/build/ubuntu/debian .
-    # TODO remove *.debian files (not needed in Ubuntu)
     createChangelog ./debian/changelog
     cd .. && mv hstr ${HH} && cd ${HH}
     bzr add .
@@ -150,9 +149,11 @@ function releaseForParticularUbuntuVersion() {
 # # Main #
 # ############################################################################
 
+echo "This script is expected to be copied to and run from: ~/p/hstr/launchpad"
+
 if [ -e "../../.git" ]
 then
-    echo "This script must NOT be run from Git repository - run it e.g. from ~/p/mindforger/launchpad instead"
+    echo "This script must NOT be run from Git repository - run it e.g. from ~/p/hstr/launchpad instead"
     exit 1
 fi
 if [ ! -e "${HHRELEASEDIR}" ]
