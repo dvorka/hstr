@@ -11,7 +11,6 @@ Install:
 * [Mint](#debianmint)
 * [Arch Linux](#arch-linux)
 * [Scientific Linux](#fedorarhelcentos)
-* [Windows Subsystem for Linux (WSL)](#wsl)
 * [macOS](#macos)
 
 Build:
@@ -20,7 +19,7 @@ Build:
 * [build on Ubuntu](#build-on-ubuntu)
 * [build on Debian](#build-on-debian)
 * [build on Fedora](#build-on-fedora)
-* [build on WSL](#build-on-wsl)
+* [build on Windows Subsystem for Linux (WSL)](#build-on-wsl)
 * [build on Cygwin](#build-on-cygwin)
 
 Tarball:
@@ -322,14 +321,14 @@ Build and install `hstr` using:
 ```
 
 It's **important** to finish installation by configuration of `hstr` binding
-which ensures propagation of chosen commands to the prompt:
+which ensures propagation of chosen command to the prompt:
 
 ```bash
 hstr --show-configuration >> ~/.bashrc
 . ~/.bashrc
 ```
 
-**Make sure to run** `hstr` using <kbd>Ctrl+r</kbd> - otherwise commands wont be copied to prompt.
+Make sure to **run** `hstr` using <kbd>Ctrl+r</kbd> - otherwise commands will not appear in prompt.
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
