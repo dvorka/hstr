@@ -1,5 +1,6 @@
 HSTR
 ====
+[![Travis CI](https://travis-ci.org/dvorka/hstr.svg?branch=master)](https://travis-ci.org/dvorka/hstr)
 <!--
 [![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka/hstr/issues)
