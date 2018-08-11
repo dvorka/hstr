@@ -63,6 +63,7 @@ function compose() {
 ######################################################################################
 
 #decompose
+# build HSTR locally to get binaries w/ right dependencies > replace hh and hstr in decomposed .rpm
 compose
 
 # sudo dnf install hstr.rpm
