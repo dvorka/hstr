@@ -52,5 +52,4 @@ script: # make lib unit tests > run lib unit tests > make MF > install MF
   - eval "${MATRIX_EVAL}"
   - qmake hstr.pro
   - make
-  - sudo make install
-  - hstr --version
+  - ./hstr --version
