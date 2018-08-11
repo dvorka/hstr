@@ -222,7 +222,7 @@ git clone https://github.com/dvorka/hstr.git
 Install dependencies:
 
 ```bash
-sudo apt install autotools gcc make libncursesw5-dev libreadline-dev
+sudo apt install autotools-dev gcc make libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:
@@ -316,6 +316,12 @@ To build `hh` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
+```
+
+Install dependencies:
+
+```bash
+sudo apt install autotools-dev gcc make libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:
