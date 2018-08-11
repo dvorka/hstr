@@ -42,7 +42,6 @@ Install:
 * [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
-* [Windows Subsystem for Linux (WSL)](INSTALLATION.md#wsl)
 * [macOS](INSTALLATION.md#macos)
 
 Build:
@@ -51,7 +50,7 @@ Build:
 * [build on Ubuntu](INSTALLATION.md#build-on-ubuntu)
 * [build on Debian](INSTALLATION.md#build-on-debian)
 * [build on Fedora](INSTALLATION.md#build-on-fedora)
-* [build on WSL](INSTALLATION.md#build-on-wsl)
+* [build on Windows Subsystem for Linux (WSL)](INSTALLATION.md#build-on-wsl)
 * [build on Cygwin](INSTALLATION.md#build-on-cygwin)
 
 Tarball:
