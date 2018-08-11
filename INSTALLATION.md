@@ -91,7 +91,7 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 ---
 
-Alternatively you can download and install `.deb` archive from [releases](https://github.com/dvorka/hstr/releases)
+Alternatively you can download and install `.deb` archive from [GitHub releases](https://github.com/dvorka/hstr/releases)
 section of the project:
 
 ```bash
@@ -356,7 +356,7 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 Download and install HSTR tarball.
 
 ## Build and Install Tarball
-Download latest tarball from [GitHub releases](project) section.
+Download latest tarball from [GitHub releases](https://github.com/dvorka/hstr/releases) section.
 Expand the archive and install `hh` using:
 
 ```bash
