@@ -185,6 +185,7 @@ Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md
 
 # Build
 Build HSTR from source code.
+
 ## Build on any Linux distro
 Clone Git repository:
 
@@ -222,7 +223,7 @@ git clone https://github.com/dvorka/hstr.git
 Install dependencies:
 
 ```bash
-sudo apt install autotools-dev gcc make libncursesw5-dev libreadline-dev
+sudo apt install automake gcc make libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:
@@ -321,7 +322,7 @@ git clone https://github.com/dvorka/hstr.git
 Install dependencies:
 
 ```bash
-sudo apt install autotools-dev gcc make libncursesw5-dev libreadline-dev
+sudo apt install automake gcc make libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:
