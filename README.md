@@ -19,7 +19,7 @@ want to  avoid the need to write **long commands** over and over
 again? Are you looking for a tool that is able to manage your 
 **favorite** commands?
 
-HSTR is a command line utility that brings improved Bash command completion
+HSTR (**H**i**ST**o**R**y) is a command line utility that brings improved Bash command completion
 from the history. It aims to make completion **easier** and more **efficient**
 than <kbd>Ctrl-r</kbd>.
 
@@ -33,6 +33,7 @@ Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 INSTALLATION
 ------------
 Install HSTR:
+
 * download [distribution](INSTALLATION.md#distribution-installation)
 * build from [source code](INSTALLATION.md#installation-from-source-code)
 * [Ubuntu](INSTALLATION.md#ubuntu)
