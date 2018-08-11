@@ -53,3 +53,4 @@ script: # make lib unit tests > run lib unit tests > make MF > install MF
   - qmake hstr.pro
   - make
   - sudo make install
+  - hstr --version
