@@ -140,6 +140,7 @@ function buildDebPackage() {
 # ############################################################################
 
 echo "This script is expected to be copied to and run from: ~/p/hstr/debian"
+echo "This script MUST run on Debian OS (or VM)"
 
 if [ -e "../.git" ]
 then
