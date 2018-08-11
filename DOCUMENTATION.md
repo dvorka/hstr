@@ -1,6 +1,6 @@
 This document is an unfinished draft.
 
-HSTR DOCUMENTATION
+HSTR Documentation
 ==================
 Table of contents:
 
@@ -33,8 +33,7 @@ Table of contents:
 * Examples
   
 
-Features
---------
+## Features
 `hh` is typically started by pressing <kbd>Ctrl-r</kbd> after
 you configure it for this shorcut for your shell. However,
 you can run it as a normal program just by typing:
@@ -58,12 +57,10 @@ hh -i git
 Prints history items containing `git` to standard output and
 exits.
 
-
 ### History filtering
 When `hh` starts in interative mode, a view of commands
 is shown. This list of commands can be filtered just by typing
 a string pattern.
-
 
 ### Choosing a command
 When you filtered the view of history items enough, you can
@@ -74,10 +71,7 @@ items is highlighted. Once you are done with your choice:
 * or press `TAB` or `RIGHT` arrow key to choose the command and edit it on command line after exiting `hh`
 * or press `LEFT` arrow key to choose the command and open it in editor (Bash `fc` i.e. fix command)
 
-
-
-Favorite Commands
------------------
+## Favorite Commands
 `hh` allows you to store and manage your favorite 
 commands. 
 
@@ -102,9 +96,7 @@ Tips:
   as well and may serve as a way how to **tag**
   commands.
 
-
-Blacklist
----------
+## Blacklist
 `hh` allows you to specify a set of commands to be
 skipped from all the views. Blacklist typically contains
 frequently used commands whose completion from history 
@@ -130,8 +122,7 @@ Tips:
   option that is configured using 
   `HISTCONTROL=ignorespace` environment variable.
 
-Blacklist
----------
+## Kill last command
 Using `hh` you can easily delete the last command from history
 e.g. when you make a typo or write something sensitive:
 ```
@@ -140,9 +131,7 @@ hh --kill-last-command
 See configuration section for how to bind this functionality to
 a key - bound to <kbd>Ctrl+x k</kbd> by default.
 
-
-Examples
---------
+## Examples
 Get more colors when running `hh`:
 ```bash
 export HH_CONFIG=hicolor

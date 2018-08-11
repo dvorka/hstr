@@ -1,4 +1,4 @@
-CONFIGURATION
+Configuration
 =============
 Get most of HSTR by configuring it with:
 ```bash
@@ -19,8 +19,7 @@ For more configuration options details please refer to:
 
 Check also configuration [examples](#examples).
 
-
-BINDING HSTR TO KEYBOARD SHORTCUT
+Binding HSTR to Keyboard Shortcut
 ---------------------------------
 Bash uses *Emacs* style keyboard shortcuts by default. There is
 also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
@@ -39,8 +38,8 @@ current bindings using:
 bind -S
 ```
 
-
-## BASH EMACS KEYMAP (DEFAULT)
+Bash Emacs Keymap (default)
+---------------------------
 Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bind '"\C-r": "\C-ahh -- \C-j"'
@@ -62,21 +61,21 @@ You can bind also other `hh` commands like `-kill-last-command`:
 if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hh -k \C-j"'; fi
 ```
 
-
-## BASH VI KEYMAP
+Bash Vim Keymap
+---------------
 Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bind '"\C-r": "\e0ihh -- \C-j"'
 ```
 
-## ZSH EMACS KEYMAP (DEFAULT)
+Zsh Emacs Keymap (default)
+--------------------------
 Bind `hh` to a Zsh key e.g. to <kbd>Ctrl-r</kbd>:
 ```bash
 bindkey -s "\C-r" "\eqhh --\n"
 ```
 
-
-COLORS
+Colors
 ------
 Get `hh` in more colors:
 ```bash
@@ -87,8 +86,7 @@ or ensure black and white mode:
 export HH_CONFIG=monochromatic
 ```
 
-
-HISTORY VIEW
+History View
 ------------
 Show normal history by default (instead of metrics-based view):
 ```bash
@@ -99,8 +97,7 @@ Show favorite commands by default (instead of metrics-based view):
 export HH_CONFIG=favorites
 ```
 
-
-FILTERING
+Filtering
 ---------
 Make search case sensitive (insensitive by default):
 ```bash
@@ -111,8 +108,7 @@ Keep duplicates in `rawhistory` view (duplicates discarded by default):
 export HH_CONFIG=duplicates
 ```
 
-
-BLACKLIST
+Blacklist
 ---------
 Skip commands when processing history i.e. make sure that these commands
 will *not* be shown in any view:
@@ -126,14 +122,15 @@ my-private-command
 ls
 ll
 ```
-CONFIRM ON DELETE
+
+Confirm on Delete
 -----------------
 Do not prompt for confirmation when deleting history items:
 ```bash
 export HH_CONFIG=noconfirm
 ```
 
-VERBOSITY
+Verbosity
 ---------
 Show a message when deleting the last command from history:
 ```bash
@@ -148,7 +145,7 @@ Show debug messages:
 export HH_CONFIG=debug
 ```
 
-BASH HISTORY SETTINGS
+Bash History Settings
 ---------------------
 Use the following BASH settings to get most out of `hh`.
 
@@ -176,7 +173,7 @@ export HISTCONTROL=ignorespace
 ```
 Suitable for a sensitive information like passwords.
 
-ZSH HISTORY SETTINGS
+Zsh History Settings
 --------------------
 If you use `zsh`, set HISTFILE environment variable in ~/.zshrc:
 
@@ -184,8 +181,7 @@ If you use `zsh`, set HISTFILE environment variable in ~/.zshrc:
 export HISTFILE=~/.zsh_history
 ```
 
-
-EXAMPLES
+Examples
 --------
 More colors with case sensitive search of history:
 ```bash
