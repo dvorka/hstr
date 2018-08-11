@@ -177,8 +177,8 @@ sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-g
 
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
-sudo apt-get update
-sudo apt-get install hh
+sudo apt update
+sudo apt install hh
 ```
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
