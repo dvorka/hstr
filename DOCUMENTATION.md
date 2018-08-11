@@ -1,7 +1,6 @@
 This document is an unfinished draft.
 
-HSTR Documentation
-==================
+# Documentation
 Table of contents:
 
 * Installation
@@ -34,9 +33,10 @@ Table of contents:
   
 
 ## Features
-`hh` is typically started by pressing <kbd>Ctrl-r</kbd> after
+HSTR is typically started by pressing <kbd>Ctrl-r</kbd> after
 you configure it for this shorcut for your shell. However,
 you can run it as a normal program just by typing:
+
 ```bash
 hh
 ```
@@ -45,11 +45,13 @@ It opens a page with a history view (ranking view is default).
 Alternatively you can run `hh` in non-interactive mode - 
 commands are just listed on standard output based on history
 view:
+
 ```bash
 hh --non-interactive
 ```
 
 Filtering pattern can be optionally specified as well:
+
 ```bash
 hh -i git
 ```
@@ -57,12 +59,13 @@ hh -i git
 Prints history items containing `git` to standard output and
 exits.
 
-### History filtering
-When `hh` starts in interative mode, a view of commands
+### History Filtering
+When HSTR starts in interative mode, a view of commands
 is shown. This list of commands can be filtered just by typing
 a string pattern.
 
-### Choosing a command
+
+### Choosing a Command
 When you filtered the view of history items enough, you can
 move around it with `UP` and `DOWN` arrow keys. Selected history
 items is highlighted. Once you are done with your choice:
@@ -71,8 +74,9 @@ items is highlighted. Once you are done with your choice:
 * or press `TAB` or `RIGHT` arrow key to choose the command and edit it on command line after exiting `hh`
 * or press `LEFT` arrow key to choose the command and open it in editor (Bash `fc` i.e. fix command)
 
-## Favorite Commands
-`hh` allows you to store and manage your favorite 
+
+### Favorite Commands
+HSTR allows you to store and manage your favorite 
 commands. 
 
 A new favorite command can be added from
@@ -88,6 +92,7 @@ one (at the top of the page) in the favorite view.
 You can delete a favorite command with `DEL` key.
 
 Tips:
+
 * Favorite commands are stored in `~/.hh_favorites`
 * Suffix your favorite commands with comments
   describing their purpose. For example 
@@ -96,8 +101,9 @@ Tips:
   as well and may serve as a way how to **tag**
   commands.
 
-## Blacklist
-`hh` allows you to specify a set of commands to be
+
+### Blacklist
+HSTR allows you to specify a set of commands to be
 skipped from all the views. Blacklist typically contains
 frequently used commands whose completion from history 
 has a little or no value. The default blacklist looks 
@@ -113,6 +119,7 @@ mc
 ```
 
 Tips:
+
 * Blacklist of commands is stored in `~/.hh_blacklist`
   If the file doesn't exist, you may create it and complete
   it with your own blacklist.
@@ -122,38 +129,47 @@ Tips:
   option that is configured using 
   `HISTCONTROL=ignorespace` environment variable.
 
-## Kill last command
+
+### Kill the Last Command
 Using `hh` you can easily delete the last command from history
 e.g. when you make a typo or write something sensitive:
+
 ```
 hh --kill-last-command
 ```
+
 See configuration section for how to bind this functionality to
 a key - bound to <kbd>Ctrl+x k</kbd> by default.
 
+
 ## Examples
 Get more colors when running `hh`:
+
 ```bash
 export HH_CONFIG=hicolor
 ```
 
 Start `hh` in configured view and filter out history items 
 containing 'git':
+
 ```bash
 hh git
 ```
 
 Print history items containing 'git' to standard output and exit:
+
 ```bash
 hh --non-interactive git
 ```
 
 Append  default `hh` configuration to your Bash profile:
+
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
 
 Check `hh` man page:
+
 ```bash
 man hh
 ```
