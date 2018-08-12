@@ -1492,7 +1492,7 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
     }
 }
 
-int hstrMain(int argc, char *argv[])
+int hstrMain(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
