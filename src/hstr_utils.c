@@ -182,7 +182,7 @@ char *get_shell_name_by_ppid(const int pid)
     return name;
 }
 
-bool isZshParentShell() {
+bool isZshParentShell(void) {
     pid_t parentPid=getppid();
     char* cmdline=get_shell_name_by_ppid(parentPid);
     bool result=cmdline && strstr(cmdline, "zsh");

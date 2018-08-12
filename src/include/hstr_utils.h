@@ -42,6 +42,6 @@ void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char **array, unsigned length);
 void get_hostname(int bufferSize, char *buffer);
 void toggle_case(char *str, bool lowercase);
-bool isZshParentShell();
+bool isZshParentShell(void);
 
 #endif

@@ -158,24 +158,24 @@
 #define LOGSELECTION(Y,SCREEN,MODEL)
 #endif
 
-static const char *HH_VIEW_LABELS[]={
+static const char* HH_VIEW_LABELS[]={
         "ranking",
         "history",
         "favorites"
 };
 
-static const char *HH_MATCH_LABELS[]={
+static const char* HH_MATCH_LABELS[]={
         "exact",
         "regexp",
         "keywords"
 };
 
-static const char *HH_CASE_LABELS[]={
+static const char* HH_CASE_LABELS[]={
         "insensitive",
         "sensitive"
 };
 
-static const char *INSTALL_BASH_STRING=
+static const char* INSTALL_BASH_STRING=
         "\n# add this configuration to ~/.bashrc"
         "\nexport HH_CONFIG=hicolor         # get more colors"
         "\nshopt -s histappend              # append new history items to .bash_history"
@@ -219,11 +219,19 @@ static const char *INSTALL_BASH_STRING=
 #endif
         "\n\n";
 
-static const char *INSTALL_ZSH_STRING=
+static const char* INSTALL_ZSH_STRING=
         "\n# add this configuration to ~/.zshrc"
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HH_CONFIG=hicolor        # get more colors"
+#if defined(__MS_WSL__)
+        // TODO binding to be rewritten for zsh@WSL as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+#elif defined(__CYGWIN__)
+        // TODO binding to be rewritten for zsh@Cygwin as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
+        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+#else
+        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+#endif
         // TODO try variant with args/pars separation
         //"\nbindkey -s \"\\C-r\" \"\\eqhh --\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
         // alternate binding options in zsh:
@@ -231,7 +239,7 @@ static const char *INSTALL_ZSH_STRING=
         //   bindkey -s "\C-r" "\C-ahh \C-j"
         "\n\n";
 
-static const char *HELP_STRING=
+static const char* HELP_STRING=
         "Usage: hh [option] [arg1] [arg2]..."
         "\nShell history suggest box:"
         "\n"
@@ -249,12 +257,12 @@ static const char *HELP_STRING=
         "\n";
 
 // major.minor.revision
-static const char *VERSION_STRING=
+static const char* VERSION_STRING=
         "hh version \"1.27.0\" (2018-08-1T13:00:00)"
         "\n";
 
 // TODO help screen - curses window (tig)
-static const char *LABEL_HELP=
+static const char* LABEL_HELP=
         "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 #define GETOPT_NO_ARGUMENT           0
@@ -310,9 +318,9 @@ typedef struct {
     int promptItems;
 } Hstr;
 
-static Hstr *hstr;
+static Hstr* hstr;
 
-void hstr_init()
+void hstr_init(void)
 {
     hstr->selection=NULL;
     hstr->selectionRegexpMatch=NULL;
@@ -335,7 +343,7 @@ void hstr_init()
     hstr_regexp_init(&hstr->regexp);
 }
 
-unsigned recalculate_max_history_items()
+unsigned recalculate_max_history_items(void)
 {
     hstr->promptItems = getmaxy(stdscr) - 3;
     if(hstr->promptBottom) {
@@ -354,7 +362,7 @@ unsigned recalculate_max_history_items()
     return hstr->promptItems;
 }
 
-void hstr_get_env_configuration(Hstr *hstr)
+void hstr_get_env_configuration(Hstr* hstr)
 {
     char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
     if(hstr_config && strlen(hstr_config)>0) {
@@ -429,7 +437,7 @@ void hstr_get_env_configuration(Hstr *hstr)
     }
 }
 
-unsigned print_prompt()
+unsigned print_prompt(void)
 {
     unsigned xoffset = 0, promptLength;
 
@@ -461,7 +469,7 @@ unsigned print_prompt()
     return promptLength;
 }
 
-void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
+void add_to_selection(Hstr* hstr, char* line, unsigned int* index)
 {
     if (hstr->unique) {
         unsigned i;
@@ -475,7 +483,7 @@ void add_to_selection(Hstr *hstr, char *line, unsigned int *index)
     *index = *index + 1;
 }
 
-void print_help_label()
+void print_help_label(void)
 {
     int cursorX=getcurx(stdscr);
     int cursorY=getcury(stdscr);
@@ -488,7 +496,7 @@ void print_help_label()
     move(cursorY, cursorX);
 }
 
-void print_confirm_delete(const char *cmd, Hstr *hstr)
+void print_confirm_delete(const char* cmd, Hstr* hstr)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
@@ -506,7 +514,7 @@ void print_confirm_delete(const char *cmd, Hstr *hstr)
     refresh();
 }
 
-void print_cmd_deleted_label(const char *cmd, int occurences, Hstr *hstr)
+void print_cmd_deleted_label(const char* cmd, int occurences, Hstr* hstr)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
@@ -541,7 +549,7 @@ void print_regexp_error(const char *errorMessage)
     refresh();
 }
 
-void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
+void print_cmd_added_favorite_label(const char* cmd, Hstr* hstr)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
@@ -558,7 +566,7 @@ void print_cmd_added_favorite_label(const char *cmd, Hstr *hstr)
     refresh();
 }
 
-void print_history_label()
+void print_history_label(void)
 {
     unsigned width=getmaxx(stdscr);
 
@@ -587,7 +595,7 @@ void print_history_label()
     refresh();
 }
 
-void print_pattern(char *pattern, int y, int x)
+void print_pattern(char* pattern, int y, int x)
 {
     if(pattern) {
         color_attr_on(A_BOLD);
@@ -598,7 +606,7 @@ void print_pattern(char *pattern, int y, int x)
 }
 
 // TODO don't realloc if size doesn't change
-void hstr_realloc_selection(unsigned size, Hstr *hstr)
+void hstr_realloc_selection(unsigned size, Hstr* hstr)
 {
     if(hstr->selection) {
         if(size) {
@@ -620,7 +628,7 @@ void hstr_realloc_selection(unsigned size, Hstr *hstr)
     }
 }
 
-unsigned hstr_make_selection(char *prefix, HistoryItems *history, unsigned maxSelectionCount, Hstr *hstr)
+unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSelectionCount, Hstr* hstr)
 {
     hstr_realloc_selection(maxSelectionCount, hstr);
 
@@ -754,7 +762,7 @@ unsigned hstr_make_selection(char *prefix, HistoryItems *history, unsigned maxSe
     return selectionCount;
 }
 
-void print_selection_row(char *text, int y, int width, char *pattern)
+void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, width, " %s", text);
@@ -847,7 +855,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
     color_attr_off(A_BOLD);
 }
 
-char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
+char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
 {
     char *result=NULL;
     unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems, hstr);
@@ -909,7 +917,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char *pattern, Hstr *hstr)
     return result;
 }
 
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char *pattern, Hstr *hstr)
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char* pattern, Hstr* hstr)
 {
     if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
         // TODO make this function
@@ -989,13 +997,13 @@ int remove_from_history_model(char* delete, Hstr *hstr)
     }
 }
 
-void hstr_next_view(Hstr *hstr)
+void hstr_next_view(Hstr* hstr)
 {
     hstr->historyView++;
     hstr->historyView=hstr->historyView%3;
 }
 
-void stdout_history_and_return(Hstr *hstr) {
+void stdout_history_and_return(Hstr* hstr) {
     unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount, hstr);
     if (selectionCount > 0) {
         unsigned i;
@@ -1014,7 +1022,7 @@ char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* resu
     return result;
 }
 
-void loop_to_select(Hstr *hstr)
+void loop_to_select(Hstr* hstr)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
 
@@ -1417,14 +1425,14 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int start
 }
 
 // TODO make favorites loading lazy (load on the first opening of favorites view)
-void hstr_init_favorites(Hstr *hstr)
+void hstr_init_favorites(Hstr* hstr)
 {
     hstr->favorites=malloc(sizeof(FavoriteItems));
     favorites_init(hstr->favorites);
     favorites_get(hstr->favorites);
 }
 
-void hstr_main(Hstr *hstr)
+void hstr_main(Hstr* hstr)
 {
     hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
     if(hstr->history) {
