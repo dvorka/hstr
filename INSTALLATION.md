@@ -16,6 +16,7 @@ Install:
 Build:
 
 * [build on any Linux distro](#build-on-any-linux-distro)
+* [build snap](#snap)
 * [build on Ubuntu](#build-on-ubuntu)
 * [build on Debian](#build-on-debian)
 * [build on Fedora](#build-on-fedora)
@@ -195,6 +196,29 @@ hh
 ```
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+
+## Build snap
+To build [snap](https://snapcraft.io/) for 'hh' first clone Git repository:
+
+```bash
+git clone https://github.com/dvorka/hstr.git
+```
+
+Make sure that you can build HSTR from source code
+as described in a "Build on ..." section for your
+distribution.
+
+Install [snapcraft](https://snapcraft.io/) and build
+snap by running snapcraft in the root of Git repository:
+
+```
+$ ls ./snap
+  snapcraft.yaml
+$ snapcraft
+  ...
+```
+
+Find `hh_0+git..._amd64.snap` in the current directory.
 
 ## Build on Ubuntu
 To build `hh` on Ubuntu clone Git repository:

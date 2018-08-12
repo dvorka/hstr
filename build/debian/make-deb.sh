@@ -94,7 +94,7 @@ function buildDebPackage() {
     
     # 1.2) prune HSTR project source: tests, *.o/... build files, ...
     echo -e "\n# HSTR project cleanup ########################################"
-    rm -vrf ./.git ./hstr ./build ./test ./hstr.pro ./doc ./pad.xml
+    rm -vrf ./.git ./hstr ./build ./test ./hstr.pro ./doc ./pad.xml ./snap
     find . -type f \( -name "*.a" -or -name "*.o" -or -name "*.*~" -or -name ".gitignore" -or -name ".git" \) | while read F; do rm -vf $F; done
         
     # 1.4) create tar archive
