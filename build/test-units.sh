@@ -16,4 +16,27 @@
 
 # Run unit tests.
 
+# options
+#export OPTION_RUN_VALGRIND=yes # run test(s) w/ Valgrind (comment this line to disable)
+
+# generate test runner
+./test-generate-unity-test-runner.sh
+
+# compile
+cd ../test && qmake hstr-unit-tests.pro && make clean && make -j 8
+if [ ${?} -ne 0 ]
+then
+    exit 1
+fi
+
+# run
+if [ ${OPTION_RUN_VALGRIND} ] 
+then
+    valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr-unit-tests
+    # Valgrind's GDB
+    #valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr-unit-tests
+else
+    ./hstr-unit-tests
+fi
+
 # eof

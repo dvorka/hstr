@@ -14,8 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Run unit tests w/ Valgrind.
-
-valgrind --tool=memcheck --leak-check=full ../src/hstr
+ruby ../test/unity/src/ruby/generate_test_runner.rb ../test/src/test.c ../test/src/test_runner.c
 
 # eof
