@@ -571,7 +571,11 @@ void print_history_label(void)
     unsigned width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
+#ifdef __APPLE__
+    snprintf(screenLine, width, "- HISTORY - view:%s (C-w) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
+#else
     snprintf(screenLine, width, "- HISTORY - view:%s (C-7) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
+#endif
             HH_VIEW_LABELS[hstr->historyView],
             HH_MATCH_LABELS[hstr->historyMatch],
             HH_CASE_LABELS[hstr->caseSensitive],
@@ -1160,6 +1164,10 @@ void loop_to_select(Hstr* hstr)
                 cursorY=getcury(stdscr);
             }
             break;
+#ifdef __APPLE__
+        // reserved for view rotation on macOS
+        case K_CTRL_W:
+#endif
         case K_CTRL_SLASH:
             hstr_next_view(hstr);
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
@@ -1202,8 +1210,10 @@ void loop_to_select(Hstr* hstr)
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             move(hstr->promptY, basex+strlen(pattern));
             break;
-        case K_CTRL_U:
+#ifndef __APPLE__
         case K_CTRL_W: // TODO supposed to delete just one word backward
+#endif
+        case K_CTRL_U:
             pattern[0]=0;
             print_pattern(pattern, hstr->promptY, basex);
             break;
