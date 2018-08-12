@@ -50,4 +50,4 @@ script:
   - cd src && ./hh --version
   - echo "2) run unit tests"
   - cd "${HSTRHOME}"
-  - cd build && test-units.sh
+  - cd build && ./test-units.sh
