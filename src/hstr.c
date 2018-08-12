@@ -574,7 +574,7 @@ void print_history_label(void)
 #ifdef __APPLE__
     snprintf(screenLine, width, "- HISTORY - view:%s (C-w) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
 #else
-    snprintf(screenLine, width, "- HISTORY - view:%s (C-7) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
+    snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
 #endif
             HH_VIEW_LABELS[hstr->historyView],
             HH_MATCH_LABELS[hstr->historyMatch],
