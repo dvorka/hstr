@@ -155,8 +155,7 @@ void test_getopt(void)
             printf("%s ", argv[optind++]);
         }
         printf("\n");
-    } else {
-        TEST_FAIL_MESSAGE("Thist unit test is supposed to succeede with 'c' option");
+        TEST_FAIL_MESSAGE("Thist unit test is supposed to succeed with 'c' option");
     }
 }
 
