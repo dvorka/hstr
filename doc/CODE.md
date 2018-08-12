@@ -1,8 +1,16 @@
 Implementation
 ==============
+Implementation notes:
 
-Remote debug:
+* [Debugging](#debugging)
+* [Unit tests](#unit-tests)
+# Debugging
+Remote debug - gdb server (program is running) + Eclipse debug (debugger w/ code)
 
-* gdb server (program is running) + Eclipse debug (debugger w/ code)
-* `cd ~/p/hstr/github/hstr/Debug && gdbserver :9999 ./hh`
-* Eclipse/Debug Configuration/Using GDB Manual Remote Debugger launching|Debugger tab/Connection port: 9999 
+1. `cd ~/p/hstr/github/hstr/Debug && gdbserver :9999 ./hh`
+1. Eclipse/Debug Configuration/Using GDB Manual Remote Debugger launching|Debugger tab/Connection port: 9999 
+
+# Unit tests
+HSTR unit tests are written using Unity
+
+http://www.throwtheswitch.org/unity/
