@@ -1,3 +1,22 @@
+# snapcraft.yaml     snap builder configuration
+#
+# Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+#
+# https://docs.snapcraft.io/build-snaps/your-first-snap
+#
+
 name: hh
 version: git
 summary: Suggest box like shell history completion
@@ -17,7 +36,7 @@ parts:
     source: .
     plugin: autotools
     override-build: |
-      cd ./dist && ./1-dist.sh && cd ..
+      cd ./build/tarball && ./tarball-automake.sh && cd ../..
       snapcraftctl build
     build-packages:
       - build-essential
