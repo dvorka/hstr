@@ -1,4 +1,4 @@
-# Maintainer: Christian Wieden <wiedenchr at gmail dot com
+# Maintainer: Christian Wieden <wiedenchr at gmail dot com>
 # Contributor: Ricardo Band <me at xengi dot de>
 # Contributor: Filip Szymański <fszymanski at, fedoraproject.org>
 

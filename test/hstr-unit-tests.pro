@@ -1,4 +1,4 @@
-# hstr.pro     Qt project file for HSTR shell history compleation utility
+# hstr-unit-tests.pro     Qt project file of UNIT tests for HSTR
 #
 # Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #
@@ -23,27 +23,27 @@ CONFIG -= qt
 LIBS += -lm -lreadline -lncursesw
 
 SOURCES += \
-    src/hashset.c \
-    src/hstr_blacklist.c \
-    src/hstr_curses.c \
-    src/hstr_favorites.c \
-    src/hstr_history.c \
-    src/hstr_regexp.c \
-    src/hstr_utils.c \
-    src/hstr.c \
-    src/radixsort.c \
-    src/main.c
+    ../src/hashset.c \
+    ../src/hstr_blacklist.c \
+    ../src/hstr_curses.c \
+    ../src/hstr_favorites.c \
+    ../src/hstr_history.c \
+    ../src/hstr_regexp.c \
+    ../src/hstr_utils.c \
+    ../src/hstr.c \
+    ../src/radixsort.c \
+    ../test/src/test.c
 
 HEADERS += \
-    src/include/hashset.h \
-    src/include/hstr_blacklist.h \
-    src/include/hstr_curses.h \
-    src/include/hstr_favorites.h \
-    src/include/hstr_history.h \
-    src/include/hstr_regexp.h \
-    src/include/hstr_utils.h \
-    src/include/radixsort.h \
-    src/include/hstr.h
+    ../src/include/hashset.h \
+    ../src/include/hstr_blacklist.h \
+    ../src/include/hstr_curses.h \
+    ../src/include/hstr_favorites.h \
+    ../src/include/hstr_history.h \
+    ../src/include/hstr_regexp.h \
+    ../src/include/hstr_utils.h \
+    ../src/include/radixsort.h \
+    ../src/include/hstr.h
 
 # compiler and linker
 QMAKE_CC = ccache gcc
