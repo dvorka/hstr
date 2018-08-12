@@ -32,15 +32,21 @@
 #include "../../src/include/hstr_favorites.h"
 #include "../../src/include/hstr.h"
 #include <string.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <getopt.h>
 
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
 extern void tearDown(void);
 extern void test_args(void);
+extern void test_getopt(void);
 extern void test_locate_char_in_string_overflow(void);
 extern void test_favorites(void);
 extern void test_hashset_blacklist();
 extern void test_hashset_get_keys();
+extern void test_regexp(void);
 extern void test_help_long(void);
 extern void test_help_short(void);
 
@@ -77,13 +83,15 @@ int main(void)
 {
   suite_setup();
   UnityBegin("../test/src/test.c");
-  RUN_TEST(test_args, 42);
-  RUN_TEST(test_locate_char_in_string_overflow, 75);
-  RUN_TEST(test_favorites, 86);
-  RUN_TEST(test_hashset_blacklist, 110);
-  RUN_TEST(test_hashset_get_keys, 125);
-  RUN_TEST(test_help_long, 146);
-  RUN_TEST(test_help_short, 162);
+  RUN_TEST(test_args, 46);
+  RUN_TEST(test_getopt, 79);
+  RUN_TEST(test_locate_char_in_string_overflow, 158);
+  RUN_TEST(test_favorites, 169);
+  RUN_TEST(test_hashset_blacklist, 193);
+  RUN_TEST(test_hashset_get_keys, 208);
+  RUN_TEST(test_regexp, 229);
+  RUN_TEST(test_help_long, 269);
+  RUN_TEST(test_help_short, 285);
 
   return suite_teardown(UnityEnd());
 }

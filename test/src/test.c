@@ -17,6 +17,10 @@
 */
 
 #include <string.h>
+#include <regex.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <getopt.h>
 
 // HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
 #include "unity/src/c/unity.h"
@@ -69,6 +73,90 @@ void test_args(void)
         TEST_ASSERT_EQUAL_STRING("hstr -o _args ", line);
     } else {
         TEST_FAIL_MESSAGE("There must be an argument");
+    }
+}
+
+void test_getopt(void)
+{
+    int argc = 3;
+    char* argv[argc];
+    argv[0] = "hstr";
+    argv[1] = "--create";
+    argv[2] = "_getopt";
+
+    int c;
+    int digit_optind = 0;
+
+    while (1) {
+        int this_option_optind = optind ? optind : 1;
+        int option_index = 0;
+        static struct option long_options[] = {
+                {"add",     required_argument, 0,  0 },
+                {"append",  no_argument,       0,  0 },
+                {"delete",  required_argument, 0,  0 },
+                {"verbose", no_argument,       0,  0 },
+                {"create",  required_argument, 0, 'c'},
+                {"file",    required_argument, 0,  0 },
+                {0,         0,                 0,  0 }
+        };
+
+        c = getopt_long(argc, argv, "abc:d:012", long_options, &option_index);
+        if (c == -1)
+            break;
+
+
+        switch (c) {
+        case 0:
+            printf("option %s", long_options[option_index].name);
+            if (optarg)
+                printf(" with arg %s", optarg);
+            printf("\n");
+            break;
+
+        case '0':
+        case '1':
+        case '2':
+            if (digit_optind != 0 && digit_optind != this_option_optind)
+                printf("digits occur in two different argv-elements.\n");
+            digit_optind = this_option_optind;
+            printf("option %c\n", c);
+            break;
+
+        case 'a':
+            printf("option a\n");
+            break;
+
+        case 'b':
+            printf("option b\n");
+            break;
+
+        case 'c':
+            printf("option c with value '%s'\n", optarg);
+            break;
+
+        case 'd':
+            printf("option d with value '%s'\n", optarg);
+            break;
+
+        case '?':
+
+            break;
+
+        default:
+            printf("?? getopt returned character code 0%o ??\n", c);
+        }
+
+        TEST_ASSERT_EQUAL('c', c);
+    }
+
+    if(optind < argc) {
+        printf("non-option ARGV-elements: ");
+        while (optind < argc) {
+            printf("%s ", argv[optind++]);
+        }
+        printf("\n");
+    } else {
+        TEST_FAIL_MESSAGE("Thist unit test is supposed to succeede with 'c' option");
     }
 }
 
@@ -141,6 +229,46 @@ void test_hashset_get_keys()
     } else {
         TEST_FAIL_MESSAGE("Inserted keys are missing in hashset");
     }
+}
+
+void test_regexp(void)
+{
+    unsigned REGEXP_MATCH_BUFFER_SIZE = 10;
+
+    bool caseSensitive=false;
+
+    char *regexp="^b";
+    char *text="This is a command that I want to match: go.sh there";
+
+    regex_t precompiled;
+    int compilationFlags=(caseSensitive?0:REG_ICASE);
+    printf("Regular expressions matching:\n  '%s'\n  '%s'",text,regexp);
+    int compilationStatus=regcomp(&precompiled, regexp, compilationFlags);
+    printf("\nCompilation: %d",compilationStatus);
+    TEST_ASSERT_FALSE(compilationStatus);
+
+    int matches=REGEXP_MATCH_BUFFER_SIZE;
+    regmatch_t matchPtr[REGEXP_MATCH_BUFFER_SIZE];
+    int matchingFlags=0;
+    int matchingStatus=regexec(&precompiled, text, matches, matchPtr, matchingFlags);
+    printf("\nMatching (status/matches): %s %d",(!matchingStatus?"match":"no-match"), matches);
+    TEST_ASSERT_EQUAL(10, matches);
+
+    if(!matchingStatus) {
+        unsigned i;
+        for(i=0; i<REGEXP_MATCH_BUFFER_SIZE; i++) {
+            printf("\n  %d %d",matchPtr[i].rm_so, matchPtr[i].rm_eo);
+            if(matchPtr[i].rm_so != -1) {
+                printf("\n* %d %d",matchPtr[i].rm_so,matchPtr[i].rm_eo);
+            }
+        }
+    } else {
+        char message[100];
+        regerror(matchingStatus, &precompiled, message, 100);
+        printf("\nRegexp failed with %s\n", message);
+    }
+
+    printf("\n");
 }
 
 void test_help_long(void)
