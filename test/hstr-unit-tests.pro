@@ -19,6 +19,9 @@ CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
 
+# includes
+INCLUDEPATH += unity/src/c
+
 # -L for where to look for library, -l for linking the library
 LIBS += -lm -lreadline -lncursesw
 
@@ -32,7 +35,9 @@ SOURCES += \
     ../src/hstr_utils.c \
     ../src/hstr.c \
     ../src/radixsort.c \
-    ../test/src/test.c
+    ../test/src/test.c \
+    unity/src/c/unity.c \
+    src/test_runner.c
 
 HEADERS += \
     ../src/include/hashset.h \
@@ -43,7 +48,10 @@ HEADERS += \
     ../src/include/hstr_regexp.h \
     ../src/include/hstr_utils.h \
     ../src/include/radixsort.h \
-    ../src/include/hstr.h
+    ../src/include/hstr.h \
+    unity/src/c/unity_config.h \
+    unity/src/c/unity_internals.h \
+    unity/src/c/unity.h
 
 # compiler and linker
 QMAKE_CC = ccache gcc

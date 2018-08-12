@@ -16,9 +16,32 @@
  limitations under the License.
 */
 
+
 #include "../../src/include/hstr.h"
 
-int main(int argc, char *argv[])
+// HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
+#include "unity/src/c/unity.h"
+
+/*
+ * IMPORTANT: make sure to run TEST RUNNER GENERATOR script after any change!
+ *
+ */
+
+void setUp(void)
 {
-    return hstrMain(argc, argv);
+}
+
+void tearDown(void)
+{
+}
+
+void test_failure(void)
+{
+    TEST_ASSERT_TRUE(1);
+    TEST_ASSERT_FALSE(1);
+}
+
+void test_help(void)
+{
+    //return hstrMain(argc, argv);
 }
