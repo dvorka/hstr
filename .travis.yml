@@ -37,19 +37,17 @@ before_install:
   - eval "${MATRIX_EVAL}"
 
 install:
-  - sudo apt-get install -qq qttools5-dev-tools
-  - sudo apt-get install -qq ccache
-  - sudo apt-get install -qq libgtest-dev
+  - sudo apt-get install -qq qttools5-dev-tools ccache
+  - sudo apt-get install -qq automake gcc make libncursesw5-dev libreadline-dev
   - "export HSTRHOME=`pwd`"
-  - cd /usr/src/gtest # I have to build Google Test Framework myself
-  - sudo apt-get install -qq cmake
-  - sudo cmake .
-  - sudo make
-  - sudo mv libg* /usr/lib/
 
-script: # make lib unit tests > run lib unit tests > make MF > install MF
+script:
+  - echo "1) make hstr"
   - cd "${HSTRHOME}"
-  - eval "${MATRIX_EVAL}"
-  - qmake hstr.pro
-  - make
+  - cd build/tarball && ./tarball-automake.sh
+  - cd "${HSTRHOME}"
+  - ./configure && make
   - ./hstr --version
+  - echo "2) run unit tests"
+  - cd "${HSTRHOME}"
+  - cd build && test-units.sh
