@@ -1,5 +1,5 @@
 /*
- hstr.c     BASH history completion utility
+ hstr.c     HSTR shell history completion utility
 
  Copyright (C) 2014-2018 Martin Dvorak <martin.dvorak@mindforger.com>
 
@@ -46,6 +46,8 @@
 #include "include/hstr_history.h"
 #include "include/hstr_regexp.h"
 #include "include/hstr_utils.h"
+
+#include "include/hstr.h"
 
 #define SELECTION_CURSOR_IN_PROMPT -1
 #define SELECTION_PREFIX_MAX_LNG 512
@@ -1490,7 +1492,7 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
     }
 }
 
-int main(int argc, char *argv[])
+int hstrMain(int argc, char *argv[])
 {
     setlocale(LC_ALL, "");
 

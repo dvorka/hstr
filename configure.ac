@@ -1,5 +1,4 @@
 # configure.ac      Autoconf configuration file
-#                   process this file with autoconf to produce a configure script
 #
 # Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #
@@ -15,12 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# Process this file with autoconf to produce a configure script.
+#
+
 AC_PREREQ([2.69])
 
 AC_INIT(hh, 1.27.0, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
-# Checks for src dir existence.
+# Check src dir existence.
 AC_CONFIG_SRCDIR([src/hstr.c])
 
 # Init (no longer takes parameters).

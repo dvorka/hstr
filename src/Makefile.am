@@ -30,7 +30,8 @@ hh_SOURCES = 						\
 	hstr_blacklist.c include/hstr_blacklist.h	\
 	hstr_regexp.c include/hstr_regexp.h		\
 	radixsort.c include/radixsort.h 		\
-	hstr.c 
+	hstr.c include/hstr.h                           \
+	main.c
 
 # create hh > hstr hard link on installation
 install-exec-hook:
