@@ -20,9 +20,9 @@ prepare() {
 }
 
 build() {
-    cd "${pkgname}-${pkgver}/dist"
-    ./1-dist.sh
-    cd ..
+    cd "${pkgname}-${pkgver}/build/tarball"
+    ./tarball-automake.sh
+    cd ../..
     ./configure --prefix=/usr
     make
 }
