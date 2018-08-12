@@ -328,7 +328,7 @@ hstr --show-configuration >> ~/.bashrc
 . ~/.bashrc
 ```
 
-Make sure to **run** `hstr` using <kbd>Ctrl+r</kbd> - otherwise commands will not appear in prompt.
+Make sure to **run** `hstr` using <kbd>Ctrl</kbd><kbd>r</kbd> - otherwise commands will not appear in prompt.
 
 Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 

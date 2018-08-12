@@ -33,7 +33,7 @@ Table of contents:
   
 
 ## Features
-HSTR is typically started by pressing <kbd>Ctrl-r</kbd> after
+HSTR is typically started by pressing <kbd>Ctrl</kbd><kbd>r</kbd> after
 you configure it for this shorcut for your shell. However,
 you can run it as a normal program just by typing:
 
@@ -80,10 +80,10 @@ HSTR allows you to store and manage your favorite
 commands. 
 
 A new favorite command can be added from
-ranking or raw history view by pressing <kbd>Ctrl-f</kbd>.
+ranking or raw history view by pressing <kbd>Ctrl</kbd><kbd>f</kbd>.
 
 You can check your favorite commands by choosing 
-favorite view - rotate views using <kbd>Ctrl-/</kbd> or start
+favorite view - rotate views using <kbd>Ctrl</kbd><kbd>/</kbd> or start
 `hh` by adding `favorites` to `HH_CONFIG` environment
 property. A favorite command can be choosen just
 by pressing `ENTER` when on command in favorite view.
@@ -139,7 +139,7 @@ hh --kill-last-command
 ```
 
 See configuration section for how to bind this functionality to
-a key - bound to <kbd>Ctrl+x k</kbd> by default.
+a key - bound to <kbd>Ctrl</kbd><kbd>x</kbd> <kbd>k</kbd> by default.
 
 
 ## Examples

@@ -20,7 +20,7 @@ again? Are you looking for a tool that is able to manage your
 
 HSTR (**H**i**ST**o**R**y) is a command line utility that brings improved Bash command completion
 from the history. It aims to make completion **easier** and more **efficient**
-than <kbd>Ctrl+r</kbd>.
+than <kbd>Ctrl</kbd><kbd>r</kbd>.
 
 HSTR can also **manage** your command history (for instance you can remove
 commands that are obsolete or contain a sensitive information) or **bookmark** 
