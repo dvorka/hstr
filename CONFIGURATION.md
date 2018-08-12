@@ -42,7 +42,7 @@ bind -v | grep keymap
 ``` 
 
 To determine character sequence emitted by a pressed key in 
-terminal, type <kbd>Ctrl+v</kbd> and then press the key. Check your 
+terminal, type <kbd>Ctrl</kbd><kbd>v</kbd> and then press the key. Check your 
 current bindings using:
 
 ```bash
@@ -133,25 +133,25 @@ export HH_CONFIG=debug
 ```
 
 ## Bash Emacs Keymap (default)
-Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
+Bind `hh` to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
 bind '"\C-r": "\C-ahh -- \C-j"'
 ```
 
-or <kbd>Ctrl+Alt+r</kbd>:
+or <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>r</kbd>:
 
 ```bash
 bind '"\e\C-r":"\C-ahh -- \C-j"'
 ```
 
-or <kbd>Ctrl+F12</kbd>:
+or <kbd>Ctrl</kbd><kbd>F12</kbd>:
 
 ```bash
 bind '"\e[24;5~":"\C-ahh -- \C-j"'
 ```
 
-Bind `hh` to <kbd>Ctrl+r</kbd> only if it is interactive shell:
+Bind `hh` to <kbd>Ctrl</kbd><kbd>r</kbd> only if it is interactive shell:
 
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi
@@ -164,7 +164,7 @@ if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hh -k \C-j"'; fi
 ```
 
 ## Bash Vim Keymap
-Bind `hh` to a Bash key e.g. to <kbd>Ctrl+r</kbd>:
+Bind `hh` to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
 bind '"\C-r": "\C-ahh -- \C-j"'
@@ -205,7 +205,7 @@ export HISTCONTROL=ignorespace
 Suitable for a sensitive information like passwords.
 
 ## Zsh Emacs Keymap (default)
-Bind `hh` to a Zsh key e.g. to <kbd>Ctrl+r</kbd>:
+Bind `hh` to a Zsh key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
 bindkey -s "\C-r" "\eqhh --\n"
