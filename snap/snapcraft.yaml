@@ -1,0 +1,28 @@
+name: hh
+version: git
+summary: Suggest box like shell history completion
+description: |
+  A command line utility that brings improved shell command completion
+  from the history. It aims to make completion easier and faster than Ctrl-r.
+
+grade: stable
+confinement: classic
+
+apps:
+  hh:
+    command: bin/hh
+
+parts:
+  hh:
+    source: .
+    plugin: autotools
+    override-build: |
+      cd ./dist && ./1-dist.sh && cd ..
+      snapcraftctl build
+    build-packages:
+      - libreadline-dev
+      - libncursesw5-dev
+      - pkg-config
+    prime:
+      - -bin/hstr
+      - -share/man
