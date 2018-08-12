@@ -47,6 +47,7 @@ Install:
 Build:
 
 * [build on any Linux distro](INSTALLATION.md#build-on-any-linux-distro)
+* [build snap](INSTALLATION.md#snap)
 * [build on Ubuntu](INSTALLATION.md#build-on-ubuntu)
 * [build on Debian](INSTALLATION.md#build-on-debian)
 * [build on Fedora](INSTALLATION.md#build-on-fedora)
