@@ -90,7 +90,7 @@ unsigned get_item_offset(void)
     }
 }
 
-bool is_hist_timestamp(const char *line)
+bool is_hist_timestamp(const char* line)
 {
     // HISTTIMEFORMAT defined > ^#1234567890$
 

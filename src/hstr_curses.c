@@ -21,7 +21,7 @@
 
 static bool terminalHasColors=FALSE;
 
-void hstr_curses_start()
+void hstr_curses_start(void)
 {
     initscr();
     keypad(stdscr, TRUE);
@@ -42,7 +42,7 @@ void hstr_curses_start()
 #endif
 }
 
-bool terminal_has_colors() {
+bool terminal_has_colors(void) {
     return terminalHasColors;
 }
 
