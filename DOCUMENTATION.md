@@ -95,13 +95,21 @@ Tips:
 
 * Favorite commands are stored in `~/.hh_favorites`
 * Suffix your favorite commands with comments
-  describing their purpose. For example 
-  `printf "\e[?2004l"   # fix terminal copy/paste`
-  Such comment can be used for normal commands
+  describing their purpose. For example:
+
+```
+printf "\e[?2004l"   # fix terminal copy/paste
+```
+
+* Such comment can be used for normal commands
   as well and may serve as a way how to **tag**
   commands.
 
-
+```bash
+COMMAND # TAG1 TAG2 TAG3
+...
+printf "\e[?2004l" # fix broken copy/paste in terminal #TERM
+```
 ### Blacklist
 HSTR allows you to specify a set of commands to be
 skipped from all the views. Blacklist typically contains
