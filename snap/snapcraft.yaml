@@ -38,6 +38,7 @@ parts:
       cd ./build/tarball && ./tarball-automake.sh && cd ../..
       snapcraftctl build
     build-packages:
+      - build-essential
       - libreadline-dev
       - libncursesw5-dev
       - pkg-config
