@@ -20,8 +20,6 @@
 #define _HSTR_REGEXP_H
 
 #include <regex.h>
-#include <stdio.h>
-#include <stdbool.h>
 
 #include "hashset.h"
 

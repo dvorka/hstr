@@ -17,7 +17,6 @@
 */
 
 #include "include/hashset.h"
-#include "include/hstr_utils.h"
 
 unsigned int hashmap_hash(const char *str)
 {

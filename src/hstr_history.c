@@ -16,12 +16,7 @@
  limitations under the License.
 */
 
-#include <ctype.h>
-#include <stdio.h>
-#include <limits.h>
-#include <readline/history.h>
 #include "include/hstr_history.h"
-#include "include/hstr_regexp.h"
 
 #define NDEBUG
 #include <assert.h>

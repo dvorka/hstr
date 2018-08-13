@@ -16,12 +16,7 @@
  limitations under the License.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "include/hstr_favorites.h"
-#include "include/hstr_utils.h"
 
 #define FAVORITE_SEGMENT_SIZE 10
 
