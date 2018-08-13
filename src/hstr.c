@@ -848,21 +848,20 @@ void print_selection_row(char* text, int y, int width, char* pattern)
     }
 }
 
-// IMPROVE elide text
-void hstr_print_highlighted_selection_row(char *text, int y, int width)
+void hstr_print_highlighted_selection_row(char* text, int y, int width)
 {
-    UNUSED_ARG(width);
-
     color_attr_on(A_BOLD);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_HIROW));
     } else {
         color_attr_on(A_REVERSE);
     }
+    char buffer[CMDLINE_LNG];
+    hstr_strelide(buffer, text, width>2?width-2:0);
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
             (terminal_has_colors()?" ":">"),
-            getmaxx(stdscr)-2, getmaxx(stdscr)-2, text);
+            getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HH_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
@@ -874,7 +873,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width)
 
 char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
 {
-    char *result=NULL;
+    char* result=NULL;
     unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems);
     if (selectionCount > 0) {
         result=hstr->selection[0];
