@@ -17,7 +17,7 @@
 # https://docs.snapcraft.io/build-snaps/your-first-snap
 #
 
-name: hstr
+name: hh
 version: git
 summary: Suggest box like shell history completion
 description: |
@@ -28,11 +28,11 @@ grade: stable
 confinement: classic
 
 apps:
-  hstr:
+  hh:
     command: bin/hh
 
 parts:
-  hstr:
+  hh:
     source: .
     plugin: autotools
     override-build: |
