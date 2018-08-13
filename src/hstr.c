@@ -70,12 +70,13 @@
 
 #define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HH_CONFIG_THEME_HICOLOR         "hicolor"
+#define HH_CONFIG_STATIC_FAVORITES      "static-favs"
+#define HH_CONFIG_FAVORITES     "favorites"
 #define HH_CONFIG_CASE          "casesensitive"
 #define HH_CONFIG_REGEXP        "regexp"
 #define HH_CONFIG_SUBSTRING     "substring"
 #define HH_CONFIG_KEYWORDS      "keywords"
 #define HH_CONFIG_SORTING       "rawhistory"
-#define HH_CONFIG_FAVORITES     "favorites"
 #define HH_CONFIG_NOCONFIRM     "noconfirm"
 #define HH_CONFIG_VERBOSE_KILL  "verbose-kill"
 #define HH_CONFIG_PROMPT_BOTTOM "prompt-bottom"
@@ -128,6 +129,11 @@
 #else
 #define LOGSELECTION(Y,SCREEN,MODEL)
 #endif
+
+// major.minor.revision
+static const char* VERSION_STRING=
+        "hh version \"1.27.0\" (2018-08-13T12:00:00)"
+        "\n";
 
 static const char* HH_VIEW_LABELS[]={
         "ranking",
@@ -227,14 +233,9 @@ static const char* HELP_STRING=
         "\nHome page: https://github.com/dvorka/hstr"
         "\n";
 
-// major.minor.revision
-static const char* VERSION_STRING=
-        "hh version \"1.27.0\" (2018-08-13T12:00:00)"
-        "\n";
-
 // TODO help screen - curses window (tig)
 static const char* LABEL_HELP=
-        "Type to filter, UP/DOWN move, RET/DEL remove, TAB select, C-f add favorite, C-g cancel";
+        "Type to filter, UP/DOWN move, RET/TAB select, DEL remove, C-f add favorite, C-g cancel";
 
 #define GETOPT_NO_ARGUMENT           0
 #define GETOPT_REQUIRED_ARGUMENT     1
@@ -253,34 +254,32 @@ static const struct option long_options[] = {
 };
 
 typedef struct {
-    HistoryItems *history;
-    FavoriteItems *favorites;
+    HistoryItems* history;
+    FavoriteItems* favorites;
+    Blacklist blacklist;
+    HstrRegexp regexp;
+
+    char cmdline[CMDLINE_LNG];
 
     char **selection;
     unsigned selectionSize;
     regmatch_t *selectionRegexpMatch;
 
-    int historyMatch; // TODO patternMatching: exact, regexp
-    int historyView; // TODO view: favorites, ...
+    bool interactive;
+
+    int matching;
+    int view;
     int caseSensitive;
 
-    bool interactive;
-    bool unique;
-
     unsigned char theme;
+    bool noRawHistoryDuplicates;
     bool keepPage; // do NOT clear page w/ selection on HH exit
     bool noConfirm; // do NOT ask for confirmation on history entry delete
     bool verboseKill; // write a message on delete of the last command in history
     int bigKeys;
     int debugLevel;
-
-    HstrRegexp regexp;
-
-    Blacklist blacklist;
-
-    char cmdline[CMDLINE_LNG];
-
     bool promptBottom;
+
     int promptY;
     int promptYHelp;
     int promptYHistory;
@@ -293,25 +292,41 @@ static Hstr* hstr;
 
 void hstr_init(void)
 {
+    hstr->history=NULL;
+    hstr->favorites=malloc(sizeof(FavoriteItems));
+    favorites_init(hstr->favorites);
+    favorites_get(hstr->favorites);
+    blacklist_init(&hstr->blacklist);
+    hstr_regexp_init(&hstr->regexp);
+
+    hstr->cmdline[0]=0;
+
     hstr->selection=NULL;
     hstr->selectionRegexpMatch=NULL;
     hstr->selectionSize=0;
 
-    hstr->historyMatch=HH_MATCH_KEYWORDS;
-    hstr->historyView=HH_VIEW_RANKING;
+    hstr->interactive=true;
+
+    hstr->matching=HH_MATCH_KEYWORDS;
+    hstr->view=HH_VIEW_RANKING;
     hstr->caseSensitive=HH_CASE_INSENSITIVE;
 
-    hstr->interactive=true;
-    hstr->unique=true;
-
     hstr->theme=HH_THEME_MONO;
+    hstr->noRawHistoryDuplicates=true;
+    hstr->keepPage=false;
+    hstr->noConfirm=false;
+    hstr->verboseKill=false;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+    hstr->promptBottom=false;
 
-    blacklist_init(&hstr->blacklist);
-
-    hstr->cmdline[0]=0;
-    hstr_regexp_init(&hstr->regexp);
+    hstr->promptY
+     =hstr->promptYHelp
+     =hstr->promptYHistory
+     =hstr->promptYItemsStart
+     =hstr->promptYItemsEnd
+     =hstr->promptItems
+     =0;
 }
 
 unsigned recalculate_max_history_items(void)
@@ -348,21 +363,21 @@ void hstr_get_env_configuration()
             hstr->caseSensitive=HH_CASE_SENSITIVE;
         }
         if(strstr(hstr_config,HH_CONFIG_REGEXP)) {
-            hstr->historyMatch=HH_MATCH_REGEXP;
+            hstr->matching=HH_MATCH_REGEXP;
         } else {
             if(strstr(hstr_config,HH_CONFIG_SUBSTRING)) {
-                hstr->historyMatch=HH_MATCH_SUBSTRING;
+                hstr->matching=HH_MATCH_SUBSTRING;
             } else {
                 if(strstr(hstr_config, HH_CONFIG_KEYWORDS)) {
-                    hstr->historyMatch=HH_MATCH_KEYWORDS;
+                    hstr->matching=HH_MATCH_KEYWORDS;
                 }
             }
         }
         if(strstr(hstr_config,HH_CONFIG_SORTING)) {
-            hstr->historyView=HH_VIEW_HISTORY;
+            hstr->view=HH_VIEW_HISTORY;
         } else {
             if(strstr(hstr_config,HH_CONFIG_FAVORITES)) {
-                hstr->historyView=HH_VIEW_FAVORITES;
+                hstr->view=HH_VIEW_FAVORITES;
             }
         }
         if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_EXIT)) {
@@ -386,6 +401,9 @@ void hstr_get_env_configuration()
         if(strstr(hstr_config,HH_CONFIG_NOCONFIRM)) {
             hstr->noConfirm=true;
         }
+        if(strstr(hstr_config,HH_CONFIG_STATIC_FAVORITES)) {
+            hstr->favorites->reorderOnChoice=false;
+        }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
             hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
@@ -396,7 +414,7 @@ void hstr_get_env_configuration()
         }
 
         if(strstr(hstr_config,HH_CONFIG_DUPLICATES)) {
-            hstr->unique=false;
+            hstr->noRawHistoryDuplicates=false;
         }
 
         if(strstr(hstr_config,HH_CONFIG_PROMPT_BOTTOM)) {
@@ -442,7 +460,7 @@ unsigned print_prompt(void)
 
 void add_to_selection(char* line, unsigned int* index)
 {
-    if (hstr->unique) {
+    if (hstr->noRawHistoryDuplicates) {
         unsigned i;
         for(i = 0; i < *index; i++) {
             if (strcmp(hstr->selection[i], line) == 0) {
@@ -547,8 +565,8 @@ void print_history_label(void)
 #else
     snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
 #endif
-            HH_VIEW_LABELS[hstr->historyView],
-            HH_MATCH_LABELS[hstr->historyMatch],
+            HH_VIEW_LABELS[hstr->view],
+            HH_MATCH_LABELS[hstr->matching],
             HH_CASE_LABELS[hstr->caseSensitive],
             hstr->history->count,
             hstr->history->rawCount,
@@ -611,7 +629,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     char **source;
     unsigned count;
 
-    switch(hstr->historyView) {
+    switch(hstr->view) {
     case HH_VIEW_HISTORY:
         source=history->rawItems;
         count=history->rawCount;
@@ -640,7 +658,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
             if(!prefix || !strlen(prefix)) {
                 add_to_selection(source[i], &selectionCount);
             } else {
-                switch(hstr->historyMatch) {
+                switch(hstr->matching) {
                 case HH_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HH_CASE_SENSITIVE:
@@ -705,7 +723,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     if(prefix && selectionCount<maxSelectionCount) {
         char *substring;
         for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
-            switch(hstr->historyMatch) {
+            switch(hstr->matching) {
             case HH_MATCH_SUBSTRING:
                 switch(hstr->caseSensitive) {
                 case HH_CASE_SENSITIVE:
@@ -757,7 +775,7 @@ void print_selection_row(char* text, int y, int width, char* pattern)
         char* keywordsParsedLine=NULL;
         char* keywordsPointerToDelete=NULL;
 
-        switch(hstr->historyMatch) {
+        switch(hstr->matching) {
         case HH_MATCH_SUBSTRING:
             switch(hstr->caseSensitive) {
             case HH_CASE_INSENSITIVE:
@@ -872,7 +890,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
         if(i<hstr->selectionSize) {
             // TODO make this function
             if(pattern && strlen(pattern)) {
-                if(hstr->historyMatch==HH_MATCH_REGEXP) {
+                if(hstr->matching==HH_MATCH_REGEXP) {
                     start=hstr->selectionRegexpMatch[i].rm_so;
                     count=hstr->selectionRegexpMatch[i].rm_eo-start;
                     if(count>CMDLINE_LNG) {
@@ -909,7 +927,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
     if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
         // TODO make this function
         char buffer[CMDLINE_LNG];
-        if(pattern && strlen(pattern) && hstr->historyMatch==HH_MATCH_REGEXP) {
+        if(pattern && strlen(pattern) && hstr->matching==HH_MATCH_REGEXP) {
             int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
             int end=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_eo-start;
             strncpy(buffer,
@@ -964,7 +982,7 @@ void signal_callback_handler_ctrl_c(int signum)
 
 int remove_from_history_model(char* almostDead)
 {
-    if(hstr->historyView==HH_VIEW_FAVORITES) {
+    if(hstr->view==HH_VIEW_FAVORITES) {
         return favorites_remove(hstr->favorites, almostDead);
     } else {
         // raw & ranked history is pruned first as its items point to system history lines
@@ -982,8 +1000,8 @@ int remove_from_history_model(char* almostDead)
 
 void hstr_next_view(void)
 {
-    hstr->historyView++;
-    hstr->historyView=hstr->historyView%3;
+    hstr->view++;
+    hstr->view=hstr->view%3;
 }
 
 void stdout_history_and_return(void)
@@ -1121,8 +1139,8 @@ void loop_to_select(void)
             }
             break;
         case K_CTRL_E:
-            hstr->historyMatch++;
-            hstr->historyMatch=hstr->historyMatch%HH_NUM_HISTORY_MATCH;
+            hstr->matching++;
+            hstr->matching=hstr->matching%HH_NUM_HISTORY_MATCH;
             // TODO make this a function
             result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
@@ -1164,14 +1182,14 @@ void loop_to_select(void)
         case K_CTRL_F:
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                if(hstr->view==HH_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites, result);
                 } else {
                     favorites_add(hstr->favorites, result);
                 }
                 hstr_print_selection(maxHistoryItems, pattern);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-                if(hstr->historyView!=HH_VIEW_FAVORITES) {
+                if(hstr->view!=HH_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result);
                     printDefaultLabel=TRUE;
                 }
@@ -1308,7 +1326,7 @@ void loop_to_select(void)
             executeResult=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                if(hstr->view==HH_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             }
@@ -1324,7 +1342,7 @@ void loop_to_select(void)
             executeResult=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                if(hstr->view==HH_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
@@ -1337,7 +1355,7 @@ void loop_to_select(void)
             editCommand=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->historyView==HH_VIEW_FAVORITES) {
+                if(hstr->view==HH_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
@@ -1415,14 +1433,6 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], int startIndex)
     }
 }
 
-// TODO make favorites loading lazy (load on the first opening of favorites view)
-void hstr_init_favorites(void)
-{
-    hstr->favorites=malloc(sizeof(FavoriteItems));
-    favorites_init(hstr->favorites);
-    favorites_get(hstr->favorites);
-}
-
 void hstr_interactive(void)
 {
     hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
@@ -1446,7 +1456,7 @@ void hstr_getopt(int argc, char **argv)
     if(option != -1) {
         switch(option) {
         case 'f':
-            hstr->historyView=HH_VIEW_FAVORITES;
+            hstr->view=HH_VIEW_FAVORITES;
             break;
         case 'n':
             hstr->interactive=false;
@@ -1500,7 +1510,6 @@ int hstr_main(int argc, char* argv[])
     hstr_init();
     hstr_get_env_configuration();
     hstr_getopt(argc, argv);
-    hstr_init_favorites();
     blacklist_load(&hstr->blacklist);
     hstr_interactive();
 

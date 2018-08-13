@@ -89,6 +89,14 @@ Keep duplicates in `rawhistory` view (duplicates discarded by default):
 export HH_CONFIG=duplicates
 ```
 
+## Static favorites
+Latest favorite command is put the head of favorite commands list
+by default. If you want to disable this behavior and make favorite
+commands list static, then use the following configuration:
+
+```bash
+export HH_CONFIG=static-favs
+```
 ## Blacklist
 Skip commands when processing history i.e. make sure that these commands
 will *not* be shown in any view:
