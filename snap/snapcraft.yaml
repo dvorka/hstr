@@ -28,11 +28,11 @@ grade: stable
 confinement: classic
 
 apps:
-  hh:
+  hstr:
     command: bin/hh
 
 parts:
-  hh:
+  hstr:
     source: .
     plugin: autotools
     override-build: |
@@ -44,5 +44,5 @@ parts:
       - libncursesw5-dev
       - pkg-config
     prime:
-      - -bin/hstr
+      - -bin/hh
       - -share/man
