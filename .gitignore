@@ -15,6 +15,7 @@ Makefile
 Makefile.in
 *.o
 *.pro.user
+*.snap
 *.*~
 hstr
 test/hstr-unit-tests
