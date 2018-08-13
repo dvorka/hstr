@@ -18,8 +18,6 @@
 
 #include "include/hstr_utils.h"
 
-#include <ctype.h>
-
 #define DEFAULT_COMMAND "pwd"
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
 // TODO PID_BUFFER 20+ characters might be enough

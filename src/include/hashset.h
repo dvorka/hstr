@@ -19,10 +19,7 @@
 #ifndef _HASHSET_H_
 #define _HASHSET_H_
 
-#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-#include <stdbool.h>
+#include "hstr_utils.h"
 
 #define HASH_MAP_SIZE 10007
 

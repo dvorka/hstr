@@ -19,17 +19,13 @@
 #ifndef _HSTR_HISTORY_H_
 #define _HSTR_HISTORY_H_
 
-#include <stdio.h>
-#include <string.h>
 #include <fcntl.h>
-#include <stdlib.h>
-#include <unistd.h>
-#include <stdbool.h>
+#include <limits.h>
+#include <readline/history.h>
 
-#include "hstr_favorites.h"
-#include "hstr_utils.h"
-#include "hashset.h"
+#include "hstr_regexp.h"
 #include "radixsort.h"
+#include "hstr_favorites.h"
 
 #define ENV_VAR_HISTFILE "HISTFILE"
 

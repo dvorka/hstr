@@ -18,8 +18,6 @@
 
 #include "include/hstr_regexp.h"
 
-#include "include/hstr_utils.h"
-
 #define REGEXP_MATCH_BUFFER_SIZE 1
 
 void hstr_regexp_init(HstrRegexp *hstrRegexp)

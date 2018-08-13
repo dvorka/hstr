@@ -18,35 +18,6 @@
 
 #define _GNU_SOURCE
 
-#include <getopt.h>
-#include <locale.h>
-#ifdef __APPLE__
-#include <curses.h>
-#elif defined(__FreeBSD__)
-#include <ncurses.h>
-#else
-#include <ncursesw/curses.h>
-#endif
-#include <readline/chardefs.h>
-#include <regex.h>
-#include <signal.h>
-#include <stdbool.h>
-#include <stddef.h>
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include <termios.h>
-#include <unistd.h>
-#include <wchar.h>
-
-#include "include/hashset.h"
-#include "include/hstr_curses.h"
-#include "include/hstr_blacklist.h"
-#include "include/hstr_favorites.h"
-#include "include/hstr_history.h"
-#include "include/hstr_regexp.h"
-#include "include/hstr_utils.h"
-
 #include "include/hstr.h"
 
 #define SELECTION_CURSOR_IN_PROMPT -1

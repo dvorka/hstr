@@ -19,6 +19,24 @@
 #ifndef HSTR_H_
 #define HSTR_H_
 
+#include <getopt.h>
+#include <locale.h>
+#ifdef __APPLE__
+  #include <curses.h>
+#elif defined(__FreeBSD__)
+  #include <ncurses.h>
+#else
+  #include <ncursesw/curses.h>
+#endif
+#include <readline/chardefs.h>
+#include <signal.h>
+#include <termios.h>
+#include <wchar.h>
+
+#include "hstr_curses.h"
+#include "hstr_blacklist.h"
+#include "hstr_history.h"
+
 int hstr_main(int argc, char* argv[]);
 
 #endif

@@ -19,12 +19,9 @@
 #ifndef RADIXSORT_H_
 #define RADIXSORT_H_
 
-#include <stdbool.h>
-#include <stdlib.h>
-#include <stdio.h>
 #include <math.h>
-#include <string.h>
 #include <stddef.h>
+
 #include "hstr_utils.h"
 
 #define RADIX_SLOT_SIZE 1000

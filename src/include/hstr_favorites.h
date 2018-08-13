@@ -19,8 +19,6 @@
 #ifndef _HSTR_FAVORITES_H_
 #define _HSTR_FAVORITES_H_
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include "hashset.h"
 
 #define ENV_VAR_USER "USER"

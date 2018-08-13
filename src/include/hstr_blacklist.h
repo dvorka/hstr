@@ -19,8 +19,6 @@
 #ifndef HSTR_BLACKLIST_H_
 #define HSTR_BLACKLIST_H_
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include "hashset.h"
 
 #define ENV_VAR_USER "USER"
