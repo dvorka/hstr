@@ -39,8 +39,8 @@
 
 typedef struct radixitem {
     unsigned key;
-    void *data;
-    struct radixitem *next;
+    void* data;
+    struct radixitem* next;
 } RadixItem;
 
 typedef struct radixslot {
@@ -53,22 +53,22 @@ typedef struct {
     unsigned size;
     unsigned maxKey;
     unsigned keyLimit;
-    RadixItem ***topDigits;
+    RadixItem*** topDigits;
 
     int optionBigKeys;
 
-    RadixSlot **_slotDescriptors;
+    RadixSlot** _slotDescriptors;
     unsigned _slotsCount;
     unsigned _topIndexLimit;
     unsigned _debug;
 } RadixSorter;
 
-void radixsort_init(RadixSorter *rs, unsigned keyLimit);
-void radixsort_set_debug_level(RadixSorter *rs, unsigned debugLevel);
-void radixsort_add(RadixSorter *rs, RadixItem *item);
-RadixItem *radix_cut(RadixSorter *rs, unsigned key, void *data);
-RadixItem **radixsort_dump(RadixSorter *rs);
-void radixsort_destroy(RadixSorter *rs);
-void radixsort_stat(RadixSorter *rs, bool listing);
+void radixsort_init(RadixSorter* rs, unsigned keyLimit);
+void radixsort_set_debug_level(RadixSorter* rs, unsigned debugLevel);
+void radixsort_add(RadixSorter* rs, RadixItem* item);
+RadixItem* radix_cut(RadixSorter* rs, unsigned key, void* data);
+RadixItem** radixsort_dump(RadixSorter* rs);
+void radixsort_destroy(RadixSorter* rs);
+void radixsort_stat(RadixSorter* rs, bool listing);
 
 #endif /* RADIXSORT_H_ */

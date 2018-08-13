@@ -18,7 +18,7 @@
 
 #include "include/hstr.h"
 
-int main(int argc, char *argv[])
+int main(int argc, char* argv[])
 {
-    return hstrMain(argc, argv);
+    return hstr_main(argc, argv);
 }

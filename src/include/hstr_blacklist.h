@@ -32,13 +32,13 @@ typedef struct {
     bool useFile;
     bool isLoaded;
     bool isDefault;
-    HashSet *set;
+    HashSet* set;
 } Blacklist;
 
-void blacklist_init(Blacklist *blacklist);
-void blacklist_load(Blacklist *blacklist);
-bool blacklist_in(Blacklist *blacklist, char *cmd);
-void blacklist_dump(Blacklist *blacklist);
-void blacklist_destroy(Blacklist *blacklist);
+void blacklist_init(Blacklist* blacklist);
+void blacklist_load(Blacklist* blacklist);
+bool blacklist_in(Blacklist* blacklist, char *cmd);
+void blacklist_dump(Blacklist* blacklist);
+void blacklist_destroy(Blacklist* blacklist);
 
 #endif

@@ -19,6 +19,6 @@
 #ifndef HSTR_H_
 #define HSTR_H_
 
-int hstrMain(int argc, char *argv[]);
+int hstr_main(int argc, char* argv[]);
 
 #endif
