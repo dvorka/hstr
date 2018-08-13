@@ -174,6 +174,9 @@ static const char* INSTALL_BASH_STRING=
 // IMPROVE hh (win10) vs. hstr (cygwin) binary on various platforms must be resolved
 #if defined(__MS_WSL__)
         // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
+        // Script hints:
+        //  {...} is inline group ~ lambda function whose vars are visible to the other commands
+        //   V=$(c) executes commands and stores it to var V
         "\nfunction hstr_winwsl {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
@@ -196,15 +199,40 @@ static const char* INSTALL_BASH_STRING=
 #endif
         "\n\n";
 
+// zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
 static const char* INSTALL_ZSH_STRING=
         "\n# add this configuration to ~/.zshrc"
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HH_CONFIG=hicolor        # get more colors"
 #if defined(__MS_WSL__)
         // TODO binding to be rewritten for zsh@WSL as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
+
+        "\n# Function and binding below is Bash script that makes command completion work under WSL."
+        "\n# If you can rewrite the function and binding from Bash to zsh please send it to martin.dvorak@mindforger.com"
+        "\n# so that I can share it with other users."
+        "\n#function hstr_winwsl {"
+        "\n#  offset=${READLINE_POINT}"
+        "\n#  READLINE_POINT=0"
+        "\n#  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n#  READLINE_POINT=${#READLINE_LINE}"
+        "\n#}"
+        "\n#bindkey -s \"\\C-r\" \"\\eqhstr_winwsl\\n\""
+        "\n"
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
 #elif defined(__CYGWIN__)
-        // TODO binding to be rewritten for zsh@Cygwin as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
+        // TODO binding to be rewritten for zsh@Cygwin as it's done for Bash - hstr_cygwin() like function to be implemented to make it work under Cygwin
+
+        "\n# Function and binding below is Bash script that makes command completion work under Cygwin."
+        "\n# If you can rewrite the function and binding from Bash to zsh please send it to martin.dvorak@mindforger.com"
+        "\n# so that I can share it with other users."
+        "\n#function hstr_cygwin {"
+        "\n#  offset=${READLINE_POINT}"
+        "\n#  READLINE_POINT=0"
+        "\n#  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n#  READLINE_POINT=${#READLINE_LINE}"
+        "\n#}"
+        "\n#bindkey -s \"\\C-r\" \"\\eqhstr_cygwin\\n\""
+        "\n"
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
 #else
         "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
