@@ -25,6 +25,7 @@ void favorites_init(FavoriteItems* favorites)
     favorites->items=NULL;
     favorites->count=0;
     favorites->loaded=false;
+    favorites->reorderOnChoice=true;
     favorites->set=malloc(sizeof(HashSet));
     hashset_init(favorites->set);
 }
@@ -152,7 +153,7 @@ void favorites_add(FavoriteItems* favorites, char* newFavorite)
 
 void favorites_choose(FavoriteItems* favorites, char* choice)
 {
-    if(favorites->count && choice) {
+    if(favorites->reorderOnChoice && favorites->count && choice) {
         unsigned r;
         char* b=NULL, *next;
         for(r=0; r<favorites->count; r++) {
