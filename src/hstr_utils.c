@@ -59,6 +59,36 @@ int hstr_strlen(const char *s)
     }
 }
 
+// IMPROVE make this work w/ wide strings
+char* hstr_strelide(char* buffer, const char* s, unsigned maxlength)
+{
+    if(s) {
+        if(strlen(s)>maxlength && strlen(s)>3) {
+            unsigned dotOffset = maxlength/2-1; // 4/2-1=1 ~ "a..."
+            strncpy(buffer, s, dotOffset);
+            unsigned i, offset = dotOffset;
+            for(i=0; i<3; i++) {
+                buffer[offset] = '.';
+                offset++;
+            }
+            // fill from the end
+            dotOffset=offset;
+            offset=maxlength-1;
+            i=strlen(s)-1;
+            while(i && offset>=dotOffset) {
+                buffer[offset--] = s[i--];
+            }
+            buffer[maxlength]=0;
+        } else {
+            strcpy(buffer, s);
+        }
+    } else {
+        buffer[0] = 0;
+    }
+
+    return buffer;
+}
+
 void hstr_chop(char *s)
 {
     if(s) {
@@ -128,7 +158,7 @@ void get_hostname(int bufferSize, char *buffer)
             return;
         }
     }
-    strcpy(buffer,"localhost");
+    strcpy(buffer, "localhost");
 }
 
 void toggle_case(char *str, bool lowercase) {

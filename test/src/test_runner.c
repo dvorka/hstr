@@ -49,6 +49,7 @@ extern void test_hashset_get_keys();
 extern void test_regexp(void);
 extern void test_help_long(void);
 extern void test_help_short(void);
+extern void test_string_elide();
 
 
 /*=======Suite Setup=====*/
@@ -85,13 +86,14 @@ int main(void)
   UnityBegin("../test/src/test.c");
   RUN_TEST(test_args, 46);
   RUN_TEST(test_getopt, 79);
-  RUN_TEST(test_locate_char_in_string_overflow, 158);
-  RUN_TEST(test_favorites, 169);
-  RUN_TEST(test_hashset_blacklist, 193);
-  RUN_TEST(test_hashset_get_keys, 208);
-  RUN_TEST(test_regexp, 229);
-  RUN_TEST(test_help_long, 269);
-  RUN_TEST(test_help_short, 285);
+  RUN_TEST(test_locate_char_in_string_overflow, 162);
+  RUN_TEST(test_favorites, 173);
+  RUN_TEST(test_hashset_blacklist, 197);
+  RUN_TEST(test_hashset_get_keys, 212);
+  RUN_TEST(test_regexp, 233);
+  RUN_TEST(test_help_long, 273);
+  RUN_TEST(test_help_short, 289);
+  RUN_TEST(test_string_elide, 305);
 
   return suite_teardown(UnityEnd());
 }

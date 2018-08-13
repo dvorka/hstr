@@ -470,8 +470,7 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void add_to_selection(Hstr* hstr, char* line, unsigned int* index)
+void add_to_selection(char* line, unsigned int* index)
 {
     if (hstr->unique) {
         unsigned i;
@@ -498,7 +497,7 @@ void print_help_label(void)
     move(cursorY, cursorX);
 }
 
-void print_confirm_delete(const char* cmd, Hstr* hstr)
+void print_confirm_delete(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
@@ -516,8 +515,7 @@ void print_confirm_delete(const char* cmd, Hstr* hstr)
     refresh();
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void print_cmd_deleted_label(const char* cmd, int occurences, Hstr* hstr)
+void print_cmd_deleted_label(const char* cmd, int occurences)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
@@ -535,7 +533,7 @@ void print_cmd_deleted_label(const char* cmd, int occurences, Hstr* hstr)
     refresh();
 }
 
-void print_regexp_error(const char *errorMessage)
+void print_regexp_error(const char* errorMessage)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", errorMessage);
@@ -552,8 +550,7 @@ void print_regexp_error(const char *errorMessage)
     refresh();
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void print_cmd_added_favorite_label(const char* cmd, Hstr* hstr)
+void print_cmd_added_favorite_label(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
@@ -613,9 +610,8 @@ void print_pattern(char* pattern, int y, int x)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO don't realloc if size doesn't change
-void hstr_realloc_selection(unsigned size, Hstr* hstr)
+void hstr_realloc_selection(unsigned size)
 {
     if(hstr->selection) {
         if(size) {
@@ -637,10 +633,9 @@ void hstr_realloc_selection(unsigned size, Hstr* hstr)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSelectionCount, Hstr* hstr)
+unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSelectionCount)
 {
-    hstr_realloc_selection(maxSelectionCount, hstr);
+    hstr_realloc_selection(maxSelectionCount);
 
     unsigned i, selectionCount=0;
     char **source;
@@ -673,19 +668,19 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
-                add_to_selection(hstr, source[i], &selectionCount);
+                add_to_selection(source[i], &selectionCount);
             } else {
                 switch(hstr->historyMatch) {
                 case HH_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HH_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
-                            add_to_selection(hstr, source[i], &selectionCount);
+                            add_to_selection(source[i], &selectionCount);
                         }
                         break;
                     case HH_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
-                            add_to_selection(hstr, source[i], &selectionCount);
+                            add_to_selection(source[i], &selectionCount);
                         }
                         break;
                     }
@@ -728,7 +723,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                     }
                     if(keywordsAllMatch) {
-                        add_to_selection(hstr, source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount);
                     }
                     free(keywordsPointerToDelete);
                     break;
@@ -746,13 +741,13 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                 case HH_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(hstr, source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount);
                     }
                     break;
                 case HH_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(hstr, source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount);
                     }
                     break;
                 }
@@ -775,7 +770,9 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, width, " %s", text);
+    char buffer[CMDLINE_LNG];
+    hstr_strelide(buffer, text, width>2?width-2:0);
+    snprintf(screenLine, width, " %s", buffer);
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
     if(pattern && strlen(pattern)) {
@@ -794,19 +791,25 @@ void print_selection_row(char* text, int y, int width, char* pattern)
         case HH_MATCH_SUBSTRING:
             switch(hstr->caseSensitive) {
             case HH_CASE_INSENSITIVE:
-                p=strcasestr(text, pattern);
-                snprintf(screenLine, strlen(pattern)+1, "%s", p);
-                mvprintw(y, 1+(p-text), "%s", screenLine);
+                p=strcasestr(screenLine, pattern);
+                if(p) {
+                    snprintf(buffer, strlen(pattern)+1, "%s", p);
+                    mvprintw(y, p-screenLine, "%s", buffer);
+                }
                 break;
             case HH_CASE_SENSITIVE:
-                p=strstr(text, pattern);
-                mvprintw(y, 1+(p-text), "%s", pattern);
+                p=strstr(screenLine, pattern);
+                if(p) {
+                    mvprintw(y, p-screenLine, "%s", pattern);
+                }
                 break;
             }
             break;
         case HH_MATCH_REGEXP:
-            p=strstr(text, pattern);
-            mvprintw(y, 1+(p-text), "%s", pattern);
+            p=strstr(screenLine, pattern);
+            if(p) {
+                mvprintw(y, p-screenLine, "%s", pattern);
+            }
             break;
         case HH_MATCH_KEYWORDS:
             keywordsParsedLine = strdup(pattern);
@@ -819,15 +822,19 @@ void print_selection_row(char* text, int y, int width, char* pattern)
                 }
                 switch(hstr->caseSensitive) {
                 case HH_CASE_SENSITIVE:
-                    p=strstr(text, keywordsToken);
-                    mvprintw(y, 1+(p-text), "%s", keywordsToken);
+                    p=strstr(screenLine, keywordsToken);
+                    if(p) {
+                        mvprintw(y, p-screenLine, "%s", keywordsToken);
+                    }
                     break;
                 case HH_CASE_INSENSITIVE:
-                    p=strcasestr(text, keywordsToken);
-                    pp=strdup(p);
-                    pp[strlen(keywordsToken)]=0;
-                    mvprintw(y, 1+(p-text), "%s", pp);
-                    free(pp);
+                    p=strcasestr(screenLine, keywordsToken);
+                    if(p) {
+                        pp=strdup(p);
+                        pp[strlen(keywordsToken)]=0;
+                        mvprintw(y, p-screenLine, "%s", pp);
+                        free(pp);
+                    }
                     break;
                 }
             }
@@ -870,7 +877,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
 char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
 {
     char *result=NULL;
-    unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems, hstr);
+    unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems);
     if (selectionCount > 0) {
         result=hstr->selection[0];
     }
@@ -1021,7 +1028,7 @@ void hstr_next_view(Hstr* hstr)
 
 // IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void stdout_history_and_return(Hstr* hstr) {
-    unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount, hstr);
+    unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount);
     if (selectionCount > 0) {
         unsigned i;
         for(i=0; i<selectionCount; i++) {
@@ -1120,13 +1127,13 @@ void loop_to_select(Hstr* hstr)
                 strcpy(msg,delete);
 
                 if(!hstr->noConfirm) {
-                    print_confirm_delete(msg, hstr);
+                    print_confirm_delete(msg);
                     cc = wgetch(stdscr);
                 }
                 if(hstr->noConfirm || cc == 'y') {
                     deletedOccurences=remove_from_history_model(msg, hstr);
                     result=hstr_print_selection(maxHistoryItems, pattern, hstr);
-                    print_cmd_deleted_label(msg, deletedOccurences, hstr);
+                    print_cmd_deleted_label(msg, deletedOccurences);
                 } else {
                     print_help_label();
                 }
@@ -1206,7 +1213,7 @@ void loop_to_select(Hstr* hstr)
                 hstr_print_selection(maxHistoryItems, pattern, hstr);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
                 if(hstr->historyView!=HH_VIEW_FAVORITES) {
-                    print_cmd_added_favorite_label(result, hstr);
+                    print_cmd_added_favorite_label(result);
                     printDefaultLabel=TRUE;
                 }
                 // TODO code review
@@ -1249,9 +1256,9 @@ void loop_to_select(Hstr* hstr)
 
             // TODO why I make selection if it's done in print_selection?
             if(strlen(pattern)>0) {
-                hstr_make_selection(pattern, hstr->history, maxHistoryItems, hstr);
+                hstr_make_selection(pattern, hstr->history, maxHistoryItems);
             } else {
-                hstr_make_selection(NULL, hstr->history, maxHistoryItems, hstr);
+                hstr_make_selection(NULL, hstr->history, maxHistoryItems);
             }
             result=hstr_print_selection(maxHistoryItems, pattern, hstr);
 
