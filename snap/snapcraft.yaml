@@ -44,5 +44,5 @@ parts:
       - libncursesw5-dev
       - pkg-config
     prime:
-      - -bin/hh
+      - -bin/hstr
       - -share/man
