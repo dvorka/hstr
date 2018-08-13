@@ -162,7 +162,7 @@ then
     exit 1
 fi
 
-export ARG_BAZAAR_MSG="Release 1.27.x"
+export ARG_BAZAAR_MSG="Release 1.27"
 export ARG_MAJOR_VERSION=1.27.
 export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu version
 

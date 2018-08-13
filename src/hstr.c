@@ -132,7 +132,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hh version \"1.27.0\" (2018-08-13T12:00:00)"
+        "hh version \"1.27.0\" (2018-08-13T17:00:00)"
         "\n";
 
 static const char* HH_VIEW_LABELS[]={
