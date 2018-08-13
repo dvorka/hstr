@@ -41,27 +41,27 @@
 
 typedef struct {
     // ranked history
-    char **items;
+    char** items;
     unsigned count;
     // raw history
-    char **rawItems;
+    char** rawItems;
     unsigned rawCount;
 } HistoryItems;
 
-HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist);
+HistoryItems* get_prioritized_history(int optionBigKeys, HashSet* blacklist);
 
-HistoryItems *get_history_items(void);
+HistoryItems* get_history_items(void);
 void free_history_items(void);
 
-HistoryItems *prioritize_history(HistoryItems *historyFileItems);
+HistoryItems* prioritize_history(HistoryItems* historyFileItems);
 void free_prioritized_history(void);
 
 void history_mgmt_open(void);
 void history_clear_dirty(void);
-int history_mgmt_remove_from_system_history(char *cmd);
+int history_mgmt_remove_from_system_history(char* cmd);
 bool history_mgmt_remove_last_history_entry(bool verbose);
-int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history);
-int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history);
+int history_mgmt_remove_from_raw(char* cmd, HistoryItems* history);
+int history_mgmt_remove_from_ranked(char* cmd, HistoryItems* history);
 void history_mgmt_flush(void);
 
 #endif

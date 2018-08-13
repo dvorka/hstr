@@ -26,7 +26,7 @@
 #define PID_BUFFER_SIZE 128
 
 // strdup() not in ISO C
-char *hstr_strdup(const char * s)
+char* hstr_strdup(const char* s)
 {
   size_t len = 1+strlen(s);
   char *p = malloc(len);

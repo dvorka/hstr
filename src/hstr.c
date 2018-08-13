@@ -258,12 +258,12 @@ static const char* HELP_STRING=
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hh version \"1.27.0\" (2018-08-1T13:00:00)"
+        "hh version \"1.27.0\" (2018-08-13T12:00:00)"
         "\n";
 
 // TODO help screen - curses window (tig)
 static const char* LABEL_HELP=
-        "Type to filter, UP/DOWN move, DEL remove, TAB select, C-f add favorite, C-g cancel";
+        "Type to filter, UP/DOWN move, RET/DEL remove, TAB select, C-f add favorite, C-g cancel";
 
 #define GETOPT_NO_ARGUMENT           0
 #define GETOPT_REQUIRED_ARGUMENT     1
@@ -362,6 +362,7 @@ unsigned recalculate_max_history_items(void)
     return hstr->promptItems;
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void hstr_get_env_configuration(Hstr* hstr)
 {
     char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
@@ -469,6 +470,7 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void add_to_selection(Hstr* hstr, char* line, unsigned int* index)
 {
     if (hstr->unique) {
@@ -514,6 +516,7 @@ void print_confirm_delete(const char* cmd, Hstr* hstr)
     refresh();
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void print_cmd_deleted_label(const char* cmd, int occurences, Hstr* hstr)
 {
     char screenLine[CMDLINE_LNG];
@@ -549,6 +552,7 @@ void print_regexp_error(const char *errorMessage)
     refresh();
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void print_cmd_added_favorite_label(const char* cmd, Hstr* hstr)
 {
     char screenLine[CMDLINE_LNG];
@@ -609,6 +613,7 @@ void print_pattern(char* pattern, int y, int x)
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO don't realloc if size doesn't change
 void hstr_realloc_selection(unsigned size, Hstr* hstr)
 {
@@ -632,6 +637,7 @@ void hstr_realloc_selection(unsigned size, Hstr* hstr)
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSelectionCount, Hstr* hstr)
 {
     hstr_realloc_selection(maxSelectionCount, hstr);
@@ -836,6 +842,7 @@ void print_selection_row(char* text, int y, int width, char* pattern)
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hstr)
 {
     UNUSED_ARG(width);
@@ -859,6 +866,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
     color_attr_off(A_BOLD);
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
 {
     char *result=NULL;
@@ -921,6 +929,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
     return result;
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char* pattern, Hstr* hstr)
 {
     if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
@@ -983,7 +992,9 @@ void signal_callback_handler_ctrl_c(int signum)
     }
 }
 
-int remove_from_history_model(char* delete, Hstr *hstr)
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
+// IMPROVE replace delete as it's reserved C++ word (IDEs)
+int remove_from_history_model(char* delete, Hstr* hstr)
 {
     if(hstr->historyView==HH_VIEW_FAVORITES) {
         return favorites_remove(hstr->favorites, delete);
@@ -1001,12 +1012,14 @@ int remove_from_history_model(char* delete, Hstr *hstr)
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void hstr_next_view(Hstr* hstr)
 {
     hstr->historyView++;
     hstr->historyView=hstr->historyView%3;
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void stdout_history_and_return(Hstr* hstr) {
     unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount, hstr);
     if (selectionCount > 0) {
@@ -1017,6 +1030,7 @@ void stdout_history_and_return(Hstr* hstr) {
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* result) {
     if (hstr->promptBottom) {
         result=hstr->selection[hstr->promptYItemsEnd-selectionCursorPosition];
@@ -1026,6 +1040,7 @@ char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* resu
     return result;
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 void loop_to_select(Hstr* hstr)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
@@ -1413,6 +1428,7 @@ void loop_to_select(Hstr* hstr)
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO protection from line overflow (snprinf)
 void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int startIndex)
 {
@@ -1434,6 +1450,7 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int start
     }
 }
 
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO make favorites loading lazy (load on the first opening of favorites view)
 void hstr_init_favorites(Hstr* hstr)
 {
@@ -1442,7 +1459,8 @@ void hstr_init_favorites(Hstr* hstr)
     favorites_get(hstr->favorites);
 }
 
-void hstr_main(Hstr* hstr)
+// IMPROVE hstr doesn't have to be passed as parameter - it's global static
+void hstr_interactive(Hstr* hstr)
 {
     hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
     if(hstr->history) {
@@ -1510,7 +1528,8 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
     }
 }
 
-int hstrMain(int argc, char* argv[])
+// IMPROVE rename this method - is NOT c convention + clash w/ existing name
+int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
@@ -1521,7 +1540,7 @@ int hstrMain(int argc, char* argv[])
     hstr_getopt(argc, argv, hstr);
     hstr_init_favorites(hstr);
     blacklist_load(&hstr->blacklist);
-    hstr_main(hstr);
+    hstr_interactive(hstr);
 
     favorites_destroy(hstr->favorites);
     free(hstr);
