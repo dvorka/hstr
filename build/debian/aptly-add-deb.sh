@@ -30,6 +30,7 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 
 # add .deb to repository
 #aptly repo add mindforger-com-ppa hstr_1.27.0-1_amd64.deb
+#aptly repo remove mindforger-com-ppa hstr_1.27.0-1_amd64
 
 # show repo content w/ packages
 #aptly repo show -with-packages mindforger-com-ppa
