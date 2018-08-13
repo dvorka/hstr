@@ -17,7 +17,7 @@
 # https://docs.snapcraft.io/build-snaps/your-first-snap
 #
 
-name: hh
+name: hstr
 version: git
 summary: Suggest box like shell history completion
 description: |

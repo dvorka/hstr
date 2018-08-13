@@ -16,6 +16,12 @@ Makefile.in
 *.o
 *.pro.user
 *.snap
+/parts
+/prime
+/stage
+/snap/.snapcraft
+/snap/snap/
+/snap/parts/
 *.*~
 hstr
 *.pro.user
