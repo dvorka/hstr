@@ -362,8 +362,7 @@ unsigned recalculate_max_history_items(void)
     return hstr->promptItems;
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void hstr_get_env_configuration(Hstr* hstr)
+void hstr_get_env_configuration()
 {
     char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
     if(hstr_config && strlen(hstr_config)>0) {
@@ -849,8 +848,8 @@ void print_selection_row(char* text, int y, int width, char* pattern)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hstr)
+// IMPROVE elide text
+void hstr_print_highlighted_selection_row(char *text, int y, int width)
 {
     UNUSED_ARG(width);
 
@@ -873,8 +872,7 @@ void hstr_print_highlighted_selection_row(char *text, int y, int width, Hstr *hs
     color_attr_off(A_BOLD);
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
+char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
 {
     char *result=NULL;
     unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems);
@@ -936,8 +934,7 @@ char *hstr_print_selection(unsigned maxHistoryItems, char* pattern, Hstr* hstr)
     return result;
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char* pattern, Hstr* hstr)
+void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char* pattern)
 {
     if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
         // TODO make this function
@@ -976,11 +973,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
             text=selectionCursorPosition;
             y=hstr->promptYItemsStart+selectionCursorPosition;
         }
-        hstr_print_highlighted_selection_row(
-                hstr->selection[text],
-                y,
-                getmaxx(stdscr),
-                hstr);
+        hstr_print_highlighted_selection_row(hstr->selection[text], y, getmaxx(stdscr));
     }
 }
 
@@ -999,18 +992,16 @@ void signal_callback_handler_ctrl_c(int signum)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-// IMPROVE replace delete as it's reserved C++ word (IDEs)
-int remove_from_history_model(char* delete, Hstr* hstr)
+int remove_from_history_model(char* almostDead)
 {
     if(hstr->historyView==HH_VIEW_FAVORITES) {
-        return favorites_remove(hstr->favorites, delete);
+        return favorites_remove(hstr->favorites, almostDead);
     } else {
         // raw & ranked history is pruned first as its items point to system history lines
-        int systemOccurences=0, rawOccurences=history_mgmt_remove_from_raw(delete, hstr->history);
-        history_mgmt_remove_from_ranked(delete, hstr->history);
+        int systemOccurences=0, rawOccurences=history_mgmt_remove_from_raw(almostDead, hstr->history);
+        history_mgmt_remove_from_ranked(almostDead, hstr->history);
         if(rawOccurences) {
-            systemOccurences=history_mgmt_remove_from_system_history(delete);
+            systemOccurences=history_mgmt_remove_from_system_history(almostDead);
         }
         if(systemOccurences!=rawOccurences && hstr->debugLevel>HH_DEBUG_LEVEL_NONE) {
             fprintf(stderr, "WARNING: system and raw items deletion mismatch %d / %d\n", systemOccurences, rawOccurences);
@@ -1019,15 +1010,14 @@ int remove_from_history_model(char* delete, Hstr* hstr)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void hstr_next_view(Hstr* hstr)
+void hstr_next_view(void)
 {
     hstr->historyView++;
     hstr->historyView=hstr->historyView%3;
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void stdout_history_and_return(Hstr* hstr) {
+void stdout_history_and_return(void)
+{
     unsigned selectionCount=hstr_make_selection(hstr->cmdline, hstr->history, hstr->history->rawCount);
     if (selectionCount > 0) {
         unsigned i;
@@ -1047,8 +1037,7 @@ char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* resu
     return result;
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void loop_to_select(Hstr* hstr)
+void loop_to_select(void)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
 
@@ -1064,7 +1053,7 @@ void loop_to_select(Hstr* hstr)
 
     color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
     // TODO why do I print non-filtered selection when on command line there is a pattern?
-    hstr_print_selection(recalculate_max_history_items(), NULL, hstr);
+    hstr_print_selection(recalculate_max_history_items(), NULL);
     color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
     if(!hstr->promptBottom) {
         print_help_label();
@@ -1078,7 +1067,7 @@ void loop_to_select(Hstr* hstr)
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-    char *result="", *msg, *delete;
+    char *result="", *msg, *almostDead;
     char pattern[SELECTION_PREFIX_MAX_LNG];
     pattern[0]=0;
     // TODO this is too late! > don't render twice
@@ -1097,7 +1086,7 @@ void loop_to_select(Hstr* hstr)
                 color_attr_off(A_BOLD);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
-                result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+                result=hstr_print_selection(maxHistoryItems, pattern);
                 move(cursorY, cursorX);
             }
             skip=FALSE;
@@ -1122,17 +1111,17 @@ void loop_to_select(Hstr* hstr)
             break;
         case KEY_DC: // DEL
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-                delete=getResultFromSelection(selectionCursorPosition, hstr, result);
-                msg=malloc(strlen(delete)+1);
-                strcpy(msg,delete);
+                almostDead=getResultFromSelection(selectionCursorPosition, hstr, result);
+                msg=malloc(strlen(almostDead)+1);
+                strcpy(msg, almostDead);
 
                 if(!hstr->noConfirm) {
                     print_confirm_delete(msg);
                     cc = wgetch(stdscr);
                 }
                 if(hstr->noConfirm || cc == 'y') {
-                    deletedOccurences=remove_from_history_model(msg, hstr);
-                    result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+                    deletedOccurences=remove_from_history_model(msg);
+                    result=hstr_print_selection(maxHistoryItems, pattern);
                     print_cmd_deleted_label(msg, deletedOccurences);
                 } else {
                     print_help_label();
@@ -1157,7 +1146,7 @@ void loop_to_select(Hstr* hstr)
                         selectionCursorPosition = hstr->selectionSize - 1;
                     }
                 }
-                highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern, hstr);
+                highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern);
                 move(hstr->promptY, basex+strlen(pattern));
             }
             break;
@@ -1165,7 +1154,7 @@ void loop_to_select(Hstr* hstr)
             hstr->historyMatch++;
             hstr->historyMatch=hstr->historyMatch%HH_NUM_HISTORY_MATCH;
             // TODO make this a function
-            result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+            result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
@@ -1177,7 +1166,7 @@ void loop_to_select(Hstr* hstr)
         case K_CTRL_T:
             hstr->caseSensitive=!hstr->caseSensitive;
             hstr->regexp.caseSensitive=hstr->caseSensitive;
-            result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+            result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
@@ -1191,8 +1180,8 @@ void loop_to_select(Hstr* hstr)
         case K_CTRL_W:
 #endif
         case K_CTRL_SLASH:
-            hstr_next_view(hstr);
-            result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+            hstr_next_view();
+            result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             // TODO function
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1210,7 +1199,7 @@ void loop_to_select(Hstr* hstr)
                 } else {
                     favorites_add(hstr->favorites, result);
                 }
-                hstr_print_selection(maxHistoryItems, pattern, hstr);
+                hstr_print_selection(maxHistoryItems, pattern);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
                 if(hstr->historyView!=HH_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result);
@@ -1227,7 +1216,7 @@ void loop_to_select(Hstr* hstr)
         case KEY_RESIZE:
             print_history_label();
             maxHistoryItems=recalculate_max_history_items();
-            result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+            result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             move(hstr->promptY, basex+strlen(pattern));
@@ -1260,7 +1249,7 @@ void loop_to_select(Hstr* hstr)
             } else {
                 hstr_make_selection(NULL, hstr->history, maxHistoryItems);
             }
-            result=hstr_print_selection(maxHistoryItems, pattern, hstr);
+            result=hstr_print_selection(maxHistoryItems, pattern);
 
             move(hstr->promptY, basex+hstr_strlen(pattern));
             break;
@@ -1285,7 +1274,7 @@ void loop_to_select(Hstr* hstr)
                     selectionCursorPosition=hstr->selectionSize-1;
                 }
             }
-            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
             move(hstr->promptY, basex+strlen(pattern));
             break;
         case KEY_PPAGE:
@@ -1295,7 +1284,7 @@ void loop_to_select(Hstr* hstr)
             } else {
                 selectionCursorPosition=0;
             }
-            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
             move(hstr->promptY, basex+strlen(pattern));
             break;
         case KEY_DOWN:
@@ -1324,7 +1313,7 @@ void loop_to_select(Hstr* hstr)
                 }
             }
             if(hstr->selectionSize) {
-                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
             }
             move(hstr->promptY, basex+strlen(pattern));
             break;
@@ -1340,7 +1329,7 @@ void loop_to_select(Hstr* hstr)
                 }
             }
             if(hstr->selectionSize) {
-                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern, hstr);
+                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
             }
             move(hstr->promptY, basex+strlen(pattern));
             break;
@@ -1412,7 +1401,7 @@ void loop_to_select(Hstr* hstr)
                     cursorY=getcury(stdscr);
                 }
 
-                result = hstr_print_selection(maxHistoryItems, pattern, hstr);
+                result = hstr_print_selection(maxHistoryItems, pattern);
                 move(cursorY, cursorX);
                 refresh();
             }
@@ -1435,9 +1424,8 @@ void loop_to_select(Hstr* hstr)
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO protection from line overflow (snprinf)
-void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int startIndex)
+void hstr_assemble_cmdline_pattern(int argc, char* argv[], int startIndex)
 {
     if(argc>0) {
         int i;
@@ -1457,25 +1445,23 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], Hstr* hstr, int start
     }
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO make favorites loading lazy (load on the first opening of favorites view)
-void hstr_init_favorites(Hstr* hstr)
+void hstr_init_favorites(void)
 {
     hstr->favorites=malloc(sizeof(FavoriteItems));
     favorites_init(hstr->favorites);
     favorites_get(hstr->favorites);
 }
 
-// IMPROVE hstr doesn't have to be passed as parameter - it's global static
-void hstr_interactive(Hstr* hstr)
+void hstr_interactive(void)
 {
     hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
     if(hstr->history) {
         history_mgmt_open();
         if(hstr->interactive) {
-            loop_to_select(hstr);
+            loop_to_select();
         } else {
-            stdout_history_and_return(hstr);
+            stdout_history_and_return();
         }
         hstr_on_exit();
     } else {
@@ -1483,7 +1469,7 @@ void hstr_interactive(Hstr* hstr)
     }
 }
 
-void hstr_getopt(int argc, char **argv, Hstr *hstr)
+void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
     int option = getopt_long(argc, argv, "fkVhnszb", long_options, &option_index);
@@ -1531,11 +1517,10 @@ void hstr_getopt(int argc, char **argv, Hstr *hstr)
     }
 
     if(optind < argc) {
-        hstr_assemble_cmdline_pattern(argc, argv, hstr, optind);
+        hstr_assemble_cmdline_pattern(argc, argv, optind);
     }
 }
 
-// IMPROVE rename this method - is NOT c convention + clash w/ existing name
 int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
@@ -1543,11 +1528,11 @@ int hstr_main(int argc, char* argv[])
     hstr=malloc(sizeof(Hstr));
 
     hstr_init();
-    hstr_get_env_configuration(hstr);
-    hstr_getopt(argc, argv, hstr);
-    hstr_init_favorites(hstr);
+    hstr_get_env_configuration();
+    hstr_getopt(argc, argv);
+    hstr_init_favorites();
     blacklist_load(&hstr->blacklist);
-    hstr_interactive(hstr);
+    hstr_interactive();
 
     favorites_destroy(hstr->favorites);
     free(hstr);
