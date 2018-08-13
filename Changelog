@@ -1,6 +1,7 @@
-2018-08-12  Martin Dvorak  <martin.dvorak@mindforger.com>
+2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.27.0 - Stabilizations, fixes, QtCreator IDE migration, build, distributions, my Debian PPA.
+  * Released v1.27.0 - Long lines support, QtCreator IDE migration, all build scripts rewritten,
+    new distros (my Debian PPA, snap, ...), unit test framework and tests, various fixes.
 
 2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
