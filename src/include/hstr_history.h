@@ -21,6 +21,8 @@
 
 #include <fcntl.h>
 #include <limits.h>
+// do NOT remove stdio.h include - must be present on certain system before readline to compile
+#include <stdio.h>
 #include <readline/history.h>
 
 #include "hstr_regexp.h"
