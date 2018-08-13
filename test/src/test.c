@@ -282,7 +282,7 @@ void test_help_long(void)
     argv[1] = ARG_HELP;
     int s;
 
-    s = hstrMain(argc, argv);
+    s = hstr_main(argc, argv);
     TEST_ASSERT_FALSE(s);
 }
 
@@ -298,6 +298,38 @@ void test_help_short(void)
     argv[1] = ARG_H;
     int s;
 
-    s = hstrMain(argc, argv);
+    s = hstr_main(argc, argv);
     TEST_ASSERT_FALSE(s);
+}
+
+void test_string_elide()
+{
+    char buffer[1000];
+
+    // do nothing - string fits to screen
+    hstr_strelide(buffer, "0123456789", 20);
+    printf("%s\n", buffer);
+    TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
+
+    // do nothing - string too short
+    hstr_strelide(buffer, "012", 1);
+    printf("%s\n", buffer);
+    TEST_ASSERT_EQUAL_STRING("012", buffer);
+
+    hstr_strelide(buffer, "0123456789", 6);
+    printf("%s\n", buffer);
+    TEST_ASSERT_EQUAL_STRING("01...9", buffer);
+
+
+    hstr_strelide(buffer, "0123456789", 10);
+    TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
+    printf("%s\n", buffer);
+
+    hstr_strelide(buffer, "0123456789", 9);
+    TEST_ASSERT_EQUAL_STRING("012...789", buffer);
+    printf("%s\n", buffer);
+
+    hstr_strelide(buffer, "0123456789", 8);
+    TEST_ASSERT_EQUAL_STRING("012...89", buffer);
+    printf("%s\n", buffer);
 }

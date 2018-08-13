@@ -32,8 +32,9 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
-char *hstr_strdup(const char* s);
+char* hstr_strdup(const char* s);
 int hstr_strlen(const char* s);
+char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);
 #ifndef __CYGWIN__
 void tiocsti();
