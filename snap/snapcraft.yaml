@@ -20,6 +20,7 @@ parts:
       cd ./dist && ./1-dist.sh && cd ..
       snapcraftctl build
     build-packages:
+      - build-essential
       - libreadline-dev
       - libncursesw5-dev
       - pkg-config
