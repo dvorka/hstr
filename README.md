@@ -7,7 +7,7 @@
 -->
 
 Easily view, navigate and search your **command history** with shell history suggest box for Bash and
-[Zsh](CONFIGURATION.md#zsh-history-settings).
+[zsh](CONFIGURATION.md#zsh-history-settings).
 
 [![Shell History Suggest Box](http://me.mindforger.com/projects/images/hh-animated-01.gif "Shell History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
