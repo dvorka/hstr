@@ -59,7 +59,7 @@ Tarball:
 * [build and install tarball](INSTALLATION.md#build-and-install-tarball)
 
 ## Configuration
-Optionally configure HSTR just by running:
+Configure HSTR just by running:
 ```bash
 hh --show-configuration >> ~/.bashrc
 ```
