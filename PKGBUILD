@@ -16,7 +16,7 @@ sha256sums=('6c130afd8ca570ee1988a0c7d6a96efeeabd21be7e05ce1f3144bb3c86c74441')
 prepare() {
     cd "${pkgname}-${pkgver}"
     sed -i -e "s#<ncursesw/curses.h>#<curses.h>#g" src/include/hstr_curses.h
-    sed -i -e "s#<ncursesw/curses.h>#<curses.h>#g" src/hstr.c
+    sed -i -e "s#<ncursesw/curses.h>#<curses.h>#g" src/include/hstr.h
 }
 
 build() {
