@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef RADIXSORT_H_
-#define RADIXSORT_H_
+#ifndef RADIXSORT_H
+#define RADIXSORT_H
 
 #include <math.h>
 #include <stddef.h>
@@ -68,4 +68,4 @@ RadixItem** radixsort_dump(RadixSorter* rs);
 void radixsort_destroy(RadixSorter* rs);
 void radixsort_stat(RadixSorter* rs, bool listing);
 
-#endif /* RADIXSORT_H_ */
+#endif

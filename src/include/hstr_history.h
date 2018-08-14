@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_HISTORY_H_
-#define _HSTR_HISTORY_H_
+#ifndef HSTR_HISTORY_H
+#define HSTR_HISTORY_H
 
 #include <fcntl.h>
 #include <limits.h>

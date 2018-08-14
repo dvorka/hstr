@@ -16,8 +16,8 @@
  limitations under the License.
  */
 
-#ifndef HSTR_BLACKLIST_H_
-#define HSTR_BLACKLIST_H_
+#ifndef HSTR_BLACKLIST_H
+#define HSTR_BLACKLIST_H
 
 #include "hashset.h"
 

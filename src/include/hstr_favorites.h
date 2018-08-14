@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_FAVORITES_H_
-#define _HSTR_FAVORITES_H_
+#ifndef HSTR_FAVORITES_H
+#define HSTR_FAVORITES_H
 
 #include "hashset.h"
 

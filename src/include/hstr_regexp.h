@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_REGEXP_H
-#define _HSTR_REGEXP_H
+#ifndef HSTR_REGEXP_H
+#define HSTR_REGEXP_H
 
 #include <regex.h>
 

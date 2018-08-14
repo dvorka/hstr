@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HASHSET_H_
-#define _HASHSET_H_
+#ifndef HASHSET_H
+#define HASHSET_H
 
 #include "hstr_utils.h"
 

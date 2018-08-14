@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_CURSES_H
-#define _HSTR_CURSES_H
+#ifndef HSTR_CURSES_H
+#define HSTR_CURSES_H
 
 #ifdef __APPLE__
 #include <curses.h>

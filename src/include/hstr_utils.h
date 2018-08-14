@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_UTILS_H
-#define _HSTR_UTILS_H
+#ifndef HSTR_UTILS_H
+#define HSTR_UTILS_H
 
 #include <ctype.h>
 #include <sys/ioctl.h>

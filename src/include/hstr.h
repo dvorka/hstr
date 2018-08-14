@@ -16,8 +16,8 @@
  limitations under the License.
  */
 
-#ifndef HSTR_H_
-#define HSTR_H_
+#ifndef HSTR_H
+#define HSTR_H
 
 #include <getopt.h>
 #include <locale.h>
