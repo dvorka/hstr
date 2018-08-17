@@ -1529,20 +1529,28 @@ void hstr_getopt(int argc, char **argv)
     }
 }
 
+void hstr_destroy(void)
+{
+    favorites_destroy(hstr->favorites);
+    hstr_regexp_destroy(&hstr->regexp);
+    // blacklist is allocated by hstr struct
+    blacklist_destroy(&hstr->blacklist, false);
+    free(hstr);
+}
+
 int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
     hstr=malloc(sizeof(Hstr));
-
     hstr_init();
+
     hstr_get_env_configuration();
     hstr_getopt(argc, argv);
     blacklist_load(&hstr->blacklist);
     hstr_interactive();
 
-    favorites_destroy(hstr->favorites);
-    free(hstr);
+    hstr_destroy();
 
     return EXIT_SUCCESS;
 }

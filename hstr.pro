@@ -14,6 +14,14 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#########################################################################
+#
+# QMake build options:
+#   qmake CONFIG+=hstrdebug ... add extra debug and profiling info
+#
+#########################################################################
+
+
 TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
@@ -46,5 +54,9 @@ HEADERS += \
     src/include/hstr.h
 
 # compiler and linker
-QMAKE_CC = ccache gcc
+hstrdebug {
+    QMAKE_CC = ccache gcc -g -pg
+} else {
+    QMAKE_CC = ccache gcc
+}
 QMAKE_LINK = gcc

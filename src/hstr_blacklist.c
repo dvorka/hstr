@@ -125,7 +125,7 @@ void blacklist_dump(Blacklist *blacklist)
     printf("Command blacklist is empty\n");
 }
 
-void blacklist_destroy(Blacklist *blacklist)
+void blacklist_destroy(Blacklist *blacklist, bool freeBlacklist)
 {
     if(blacklist) {
         if(blacklist->useFile) {
@@ -159,6 +159,8 @@ void blacklist_destroy(Blacklist *blacklist)
         }
         hashset_destroy(blacklist->set, false);
         free(blacklist->set);
-        free(blacklist);
+        if(freeBlacklist) {
+            free(blacklist);
+        }
     }
 }

@@ -97,7 +97,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
         exit(EXIT_FAILURE);
     }
-    HISTORY_STATE *historyState=history_get_history_state();
+    HISTORY_STATE* historyState=history_get_history_state();
 
     bool isZsh = isZshParentShell();
 
@@ -212,10 +212,13 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         radixsort_destroy(&rs);
         // TODO rankmap (?) and blacklist (?) to be destroyed
 
+        free(historyState);
         return prioritizedHistory;
     } else {
+        free(historyState);
         return NULL;
     }
+
 }
 
 void free_prioritized_history(void)

@@ -203,6 +203,7 @@ void favorites_destroy(FavoriteItems* favorites)
         for(i=0; i<favorites->count; i++) {
             free(favorites->items[i]);
         }
+        free(favorites->items);
         // TODO hashset destroys keys - no need to destroy items!
         hashset_destroy(favorites->set, false);
         free(favorites->set);

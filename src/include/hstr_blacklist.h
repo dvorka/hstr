@@ -37,6 +37,6 @@ void blacklist_init(Blacklist* blacklist);
 void blacklist_load(Blacklist* blacklist);
 bool blacklist_in(Blacklist* blacklist, char *cmd);
 void blacklist_dump(Blacklist* blacklist);
-void blacklist_destroy(Blacklist* blacklist);
+void blacklist_destroy(Blacklist* blacklist, bool freeBlacklist);
 
 #endif
