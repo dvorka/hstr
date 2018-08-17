@@ -24,7 +24,7 @@ then
 fi
 
 # test history file
-export HISTFILE=`pwd`/test/resources/.bash_history_valgrind_empty
+#export HISTFILE=`pwd`/test/resources/.bash_history_valgrind_empty
 export HISTFILE=`pwd`/test/resources/.bash_history_valgrind_1_entry
 
 # Valgrind
