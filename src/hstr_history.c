@@ -189,7 +189,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 
         DEBUG_RADIXSORT();
 
-        RadixItem **prioritizedRadix=radixsort_dump(&rs);
+        RadixItem** prioritizedRadix=radixsort_dump(&rs);
         prioritizedHistory=malloc(sizeof(HistoryItems));
         prioritizedHistory->count=rs.size;
         prioritizedHistory->rawCount=historyState->length-rawTimestamps;
@@ -214,8 +214,8 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             }
             free(prioritizedRadix[u]->data);
             free(prioritizedRadix[u]);
-            free(prioritizedRadix);
         }
+        free(prioritizedRadix);
 
         radixsort_destroy(&rs);
         // TODO rankmap (?) and blacklist (?) to be destroyed
