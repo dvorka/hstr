@@ -37,6 +37,22 @@ void radixsort_init(RadixSorter* rs, unsigned keyLimit)
     rs->_debug=RADIX_DEBUG_LEVEL_NONE;
 }
 
+void radixsort_destroy(RadixSorter* rs)
+{
+    // radix items: DONE (passed on dump() by reference)
+    // rs: DONE (created and destroyed by caller)
+    // slots:
+    int topIndex = GET_TOP_INDEX(rs->maxKey);
+    do {
+        if(rs->topDigits[topIndex]) {
+            free(rs->topDigits[topIndex]);
+            free(rs->_slotDescriptors[topIndex]);
+        }
+    } while(--topIndex>=0);
+    free(rs->topDigits);
+    free(rs->_slotDescriptors);
+}
+
 void radixsort_set_debug_level(RadixSorter* rs, unsigned debugLevel)
 {
     rs->_debug=debugLevel;
@@ -224,18 +240,4 @@ void radixsort_stat(RadixSorter* rs, bool listing)
         } while(--t>=0);
     }
     fflush(stdout);
-}
-
-void radixsort_destroy(RadixSorter* rs)
-{
-    // radix items: DONE (passed on dump() by reference)
-    // rs: DONE (created and destroyed by caller)
-    // slots:
-    int topIndex = GET_TOP_INDEX(rs->maxKey);
-    do {
-        if(rs->topDigits[topIndex]) {
-            free(rs->topDigits[topIndex]);
-            free(rs->_slotDescriptors[topIndex]);
-        }
-    } while(--topIndex>=0);
 }

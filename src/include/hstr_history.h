@@ -46,13 +46,8 @@ typedef struct {
     unsigned rawCount;
 } HistoryItems;
 
-HistoryItems* get_prioritized_history(int optionBigKeys, HashSet* blacklist);
-
-HistoryItems* get_history_items(void);
-void free_history_items(void);
-
-HistoryItems* prioritize_history(HistoryItems* historyFileItems);
-void free_prioritized_history(void);
+HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
+void prioritized_history_destroy(HistoryItems* h);
 
 void history_mgmt_open(void);
 void history_clear_dirty(void);

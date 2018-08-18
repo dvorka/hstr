@@ -357,6 +357,31 @@ void hstr_init(void)
      =0;
 }
 
+void hstr_destroy(void)
+{
+    favorites_destroy(hstr->favorites);
+    hstr_regexp_destroy(&hstr->regexp);
+    // blacklist is allocated by hstr struct
+    blacklist_destroy(&hstr->blacklist, false);
+    prioritized_history_destroy(hstr->history);
+    free(hstr);
+}
+
+void hstr_on_exit(void)
+{
+    history_mgmt_flush();
+    hstr_destroy();
+}
+
+void signal_callback_handler_ctrl_c(int signum)
+{
+    if(signum==SIGINT) {
+        hstr_curses_stop(false);
+        hstr_on_exit();
+        exit(signum);
+    }
+}
+
 unsigned recalculate_max_history_items(void)
 {
     hstr->promptItems = getmaxy(stdscr) - 3;
@@ -993,21 +1018,6 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
     }
 }
 
-void hstr_on_exit(void)
-{
-    history_mgmt_flush();
-    free_prioritized_history();
-}
-
-void signal_callback_handler_ctrl_c(int signum)
-{
-    if(signum==SIGINT) {
-        hstr_curses_stop(false);
-        hstr_on_exit();
-        exit(signum);
-    }
-}
-
 int remove_from_history_model(char* almostDead)
 {
     if(hstr->view==HH_VIEW_FAVORITES) {
@@ -1463,7 +1473,7 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], int startIndex)
 
 void hstr_interactive(void)
 {
-    hstr->history=get_prioritized_history(hstr->bigKeys, hstr->blacklist.set);
+    hstr->history=prioritized_history_create(hstr->bigKeys, hstr->blacklist.set);
     if(hstr->history) {
         history_mgmt_open();
         if(hstr->interactive) {
@@ -1529,15 +1539,6 @@ void hstr_getopt(int argc, char **argv)
     }
 }
 
-void hstr_destroy(void)
-{
-    favorites_destroy(hstr->favorites);
-    hstr_regexp_destroy(&hstr->regexp);
-    // blacklist is allocated by hstr struct
-    blacklist_destroy(&hstr->blacklist, false);
-    free(hstr);
-}
-
 int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
@@ -1550,7 +1551,7 @@ int hstr_main(int argc, char* argv[])
     blacklist_load(&hstr->blacklist);
     hstr_interactive();
 
-    hstr_destroy();
+    // hstr cleanup is handled by hstr_on_exit()
 
     return EXIT_SUCCESS;
 }

@@ -22,11 +22,11 @@
 #include <assert.h>
 
 typedef struct {
-    char *item;
+    char* item;
     unsigned rank;
 } RankedHistoryItem;
 
-static HistoryItems *prioritizedHistory;
+static HistoryItems* prioritizedHistory;
 static bool dirty;
 
 #ifdef DEBUG_RADIX
@@ -45,13 +45,17 @@ unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t l
     return metrics;
 }
 
-char *get_history_file_name(void)
+char* get_history_file_name(void)
 {
-    char *historyFile=getenv(ENV_VAR_HISTFILE);
+    char* historyFile = getenv(ENV_VAR_HISTFILE);
     if(!historyFile || strlen(historyFile)==0) {
-        char *home = getenv(ENV_VAR_HOME);
+        char* home = getenv(ENV_VAR_HOME);
         historyFile = malloc(strlen(home) + 1 + strlen(FILE_DEFAULT_HISTORY) + 1);
         strcat(strcat(strcpy(historyFile, home), "/"), FILE_DEFAULT_HISTORY);
+    } else {
+        // allocate so that this function always returns string to be freed
+        // (getenv() returns pointer (no need to free), home is allocated (must be freed)
+        historyFile = strdup(historyFile);
     }
     return historyFile;
 }
@@ -88,7 +92,7 @@ bool is_hist_timestamp(const char* line)
     return (i >= 11);
 }
 
-HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
+HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
 
@@ -97,6 +101,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
         exit(EXIT_FAILURE);
     }
+    free(historyFile);
     HISTORY_STATE* historyState=history_get_history_state();
 
     bool isZsh = isZshParentShell();
@@ -171,6 +176,8 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
                 }
             }
         }
+        // TODO: history list entries
+        free(historyList);
         if(rawTimestamps) {
             rawOffset=0;
             for(i=0; i<historyState->length; i++) {
@@ -207,6 +214,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
             }
             free(prioritizedRadix[u]->data);
             free(prioritizedRadix[u]);
+            free(prioritizedRadix);
         }
 
         radixsort_destroy(&rs);
@@ -221,10 +229,15 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
 
 }
 
-void free_prioritized_history(void)
+void prioritized_history_destroy(HistoryItems* h)
 {
-    free(prioritizedHistory->items);
-    free(prioritizedHistory);
+    if(h->items) {
+        free(h->items);
+    }
+    if(h->rawItems) {
+        free(h->rawItems);
+    }
+    free(h);
 }
 
 void history_mgmt_open(void)
