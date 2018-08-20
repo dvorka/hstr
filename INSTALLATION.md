@@ -22,6 +22,7 @@ Build:
 * [build on Fedora](#build-on-fedora)
 * [build on Windows Subsystem for Linux (WSL)](#build-on-wsl)
 * [build on Cygwin](#build-on-cygwin)
+* [build on macOS](#build-on-macos)
 
 Tarball:
 
@@ -111,7 +112,7 @@ zypper install hstr
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Gentoo
-To install `hh` run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
+To install `hh` on Gentoo run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
 
 ```bash
 emerge app-shells/hstr
@@ -120,7 +121,7 @@ emerge app-shells/hstr
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Arch Linux
-Download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
+To install HSTR on Arch Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
@@ -131,41 +132,13 @@ Install `hh`.
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## macOS
-You can either install `hh` from [Homebrew](http://brew.sh/):
+Install `hh` on macOS using [Homebrew](http://brew.sh/):
 
 ```bash
 brew install hh
 ```
 
-or from the source code as described further in this section. First install MacPorts:
-
-   http://www.macports.org
-
-And then install readline and ncurses:
-
-```bash
-port install readline
-port install ncurses
-```
-
-Build and install (if using Homebrew):
-
-```bash
-autoreconf -fvi
-./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
-make
-```
-
-Alternative if using MacPorts ([macports.com](https://www.macports.org/ports.php?by=name&substr=hstr)/[GitHub](https://github.com/macports/macports-ports/blob/master/shells/hstr/Portfile)):
-
-```bash
-autoreconf -fvi
-./configure CFLAGS=-I/opt/local/include/ LDFLAGS=-L/opt/local/lib
-make
-```
-
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
 
 # Build
 Build HSTR from source code.
@@ -254,7 +227,7 @@ hh
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on Debian
-To build `hh` on Ubuntu clone Git repository:
+To build `hh` on Debian clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -287,7 +260,7 @@ hh
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on Fedora
-To build `hh` on Ubuntu clone Git repository:
+To build `hh` on Fedora clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -377,6 +350,40 @@ Build and install `hh` using:
 ```
 
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+## Build on macOS
+HSTR can be built on macOS either using [MacPorts](https://www.macports.org/) or [Homebrew](https://brew.sh/).
+
+---
+
+To build `hh` using [MacPorts](https://www.macports.org/) install `readline` and `ncurses`:
+
+```bash
+port install readline
+port install ncurses
+```
+
+Check `portfile` either on [macports.com](https://www.macports.org/ports.php?by=name&substr=hstr) or [GitHub](https://github.com/macports/macports-ports/blob/master/shells/hstr/Portfile):
+
+```bash
+autoreconf -fvi
+./configure CFLAGS=-I/opt/local/include/ LDFLAGS=-L/opt/local/lib
+make
+```
+
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+
+---
+
+To build `hh` using [Homebrew](https://brew.sh/):
+
+```bash
+autoreconf -fvi
+./configure CFLAGS=-I$(brew --prefix)/opt/readline/include LDFLAGS=-L$(brew --prefix)/opt/readline/lib
+make
+```
+
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+
 # Tarball
 Download and install HSTR tarball.
 
