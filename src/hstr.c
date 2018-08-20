@@ -364,6 +364,7 @@ void hstr_destroy(void)
     // blacklist is allocated by hstr struct
     blacklist_destroy(&hstr->blacklist, false);
     prioritized_history_destroy(hstr->history);
+    if(hstr->selection) free(hstr->selection);
     free(hstr);
 }
 
