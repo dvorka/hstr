@@ -985,6 +985,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
         if(pattern && strlen(pattern) && hstr->matching==HH_MATCH_REGEXP) {
             int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
             int end=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_eo-start;
+            end = MIN(end,getmaxx(stdscr));
             strncpy(buffer,
                     hstr->selection[previousSelectionCursorPosition]+start,
                     end);

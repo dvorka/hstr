@@ -14,7 +14,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-rm -vf _keyb
-gcc ./src/test_keyb.c -o _keyb
+export HH_CONFIG=hicolor
+export HISTFILE=`pwd`/resources/.bash_history_BUG_228
+
+# Choose regexp search and search for echo.\+
+
+gdb ../hstr
 
 # eof
