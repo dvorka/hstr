@@ -20,7 +20,7 @@
 
 export SCRIPT_HOME=`pwd`
 
-export HH_VERSION="1.27.0"
+export HH_VERSION="1.28.0"
 
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export GH_RELEASE_DIR=~/p/hstr/release
