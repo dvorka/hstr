@@ -44,7 +44,7 @@ sudo apt-get update
 sudo apt-get install hh
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Fedora/RHEL/Centos
 Install `hh` on Fedora, RHEL or CentOS:
@@ -58,7 +58,7 @@ sudo dnf install hstr -y
 sudo yum install hstr -y
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ---
 
@@ -87,7 +87,7 @@ sudo apt update
 sudo apt install hstr
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ---
 
@@ -108,7 +108,7 @@ zypper refresh
 zypper install hstr
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Gentoo
 To install `hh` run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
@@ -117,7 +117,7 @@ To install `hh` run (HSTR has been added to [Portage](https://bugs.gentoo.org/sh
 emerge app-shells/hstr
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Arch Linux
 Download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
@@ -128,7 +128,7 @@ https://aur.archlinux.org/packages/hstr-git/
 
 Install `hh`.
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## macOS
 You can either install `hh` from [Homebrew](http://brew.sh/):
@@ -164,7 +164,7 @@ autoreconf -fvi
 make
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 # Build
@@ -195,7 +195,7 @@ Run HSTR:
 hh
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build snap
 To build [snap](https://snapcraft.io/) for 'hh' first clone Git repository:
@@ -251,7 +251,7 @@ Run HSTR:
 hh
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on Debian
 To build `hh` on Ubuntu clone Git repository:
@@ -284,7 +284,7 @@ Run HSTR:
 hh
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on Fedora
 To build `hh` on Ubuntu clone Git repository:
@@ -317,7 +317,7 @@ Run HSTR:
 hh
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## Build on WSL
 To build `hstr` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
@@ -354,7 +354,7 @@ hstr --show-configuration >> ~/.bashrc
 
 Make sure to **run** `hstr` using <kbd>Ctrl</kbd><kbd>r</kbd> - otherwise commands will not appear in prompt.
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 
 ## Build on Cygwin
@@ -376,7 +376,7 @@ Build and install `hh` using:
 ./configure && make && make install
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 # Tarball
 Download and install HSTR tarball.
 
@@ -388,5 +388,4 @@ Expand the archive and install `hh` using:
 ./configure && make && make install
 ```
 
-Optionally [configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
+[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
