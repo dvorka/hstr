@@ -175,6 +175,8 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
                     radixsort_add(&rs, radixItem);
                 }
             }
+
+            hashset_destroy(&rankmap, false);
         }
         // TODO: history list entries
         free(historyList);
