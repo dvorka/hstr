@@ -14,6 +14,25 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export HISTFILE=~/p/hstr/github/hstr/tests/resources/.bash_history_cz
+# This script should be made Git hook to update Sha256 in ArchLinux PKGBUILD
+# See also: https://github.com/dvorka/hstr/issues/304
+
+fixPkgbuildSha256() {
+    cd ../..
+
+    if [ ! -f ./PKGBUILD ]; then
+	echo "No PKGBUILD in `pwd`"
+	return 1
+    fi
+
+    local sums
+    # calculate new md5sums
+    sums=$(makepkg -g)
+    # replace them in-place
+    sed -i "s/^md5sums=.*/%NEWSUMS%/;/'[a-z0-9]\{32\}'/d;s/%NEWSUMS%/$sums/" PKGBUILD
+    echo "PKGBUILD updated"
+}
+
+fixPkgbuildSha256
 
 # eof
