@@ -365,6 +365,7 @@ void hstr_destroy(void)
     blacklist_destroy(&hstr->blacklist, false);
     prioritized_history_destroy(hstr->history);
     if(hstr->selection) free(hstr->selection);
+    if(hstr->selectionRegexpMatch) free(hstr->selectionRegexpMatch);
     free(hstr);
 }
 

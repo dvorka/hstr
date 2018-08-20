@@ -155,7 +155,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             if((r=hashset_get(&rankmap, line))==NULL) {
                 r=malloc(sizeof(RankedHistoryItem));
                 r->rank=history_ranking_function(0, i, strlen(line));
-                r->item=historyList[i]->line;
+                r->item=strdup(line);
 
                 hashset_put(&rankmap, line, r);
 
@@ -176,9 +176,10 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
                 }
             }
         }
-        // TODO: history list entries
-        free(historyList);
+
+        // rankmap's keys and values have owners - just destroy the search structure
         hashset_destroy(&rankmap, false);
+
         if(rawTimestamps) {
             rawOffset=0;
             for(i=0; i<historyState->length; i++) {
@@ -199,7 +200,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         unsigned u;
         for(u=0; u<rs.size; u++) {
             if(prioritizedRadix[u]->data) {
-                char* item = ((RankedHistoryItem *)(prioritizedRadix[u]->data))->item;
+                char* item = ((RankedHistoryItem*)(prioritizedRadix[u]->data))->item;
                 // In zsh history file, the format of item CAN BE prefixed w/ timestamp
                 // [:][blank][unix_timestamp][:][0][;][cmd]
                 // Such as:
@@ -219,12 +220,15 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         free(prioritizedRadix);
 
         radixsort_destroy(&rs);
-        // TODO rankmap (?) and blacklist (?) to be destroyed
 
+        // readline cleanup
         free(historyState);
+        clear_history();
         return prioritizedHistory;
     } else {
+        // readline cleanup
         free(historyState);
+        clear_history();
         return NULL;
     }
 
@@ -233,8 +237,15 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 void prioritized_history_destroy(HistoryItems* h)
 {
     if(h->items) {
+        if(h->count) {
+            unsigned i;
+            for(i=0; i<h->count; i++) {
+                free(h->items[i]);
+            }
+        }
         free(h->items);
     }
+
     if(h->rawItems) {
         free(h->rawItems);
     }
