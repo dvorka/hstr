@@ -132,7 +132,7 @@ Install `hh`.
 [Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
 
 ## macOS
-Install `hh` on macOS using [Homebrew](http://brew.sh/):
+Install `hh` on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
 ```bash
 brew install hh
