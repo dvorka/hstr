@@ -18,7 +18,7 @@ want to  avoid the need to write **long commands** over and over
 again? Are you looking for a tool that is able to manage your 
 **favorite** commands?
 
-HSTR (**H**i**ST**o**R**y) is a command line utility that brings improved Bash command completion
+HSTR (**H**i**ST**o**R**y) is a command line utility that brings improved Bash/zsh command completion
 from the history. It aims to make completion **easier** and more **efficient**
 than <kbd>Ctrl</kbd><kbd>r</kbd>.
 

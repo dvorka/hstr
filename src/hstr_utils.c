@@ -23,6 +23,11 @@
 // TODO PID_BUFFER 20+ characters might be enough
 #define PID_BUFFER_SIZE 128
 
+// This define  is used to compile out code which inserts command to console - thus
+// define allows to activate and debug shell script workaround that is used on WSL
+// and Cygwin.
+#define DEBUG_NO_TIOCSTI
+
 // strdup() not in ISO C
 char* hstr_strdup(const char* s)
 {
@@ -101,7 +106,7 @@ void hstr_chop(char *s)
     }
 }
 
-#if !defined(__MS_WSL__) && !defined(__CYGWIN__)
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__) && !defined(DEBUG_NO_TIOCSTI)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -115,7 +120,7 @@ void tiocsti()
 void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#if defined(__MS_WSL__) || defined(__CYGWIN__)
+#if defined(__MS_WSL__) || defined(__CYGWIN__) || defined(DEBUG_NO_TIOCSTI)
         fprintf(stderr, "%s", cmd);
         if(padding) fprintf(stderr, "%s", "\n");
 #else
