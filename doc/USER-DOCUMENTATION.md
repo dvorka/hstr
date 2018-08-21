@@ -1,38 +1,23 @@
 This document is an unfinished draft.
 
-# Documentation
+# User Documentation
 Table of contents:
 
 * Installation
-  * Distribution
-  * Source code
-  * Ubuntu
-  * Debian
-  * Mint
-  * Arch
-  * Mac OS
 * Configuration
-  * Keyboard shortcut
-  * Colors
-  * View
-  * Verbosity
-  * Shell specific
-    * Bash
-    * Zsh
 * Features
-  * History views
-    * Ranking
-    * Raw
-    * Favorites
-  * History filtering
-  * Choosing a command
-  * Favorite commands
-  * Blacklist
-  * Delete last command
+    * History views
+        * Ranking
+        * Raw
+        * Favorites
+    * History filtering
+    * Choosing a command
+    * Favorite commands
+    * Blacklist
+    * Delete last command
 * Examples
   
-
-## Features
+# Features
 HSTR is typically started by pressing <kbd>Ctrl</kbd><kbd>r</kbd> after
 you configure it for this shorcut for your shell. However,
 you can run it as a normal program just by typing:
@@ -59,13 +44,13 @@ hh -i git
 Prints history items containing `git` to standard output and
 exits.
 
-### History Filtering
+## History Filtering
 When HSTR starts in interative mode, a view of commands
 is shown. This list of commands can be filtered just by typing
 a string pattern.
 
 
-### Choosing a Command
+## Choosing a Command
 When you filtered the view of history items enough, you can
 move around it with `UP` and `DOWN` arrow keys. Selected history
 items is highlighted. Once you are done with your choice:
@@ -75,7 +60,7 @@ items is highlighted. Once you are done with your choice:
 * or press `LEFT` arrow key to choose the command and open it in editor (Bash `fc` i.e. fix command)
 
 
-### Favorite Commands
+## Favorite Commands
 HSTR allows you to store and manage your favorite 
 commands. 
 
@@ -110,7 +95,7 @@ COMMAND # TAG1 TAG2 TAG3
 ...
 printf "\e[?2004l" # fix broken copy/paste in terminal #TERM
 ```
-### Blacklist
+## Blacklist
 HSTR allows you to specify a set of commands to be
 skipped from all the views. Blacklist typically contains
 frequently used commands whose completion from history 
@@ -138,7 +123,7 @@ Tips:
   `HISTCONTROL=ignorespace` environment variable.
 
 
-### Kill the Last Command
+## Kill the Last Command
 Using `hh` you can easily delete the last command from history
 e.g. when you make a typo or write something sensitive:
 
@@ -150,7 +135,7 @@ See configuration section for how to bind this functionality to
 a key - bound to <kbd>Ctrl</kbd><kbd>x</kbd> <kbd>k</kbd> by default.
 
 
-## Examples
+# Examples
 Get more colors when running `hh`:
 
 ```bash

@@ -1,6 +1,6 @@
-Implementation
-==============
-Implementation notes:
+Developer Documentation
+=======================
+**Table of Contents**
 
 * [Debugging](#debugging)
 * [Unit tests](#unit-tests)
@@ -11,6 +11,7 @@ Remote debug - gdb server (program is running) + Eclipse debug (debugger w/ code
 1. Eclipse/Debug Configuration/Using GDB Manual Remote Debugger launching|Debugger tab/Connection port: 9999 
 
 # Unit tests
-HSTR unit tests are written using Unity
+HSTR unit tests are written using [Unity](http://www.throwtheswitch.org/unity/).
+To run and manage unit test use scripts located in:
 
-http://www.throwtheswitch.org/unity/
+* `build/test-*.sh`
