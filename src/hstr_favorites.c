@@ -26,6 +26,7 @@ void favorites_init(FavoriteItems* favorites)
     favorites->count=0;
     favorites->loaded=false;
     favorites->reorderOnChoice=true;
+    favorites->skipComments=false;
     favorites->set=malloc(sizeof(HashSet));
     hashset_init(favorites->set);
 }
@@ -88,9 +89,11 @@ void favorites_get(FavoriteItems* favorites)
                 while(pe!=NULL) {
                     *pe=0;
                     if(!hashset_contains(favorites->set,pb)) {
-                        s=hstr_strdup(pb);
-                        favorites->items[favorites->count++]=s;
-                        hashset_add(favorites->set,s);
+                        if(!favorites->skipComments || !(strlen(pb) && pb[0]=='#')) {
+                            s=hstr_strdup(pb);
+                            favorites->items[favorites->count++]=s;
+                            hashset_add(favorites->set,s);
+                        }
                     }
                     pb=pe+1;
                     pe=strchr(pb, '\n');

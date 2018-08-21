@@ -112,7 +112,7 @@ void tiocsti()
 }
 #endif
 
-void fill_terminal_input(char *cmd, bool padding)
+void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)

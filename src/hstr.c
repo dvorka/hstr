@@ -71,6 +71,7 @@
 #define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HH_CONFIG_THEME_HICOLOR         "hicolor"
 #define HH_CONFIG_STATIC_FAVORITES      "static-favs"
+#define HH_CONFIG_SKIP_FAVORITES_COMMENTS "skip-favs-comments"
 #define HH_CONFIG_FAVORITES         "favorites"
 #define HH_CONFIG_CASE              "casesensitive"
 #define HH_CONFIG_REGEXP            "regexp"
@@ -88,6 +89,7 @@
 #define HH_CONFIG_BIG_KEYS_FLOOR    "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT     "big-keys-exit"
 #define HH_CONFIG_DUPLICATES        "duplicates"
+#define HH_CONFIG_NO_TIOCSTI        "no-tiocsti"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -314,6 +316,8 @@ typedef struct {
     int promptYItemsStart;
     int promptYItemsEnd;
     int promptItems;
+
+    bool noIoctl;
 } Hstr;
 
 static Hstr* hstr;
@@ -323,7 +327,6 @@ void hstr_init(void)
     hstr->history=NULL;
     hstr->favorites=malloc(sizeof(FavoriteItems));
     favorites_init(hstr->favorites);
-    favorites_get(hstr->favorites);
     blacklist_init(&hstr->blacklist);
     hstr_regexp_init(&hstr->regexp);
 
@@ -355,6 +358,8 @@ void hstr_init(void)
      =hstr->promptYItemsEnd
      =hstr->promptItems
      =0;
+
+    hstr->noIoctl=false;
 }
 
 void hstr_destroy(void)
@@ -458,6 +463,12 @@ void hstr_get_env_configuration()
         }
         if(strstr(hstr_config,HH_CONFIG_STATIC_FAVORITES)) {
             hstr->favorites->reorderOnChoice=false;
+        }
+        if(strstr(hstr_config,HH_CONFIG_SKIP_FAVORITES_COMMENTS)) {
+            hstr->favorites->skipComments=true;
+        }
+        if(strstr(hstr_config,HH_CONFIG_NO_TIOCSTI)) {
+            hstr->noIoctl=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
@@ -1551,6 +1562,7 @@ int hstr_main(int argc, char* argv[])
 
     hstr_get_env_configuration();
     hstr_getopt(argc, argv);
+    favorites_get(hstr->favorites);
     blacklist_load(&hstr->blacklist);
     hstr_interactive();
 

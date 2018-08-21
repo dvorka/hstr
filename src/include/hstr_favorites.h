@@ -31,7 +31,8 @@ typedef struct {
     unsigned count;
     bool loaded;
     bool reorderOnChoice;
-    HashSet* set;    
+    bool skipComments;
+    HashSet* set;
 } FavoriteItems;
 
 void favorites_init(FavoriteItems* favorites);
