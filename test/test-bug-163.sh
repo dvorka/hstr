@@ -14,13 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# switch term to forbid alternative page(s)
-infocmp | sed -e 's/[sr]mcup=[^,]*,//' > /tmp/noaltscreen-terminfo
-tic -o ~/.terminfo/ /tmp/noaltscreen-terminfo
+export HH_CONFIG=hicolor,regexp
+export HISTFILE=/tmp/hh-bug-163
 
-#cd ~/p/hstr/github/hstr/Debug && gdbserver :9999 ./hh
-#cd ~/p/hstr/github/hstr/Debug && ./hh
-#hh
-top
+cp -vf ~/p/hstr/.bash_history_bug_163 ${HISTFILE}
+
+#cd ~/p/hstr/github/hstr && gdbserver :9999 ./hh
+cd ~/p/hstr/github/hstr && ./hstr
 
 # eof

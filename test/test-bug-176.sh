@@ -19,8 +19,7 @@ export HISTFILE=/tmp/hh-bug-176
 
 cp -vf ~/p/hstr/github/hstr/tests/resources/.bash_history_BUG_176 ${HISTFILE}
 
-#cd ~/p/hstr/github/hstr/Debug && gdbserver :9999 ./hh
-#cd ~/p/hstr/github/hstr/Debug && ./hh
-hh
+#cd ~/p/hstr/github/hstr && gdbserver :9999 ./hstr
+#cd ~/p/hstr/github/hstr && ./hstr
 
 # eof

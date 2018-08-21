@@ -1,4 +1,4 @@
-# hh.pro     Qt project file for HSTR shell history compleation utility
+# hstr.pro     Qt project file for HSTR shell history compleation utility
 #
 # Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #
@@ -17,7 +17,7 @@
 #########################################################################
 #
 # QMake build options:
-#   qmake CONFIG+=hhdebug ... add extra debug and profiling info
+#   qmake CONFIG+=hstrdebug ... add extra debug and profiling info
 #
 #########################################################################
 

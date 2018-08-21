@@ -1,5 +1,5 @@
 /*
- main.c     UNIT tests main for HSTR shell history completion utility
+ test.c     UNIT tests main for HSTR shell history completion utility
 
  Copyright (C) 2014-2018 Martin Dvorak <martin.dvorak@mindforger.com>
 
