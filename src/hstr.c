@@ -89,7 +89,6 @@
 #define HH_CONFIG_BIG_KEYS_FLOOR    "big-keys-floor"
 #define HH_CONFIG_BIG_KEYS_EXIT     "big-keys-exit"
 #define HH_CONFIG_DUPLICATES        "duplicates"
-#define HH_CONFIG_NO_TIOCSTI        "no-tiocsti"
 
 #define HH_DEBUG_LEVEL_NONE  0
 #define HH_DEBUG_LEVEL_WARN  1
@@ -466,9 +465,6 @@ void hstr_get_env_configuration()
         }
         if(strstr(hstr_config,HH_CONFIG_SKIP_FAVORITES_COMMENTS)) {
             hstr->favorites->skipComments=true;
-        }
-        if(strstr(hstr_config,HH_CONFIG_NO_TIOCSTI)) {
-            hstr->noIoctl=true;
         }
 
         if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
