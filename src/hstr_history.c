@@ -221,14 +221,12 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 
         radixsort_destroy(&rs);
 
-        // readline cleanup
+        // history/readline cleanup, clear_history() called on exit as entries are used by raw view
         free(historyState);
-        clear_history();
         return prioritizedHistory;
     } else {
-        // readline cleanup
+        // history/readline cleanup, clear_history() called on exit as entries are used by raw view
         free(historyState);
-        clear_history();
         return NULL;
     }
 
@@ -249,7 +247,12 @@ void prioritized_history_destroy(HistoryItems* h)
     if(h->rawItems) {
         free(h->rawItems);
     }
+
     free(h);
+
+    // readline/history cleanup
+    free(history_get_history_state());
+    clear_history();
 }
 
 void history_mgmt_open(void)
