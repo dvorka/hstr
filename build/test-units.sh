@@ -23,7 +23,7 @@
 ./test-generate-unity-test-runner.sh
 
 # compile
-cd ../test && qmake hstr-unit-tests.pro && make clean && make -j 8
+cd ../test && qmake hh-unit-tests.pro && make clean && make -j 8
 if [ ${?} -ne 0 ]
 then
     exit 1
@@ -32,11 +32,11 @@ fi
 # run
 if [ ${OPTION_RUN_VALGRIND} ] 
 then
-    valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr-unit-tests
+    valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hh-unit-tests
     # Valgrind's GDB
-    #valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr-unit-tests
+    #valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hh-unit-tests
 else
-    ./hstr-unit-tests
+    ./hh-unit-tests
 fi
 
 # eof

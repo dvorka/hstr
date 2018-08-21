@@ -1,4 +1,4 @@
-# hstr-unit-tests.pro     Qt project file of UNIT tests for HSTR
+# hh-unit-tests.pro     Qt project file of UNIT tests for HSTR
 #
 # Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #

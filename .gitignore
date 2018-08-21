@@ -24,5 +24,6 @@ Makefile.in
 /snap/parts/
 *.*~
 hstr
+hh
 *.pro.user
 test/hstr-unit-tests
