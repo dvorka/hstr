@@ -43,6 +43,7 @@ _hh()
         COMPREPLY=( $(compgen -c -- $cur) )
         return 0
 }
+complete -F _hh hstr
 complete -F _hh hh
 
 # eof
