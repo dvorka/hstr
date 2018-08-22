@@ -24,7 +24,7 @@
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 
-#define FILE_HSTR_FAVORITES ".hh_favorites"
+#define FILE_HSTR_FAVORITES ".hstr_favorites"
 
 typedef struct {
     char** items;
