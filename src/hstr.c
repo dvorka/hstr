@@ -53,59 +53,59 @@
 #define K_BACKSPACE 127
 #define K_ENTER 13
 
-#define HH_THEME_MONO   0
-#define HH_THEME_COLOR  1<<7
-#define HH_THEME_LIGHT  1|HH_THEME_COLOR
-#define HH_THEME_DARK   2|HH_THEME_COLOR
+#define HSTR_THEME_MONO   0
+#define HSTR_THEME_COLOR  1<<7
+#define HSTR_THEME_LIGHT  1|HSTR_THEME_COLOR
+#define HSTR_THEME_DARK   2|HSTR_THEME_COLOR
 
-#define HH_COLOR_NORMAL  1
-#define HH_COLOR_HIROW   2
-#define HH_COLOR_INFO    2
-#define HH_COLOR_PROMPT  3
-#define HH_COLOR_DELETE  4
-#define HH_COLOR_MATCH   5
+#define HSTR_COLOR_NORMAL  1
+#define HSTR_COLOR_HIROW   2
+#define HSTR_COLOR_INFO    2
+#define HSTR_COLOR_PROMPT  3
+#define HSTR_COLOR_DELETE  4
+#define HSTR_COLOR_MATCH   5
 
-#define HH_ENV_VAR_CONFIG      "HSTR_CONFIG"
-#define HH_ENV_VAR_PROMPT      "HSTR_PROMPT"
+#define HSTR_ENV_VAR_CONFIG      "HSTR_CONFIG"
+#define HSTR_ENV_VAR_PROMPT      "HSTR_PROMPT"
 
-#define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
-#define HH_CONFIG_THEME_HICOLOR         "hicolor"
-#define HH_CONFIG_STATIC_FAVORITES      "static-favs"
-#define HH_CONFIG_SKIP_FAVORITES_COMMENTS "skip-favs-comments"
-#define HH_CONFIG_FAVORITES         "favorites"
-#define HH_CONFIG_CASE              "casesensitive"
-#define HH_CONFIG_REGEXP            "regexp"
-#define HH_CONFIG_SUBSTRING         "substring"
-#define HH_CONFIG_KEYWORDS          "keywords"
-#define HH_CONFIG_SORTING           "rawhistory"
-#define HH_CONFIG_NOCONFIRM         "noconfirm"
-#define HH_CONFIG_VERBOSE_KILL      "verbose-kill"
-#define HH_CONFIG_PROMPT_BOTTOM     "prompt-bottom"
-#define HH_CONFIG_BLACKLIST         "blacklist"
-#define HH_CONFIG_KEEP_PAGE         "keep-page"
-#define HH_CONFIG_DEBUG             "debug"
-#define HH_CONFIG_WARN              "warning"
-#define HH_CONFIG_BIG_KEYS_SKIP     "big-keys-skip"
-#define HH_CONFIG_BIG_KEYS_FLOOR    "big-keys-floor"
-#define HH_CONFIG_BIG_KEYS_EXIT     "big-keys-exit"
-#define HH_CONFIG_DUPLICATES        "duplicates"
+#define HSTR_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
+#define HSTR_CONFIG_THEME_HICOLOR         "hicolor"
+#define HSTR_CONFIG_STATIC_FAVORITES      "static-favs"
+#define HSTR_CONFIG_SKIP_FAVORITES_COMMENTS "skip-favs-comments"
+#define HSTR_CONFIG_FAVORITES         "favorites"
+#define HSTR_CONFIG_CASE              "casesensitive"
+#define HSTR_CONFIG_REGEXP            "regexp"
+#define HSTR_CONFIG_SUBSTRING         "substring"
+#define HSTR_CONFIG_KEYWORDS          "keywords"
+#define HSTR_CONFIG_SORTING           "rawhistory"
+#define HSTR_CONFIG_NOCONFIRM         "noconfirm"
+#define HSTR_CONFIG_VERBOSE_KILL      "verbose-kill"
+#define HSTR_CONFIG_PROMPT_BOTTOM     "prompt-bottom"
+#define HSTR_CONFIG_BLACKLIST         "blacklist"
+#define HSTR_CONFIG_KEEP_PAGE         "keep-page"
+#define HSTR_CONFIG_DEBUG             "debug"
+#define HSTR_CONFIG_WARN              "warning"
+#define HSTR_CONFIG_BIG_KEYS_SKIP     "big-keys-skip"
+#define HSTR_CONFIG_BIG_KEYS_FLOOR    "big-keys-floor"
+#define HSTR_CONFIG_BIG_KEYS_EXIT     "big-keys-exit"
+#define HSTR_CONFIG_DUPLICATES        "duplicates"
 
-#define HH_DEBUG_LEVEL_NONE  0
-#define HH_DEBUG_LEVEL_WARN  1
-#define HH_DEBUG_LEVEL_DEBUG 2
+#define HSTR_DEBUG_LEVEL_NONE  0
+#define HSTR_DEBUG_LEVEL_WARN  1
+#define HSTR_DEBUG_LEVEL_DEBUG 2
 
-#define HH_VIEW_RANKING      0
-#define HH_VIEW_HISTORY      1
-#define HH_VIEW_FAVORITES    2
+#define HSTR_VIEW_RANKING      0
+#define HSTR_VIEW_HISTORY      1
+#define HSTR_VIEW_FAVORITES    2
 
-#define HH_MATCH_SUBSTRING   0
-#define HH_MATCH_REGEXP      1
-#define HH_MATCH_KEYWORDS    2
+#define HSTR_MATCH_SUBSTRING   0
+#define HSTR_MATCH_REGEXP      1
+#define HSTR_MATCH_KEYWORDS    2
 
-#define HH_NUM_HISTORY_MATCH 3
+#define HSTR_NUM_HISTORY_MATCH 3
 
-#define HH_CASE_INSENSITIVE  0
-#define HH_CASE_SENSITIVE    1
+#define HSTR_CASE_INSENSITIVE  0
+#define HSTR_CASE_SENSITIVE    1
 
 #ifdef DEBUG_KEYS
 #define LOGKEYS(Y,KEY) mvprintw(Y, 0, "Key: '%3d' / Char: '%c'", KEY, KEY); clrtoeol()
@@ -136,26 +136,26 @@ static const char* VERSION_STRING=
         "hh version \"1.28.0\" (2018-08-21T13:00:00)"
         "\n";
 
-static const char* HH_VIEW_LABELS[]={
+static const char* HSTR_VIEW_LABELS[]={
         "ranking",
         "history",
         "favorites"
 };
 
-static const char* HH_MATCH_LABELS[]={
+static const char* HSTR_MATCH_LABELS[]={
         "exact",
         "regexp",
         "keywords"
 };
 
-static const char* HH_CASE_LABELS[]={
+static const char* HSTR_CASE_LABELS[]={
         "insensitive",
         "sensitive"
 };
 
 static const char* INSTALL_BASH_STRING=
         "\n# add this configuration to ~/.bashrc"
-        "\nexport HH_CONFIG=hicolor         # get more colors"
+        "\nexport HSTR_CONFIG=hicolor         # get more colors"
         "\nshopt -s histappend              # append new history items to .bash_history"
         "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
         "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
@@ -204,7 +204,7 @@ static const char* INSTALL_BASH_STRING=
 static const char* INSTALL_ZSH_STRING=
         "\n# add this configuration to ~/.zshrc"
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
-        "\nexport HH_CONFIG=hicolor        # get more colors"
+        "\nexport HSTR_CONFIG=hicolor        # get more colors"
 #if defined(__MS_WSL__)
         // TODO binding to be rewritten for zsh@WSL as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
 
@@ -337,17 +337,17 @@ void hstr_init(void)
 
     hstr->interactive=true;
 
-    hstr->matching=HH_MATCH_KEYWORDS;
-    hstr->view=HH_VIEW_RANKING;
-    hstr->caseSensitive=HH_CASE_INSENSITIVE;
+    hstr->matching=HSTR_MATCH_KEYWORDS;
+    hstr->view=HSTR_VIEW_RANKING;
+    hstr->caseSensitive=HSTR_CASE_INSENSITIVE;
 
-    hstr->theme=HH_THEME_MONO;
+    hstr->theme=HSTR_THEME_MONO;
     hstr->noRawHistoryDuplicates=true;
     hstr->keepPage=false;
     hstr->noConfirm=false;
     hstr->verboseKill=false;
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
-    hstr->debugLevel=HH_DEBUG_LEVEL_NONE;
+    hstr->debugLevel=HSTR_DEBUG_LEVEL_NONE;
     hstr->promptBottom=false;
 
     hstr->promptY
@@ -409,77 +409,77 @@ unsigned recalculate_max_history_items(void)
 
 void hstr_get_env_configuration()
 {
-    char *hstr_config=getenv(HH_ENV_VAR_CONFIG);
+    char *hstr_config=getenv(HSTR_ENV_VAR_CONFIG);
     if(hstr_config && strlen(hstr_config)>0) {
-        if(strstr(hstr_config,HH_CONFIG_THEME_MONOCHROMATIC)) {
-            hstr->theme=HH_THEME_MONO;
+        if(strstr(hstr_config,HSTR_CONFIG_THEME_MONOCHROMATIC)) {
+            hstr->theme=HSTR_THEME_MONO;
         } else {
-            if(strstr(hstr_config,HH_CONFIG_THEME_HICOLOR)) {
-                hstr->theme=HH_THEME_DARK;
+            if(strstr(hstr_config,HSTR_CONFIG_THEME_HICOLOR)) {
+                hstr->theme=HSTR_THEME_DARK;
             }
         }
-        if(strstr(hstr_config,HH_CONFIG_CASE)) {
-            hstr->caseSensitive=HH_CASE_SENSITIVE;
+        if(strstr(hstr_config,HSTR_CONFIG_CASE)) {
+            hstr->caseSensitive=HSTR_CASE_SENSITIVE;
         }
-        if(strstr(hstr_config,HH_CONFIG_REGEXP)) {
-            hstr->matching=HH_MATCH_REGEXP;
+        if(strstr(hstr_config,HSTR_CONFIG_REGEXP)) {
+            hstr->matching=HSTR_MATCH_REGEXP;
         } else {
-            if(strstr(hstr_config,HH_CONFIG_SUBSTRING)) {
-                hstr->matching=HH_MATCH_SUBSTRING;
+            if(strstr(hstr_config,HSTR_CONFIG_SUBSTRING)) {
+                hstr->matching=HSTR_MATCH_SUBSTRING;
             } else {
-                if(strstr(hstr_config, HH_CONFIG_KEYWORDS)) {
-                    hstr->matching=HH_MATCH_KEYWORDS;
+                if(strstr(hstr_config, HSTR_CONFIG_KEYWORDS)) {
+                    hstr->matching=HSTR_MATCH_KEYWORDS;
                 }
             }
         }
-        if(strstr(hstr_config,HH_CONFIG_SORTING)) {
-            hstr->view=HH_VIEW_HISTORY;
+        if(strstr(hstr_config,HSTR_CONFIG_SORTING)) {
+            hstr->view=HSTR_VIEW_HISTORY;
         } else {
-            if(strstr(hstr_config,HH_CONFIG_FAVORITES)) {
-                hstr->view=HH_VIEW_FAVORITES;
+            if(strstr(hstr_config,HSTR_CONFIG_FAVORITES)) {
+                hstr->view=HSTR_VIEW_FAVORITES;
             }
         }
-        if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_EXIT)) {
+        if(strstr(hstr_config,HSTR_CONFIG_BIG_KEYS_EXIT)) {
             hstr->bigKeys=RADIX_BIG_KEYS_EXIT;
         } else {
-            if(strstr(hstr_config,HH_CONFIG_BIG_KEYS_FLOOR)) {
+            if(strstr(hstr_config,HSTR_CONFIG_BIG_KEYS_FLOOR)) {
                 hstr->bigKeys=RADIX_BIG_KEYS_FLOOR;
             } else {
                 hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
             }
         }
-        if(strstr(hstr_config,HH_CONFIG_VERBOSE_KILL)) {
+        if(strstr(hstr_config,HSTR_CONFIG_VERBOSE_KILL)) {
             hstr->verboseKill=true;
         }
-        if(strstr(hstr_config,HH_CONFIG_BLACKLIST)) {
+        if(strstr(hstr_config,HSTR_CONFIG_BLACKLIST)) {
             hstr->blacklist.useFile=true;
         }
-        if(strstr(hstr_config,HH_CONFIG_KEEP_PAGE)) {
+        if(strstr(hstr_config,HSTR_CONFIG_KEEP_PAGE)) {
             hstr->keepPage=true;
         }
-        if(strstr(hstr_config,HH_CONFIG_NOCONFIRM)) {
+        if(strstr(hstr_config,HSTR_CONFIG_NOCONFIRM)) {
             hstr->noConfirm=true;
         }
-        if(strstr(hstr_config,HH_CONFIG_STATIC_FAVORITES)) {
+        if(strstr(hstr_config,HSTR_CONFIG_STATIC_FAVORITES)) {
             hstr->favorites->reorderOnChoice=false;
         }
-        if(strstr(hstr_config,HH_CONFIG_SKIP_FAVORITES_COMMENTS)) {
+        if(strstr(hstr_config,HSTR_CONFIG_SKIP_FAVORITES_COMMENTS)) {
             hstr->favorites->skipComments=true;
         }
 
-        if(strstr(hstr_config,HH_CONFIG_DEBUG)) {
-            hstr->debugLevel=HH_DEBUG_LEVEL_DEBUG;
+        if(strstr(hstr_config,HSTR_CONFIG_DEBUG)) {
+            hstr->debugLevel=HSTR_DEBUG_LEVEL_DEBUG;
         } else {
-            if(strstr(hstr_config,HH_CONFIG_WARN)) {
-                hstr->debugLevel=HH_DEBUG_LEVEL_WARN;
+            if(strstr(hstr_config,HSTR_CONFIG_WARN)) {
+                hstr->debugLevel=HSTR_DEBUG_LEVEL_WARN;
             }
         }
 
-        if(strstr(hstr_config,HH_CONFIG_DUPLICATES)) {
+        if(strstr(hstr_config,HSTR_CONFIG_DUPLICATES)) {
             hstr->noRawHistoryDuplicates=false;
         }
 
-        if(strstr(hstr_config,HH_CONFIG_PROMPT_BOTTOM)) {
+        if(strstr(hstr_config,HSTR_CONFIG_PROMPT_BOTTOM)) {
             hstr->promptBottom = true;
         } else {
             hstr->promptBottom = false;
@@ -492,12 +492,12 @@ unsigned print_prompt(void)
 {
     unsigned xoffset = 0, promptLength;
 
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_PROMPT));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_PROMPT));
         color_attr_on(A_BOLD);
     }
 
-    char *prompt = getenv(HH_ENV_VAR_PROMPT);
+    char *prompt = getenv(HSTR_ENV_VAR_PROMPT);
     if(prompt) {
         mvprintw(hstr->promptY, xoffset, "%s", prompt);
         promptLength=strlen(prompt);
@@ -511,9 +511,9 @@ unsigned print_prompt(void)
         free(hostname);
     }
 
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_off(COLOR_PAIR(HH_COLOR_PROMPT));
+        color_attr_off(COLOR_PAIR(HSTR_COLOR_PROMPT));
     }
     refresh();
 
@@ -552,14 +552,14 @@ void print_confirm_delete(const char* cmd)
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
     // TODO make this function
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -570,14 +570,14 @@ void print_cmd_deleted_label(const char* cmd, int occurences)
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
     // TODO make this function
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -587,14 +587,14 @@ void print_regexp_error(const char* errorMessage)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "%s", errorMessage);
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_DELETE));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
     mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -604,14 +604,14 @@ void print_cmd_added_favorite_label(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_INFO));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
     mvprintw(hstr->promptYHelp, 0, screenLine);
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     }
     clrtoeol();
     refresh();
@@ -627,9 +627,9 @@ void print_history_label(void)
 #else
     snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
 #endif
-            HH_VIEW_LABELS[hstr->view],
-            HH_MATCH_LABELS[hstr->matching],
-            HH_CASE_LABELS[hstr->caseSensitive],
+            HSTR_VIEW_LABELS[hstr->view],
+            HSTR_MATCH_LABELS[hstr->matching],
+            HSTR_CASE_LABELS[hstr->caseSensitive],
             hstr->history->count,
             hstr->history->rawCount,
             hstr->favorites->count);
@@ -638,13 +638,13 @@ void print_history_label(void)
     for(i=0; i<width; i++) {
         strcat(screenLine, "-");
     }
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(A_BOLD);
     }
     color_attr_on(A_REVERSE);
     mvprintw(hstr->promptYHistory, 0, "%s", screenLine);
     color_attr_off(A_REVERSE);
-    if(hstr->theme & HH_THEME_COLOR) {
+    if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
     }
     refresh();
@@ -692,15 +692,15 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     unsigned count;
 
     switch(hstr->view) {
-    case HH_VIEW_HISTORY:
+    case HSTR_VIEW_HISTORY:
         source=history->rawItems;
         count=history->rawCount;
         break;
-    case HH_VIEW_FAVORITES:
+    case HSTR_VIEW_FAVORITES:
         source=hstr->favorites->items;
         count=hstr->favorites->count;
         break;
-    case HH_VIEW_RANKING:
+    case HSTR_VIEW_RANKING:
     default:
         source=history->items;
         count=history->count;
@@ -721,21 +721,21 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                 add_to_selection(source[i], &selectionCount);
             } else {
                 switch(hstr->matching) {
-                case HH_MATCH_SUBSTRING:
+                case HSTR_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
-                    case HH_CASE_SENSITIVE:
+                    case HSTR_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
                             add_to_selection(source[i], &selectionCount);
                         }
                         break;
-                    case HH_CASE_INSENSITIVE:
+                    case HSTR_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
                             add_to_selection(source[i], &selectionCount);
                         }
                         break;
                     }
                     break;
-                case HH_MATCH_REGEXP:
+                case HSTR_MATCH_REGEXP:
                     if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch, regexpErrorMessage, CMDLINE_LNG)) {
                         hstr->selection[selectionCount]=source[i];
                         hstr->selectionRegexpMatch[selectionCount].rm_so=regexpMatch.rm_so;
@@ -749,7 +749,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                     }
                     break;
-                case HH_MATCH_KEYWORDS:
+                case HSTR_MATCH_KEYWORDS:
                     keywordsParsedLine = strdup(prefix);
                     keywordsAllMatch = true;
                     keywordsPointerToDelete = keywordsParsedLine;
@@ -760,12 +760,12 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                         keywordsParsedLine = NULL;
                         switch(hstr->caseSensitive) {
-                        case HH_CASE_SENSITIVE:
+                        case HSTR_CASE_SENSITIVE:
                             if(strstr(source[i], keywordsToken) == NULL) {
                                 keywordsAllMatch = false;
                             }
                             break;
-                        case HH_CASE_INSENSITIVE:
+                        case HSTR_CASE_INSENSITIVE:
                             if(strcasestr(source[i], keywordsToken) == NULL) {
                                 keywordsAllMatch = false;
                             }
@@ -786,15 +786,15 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
         char *substring;
         for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
             switch(hstr->matching) {
-            case HH_MATCH_SUBSTRING:
+            case HSTR_MATCH_SUBSTRING:
                 switch(hstr->caseSensitive) {
-                case HH_CASE_SENSITIVE:
+                case HSTR_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
                         add_to_selection(source[i], &selectionCount);
                     }
                     break;
-                case HH_CASE_INSENSITIVE:
+                case HSTR_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
                         add_to_selection(source[i], &selectionCount);
@@ -802,10 +802,10 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                     break;
                 }
                 break;
-            case HH_MATCH_REGEXP:
+            case HSTR_MATCH_REGEXP:
                 // all regexps matched previously - user decides whether match ^ or infix
             break;
-            case HH_MATCH_KEYWORDS:
+            case HSTR_MATCH_KEYWORDS:
                 // TODO MD consider adding lines that didn't matched all keywords, but some of them
                 //         (ordered by number of matched keywords)
             break;
@@ -827,8 +827,8 @@ void print_selection_row(char* text, int y, int width, char* pattern)
 
     if(pattern && strlen(pattern)) {
         color_attr_on(A_BOLD);
-        if(hstr->theme & HH_THEME_COLOR) {
-            color_attr_on(COLOR_PAIR(HH_COLOR_MATCH));
+        if(hstr->theme & HSTR_THEME_COLOR) {
+            color_attr_on(COLOR_PAIR(HSTR_COLOR_MATCH));
         }
         char* p=NULL;
         char* pp=NULL;
@@ -838,16 +838,16 @@ void print_selection_row(char* text, int y, int width, char* pattern)
         char* keywordsPointerToDelete=NULL;
 
         switch(hstr->matching) {
-        case HH_MATCH_SUBSTRING:
+        case HSTR_MATCH_SUBSTRING:
             switch(hstr->caseSensitive) {
-            case HH_CASE_INSENSITIVE:
+            case HSTR_CASE_INSENSITIVE:
                 p=strcasestr(screenLine, pattern);
                 if(p) {
                     snprintf(buffer, strlen(pattern)+1, "%s", p);
                     mvprintw(y, p-screenLine, "%s", buffer);
                 }
                 break;
-            case HH_CASE_SENSITIVE:
+            case HSTR_CASE_SENSITIVE:
                 p=strstr(screenLine, pattern);
                 if(p) {
                     mvprintw(y, p-screenLine, "%s", pattern);
@@ -855,13 +855,13 @@ void print_selection_row(char* text, int y, int width, char* pattern)
                 break;
             }
             break;
-        case HH_MATCH_REGEXP:
+        case HSTR_MATCH_REGEXP:
             p=strstr(screenLine, pattern);
             if(p) {
                 mvprintw(y, p-screenLine, "%s", pattern);
             }
             break;
-        case HH_MATCH_KEYWORDS:
+        case HSTR_MATCH_KEYWORDS:
             keywordsParsedLine = strdup(pattern);
             keywordsPointerToDelete = keywordsParsedLine;
             while (true) {
@@ -871,13 +871,13 @@ void print_selection_row(char* text, int y, int width, char* pattern)
                     break;
                 }
                 switch(hstr->caseSensitive) {
-                case HH_CASE_SENSITIVE:
+                case HSTR_CASE_SENSITIVE:
                     p=strstr(screenLine, keywordsToken);
                     if(p) {
                         mvprintw(y, p-screenLine, "%s", keywordsToken);
                     }
                     break;
-                case HH_CASE_INSENSITIVE:
+                case HSTR_CASE_INSENSITIVE:
                     p=strcasestr(screenLine, keywordsToken);
                     if(p) {
                         pp=strdup(p);
@@ -892,8 +892,8 @@ void print_selection_row(char* text, int y, int width, char* pattern)
 
             break;
         }
-        if(hstr->theme & HH_THEME_COLOR) {
-            color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+        if(hstr->theme & HSTR_THEME_COLOR) {
+            color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
         }
         color_attr_off(A_BOLD);
     }
@@ -902,8 +902,8 @@ void print_selection_row(char* text, int y, int width, char* pattern)
 void hstr_print_highlighted_selection_row(char* text, int y, int width)
 {
     color_attr_on(A_BOLD);
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_HIROW));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_HIROW));
     } else {
         color_attr_on(A_REVERSE);
     }
@@ -914,8 +914,8 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
             (terminal_has_colors()?" ":">"),
             getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
     mvprintw(y, 0, "%s", screenLine);
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     } else {
         color_attr_off(A_REVERSE);
     }
@@ -952,7 +952,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
         if(i<hstr->selectionSize) {
             // TODO make this function
             if(pattern && strlen(pattern)) {
-                if(hstr->matching==HH_MATCH_REGEXP) {
+                if(hstr->matching==HSTR_MATCH_REGEXP) {
                     start=hstr->selectionRegexpMatch[i].rm_so;
                     count=hstr->selectionRegexpMatch[i].rm_eo-start;
                     if(count>CMDLINE_LNG) {
@@ -989,7 +989,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
     if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
         // TODO make this function
         char buffer[CMDLINE_LNG];
-        if(pattern && strlen(pattern) && hstr->matching==HH_MATCH_REGEXP) {
+        if(pattern && strlen(pattern) && hstr->matching==HSTR_MATCH_REGEXP) {
             int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
             int end=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_eo-start;
             end = MIN(end,getmaxx(stdscr));
@@ -1030,7 +1030,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 
 int remove_from_history_model(char* almostDead)
 {
-    if(hstr->view==HH_VIEW_FAVORITES) {
+    if(hstr->view==HSTR_VIEW_FAVORITES) {
         return favorites_remove(hstr->favorites, almostDead);
     } else {
         // raw & ranked history is pruned first as its items point to system history lines
@@ -1039,7 +1039,7 @@ int remove_from_history_model(char* almostDead)
         if(rawOccurences) {
             systemOccurences=history_mgmt_remove_from_system_history(almostDead);
         }
-        if(systemOccurences!=rawOccurences && hstr->debugLevel>HH_DEBUG_LEVEL_NONE) {
+        if(systemOccurences!=rawOccurences && hstr->debugLevel>HSTR_DEBUG_LEVEL_NONE) {
             fprintf(stderr, "WARNING: system and raw items deletion mismatch %d / %d\n", systemOccurences, rawOccurences);
         }
         return systemOccurences;
@@ -1079,18 +1079,18 @@ void loop_to_select(void)
 
     hstr_curses_start();
     // TODO move the code below to hstr_curses
-    color_init_pair(HH_COLOR_NORMAL, -1, -1);
-    if(hstr->theme & HH_THEME_COLOR) {
-        color_init_pair(HH_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
-        color_init_pair(HH_COLOR_PROMPT, COLOR_BLUE, -1);
-        color_init_pair(HH_COLOR_DELETE, COLOR_WHITE, COLOR_RED);
-        color_init_pair(HH_COLOR_MATCH, COLOR_RED, -1);
+    color_init_pair(HSTR_COLOR_NORMAL, -1, -1);
+    if(hstr->theme & HSTR_THEME_COLOR) {
+        color_init_pair(HSTR_COLOR_HIROW, COLOR_WHITE, COLOR_GREEN);
+        color_init_pair(HSTR_COLOR_PROMPT, COLOR_BLUE, -1);
+        color_init_pair(HSTR_COLOR_DELETE, COLOR_WHITE, COLOR_RED);
+        color_init_pair(HSTR_COLOR_MATCH, COLOR_RED, -1);
     }
 
-    color_attr_on(COLOR_PAIR(HH_COLOR_NORMAL));
+    color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     // TODO why do I print non-filtered selection when on command line there is a pattern?
     hstr_print_selection(recalculate_max_history_items(), NULL);
-    color_attr_off(COLOR_PAIR(HH_COLOR_NORMAL));
+    color_attr_off(COLOR_PAIR(HSTR_COLOR_NORMAL));
     if(!hstr->promptBottom) {
         print_help_label();
         print_history_label();
@@ -1188,7 +1188,7 @@ void loop_to_select(void)
             break;
         case K_CTRL_E:
             hstr->matching++;
-            hstr->matching=hstr->matching%HH_NUM_HISTORY_MATCH;
+            hstr->matching=hstr->matching%HSTR_NUM_HISTORY_MATCH;
             // TODO make this a function
             result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
@@ -1230,14 +1230,14 @@ void loop_to_select(void)
         case K_CTRL_F:
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->view==HH_VIEW_FAVORITES) {
+                if(hstr->view==HSTR_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites, result);
                 } else {
                     favorites_add(hstr->favorites, result);
                 }
                 hstr_print_selection(maxHistoryItems, pattern);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-                if(hstr->view!=HH_VIEW_FAVORITES) {
+                if(hstr->view!=HSTR_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result);
                     printDefaultLabel=TRUE;
                 }
@@ -1374,7 +1374,7 @@ void loop_to_select(void)
             executeResult=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->view==HH_VIEW_FAVORITES) {
+                if(hstr->view==HSTR_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             }
@@ -1390,7 +1390,7 @@ void loop_to_select(void)
             executeResult=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->view==HH_VIEW_FAVORITES) {
+                if(hstr->view==HSTR_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
@@ -1403,7 +1403,7 @@ void loop_to_select(void)
             editCommand=TRUE;
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
-                if(hstr->view==HH_VIEW_FAVORITES) {
+                if(hstr->view==HSTR_VIEW_FAVORITES) {
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
@@ -1504,7 +1504,7 @@ void hstr_getopt(int argc, char **argv)
     if(option != -1) {
         switch(option) {
         case 'f':
-            hstr->view=HH_VIEW_FAVORITES;
+            hstr->view=HSTR_VIEW_FAVORITES;
             break;
         case 'n':
             hstr->interactive=false;

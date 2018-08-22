@@ -24,7 +24,7 @@
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 
-#define FILE_HH_BLACKLIST ".hh_blacklist"
+#define FILE_HSTR_BLACKLIST ".hh_blacklist"
 
 typedef struct {
     bool useFile;

@@ -46,10 +46,10 @@ void favorites_show(FavoriteItems *favorites)
 char* favorites_get_filename()
 {
     char* home = getenv(ENV_VAR_HOME);
-    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_FAVORITES) + 1);
+    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_FAVORITES) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
-    strcat(fileName, FILE_HH_FAVORITES);
+    strcat(fileName, FILE_HSTR_FAVORITES);
     return fileName;
 }
 

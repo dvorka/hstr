@@ -35,10 +35,10 @@ void blacklist_init(Blacklist *blacklist)
 char* blacklist_get_filename()
 {
     char *home = getenv(ENV_VAR_HOME);
-    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_BLACKLIST) + 1);
+    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_BLACKLIST) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
-    strcat(fileName, FILE_HH_BLACKLIST);
+    strcat(fileName, FILE_HSTR_BLACKLIST);
     return fileName;
 }
 
