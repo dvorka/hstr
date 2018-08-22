@@ -55,7 +55,7 @@ char* get_history_file_name(void)
     } else {
         // allocate so that this function always returns string to be freed
         // (getenv() returns pointer (no need to free), home is allocated (must be freed)
-        historyFile = strdup(historyFile);
+        historyFile = hstr_strdup(historyFile);
     }
     return historyFile;
 }
@@ -155,7 +155,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             if((r=hashset_get(&rankmap, line))==NULL) {
                 r=malloc(sizeof(RankedHistoryItem));
                 r->rank=history_ranking_function(0, i, strlen(line));
-                r->item=strdup(line);
+                r->item=hstr_strdup(line);
 
                 hashset_put(&rankmap, line, r);
 
