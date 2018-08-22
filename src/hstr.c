@@ -154,8 +154,9 @@ static const char* HSTR_CASE_LABELS[]={
 };
 
 static const char* INSTALL_BASH_STRING=
-        "\n# add this configuration to ~/.bashrc"
-        "\nexport HSTR_CONFIG=hicolor         # get more colors"
+        "\n# HSTR configuration - add this to ~/.bashrc"
+        "\nalias hh=hstr                    # hh to be alias for hstr"
+        "\nexport HSTR_CONFIG=hicolor       # get more colors"
         "\nshopt -s histappend              # append new history items to .bash_history"
         "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
         "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
@@ -170,9 +171,9 @@ static const char* INSTALL_BASH_STRING=
         //             It works correctly if memory entries are not deleted by HSTR. It doesn't synchronize history
         //             across different Bash sessions.
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different Bash sessions)
-        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"   # mem/file sync"
-        "\n# if this is interactive shell, then bind hh to Ctrl-r (for Vi mode check doc)"
-// IMPROVE hh (win10) vs. hstr (cygwin) binary on various platforms must be resolved
+        "\n# ensure synchronization between Bash memory and history file"
+        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
+        "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
 #if defined(__MS_WSL__)
         // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
         // Script hints:
@@ -194,15 +195,16 @@ static const char* INSTALL_BASH_STRING=
         "\n}"
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
 #else
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hh -- \\C-j\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hstr -- \\C-j\"'; fi"
         "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-xk\": \"\\C-a hh -k \\C-j\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-xk\": \"\\C-a hstr -k \\C-j\"'; fi"
 #endif
         "\n\n";
 
 // zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
 static const char* INSTALL_ZSH_STRING=
-        "\n# add this configuration to ~/.zshrc"
+        "\n# HSTR configuration - add this to ~/.bashrc"
+        "\nalias hh=hstr                    # hh to be alias for hstr"
         "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
         "\nexport HSTR_CONFIG=hicolor        # get more colors"
 #if defined(__MS_WSL__)
@@ -219,7 +221,7 @@ static const char* INSTALL_ZSH_STRING=
         "\n#}"
         "\n#bindkey -s \"\\C-r\" \"\\eqhstr_winwsl\\n\""
         "\n"
-        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #elif defined(__CYGWIN__)
         // TODO binding to be rewritten for zsh@Cygwin as it's done for Bash - hstr_cygwin() like function to be implemented to make it work under Cygwin
 
@@ -234,15 +236,15 @@ static const char* INSTALL_ZSH_STRING=
         "\n#}"
         "\n#bindkey -s \"\\C-r\" \"\\eqhstr_cygwin\\n\""
         "\n"
-        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #else
-        "\nbindkey -s \"\\C-r\" \"\\eqhh\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #endif
         // TODO try variant with args/pars separation
-        //"\nbindkey -s \"\\C-r\" \"\\eqhh --\\n\"     # bind hh to Ctrl-r (for Vi mode check doc)"
+        //"\nbindkey -s \"\\C-r\" \"\\eqhstr --\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
         // alternate binding options in zsh:
-        //   bindkey -s '^R' '^Ahh ^M'
-        //   bindkey -s "\C-r" "\C-ahh \C-j"
+        //   bindkey -s '^R' '^Ahstr ^M'
+        //   bindkey -s "\C-r" "\C-ahstr \C-j"
         "\n\n";
 
 static const char* HELP_STRING=
