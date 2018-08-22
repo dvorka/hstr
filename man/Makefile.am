@@ -1,1 +1,1 @@
-man_MANS = hh.1 hstr.1
+man_MANS = hstr.1

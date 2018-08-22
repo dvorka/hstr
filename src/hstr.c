@@ -65,8 +65,8 @@
 #define HH_COLOR_DELETE  4
 #define HH_COLOR_MATCH   5
 
-#define HH_ENV_VAR_CONFIG      "HH_CONFIG"
-#define HH_ENV_VAR_PROMPT      "HH_PROMPT"
+#define HH_ENV_VAR_CONFIG      "HSTR_CONFIG"
+#define HH_ENV_VAR_PROMPT      "HSTR_PROMPT"
 
 #define HH_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HH_CONFIG_THEME_HICOLOR         "hicolor"

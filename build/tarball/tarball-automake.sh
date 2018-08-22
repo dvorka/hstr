@@ -32,7 +32,7 @@ function tarballClean() {
     rm -rvf atom5te.cache src/.deps
     rm -vf Makefile Makefile.in aclocal.m4 config.log config.status configure depcomp install-sh missing
     rm -vf man/Makefile man/Makefile.in
-    rm -vf src/Makefile src/Makefile.in src/hh src/*.o 
+    rm -vf src/Makefile src/Makefile.in src/hstr src/hh src/*.o 
 }
 
 function tarballBuildUsingAutomake() {
@@ -59,7 +59,7 @@ function tarballBuildUsingAutomake() {
 
     # detect Windows WSL
     export VENDOR_FILE=/proc/version
-    export HINT_FILE=/tmp/hh-ms-wsl
+    export HINT_FILE=/tmp/hstr-ms-wsl
 
     if [ -e "${VENDOR_FILE}" ]
     then

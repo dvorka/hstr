@@ -20,7 +20,7 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 1.28.0, martin.dvorak@mindforger.com)
+AC_INIT(hstr, 2.0.0, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
 # Check src dir existence.
@@ -110,7 +110,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strdup strstr])
 
 # Bash@Ubuntu@Windows
-AC_CHECK_FILE(/tmp/hh-ms-wsl,AC_DEFINE(__MS_WSL__), [])
+AC_CHECK_FILE(/tmp/hstr-ms-wsl,AC_DEFINE(__MS_WSL__), [])
 
 # Bash CLI completion
 AC_ARG_WITH([bash-completion-dir],

@@ -1,1 +1,219 @@
-hh.1
+.TH HSTR 1
+.SH NAME
+\fBhstr\fR \-  easily view, navigate, sort and use your command history with shell history suggest box. 
+.SH SYNOPSIS
+.B hstr [option] [arg1] [arg2]...
+.SH DESCRIPTION
+.B hstr
+uses shell history to provide suggest box like functionality
+for commands used in the past. By default it parses .bash-history
+file that is filtered as you type a command substring. Commands 
+are not just filtered, but also ordered by a ranking algorithm
+that considers number of occurences, length and timestamp. 
+Favorite and frequently used commands can be bookmarked. In addition
+\fBhstr\fR allows removal of commands from history - for instance with a typo 
+or with a sensitive content.
+.SH OPTIONS
+.TP 
+\fB-h --help\fR
+Show help
+.TP 
+\fB-n --non-interactive\fR
+Print filtered history on standard output and exit
+.TP 
+\fB-k --kill-last-command\fR
+Delete the last command from history and exit
+.TP
+\fB-f --favorites\fR
+Show favorites view immediately
+.TP 
+\fB-s --show-configuration\fR
+Show configuration that can be added to ~/.bashrc
+.TP 
+\fB-b --show-blacklist\fR
+Show blacklist of commands to be filtered out before history processing
+.TP 
+\fB-V --version\fR
+Show version information
+.SH KEYS
+.TP 
+\fBpattern\fR
+Type to filter shell history.
+.TP 
+\fBCtrl\-e\fR
+Toggle regular expression and substring search.
+.TP 
+\fBCtrl\-t\fR
+Toggle case sensitive search.
+.TP 
+\fBCtrl\-/\fR, \fBCtrl\-7\fR
+Rotate view of history as provided by Bash, ranked history ordered by the number of occurences/length/timestamp and favorites.
+.TP 
+\fBCtrl\-f\fR
+Add currently selected command to favorites.
+.TP 
+\fBCtrl\-l\fR
+Toggle search pattern case.
+.TP
+\fBCtrl\-r\fR, \fBUP\fR arrow, \fBDOWN\fR arrow, \fBCtrl\-n\fR, \fBCtrl\-p\fR, \fBCtrl\-j\fR, \fBCtrl\-k\fR
+Navigate in the history list. 
+.TP
+\fBTAB\fR, \fBRIGHT\fR arrow
+Choose currently selected item for completion and let user to edit it on the command prompt.
+.TP
+\fBLEFT\fR arrow
+Choose currently selected item for completion and let user to edit it in editor (fix command).
+.TP
+\fBENTER\fR
+Choose currently selected item for completion and execute it.
+.TP 
+\fBDEL\fR
+Remove currently selected item from the shell history.
+.TP
+\fBBACKSPACE\fR, \fBCtrl\-h\fR
+Delete last pattern character.
+.TP
+\fBCtrl\-u\fR, \fBCtrl\-w\fR
+Delete pattern and search again.
+.TP
+\fBCtrl\-x\fR
+Write changes to shell history and exit.
+.TP
+\fBCtrl\-g\fR
+Exit with empty prompt.
+.SH ENVIRONMENT VARIABLES
+\fBhstr\fR defines the following environment variables:
+.TP
+\fBHSTR_CONFIG\fR
+Configuration options:
+
+\fIhicolor\fR 
+        Get more colors with this option (default is monochromatic).
+
+\fImonochromatic\fR 
+        Ensure black and white view.
+
+\fIprompt-bottom\fR
+        Show prompt at the bottom of the screen (default is prompt at the top).
+
+\fInoconfirm\fR
+        Do not ask for confirmation on a history entry delete (default is with confirmation).
+
+\fIregexp\fR
+        Filter command history using regular expressions. 
+
+\fIsubstring\fR
+        Filter command history using substring.
+
+\fIkeywords\fR
+        Filter command history using keywords - item matches if contains all keywords in pattern in any order (keywords match is default).
+
+\fIcasesensitive\fR
+        Make history filtering case sensitive (it's case insensitive by default). 
+
+\fIrawhistory\fR
+        Show normal history as a default view (metric-based view is shown otherwise). 
+
+\fIfavorites\fR
+        Show favorites as a default view (metric-based view is shown otherwise).
+
+\fIstatic-favs\fR
+        Do not put recently used favorite to the head of favorites (favorites are reordered by default).
+
+\fIskip-favs-comments\fR
+        Skip comments (lines beginning with #) when loading ~/.hstr_favorites (all lines are loaded by default).
+
+\fIduplicates\fR
+        Show duplicates in rawhistory (duplicates are discarded by default). 
+
+\fIverbose-kill\fR
+        Print the last command command deleted from history (nothing is printed by default).
+
+\fIblacklist\fR
+        Load list of commands to skip when processing history from ~/.hstr_blacklist (built-in blacklist used otherwise).
+
+\fIkeep-page\fR
+        Don't clear page with command selection on exit (page is cleared by default).
+
+\fIbig-keys-skip\fR
+        Skip big history entries i.e. very long lines (default).
+
+\fIbig-keys-floor\fR
+        Use different sorting slot for big keys when building metrics-based view (big keys are skipped by default).
+
+\fIbig-keys-exit\fR
+        Exit (fail) on presence of a big key in history (big keys are skipped by default).
+
+\fIwarning\fR
+        Show warning.
+
+\fIdebug\fR
+        Show debug information.
+
+Example:
+        \fBexport HSTR_CONFIG=hicolor,regexp,rawhistory\fR
+
+.TP
+\fBHSTR_PROMPT\fR
+Change prompt string which is \fBuser@host$\fR by default.
+
+Example:
+        \fBexport HSTR_PROMPT="$ "\fR
+
+.SH FILES
+.TP
+\fB~/.hstr_favorites\fR 
+ Bookmarked favorite commands.
+.TP
+\fB~/.hstr_blacklist\fR 
+ Commands to be hidden.
+
+.SH BASH CONFIGURATION
+Optionally add the following lines to ~/.bashrc:
+.nf
+.sp
+alias hh=hstr                    # hh to be shorter alias hstr   
+export HSTR_CONFIG=hicolor       # get more colors
+shopt -s histappend              # append new history items to .bash_history
+export HISTCONTROL=ignorespace   # leading space hides commands from history
+export HISTFILESIZE=10000        # increase history file size (default is 500)
+export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+# ensure synchronization between Bash memory and history file
+export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
+# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
+if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
+.sp
+.fi
+.SH ZSH CONFIGURATION
+Optionally add the following lines to ~/.zshrc:
+.nf
+.sp
+export HISTFILE=~/.zsh_history   # ensure history file visibility
+export HSTR_CONFIG=hicolor         # get more colors
+bindkey -s "\eC\-r" "\eeqhstr\en"  # bind hstr to Ctrl-r (for Vi mode check doc, experiment with --)
+.sp
+.fi
+.SH EXAMPLES
+.TP
+\fBhstr git\fR
+ Start \fBhstr\fR and show only history items containing 'git'.
+.TP
+\fBhstr cpp add git\fR
+ Start \fBhstr\fR and show only history items containing 'cpp', 'add' and 'git'.
+.TP
+\fBhstr --non-interactive git\fR
+ Print history items containing 'git' to standard output and exit.
+.TP
+\fBhstr --show-configuration >> ~/.bashrc\fR
+ Append default \fBhstr\fR configuration to your Bash profile.
+.TP
+\fBhstr --show-blacklist\fR
+ Show blacklist configured for history processing.
+.SH AUTHOR
+Written by Martin Dvorak <martin.dvorak@mindforger.com>
+.SH BUGS
+Report bugs to https://github.com/dvorka/hstr/issues
+.SH "SEE ALSO"
+.BR history (1),
+.BR bash (1),
+.BR zsh (1)
