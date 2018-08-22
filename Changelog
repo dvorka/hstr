@@ -1,6 +1,10 @@
-2018-08-21  Martin Dvorak  <martin.dvorak@mindforger.com>
+2018-08-28  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-* Released v1.28.0 - All memory leaks fixed, add Bash autocomplete.
+  * Released v2.0.0 - Major release which finally confusing hstr/hh ambuiguity by choosing
+    hstr to be the only name used - hh becomes just a shell alias. It also introduces backward
+    incompatible changes: all HH_ starting environment variables are changed to HSTR_, similarly
+    configuration files and distributions package names.
+    Additional improvements: all memory leaks fixed, Bash autocomplete added.
 
 2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 

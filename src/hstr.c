@@ -133,7 +133,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hh version \"1.28.0\" (2018-08-21T13:00:00)"
+        "hstr version \"2.0.0\" (2018-08-28T13:30:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -246,7 +246,7 @@ static const char* INSTALL_ZSH_STRING=
         "\n\n";
 
 static const char* HELP_STRING=
-        "Usage: hh [option] [arg1] [arg2]..."
+        "Usage: hstr [option] [arg1] [arg2]..."
         "\nShell history suggest box:"
         "\n"
         "\n  --favorites              -f ... show favorites view"
@@ -302,7 +302,7 @@ typedef struct {
 
     unsigned char theme;
     bool noRawHistoryDuplicates;
-    bool keepPage; // do NOT clear page w/ selection on HH exit
+    bool keepPage; // do NOT clear page w/ selection on HSTR exit
     bool noConfirm; // do NOT ask for confirmation on history entry delete
     bool verboseKill; // write a message on delete of the last command in history
     int bigKeys;
