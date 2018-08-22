@@ -70,7 +70,7 @@ or ensure black and white mode:
 export HH_CONFIG=monochromatic
 ```
 
-## History View
+## Default History View
 Show normal history by default (instead of metrics-based view):
 
 ```bash
@@ -84,13 +84,33 @@ export HH_CONFIG=favorites-view
 ```
 
 ## Filtering
+To use regular expressions based matching:
+
+```bash
+export HH_CONFIG=regexp-matching
+```
+
+To use substring based matching:
+
+```bash
+export HH_CONFIG=substring-matching
+```
+
+To use keywords (substrings whose order doesn't matter) search matching (default):
+
+```bash
+export HH_CONFIG=keywords-matching
+```
+
+---
+
 Make search case sensitive (insensitive by default):
 
 ```bash
-export HH_CONFIG=casesensitive
+export HH_CONFIG=case-sensitive
 ```
 
-Keep duplicates in `rawhistory` view (duplicates discarded by default):
+Keep duplicates in `raw-history-view` (duplicate commands are discarded by default):
 
 ```bash
 export HH_CONFIG=duplicates
