@@ -37,4 +37,4 @@ hstr_SOURCES = 						\
 #install-exec-hook:
 #	ln $(DESTDIR)$(bindir)/hstr$(EXEEXT) $(DESTDIR)$(bindir)/hh$(EXEEXT)
 
-hh_LDADD = $(NCURSES_LIBS)
+hstr_LDADD = $(NCURSES_LIBS)

@@ -9,6 +9,7 @@
 /depcomp
 /install-sh
 /missing
+/src/hstr
 /src/hh
 .deps/
 Makefile

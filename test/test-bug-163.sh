@@ -14,12 +14,12 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export HH_CONFIG=hicolor,regexp
-export HISTFILE=/tmp/hh-bug-163
+export HSTR_CONFIG=hicolor,regexp
+export HISTFILE=/tmp/hstr-bug-163
 
 cp -vf ~/p/hstr/.bash_history_bug_163 ${HISTFILE}
 
-#cd ~/p/hstr/github/hstr && gdbserver :9999 ./hh
+#cd ~/p/hstr/github/hstr && gdbserver :9999 ./hstr
 cd ~/p/hstr/github/hstr && ./hstr
 
 # eof

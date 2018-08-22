@@ -14,8 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-export HH_CONFIG=hicolor
-export HISTFILE=/tmp/hh-bug-176
+export HSTR_CONFIG=hicolor
+export HISTFILE=/tmp/hstr-bug-176
 
 cp -vf ~/p/hstr/github/hstr/tests/resources/.bash_history_BUG_176 ${HISTFILE}
 

@@ -47,7 +47,7 @@ script:
   - cd build/tarball && ./tarball-automake.sh
   - cd "${HSTRHOME}"
   - ./configure && make
-  - cd src && ./hh --version
+  - cd src && ./hstr --version
   - echo "2) run unit tests"
   - cd "${HSTRHOME}"
   - cd build && ./test-units.sh
