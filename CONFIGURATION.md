@@ -29,6 +29,13 @@ For more configuration options details please refer to:
 
 Check also configuration [examples](#examples).
 
+## Alias
+Make running of `hstr` (e.g. if you don't want to bind it to <kbd>Ctrl+r</kbd>)
+even easier by defining alias in your `~/.bashrc`:
+
+```bash
+alias hh=hstr
+```
 ## Binding HSTR to Keyboard Shortcut
 Bash uses *Emacs* style keyboard shortcuts by default. There is
 also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
