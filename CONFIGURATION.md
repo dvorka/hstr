@@ -152,7 +152,7 @@ ll
 Do not prompt for confirmation when deleting history items:
 
 ```bash
-export HH_CONFIG=noconfirm
+export HH_CONFIG=no-confirm
 ```
 
 ## Verbosity
@@ -266,7 +266,7 @@ export HISTFILE=~/.zsh_history
 More colors with case sensitive search of history:
 
 ```bash
-export HH_CONFIG=hicolor,casesensitive
+export HH_CONFIG=hicolor,case-sensitive
 ```
 
 Favorite commands view in black and white:
