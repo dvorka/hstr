@@ -74,13 +74,13 @@ export HH_CONFIG=monochromatic
 Show normal history by default (instead of metrics-based view):
 
 ```bash
-export HH_CONFIG=rawhistory
+export HH_CONFIG=raw-history-view
 ```
 
 Show favorite commands by default (instead of metrics-based view):
 
 ```bash
-export HH_CONFIG=favorites
+export HH_CONFIG=favorites-view
 ```
 
 ## Filtering
@@ -97,12 +97,19 @@ export HH_CONFIG=duplicates
 ```
 
 ## Static favorites
-Latest favorite command is put the head of favorite commands list
+Last selected favorite command is put the head of favorite commands list
 by default. If you want to disable this behavior and make favorite
 commands list static, then use the following configuration:
 
 ```bash
 export HH_CONFIG=static-favorites
+```
+## Skip favorites comments
+If you don't want to show lines starting with `#` (comments) among
+favorites, then use the following configuration:
+
+```bash
+export HH_CONFIG=skip-favorites-comments
 ```
 ## Blacklist
 Skip commands when processing history i.e. make sure that these commands
