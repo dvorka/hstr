@@ -29,8 +29,8 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly repo show mindforger-com-ppa
 
 # add .deb to repository
-#aptly repo add mindforger-com-ppa hstr_1.28.0-1_amd64.deb
-#aptly repo remove mindforger-com-ppa hstr_1.28.0-1_amd64
+#aptly repo add mindforger-com-ppa hstr_2.0.0-1_amd64.deb
+#aptly repo remove mindforger-com-ppa hstr_2.0.0-1_amd64
 
 # show repo content w/ packages
 #aptly repo show -with-packages mindforger-com-ppa
@@ -42,7 +42,7 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly snapshot drop mf-test-snapshot
 
 # create snapshot in the time of release - note release NAME 
-#aptly snapshot create hstr-1.28.0 from repo mindforger-com-ppa
+#aptly snapshot create hstr-2.0.0 from repo mindforger-com-ppa
 
 # show published snapshots
 #aptly publish list 
@@ -51,6 +51,6 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly publish drop stretch
 
 # publish snapshot to local filesystem so that it can be uploaded - note release NAME
-#aptly publish snapshot mindforger-1.42.0
+#aptly publish snapshot hstr-2.0.0
 
 # eof

@@ -148,8 +148,8 @@ then
   exit 1
 fi
 
-export ARG_BAZAAR_MSG="HSTR 1.28.0"
-export ARG_VERSION="1.28.0"
+export ARG_BAZAAR_MSG="HSTR 2.0.0"
+export ARG_VERSION="2.0.0"
 
 # Debian releases: https://www.debian.org/releases/
 #   6/7/8/9/10: squeeze wheezy jessie stretch buster
