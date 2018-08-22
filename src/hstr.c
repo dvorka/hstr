@@ -70,7 +70,7 @@
 
 #define HSTR_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HSTR_CONFIG_THEME_HICOLOR         "hicolor"
-#define HSTR_CONFIG_STATIC_FAVORITES      "static-favs"
+#define HSTR_CONFIG_STATIC_FAVORITES      "static-favorites"
 #define HSTR_CONFIG_SKIP_FAVORITES_COMMENTS "skip-favs-comments"
 #define HSTR_CONFIG_FAVORITES         "favorites"
 #define HSTR_CONFIG_CASE              "casesensitive"

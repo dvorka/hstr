@@ -102,7 +102,7 @@ by default. If you want to disable this behavior and make favorite
 commands list static, then use the following configuration:
 
 ```bash
-export HH_CONFIG=static-favs
+export HH_CONFIG=static-favorites
 ```
 ## Blacklist
 Skip commands when processing history i.e. make sure that these commands
