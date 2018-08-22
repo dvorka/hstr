@@ -3,5 +3,5 @@ SUBDIRS = src man
 
 if ENABLE_BASH_COMPLETION
 bashcompletiondir = $(BASH_COMPLETION_DIR)
-dist_bashcompletion_DATA = build/ubuntu/bash-autocomplete/hh
+dist_bashcompletion_DATA = config/bash-autocomplete/hstr
 endif

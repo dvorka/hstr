@@ -112,7 +112,7 @@ AC_CHECK_FUNCS([memset strdup strstr])
 # Bash@Ubuntu@Windows
 AC_CHECK_FILE(/tmp/hstr-ms-wsl,AC_DEFINE(__MS_WSL__), [])
 
-# Bash CLI completion
+# Bash CLI autocomplete
 AC_ARG_WITH([bash-completion-dir],
     AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
         [Install the bash auto-completion script in this directory. @<:@default=yes@:>@]),

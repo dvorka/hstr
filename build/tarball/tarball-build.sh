@@ -20,7 +20,7 @@
 
 export SCRIPT_HOME=`pwd`
 
-export HH_VERSION="2.0.0"
+export HSTR_VERSION="2.0.0"
 
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export GH_RELEASE_DIR=~/p/hstr/release
@@ -35,11 +35,9 @@ function makeTarballRelease() {
         exit 1;
     fi
     cd ../../..
-    tar zcfv hh-${HH_VERSION}-tarball.tgz hstr
-    cd hstr && ./configure && make && cp src/hh ..
-    cd ..
-    strip -v hh
-    tar zcfv hh-${HH_VERSION}-bin-64b.tgz hh
+    tar zcfv hstr-${HSTR_VERSION}-tarball.tgz hstr
+    cd hstr && ./configure && make && cd ..
+    tar zcfv hstr-${HSTR_VERSION}-bin-64b.tgz hstr
 }
 
 # ############################################################################
