@@ -14,6 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cd .. && make clean && qmake CONFIG+=hstrdebug hstr.pro && make && gdb ./hh
+cd .. && make clean && qmake CONFIG+=hstrdebug hstr.pro && make && gdb ./hstr
 
 # eof

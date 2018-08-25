@@ -29,23 +29,24 @@
 # This script cannot be run from Git repository. Launchpad release
 # directory must exist.
 
-export HHSRC=/home/dvorka/p/hstr/github/hstr
-export HHRELEASEDIR=/home/dvorka/p/hstr/launchpad
+export HSTRSRC=/home/dvorka/p/hstr/github/hstr
+export HSTRRELEASEDIR=/home/dvorka/p/hstr/launchpad
 export SCRIPTHOME=`pwd`
 
 # ############################################################################
 # # Checkout HSTR from bazaar and make it #
 # ############################################################################
 
-function checkoutHh() {
+function checkoutHstr() {
     echo "Checking out HSTR from Bazaar to `pwd`"
-    bzr checkout lp:~ultradvorka/+junk/hh-package
-    cd hh-package && mv -v .bzr .. && rm -rvf *.* && mv -v ../.bzr .
-    cp -rvf ${HHSRC}/* ${HHSRC}/*.*  .
+    # Create new branch hstr-package: bzr init && bzr push lp:~ultradvorka/+junk/hstr-package
+    bzr checkout lp:~ultradvorka/+junk/hstr-package
+    cd hstr-package && mv -v .bzr .. && rm -rvf *.* && mv -v ../.bzr .
+    cp -rvf ${HSTRSRC}/* ${HSTRSRC}/*.*  .
     cd ..
 
     echo "Preparing *configure using Autotools"
-    mv -v hh-package hstr
+    mv -v hstr-package hstr
     cd ./hstr/build/tarball && ./tarball-automake.sh --purge && cd ../../..
 }
 
@@ -56,9 +57,9 @@ function checkoutHh() {
 function createChangelog() {
     export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
     echo "Changelog timestamp: ${MYTS}"
-    echo -e "hh (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+    echo -e "hstr (${HSTRFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
     echo -e "\n" >> $1
-    echo -e "  * ${HHBZRMSG}" >> $1
+    echo -e "  * ${HSTRBZRMSG}" >> $1
     echo -e "\n" >> $1
     echo -e " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
     echo -e "\n" >> $1
@@ -71,11 +72,11 @@ function createChangelog() {
 function createTarArchive() {
   cd ..
   mkdir work && cd work
-  cp -vrf ../${HH} .
-  rm -rvf ${HH}/.bzr
-  tar zcf ../${HH}.tgz ${HH}
-  cp -vf ../${HH}.tgz ../${HH}.orig.tar.gz
-  cd ../${HH}
+  cp -vrf ../${HSTR} .
+  rm -rvf ${HSTR}/.bzr
+  tar zcf ../${HSTR}.tgz ${HSTR}
+  cp -vf ../${HSTR}.tgz ../${HSTR}.orig.tar.gz
+  cd ../${HSTR}
   rm -vrf ../work
 }
 
@@ -85,26 +86,26 @@ function createTarArchive() {
 
 function releaseForParticularUbuntuVersion() {
     export UBUNTUVERSION=${1}
-    export HHVERSION=${2}
-    export HHBZRMSG=${3}
+    export HSTRVERSION=${2}
+    export HSTRBZRMSG=${3}
 
-    export HHFULLVERSION=${HHVERSION}-0ubuntu1
-    export HH=hh_${HHVERSION}
-    export HHRELEASE=hh_${HHFULLVERSION}
+    export HSTRFULLVERSION=${HSTRVERSION}-0ubuntu1
+    export HSTR=hstr_${HSTRVERSION}
+    export HSTRRELEASE=hstr_${HSTRFULLVERSION}
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
-    export HHBUILD=hstr-${NOW}
+    export HSTRBUILD=hstr-${NOW}
     
     # checkout HSTR from Bazaar and prepare *configure using Autotools
-    mkdir ${HHBUILD} && cd ${HHBUILD}
-    checkoutHh `pwd`
+    mkdir ${HSTRBUILD} && cd ${HSTRBUILD}
+    checkoutHstr `pwd`
 
     # commit changes to Bazaar
     cd hstr
-    cp -rvf ${HHSRC}/build/ubuntu/debian .
+    cp -rvf ${HSTRSRC}/build/ubuntu/debian .
     createChangelog ./debian/changelog
-    cd .. && mv hstr ${HH} && cd ${HH}
+    cd .. && mv hstr ${HSTR} && cd ${HSTR}
     bzr add .
-    bzr commit -m "Update for ${HH} at ${NOW}."
+    bzr commit -m "Update for ${HSTR} at ${NOW}."
 
     # create Tar archive
     createTarArchive
@@ -125,24 +126,24 @@ function releaseForParticularUbuntuVersion() {
     cd ../build-area
     
     # build binary from source deb on CLEAN system - no deps installed
-    echo -e "\n_ hh pbuilder-dist build  _______________________________________________\n"
+    echo -e "\n_ hstr pbuilder-dist build  _______________________________________________\n"
     # BEGIN: bug workaround - pbuilder's caches in /var and /home must be on same physical drive
-    export PBUILDFOLDER=/tmp/hh-tmp
+    export PBUILDFOLDER=/tmp/hstr-tmp
     rm -rvf ${PBUILDFOLDER}
     mkdir -p ${PBUILDFOLDER}
     cp -rvf ~/pbuilder/*.tgz ${PBUILDFOLDER}
     # END
-    pbuilder-dist ${UBUNTUVERSION} build ${HHRELEASE}.dsc
+    pbuilder-dist ${UBUNTUVERSION} build ${HSTRRELEASE}.dsc
 
     # push .deb to Launchpad
-    cd ../${HH}
+    cd ../${HSTR}
     # push Bazaar changes and upload .deb to Launchpad
     echo "Before bzr push: " `pwd`
-    bzr push lp:~ultradvorka/+junk/hh-package
+    bzr push lp:~ultradvorka/+junk/hstr-package
     cd ..
     echo "Before dput push: " `pwd`
     # recently added /ppa to fix the path and package rejections
-    dput ppa:ultradvorka/ppa ${HHRELEASE}_source.changes
+    dput ppa:ultradvorka/ppa ${HSTRRELEASE}_source.changes
 }
 
 # ############################################################################
@@ -156,9 +157,9 @@ then
     echo "This script must NOT be run from Git repository - run it e.g. from ~/p/hstr/launchpad instead"
     exit 1
 fi
-if [ ! -e "${HHRELEASEDIR}" ]
+if [ ! -e "${HSTRRELEASEDIR}" ]
 then
-    echo "ERROR: release directory must exist: ${HHRELEASEDIR}"
+    echo "ERROR: release directory must exist: ${HSTRRELEASEDIR}"
     exit 1
 fi
 

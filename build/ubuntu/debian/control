@@ -1,4 +1,4 @@
-Source: hh
+Source: hstr
 Section: utils
 Priority: optional
 Maintainer: Martin Dvorak <martin.dvorak@mindforger.com>
@@ -8,10 +8,10 @@ Homepage: https://github.com/dvorka/hstr
 Vcs-Git: https://github.com/dvorka/hstr.git
 Vcs-Browser: https://github.com/dvorka/hstr
 
-Package: hh
+Package: hstr
 Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}
 Description: Suggest box like shell history completion 
  A command line utility that brings improved shell command completion 
  from the history. It aims to make completion easier and faster than Ctrl-r.
-Tag: implemented-in::c++, interface::commandline, role::program
+Tag: implemented-in::c, interface::commandline, role::program
