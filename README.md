@@ -23,8 +23,8 @@ from the history. It aims to make completion **easier** and more **efficient**
 than <kbd>Ctrl</kbd><kbd>r</kbd>.
 
 HSTR can also **manage** your command history (for instance you can remove
-commands that are obsolete or contain a sensitive information) or **bookmark** 
-your favorite commands.
+commands that are obsolete or contain a piece of sensitive information) 
+or **bookmark** your favorite commands.
 
 Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
 
@@ -53,6 +53,7 @@ Build:
 * [build on Fedora](INSTALLATION.md#build-on-fedora)
 * [build on Windows Subsystem for Linux (WSL)](INSTALLATION.md#build-on-wsl)
 * [build on Cygwin](INSTALLATION.md#build-on-cygwin)
+* [build on macOS](INSTALLATION.md#build-on-macos)
 
 Tarball:
 
@@ -60,21 +61,22 @@ Tarball:
 
 ## Configuration
 Configure HSTR just by running:
+
 ```bash
-hh --show-configuration >> ~/.bashrc
+hstr --show-configuration >> ~/.bashrc
 ```
-For detailed `hh` configuration documentation please refer to [Configuration](CONFIGURATION.md).
+For detailed HSTR configuration documentation please refer to [Configuration](CONFIGURATION.md).
 
 
 ## Documentation
-Check `hh` man page:
+Check man page:
 
 ```bash
-man hh
+man hstr
 ```
 
 ## In the News
-Read about `hh` in [LinuxMagazine](http://www.linux-magazine.com/Issues/2014/164/Bash-History-on-Steroids), [UbuntuGeek](http://www.ubuntugeek.com/tag/hstr-bash-history), [DebianAdmin](http://www.debianadmin.com/hstr-easily-view-navigate-search-and-use-your-command-history-with-shell-history.html), [Tuxdiary](https://tuxdiary.com/2015/02/17/hstr/), [Softpedia](http://linux.softpedia.com/get/Terminals/BASH-Command-History-Completion-103155.shtml) or [OSTechNix](https://www.ostechnix.com/hstr-easily-view-navigate-search-manage-commandline-history/).
+Read about HSTR in [LinuxMagazine](http://www.linux-magazine.com/Issues/2014/164/Bash-History-on-Steroids), [UbuntuGeek](http://www.ubuntugeek.com/tag/hstr-bash-history), [DebianAdmin](http://www.debianadmin.com/hstr-easily-view-navigate-search-and-use-your-command-history-with-shell-history.html), [Tuxdiary](https://tuxdiary.com/2015/02/17/hstr/), [Softpedia](http://linux.softpedia.com/get/Terminals/BASH-Command-History-Completion-103155.shtml) and [OSTechNix](https://www.ostechnix.com/hstr-easily-view-navigate-search-manage-commandline-history/).
 
 
 ## Bugs

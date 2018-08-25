@@ -31,10 +31,10 @@ Tarball:
 Install HSTR using a package.
 
 ## Ubuntu
-Install `hh` on Ubuntu using one-liner:
+Install HSTR on Ubuntu using one-liner:
 
 ```bash
-sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-get install hh && hh --show-configuration >> ~/.bashrc
+sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-get install hstr && hstr --show-configuration >> ~/.bashrc && . ~/.bashrc
 ```
 
 ... or step by step:
@@ -42,37 +42,14 @@ sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-g
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa
 sudo apt-get update
-sudo apt-get install hh
+sudo apt-get install hstr
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
-## Fedora/RHEL/Centos
-Install `hh` on Fedora, RHEL or CentOS:
-
-```bash
-sudo dnf install hstr -y
-```
-... or:
-
-```bash
-sudo yum install hstr -y
-```
-
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
----
-
-If you want to make sure you have the latest version, then download `.rpm` archive from
-[GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
-
-```bash
-sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
-```
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
-Install `hh` from PPA. Add [my PPA](http://www.mindforger.com/debian), 
-trust [GPG key](http://www.mindforger.com/gpgpubkey.txt) and install `hh`:
+Install HSTR from PPA. Add [my PPA](http://www.mindforger.com/debian), 
+trust [GPG key](http://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
 # add PPA to APT sources:
@@ -88,7 +65,7 @@ sudo apt update
 sudo apt install hstr
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ---
 
@@ -100,8 +77,31 @@ dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
 ```
 
 
+## Fedora/RHEL/Centos
+Install HSTR on Fedora, RHEL or CentOS:
+
+```bash
+sudo dnf install hstr -y
+```
+... or:
+
+```bash
+sudo yum install hstr -y
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+---
+
+If you want to make sure you have the latest version, then download `.rpm` archive from
+[GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
+
+```bash
+sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
+```
+
 ## openSUSE
-To install `hh` on openSUSE Leap 42.1 run the following commands as root:
+To install HSTR on openSUSE Leap 42.1 run the following commands as root:
 
 ```bash
 zypper addrepo http://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
@@ -109,16 +109,16 @@ zypper refresh
 zypper install hstr
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Gentoo
-To install `hh` on Gentoo run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
+To install HSTR on Gentoo run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
 
 ```bash
 emerge app-shells/hstr
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Arch Linux
 To install HSTR on Arch Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
@@ -127,18 +127,18 @@ Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the
 
 https://aur.archlinux.org/packages/hstr-git/
 
-Install `hh`.
+Install HSTR.
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## macOS
-Install `hh` on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
+Install HSTR on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
 ```bash
 brew install hh
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 # Build
 Build HSTR from source code.
@@ -156,22 +156,16 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-Run HSTR:
-
-```bash
-hh
-```
-
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build snap
-To build [snap](https://snapcraft.io/) for 'hh' first clone Git repository:
+To build [snap](https://snapcraft.io/) for HSTR first clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -191,10 +185,10 @@ $ snapcraft
   ...
 ```
 
-Find `hh_0+git..._amd64.snap` in the current directory.
+Find `hstr_0+git..._amd64.snap` in the current directory.
 
 ## Build on Ubuntu
-To build `hh` on Ubuntu clone Git repository:
+To build HSTR on Ubuntu clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -212,22 +206,16 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-Run HSTR:
-
-```bash
-hh
-```
-
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on Debian
-To build `hh` on Debian clone Git repository:
+To build HSTR on Debian clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -245,22 +233,16 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-Run HSTR:
-
-```bash
-hh
-```
-
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on Fedora
-To build `hh` on Fedora clone Git repository:
+To build HSTR on Fedora clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -278,22 +260,16 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-Run HSTR:
-
-```bash
-hh
-```
-
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on WSL
-To build `hstr` on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
+To build HSTR on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -317,7 +293,7 @@ Build and install `hstr` using:
 ./configure && make && make install
 ```
 
-It's **important** to finish installation by configuration of `hstr` binding
+It's **important** to finish installation by configuration of HSTR binding
 which ensures propagation of chosen command to the prompt:
 
 ```bash
@@ -325,13 +301,12 @@ hstr --show-configuration >> ~/.bashrc
 . ~/.bashrc
 ```
 
-Make sure to **run** `hstr` using <kbd>Ctrl</kbd><kbd>r</kbd> - otherwise commands will not appear in prompt.
+Make sure to **run** HSTR using <kbd>Ctrl</kbd><kbd>r</kbd> (or `hstrwsl`) - otherwise commands will not appear in prompt.
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
-
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on Cygwin
-To build `hh` on [Cygwin](https://www.cygwin.com) clone Git repository:
+To build HSTR on [Cygwin](https://www.cygwin.com) clone Git repository:
 
 ```bash
 git clone https://github.com/dvorka/hstr.git
@@ -343,19 +318,29 @@ Create build files using:
 cd ./build/tarball && ./tarball-automake.sh && cd ../..
 ```
 
-Build and install `hh` using:
+Build and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+It's **important** to finish installation by configuration of HSTR binding
+which ensures propagation of chosen command to the prompt:
+
+```bash
+hstr --show-configuration >> ~/.bashrc
+. ~/.bashrc
+```
+
+Make sure to **run** HSTR using <kbd>Ctrl</kbd><kbd>r</kbd> (or `hstrcygwin`) - otherwise commands will not appear in prompt.
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## Build on macOS
 HSTR can be built on macOS either using [MacPorts](https://www.macports.org/) or [Homebrew](https://brew.sh/).
 
 ---
 
-To build `hh` using [MacPorts](https://www.macports.org/) install `readline` and `ncurses`:
+To build HSTR using [MacPorts](https://www.macports.org/) install `readline` and `ncurses`:
 
 ```bash
 port install readline
@@ -370,11 +355,11 @@ autoreconf -fvi
 make
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ---
 
-To build `hh` using [Homebrew](https://brew.sh/):
+To build HSTR using [Homebrew](https://brew.sh/):
 
 ```bash
 autoreconf -fvi
@@ -382,17 +367,17 @@ autoreconf -fvi
 make
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 # Tarball
 Download and install HSTR tarball.
 
 ## Build and Install Tarball
 Download latest tarball from [GitHub releases](https://github.com/dvorka/hstr/releases) section.
-Expand the archive and install `hh` using:
+Expand the archive and install HSTR using:
 
 ```bash
 ./configure && make && make install
 ```
 
-[Configure](CONFIGURATION.md) `hh` and check its [man page](README.md#documentation).
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).

@@ -19,15 +19,21 @@ Table of contents:
   
 # Features
 HSTR is typically started by pressing <kbd>Ctrl</kbd><kbd>r</kbd> after
-you configure it for this shorcut for your shell. However,
+you configure it for this shorcut in your shell. However,
 you can run it as a normal program just by typing:
+
+```bash
+hstr
+```
+
+... or use simpler command configured using [alias](../CONFIGURATION.md#alias):
 
 ```bash
 hh
 ```
 
 It opens a page with a history view (ranking view is default).
-Alternatively you can run `hh` in non-interactive mode - 
+Alternatively you can run HSTR in non-interactive mode - 
 commands are just listed on standard output based on history
 view:
 
@@ -56,7 +62,7 @@ move around it with `UP` and `DOWN` arrow keys. Selected history
 items is highlighted. Once you are done with your choice:
 
 * press `ENTER` to choose the command and execute it
-* or press `TAB` or `RIGHT` arrow key to choose the command and edit it on command line after exiting `hh`
+* or press `TAB` or `RIGHT` arrow key to choose the command and edit it on command line after exiting HSTR
 * or press `LEFT` arrow key to choose the command and open it in editor (Bash `fc` i.e. fix command)
 
 
@@ -69,7 +75,7 @@ ranking or raw history view by pressing <kbd>Ctrl</kbd><kbd>f</kbd>.
 
 You can check your favorite commands by choosing 
 favorite view - rotate views using <kbd>Ctrl</kbd><kbd>/</kbd> or start
-`hh` by adding `favorites` to `HH_CONFIG` environment
+HSTR by adding `favorites-view` to `HSTR_CONFIG` environment
 property. A favorite command can be choosen just
 by pressing `ENTER` when on command in favorite view.
 Last chosen favorite commands appears as the first
@@ -78,7 +84,7 @@ You can delete a favorite command with `DEL` key.
 
 Tips:
 
-* Favorite commands are stored in `~/.hh_favorites`
+* Favorite commands are stored in `~/.hstr_favorites`
 * Suffix your favorite commands with comments
   describing their purpose. For example:
 
@@ -107,13 +113,13 @@ pwd
 cd
 cd ..
 ls
-hh
+hstr
 mc
 ```
 
 Tips:
 
-* Blacklist of commands is stored in `~/.hh_blacklist`
+* Blacklist of commands is stored in `~/.hstr_blacklist`
   If the file doesn't exist, you may create it and complete
   it with your own blacklist.
 * You can skip any command from history just by
@@ -124,11 +130,11 @@ Tips:
 
 
 ## Kill the Last Command
-Using `hh` you can easily delete the last command from history
+Using HSTR you can easily delete the last command from history
 e.g. when you make a typo or write something sensitive:
 
 ```
-hh --kill-last-command
+hstr --kill-last-command
 ```
 
 See configuration section for how to bind this functionality to
@@ -136,14 +142,15 @@ a key - bound to <kbd>Ctrl</kbd><kbd>x</kbd> <kbd>k</kbd> by default.
 
 
 # Examples
-Get more colors when running `hh`:
+Get more colors when running HSTR:
 
 ```bash
-export HH_CONFIG=hicolor
+export HSTR_CONFIG=hicolor
 ```
 
-Start `hh` in configured view and filter out history items 
-containing 'git':
+Start HSTR in configured view and filter out history items 
+containing 'git' (make sure `hh` is defined using 
+[alias](../CONFIGURATION.md#alias)):
 
 ```bash
 hh git
@@ -161,8 +168,8 @@ Append  default `hh` configuration to your Bash profile:
 hh --show-configuration >> ~/.bashrc
 ```
 
-Check `hh` man page:
+Check HSTR man page:
 
 ```bash
-man hh
+man hstr
 ```

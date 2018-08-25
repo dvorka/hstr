@@ -179,21 +179,21 @@ static const char* INSTALL_BASH_STRING=
         // Script hints:
         //  {...} is inline group ~ lambda function whose vars are visible to the other commands
         //   V=$(c) executes commands and stores it to var V
-        "\nfunction hstr_winwsl {"
+        "\nfunction hstrwsl {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
         "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_winwsl\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
 #elif defined(__CYGWIN__)
-        "\nfunction hstr_cygwin {"
+        "\nfunction hstrcygwin {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
         "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstr_cygwin\"'; fi"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrcygwin\"'; fi"
 #else
         "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hstr -- \\C-j\"'; fi"
         "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"

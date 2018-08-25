@@ -34,7 +34,7 @@ hstr_SOURCES = 						\
 	main.c
 
 # create hstr > hh hard link on installation
-#install-exec-hook:
-#	ln $(DESTDIR)$(bindir)/hstr$(EXEEXT) $(DESTDIR)$(bindir)/hh$(EXEEXT)
+install-exec-hook:
+	ln $(DESTDIR)$(bindir)/hstr$(EXEEXT) $(DESTDIR)$(bindir)/hh$(EXEEXT)
 
 hstr_LDADD = $(NCURSES_LIBS)
