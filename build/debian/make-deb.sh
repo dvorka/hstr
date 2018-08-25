@@ -40,9 +40,9 @@ function createChangelog() {
 
   export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
   echo "Changelog timestamp: ${MYTS}"
-  echo -e "hstr (${HHFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+  echo -e "hstr (${HSTRFULLVERSION}) ${DEBIANVERSION}; urgency=low" > $1
   echo " " >> $1
-  echo -e "  * ${HHBZRMSG}" >> $1
+  echo -e "  * ${HSTRBZRMSG}" >> $1
   echo " " >> $1
   echo " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
 }
@@ -55,11 +55,11 @@ function createTarball() {
   cd ..
   mkdir work
   cd work
-  cp -vrf ../${HH} .
-  tar zcf ../${HH}.tgz ${HH}
+  cp -vrf ../${HSTR} .
+  tar zcf ../${HSTR}.tgz ${HSTR}
   # .orig.tar.gz is required Debian convention
-  cp -vf ../${HH}.tgz ../${HH}.orig.tar.gz
-  cd ../${HH}
+  cp -vf ../${HSTR}.tgz ../${HSTR}.orig.tar.gz
+  cd ../${HSTR}
 }
 
 # ############################################################################
@@ -68,26 +68,26 @@ function createTarball() {
 
 function buildDebPackage() {
     export SCRIPTHOME=`pwd`
-    export HHVERSION=$1
-    export HHBZRMSG=$2
-    #export HHFULLVERSION=${HHVERSION}-1.0 # NMU upload
-    export HHFULLVERSION=${HHVERSION}-1    # mantainer upload
-    export HH=hstr_${HHVERSION}
-    export HHRELEASE=hh-${HHFULLVERSION}
-    export HHSRC=/home/dvorka/p/hstr/github/hstr
+    export HSTRVERSION=$1
+    export HSTRBZRMSG=$2
+    #export HSTRFULLVERSION=${HSTRVERSION}-1.0 # NMU upload
+    export HSTRFULLVERSION=${HSTRVERSION}-1    # mantainer upload
+    export HSTR=hstr_${HSTRVERSION}
+    export HSTRRELEASE=hstr-${HSTRFULLVERSION}
+    export HSTRSRC=/home/dvorka/p/hstr/github/hstr
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
-    export HHBUILD=hstr-${NOW}
-    export UBUNTUVERSION=unstable
+    export HSTRBUILD=hstr-${NOW}
+    export DEBIANVERSION=unstable
     
     #
     # 1) create upstream tarball
     #
     # 1.1) get copy of project source
     echo -e "\n# Get HSTR project files ############################"
-    mkdir -p ${HHBUILD}/${HH}
-    cd ${HHBUILD}/${HH}
+    mkdir -p ${HSTRBUILD}/${HSTR}
+    cd ${HSTRBUILD}/${HSTR}
     # copy  project files to current directory
-    cp -rvf ${HHSRC}/* ${HHSRC}/*.*  .
+    cp -rvf ${HSTRSRC}/* ${HSTRSRC}/*.*  .
 
     # 1.x) generate makefiles
     cd build/tarball && ./tarball-automake.sh && cd ../.. && ./configure
@@ -104,7 +104,7 @@ function buildDebPackage() {
     # 2) create source deb
     #    
     # 2.1) add Debian control files
-    cp -rvf ${HHSRC}/build/debian/debian  .
+    cp -rvf ${HSTRSRC}/build/debian/debian  .
     createChangelog ./debian/changelog
 
     # x) start GPG agent if it's NOT running

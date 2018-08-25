@@ -11,7 +11,7 @@ Run `hstr --show-configuration` to determine what will be appended to your Bash 
 
 For more configuration options details please refer to:
 
-* Bind HSTR to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
+* Bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
     * [Bash Emacs keymap](#bash-emacs-keymap-default) (default)
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
