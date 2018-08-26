@@ -59,6 +59,8 @@ Tarball:
 
 * [build and install tarball](INSTALLATION.md#build-and-install-tarball)
 
+## Upgrade
+If you are HSTR 1.x user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
 ## Configuration
 Configure HSTR just by running:
 
