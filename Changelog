@@ -3,10 +3,12 @@
   * Released v2.0.0 - Major release which resolves confusing hstr/hh ambuiguity by choosing
     hstr to be the only name used. hh becomes just a shell alias. Therefore this release
     introduces backward incompatible changes: all HH_ starting environment variables are
-    changed to HSTR_, similarly configuration files and distributions package names. Also
-    identifiers used in HSTR_CONFIG were changed (please check man page and update
-    your 1.x.x configuration). Additional improvements: all memory leaks fixed, Bash
-    autocomplete added.
+    changed to HSTR_, similarly configuration file names starting with .hh_ were renamed to start
+    with .hstr_, identifiers used in HSTR_CONFIG were changed e.g. favorites to favorites-view.
+    Please check man page for details and update your 1.x.x configuration.
+        Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed as
+    well to have hstr prefix - please update your scripts.
+    Additional improvements: all memory leaks fixed, Bash autocomplete added.
 
 2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
