@@ -125,7 +125,6 @@ function buildDebPackage() {
     dpkg-buildpackage -us -uc
     pushd .. && mkdir -v deb-binary && cp -vf *.dsc *.changes *.deb deb-binary && popd
 
-    #
     # 3) create source deb
     #    
     # 3.1) build deb

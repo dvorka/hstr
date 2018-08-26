@@ -119,8 +119,8 @@ function releaseForParticularUbuntuVersion() {
     fi    
 
     # build .debs
-    # build UNSIGNED .deb package (us uc tells that no GPG signing is needed)
-    bzr builddeb -- -us -uc
+    # OPTIONAL test build w/o signing: build UNSIGNED .deb package (us uc tells that no GPG signing is needed)
+    #bzr builddeb -- -us -uc
     # build SIGNED source .deb package
     bzr builddeb -S
     cd ../build-area
