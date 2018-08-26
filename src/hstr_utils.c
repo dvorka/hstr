@@ -26,7 +26,7 @@
 // This define  is used to compile out code which inserts command to console - thus
 // define allows to activate and debug shell script workaround that is used on WSL
 // and Cygwin.
-#define DEBUG_NO_TIOCSTI
+//#define DEBUG_NO_TIOCSTI
 
 // strdup() not in ISO C
 char* hstr_strdup(const char* s)
