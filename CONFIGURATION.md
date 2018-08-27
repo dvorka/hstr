@@ -11,18 +11,18 @@ Run `hstr --show-configuration` to determine what will be appended to your Bash 
 
 For more configuration options details please refer to:
 
-* Bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
+* bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
     * [Bash Emacs keymap](#bash-emacs-keymap-default) (default)
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
-* Create `hh` [alias](Alias) for `hstr`
-* Get more [colors](#colors)
-* Choose [default history view](#history-view)
-* Set [filtering preferences](#filtering)
-* Configure commands [blacklist](#blacklist)
-* Disable [confirm on delete](#confirm-on-delete)
-* Tune [verbosity](#verbosity)
-* History settings:
+* create `hh` [alias](Alias) for `hstr`
+* het more [colors](#colors)
+* choose [default history view](#history-view)
+* set [filtering preferences](#filtering)
+* configure commands [blacklist](#blacklist)
+* disable [confirm on delete](#confirm-on-delete)
+* tune [verbosity](#verbosity)
+* history settings:
     * [Bash history settings](#bash-history-settings)
     * [zsh history settings](#zsh-history-settings)
 
