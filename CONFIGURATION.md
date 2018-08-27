@@ -254,7 +254,7 @@ export HISTCONTROL=ignorespace
 ```
 
 Suitable for a sensitive information like passwords.
-## Zsh History Settings
+## zsh History Settings
 If you use `zsh`, set `HISTFILE` environment variable in `~/.zshrc`:
 
 ```
