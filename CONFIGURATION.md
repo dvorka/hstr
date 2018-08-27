@@ -266,7 +266,7 @@ export HISTFILE=~/.zsh_history
 More colors with case sensitive search of history:
 
 ```bash
-export HSTR<_CONFIG=hicolor,case-sensitive
+export HSTR_CONFIG=hicolor,case-sensitive
 ```
 
 Favorite commands view in black and white with prompt at the bottom of the screen:
