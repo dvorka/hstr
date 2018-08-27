@@ -74,7 +74,7 @@ Bind HSTR to <kbd>Ctrl</kbd><kbd>r</kbd> only if it is interactive shell:
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
 ```
 
-You can bind also other HSTR commands like `-kill-last-command`:
+You can bind also other HSTR commands like `--kill-last-command`:
 
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi
