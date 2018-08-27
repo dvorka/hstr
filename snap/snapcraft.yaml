@@ -19,17 +19,18 @@
 
 name: hstr
 version: git
+grade: stable
 summary: Suggest box like shell history completion
 description: |
   A command line utility that brings improved shell command completion
   from the history. It aims to make completion easier and faster than Ctrl-r.
-
-grade: stable
-confinement: classic
+confinement: strict
 
 apps:
   hstr:
     command: bin/hstr
+    plugs:
+    - home
 
 parts:
   hstr:
