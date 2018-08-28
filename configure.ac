@@ -43,7 +43,7 @@ then
     AC_MSG_NOTICE([===================================================================================])
     AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
     AC_MSG_NOTICE([===================================================================================])
-    AC_MSG_ERROR([Please install required program 'pkg-config' which was not found.])
+    AC_MSG_ERROR([Please install required program 'pkg-config' and run build/tarball/tarball-automake.sh again.])
 fi
 
 # PKG_CHECK_MODULES macro is NOT used to avoid confusing syntax errors in case that pkg-config is NOT installed
