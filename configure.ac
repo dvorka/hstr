@@ -35,10 +35,17 @@ AC_PROG_CC
 # NCURSES check w/o PKG_CHECK_MODULES macro: CHECK_LIB > MODULES > CHECK_LIB
 # Determine OS
 AC_CANONICAL_HOST
-# Notify user that pkg-tools are required
-AC_MSG_NOTICE([===================================================================================])
-AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
-AC_MSG_NOTICE([===================================================================================])
+
+AC_CHECK_PROG(PKG_CONFIG_EXISTS,[pkg-config],[pkg-config],[no])
+if test "$PKG_CONFIG_EXISTS" = "no"
+then
+    # Notify user that pkg-tools are required
+    AC_MSG_NOTICE([===================================================================================])
+    AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
+    AC_MSG_NOTICE([===================================================================================])
+    AC_MSG_ERROR([Please install required program 'pkg-config' which was not found.])
+fi
+
 # PKG_CHECK_MODULES macro is NOT used to avoid confusing syntax errors in case that pkg-config is NOT installed
 AC_CHECK_LIB(ncursesw, killwchar, [],
 [
@@ -115,11 +122,12 @@ AC_CHECK_FILE(/tmp/hstr-ms-wsl,AC_DEFINE(__MS_WSL__), [])
 # Bash CLI autocomplete
 AC_ARG_WITH([bash-completion-dir],
     AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
-        [Install the bash auto-completion script in this directory. @<:@default=yes@:>@]),
+        [Install the Bash auto-completion script in this directory. @<:@default=yes@:>@]),
     [],
     [with_bash_completion_dir=yes])
 
 if test "x$with_bash_completion_dir" = "xyes"; then
+    # pkg-config command existence for PKG_CHECK_MODULES macro checked above
     PKG_CHECK_MODULES([BASH_COMPLETION], [bash-completion >= 2.0],
         [BASH_COMPLETION_DIR="`pkg-config --variable=completionsdir bash-completion`"],
         [BASH_COMPLETION_DIR="$datadir/bash-completion/completions"])
