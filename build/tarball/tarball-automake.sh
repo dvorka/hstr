@@ -24,7 +24,7 @@ function tarballClean() {
     if [ "${1}" = "--purge" ]
     then
 	# development files
-	rm -vrf build .git .gitignore .settings Debug Release .cproject .project hstr.pro hstr.pro.user snap
+	rm -vrf build test tests .git .gitignore .settings Debug Release .cproject .project hstr.pro hstr.pro.user snap
 	rm -vf .travis.yml pad.xml _config.yml
     fi
     # garbage
@@ -32,7 +32,7 @@ function tarballClean() {
     rm -rvf atom5te.cache src/.deps
     rm -vf Makefile Makefile.in aclocal.m4 config.log config.status configure depcomp install-sh missing
     rm -vf man/Makefile man/Makefile.in
-    rm -vf src/Makefile src/Makefile.in src/hstr src/hh src/*.o 
+    rm -vf src/Makefile src/Makefile.in src/hstr src/hh *.o src/*.o 
 }
 
 function tarballBuildUsingAutomake() {

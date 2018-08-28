@@ -39,10 +39,10 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly snapshot list 
 
 # delete snapshot(s) ONLY if needed - publish must be deleted first!
-#aptly snapshot drop mf-test-snapshot
+#aptly snapshot drop hstr-2.0.0-snapshot
 
 # create snapshot in the time of release - note release NAME 
-#aptly snapshot create hstr-2.0.0 from repo mindforger-com-ppa
+#aptly snapshot create hstr-2.0.0-snapshot from repo mindforger-com-ppa
 
 # show published snapshots
 #aptly publish list 
@@ -51,6 +51,6 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly publish drop stretch
 
 # publish snapshot to local filesystem so that it can be uploaded - note release NAME
-#aptly publish snapshot hstr-2.0.0
+#aptly publish snapshot hstr-2.0.0-snapshot
 
 # eof
