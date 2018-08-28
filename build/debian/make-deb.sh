@@ -119,7 +119,7 @@ function buildDebPackage() {
     DEBFULLNAME="Martin Dvorak"
     export DEBEMAIL DEBFULLNAME
 
-    # 2.2) build binary deb
+    # 2.2) build BINARY deb
     # https://www.debian.org/doc/manuals/maint-guide/build.en.html
     #debuild -us -uc
     dpkg-buildpackage -us -uc
@@ -128,9 +128,9 @@ function buildDebPackage() {
     # 3) create source deb
     #    
     # 3.1) build deb
-    # build SIGNED source deb package
+    # build SOURCE deb package
     #debuild -S
-    dpkg-buildpackage --source
+    dpkg-buildpackage -S
     pushd .. && mkdir -v deb-source && cp -vf *.dsc *.changes *.deb deb-source && popd
 }
 
