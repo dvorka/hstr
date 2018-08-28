@@ -25,7 +25,7 @@ HSTR can also **manage** your command history (for instance you can remove
 commands that are obsolete or contain a piece of sensitive information) 
 or **bookmark** your favorite commands.
 
-Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial.
+<!-- Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial. -->
 
 
 ## Installation
