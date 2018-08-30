@@ -133,7 +133,7 @@ Install HSTR.
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Haiku OS
-Install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/userguide/en/applications/haikudepot.html):
+To install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/userguide/en/applications/haikudepot.html):
 
 * https://depot.haiku-os.org/#!/?srchexpr=hstr
 
