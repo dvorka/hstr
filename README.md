@@ -41,6 +41,7 @@ Install:
 * [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#arch-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
+* [Haiku OS](INSTALLATION.md#haiku-os)
 * [macOS](INSTALLATION.md#macos)
 
 Build:

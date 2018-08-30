@@ -11,6 +11,7 @@ Install:
 * [Mint](#debianmint)
 * [Arch Linux](#arch-linux)
 * [Scientific Linux](#fedorarhelcentos)
+* [Haiku OS](#haiku-os)
 * [macOS](#macos)
 
 Build:
@@ -131,6 +132,12 @@ Install HSTR.
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+## Haiku OS
+Install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/userguide/en/applications/haikudepot.html):
+
+* https://depot.haiku-os.org/#!/?srchexpr=hstr
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## macOS
 Install HSTR on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
