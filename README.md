@@ -31,15 +31,16 @@ or **bookmark** your favorite commands.
 Install:
 
 * [Ubuntu](INSTALLATION.md#ubuntu)
-* [Fedora](INSTALLATION.md#fedorarhelcentos)
+* [Fedora](INSTALLATION.md#fedorarhelcentosscientific)
 * [Gentoo](INSTALLATION.md#gentoo)
-* [CentOS](INSTALLATION.md#fedorarhelcentos)
+* [CentOS](INSTALLATION.md#fedorarhelcentosscientific)
 * [openSUSE](INSTALLATION.md#opensuse)
-* [RHEL](INSTALLATION.md#fedorarhelcentos)
+* [RHEL](INSTALLATION.md#fedorarhelcentosscientific)
 * [Debian](INSTALLATION.md#debianmint)
 * [Mint](INSTALLATION.md#debianmint)
-* [Arch Linux](INSTALLATION.md#arch-linux)
-* [Scientific Linux](INSTALLATION.md#fedorarhelcentos)
+* [Arch Linux](INSTALLATION.md#archmanjaro-linux)
+* [Manjaro Linux](INSTALLATION.md#archmanjaro-linux)
+* [Scientific Linux](INSTALLATION.md#fedorarhelcentosscientific)
 * [Haiku OS](INSTALLATION.md#haiku-os)
 * [macOS](INSTALLATION.md#macos)
 

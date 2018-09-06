@@ -2,14 +2,15 @@
 Install:
 
 * [Ubuntu](#ubuntu)
-* [Fedora](#fedorarhelcentos)
+* [Fedora](#fedorarhelcentosscientific)
 * [Gentoo](#gentoo)
-* [CentOS](#fedorarhelcentos)
+* [CentOS](#fedorarhelcentosscientific)
 * [openSUSE](#opensuse)
-* [RHEL](#fedorarhelcentos)
+* [RHEL](#fedorarhelcentosscientific)
 * [Debian](#debianmint)
 * [Mint](#debianmint)
-* [Arch Linux](#arch-linux)
+* [Arch Linux](#archmanjaro-linux)
+* [Manjaro Linux](#archmanjaro-linux)
 * [Scientific Linux](#fedorarhelcentos)
 * [Haiku OS](#haiku-os)
 * [macOS](#macos)
@@ -78,8 +79,8 @@ dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
 ```
 
 
-## Fedora/RHEL/Centos
-Install HSTR on Fedora, RHEL or CentOS:
+## Fedora/RHEL/Centos/Scientific
+Install HSTR on Fedora, RHEL, CentOS or Scientific Linux:
 
 ```bash
 sudo dnf install hstr -y
@@ -121,8 +122,8 @@ emerge app-shells/hstr
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
-## Arch Linux
-To install HSTR on Arch Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
+## Arch/Manjaro Linux
+To install HSTR on Arch or Manjaro Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
