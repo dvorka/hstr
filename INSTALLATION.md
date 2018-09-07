@@ -123,7 +123,7 @@ emerge app-shells/hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Arch/Manjaro Linux
-To install HSTR on Arch or Manjaro Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
+To install HSTR on Arch or Manjaro Linux download the latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
