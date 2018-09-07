@@ -127,9 +127,9 @@ To install HSTR on Arch or Manjaro Linux download latest distribution from [GitH
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
-https://aur.archlinux.org/packages/hstr-git/
+To install hstr from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hstr-git/) run `yaourt -S hstr-git` in command line.
 
-Install HSTR.
+
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
