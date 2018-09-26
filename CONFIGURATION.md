@@ -17,7 +17,7 @@ For more configuration options details please refer to:
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
 * create `hh` [alias](Alias) for `hstr`
 * het more [colors](#colors)
-* choose [default history view](#history-view)
+* choose [default history view](#default-history-view)
 * set [filtering preferences](#filtering)
 * configure commands [blacklist](#blacklist)
 * disable [confirm on delete](#confirm-on-delete)
