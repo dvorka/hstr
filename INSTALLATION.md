@@ -150,7 +150,7 @@ brew install hh
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## nix package manager
-To install hstr using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for hstr](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
+To install HSTR using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for HSTR](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
 
 ```bash
 nix-env -i hstr
