@@ -13,7 +13,7 @@ Easily view, navigate and search your **command history** with shell history sug
 ## Description
 Are you looking for a command that you used **recently**? Do you
 want to  avoid the need to write **long commands** over and over
-again? Are you looking for a tool that is able to manage your 
+again? Are you looking for a tool that is able to manage your
 **favorite** commands?
 
 HSTR (**H**i**ST**o**R**y) is a command line utility that brings improved Bash/zsh command completion
@@ -21,7 +21,7 @@ from the history. It aims to make completion **easier** and more **efficient**
 than <kbd>Ctrl</kbd><kbd>r</kbd>.
 
 HSTR can also **manage** your command history (for instance you can remove
-commands that are obsolete or contain a piece of sensitive information) 
+commands that are obsolete or contain a piece of sensitive information)
 or **bookmark** your favorite commands.
 
 <!-- Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial. -->
@@ -43,6 +43,7 @@ Install:
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentosscientific)
 * [Haiku OS](INSTALLATION.md#haiku-os)
 * [macOS](INSTALLATION.md#macos)
+* [nix package manager](INSTALLATION.md#nix-package-manager)
 
 Build:
 
