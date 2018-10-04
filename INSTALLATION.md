@@ -15,6 +15,7 @@ Install:
 * [Haiku OS](#haiku-os)
 * [macOS](#macos)
 * [nix package manager](#nix-package-manager)
+* [Guix package manager](#guix-package-manager)
 
 Build:
 
@@ -158,6 +159,17 @@ nix-env -i hstr
 
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## Guix package manager
+To install HSTR in [GuixSD](https://www.gnu.org/software/guix/) or using the standalone [Guix package manager](https://www.gnu.org/software/guix/manual/en/html_node/Binary-Installation.html#Binary-Installation) you can install the `hstr` package, e.g.
+
+```bash
+guix package -i hstr
+```
+
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 
 # Build
 Build HSTR from source code.
