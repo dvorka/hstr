@@ -14,6 +14,7 @@ Install:
 * [Scientific Linux](#fedorarhelcentos)
 * [Haiku OS](#haiku-os)
 * [macOS](#macos)
+* [nix package manager](#nix-package-manager)
 
 Build:
 
@@ -50,7 +51,7 @@ sudo apt-get install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
-Install HSTR from PPA. Add [my PPA](http://www.mindforger.com/debian), 
+Install HSTR from PPA. Add [my PPA](http://www.mindforger.com/debian),
 trust [GPG key](http://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
@@ -145,6 +146,16 @@ Install HSTR on macOS using [Homebrew](http://brew.sh/) ([formula](https://formu
 ```bash
 brew install hh
 ```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## nix package manager
+To install hstr using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for hstr](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
+
+```bash
+nix-env -i hstr
+```
+
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
