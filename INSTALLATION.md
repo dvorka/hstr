@@ -15,6 +15,7 @@ Install:
 * [Haiku OS](#haiku-os)
 * [macOS](#macos)
 * [nix package manager](#nix-package-manager)
+* [Guix package manager](#guix-package-manager)
 
 Build:
 
@@ -51,15 +52,15 @@ sudo apt-get install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
-Install HSTR from PPA. Add [my PPA](http://www.mindforger.com/debian),
-trust [GPG key](http://www.mindforger.com/gpgpubkey.txt) and install HSTR:
+Install HSTR from PPA. Add [my PPA](https://www.mindforger.com/debian),
+trust [GPG key](https://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
 # add PPA to APT sources:
-sudo echo -e "\ndeb http://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
+sudo echo -e "\ndeb https://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
 
 # import PPA's GPG key
-wget -qO - http://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
+wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
 
 # update sources
 sudo apt update
@@ -107,7 +108,7 @@ sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
 To install HSTR on openSUSE Leap 42.1 run the following commands as root:
 
 ```bash
-zypper addrepo http://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
+zypper addrepo https://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
 zypper refresh
 zypper install hstr
 ```
@@ -141,7 +142,7 @@ To install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/user
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## macOS
-Install HSTR on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
+Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
 ```bash
 brew install hh
@@ -158,6 +159,17 @@ nix-env -i hstr
 
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## Guix package manager
+To install HSTR in [GuixSD](https://www.gnu.org/software/guix/) or using the standalone [Guix package manager](https://www.gnu.org/software/guix/manual/en/html_node/Binary-Installation.html#Binary-Installation) you can install the `hstr` package, e.g.
+
+```bash
+guix package -i hstr
+```
+
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 
 # Build
 Build HSTR from source code.
