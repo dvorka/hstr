@@ -11,7 +11,7 @@ Install:
 * [Mint](#debianmint)
 * [Arch Linux](#archmanjaro-linux)
 * [Manjaro Linux](#archmanjaro-linux)
-* [Scientific Linux](#fedorarhelcentos)
+* [Scientific Linux](#fedorarhelcentosscientific)
 * [Haiku OS](#haiku-os)
 * [macOS](#macos)
 * [nix package manager](#nix-package-manager)
@@ -20,7 +20,7 @@ Install:
 Build:
 
 * [build on any Linux distro](#build-on-any-linux-distro)
-* [build snap](#snap)
+* [build snap](#build-snap)
 * [build on Ubuntu](#build-on-ubuntu)
 * [build on Debian](#build-on-debian)
 * [build on Fedora](#build-on-fedora)
@@ -77,20 +77,20 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
+sudo dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
 ```
 
 
-## Fedora/RHEL/Centos/Scientific
+## Fedora/RHEL/CentOS/Scientific
 Install HSTR on Fedora, RHEL, CentOS or Scientific Linux:
 
 ```bash
-sudo dnf install hstr -y
+sudo dnf install hstr
 ```
 ... or:
 
 ```bash
-sudo yum install hstr -y
+sudo yum install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
@@ -101,7 +101,7 @@ If you want to make sure you have the latest version, then download `.rpm` archi
 [GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
 
 ```bash
-sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
+sudo rpm -Uvh ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
 ```
 
 ## openSUSE
