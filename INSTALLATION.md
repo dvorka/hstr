@@ -57,7 +57,7 @@ trust [GPG key](https://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
 # add PPA to APT sources:
-sudo echo -e "\ndeb https://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
+sudo bash -c 'echo -e "\ndeb https://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list.d/mindforger.list'
 
 # import PPA's GPG key
 wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
@@ -65,7 +65,7 @@ wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
 # update sources
 sudo apt update
 
-# install MindForger
+# install HSTR
 sudo apt install hstr
 ```
 
