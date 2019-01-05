@@ -61,8 +61,7 @@ Tarball:
 
 * [build and install tarball](INSTALLATION.md#build-and-install-tarball)
 
-## Upgrade
-If you are HSTR 1.x user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
+
 ## Configuration
 Configure HSTR just by running:
 
@@ -81,6 +80,10 @@ man hstr
 
 ## In the News
 Read about HSTR in [LinuxMagazine](http://www.linux-magazine.com/Issues/2014/164/Bash-History-on-Steroids), [UbuntuGeek](http://www.ubuntugeek.com/tag/hstr-bash-history), [DebianAdmin](http://www.debianadmin.com/hstr-easily-view-navigate-search-and-use-your-command-history-with-shell-history.html), [Tuxdiary](https://tuxdiary.com/2015/02/17/hstr/), [Softpedia](http://linux.softpedia.com/get/Terminals/BASH-Command-History-Completion-103155.shtml) and [OSTechNix](https://www.ostechnix.com/hstr-easily-view-navigate-search-manage-commandline-history/).
+
+
+## Upgrade
+If you are HSTR 1.x user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
 
 
 ## Bugs
