@@ -16,7 +16,7 @@ For more configuration options details please refer to:
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
 * create `hh` [alias](Alias) for `hstr`
-* het more [colors](#colors)
+* get more [colors](#colors)
 * choose [default history view](#default-history-view)
 * set [filtering preferences](#filtering)
 * configure commands [blacklist](#blacklist)
