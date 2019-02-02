@@ -5,7 +5,7 @@ Get most of HSTR by configuring it with:
 hstr --show-configuration >> ~/.bashrc
 ```
 
-Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to source `~/.bashrc` to apply changes.
+Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to `source ~/.bashrc` to apply changes.
 
 ---
 
