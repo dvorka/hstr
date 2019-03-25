@@ -24,7 +24,7 @@
 #elif defined(__FreeBSD__)
 #include <ncurses.h>
 #else
-#include <ncursesw/curses.h>
+#include <ncurses.h>
 #endif
 
 #define color_attr_on(C) if(terminal_has_colors()) { attron(C); }
