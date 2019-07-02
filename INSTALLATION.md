@@ -145,7 +145,7 @@ To install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/user
 Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
 ```bash
-brew install hh
+brew install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
