@@ -1128,7 +1128,8 @@ void loop_to_select(void)
                 move(cursorY, cursorX);
             }
             skip=FALSE;
-            continue;
+            c = K_CTRL_N;
+            //continue;
         }
 
         if(printDefaultLabel) {
@@ -1288,6 +1289,8 @@ void loop_to_select(void)
                 hstr_make_selection(NULL, hstr->history, maxHistoryItems);
             }
             result=hstr_print_selection(maxHistoryItems, pattern);
+            highlight_selection(0, SELECTION_CURSOR_IN_PROMPT, pattern);
+            selectionCursorPosition = 0;
 
             move(hstr->promptY, basex+hstr_strlen(pattern));
             break;
@@ -1440,7 +1443,9 @@ void loop_to_select(void)
                 }
 
                 result = hstr_print_selection(maxHistoryItems, pattern);
+                highlight_selection(0, SELECTION_CURSOR_IN_PROMPT, pattern);
                 move(cursorY, cursorX);
+                selectionCursorPosition = 0;
                 refresh();
             }
             break;
