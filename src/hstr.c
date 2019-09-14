@@ -1260,9 +1260,9 @@ void loop_to_select(void)
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             move(hstr->promptY, basex+strlen(pattern));
             break;
-#ifndef __APPLE__
-        case K_CTRL_W: // TODO supposed to delete just one word backward
-#endif
+//#ifndef __APPLE__
+//        case K_CTRL_W: // TODO supposed to delete just one word backward
+//#endif
         case K_CTRL_U:
             pattern[0]=0;
             print_pattern(pattern, hstr->promptY, basex);
