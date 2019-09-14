@@ -1214,11 +1214,11 @@ void loop_to_select(void)
                 cursorY=getcury(stdscr);
             }
             break;
-#ifdef __APPLE__
+//#ifdef __APPLE__
         // reserved for view rotation on macOS
         case K_CTRL_W:
-#endif
-        case K_CTRL_SLASH:
+//#endif
+//        case K_CTRL_SLASH:
             hstr_next_view();
             result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
