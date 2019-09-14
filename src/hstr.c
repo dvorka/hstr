@@ -624,11 +624,11 @@ void print_history_label(void)
     unsigned width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
-#ifdef __APPLE__
+//#ifdef __APPLE__
     snprintf(screenLine, width, "- HISTORY - view:%s (C-w) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
-#else
-    snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
-#endif
+//#else
+//    snprintf(screenLine, width, "- HISTORY - view:%s (C-/) - match:%s (C-e) - case:%s (C-t) - %d/%d/%d ",
+//#endif
             HSTR_VIEW_LABELS[hstr->view],
             HSTR_MATCH_LABELS[hstr->matching],
             HSTR_CASE_LABELS[hstr->caseSensitive],
