@@ -1051,6 +1051,7 @@ int remove_from_history_model(char* almostDead)
 void hstr_next_view(void)
 {
     hstr->view++;
+    hstr->view++;
     hstr->view=hstr->view%3;
 }
 
