@@ -1,0 +1,17 @@
+Source: hstr
+Section: utils
+Priority: optional
+Maintainer: Martin Dvorak <martin.dvorak@mindforger.com>
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, libreadline-dev, libncursesw5-dev
+Standards-Version: 3.9.5
+Homepage: https://github.com/dvorka/hstr
+Vcs-Git: https://github.com/dvorka/hstr.git
+Vcs-Browser: https://github.com/dvorka/hstr
+
+Package: hstr
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}
+Description: Suggest box like shell history completion 
+ A command line utility that brings improved shell command completion 
+ from the history. It aims to make completion easier and faster than Ctrl-r.
+Tag: implemented-in::c, interface::commandline, role::program

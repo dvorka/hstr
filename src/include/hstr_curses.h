@@ -1,7 +1,7 @@
 /*
  hstr_curses.h      header file for curses helpers
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,8 +16,8 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_CURSES_H
-#define _HSTR_CURSES_H
+#ifndef HSTR_CURSES_H
+#define HSTR_CURSES_H
 
 #ifdef __APPLE__
 #include <curses.h>
@@ -31,8 +31,8 @@
 #define color_attr_off(C) if(terminal_has_colors()) { attroff(C); }
 #define color_init_pair(X, Y, Z) if(terminal_has_colors()) { init_pair(X, Y, Z); }
 
-void hstr_curses_start();
-bool terminal_has_colors();
+void hstr_curses_start(void);
+bool terminal_has_colors(void);
 void hstr_curses_stop(bool keepPage);
 
 #endif

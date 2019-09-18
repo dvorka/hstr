@@ -1,39 +1,53 @@
-# .travis.yml for HSTR
-
-language: c
+# .travis.yml     Travis CI configuration file for HSTR
+#
+# Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#    http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
 
 os:
   - linux
-  - osx
-  
-addons:
-  apt:
-    packages:
-      - autotools-dev
-      - libreadline-dev
-      - libncursesw5-dev
 
+language: c
 compiler:
   - gcc
-  - clang
 
 matrix:
   include:
-    - if: branch = master
-      compiler: gcc
-      os: osx
-      script: brew install --HEAD jq && brew test jq
-    - if: branch = master
-      compiler: clang
-      os: osx
-      script: brew install --HEAD jq && brew test jq
+    - os: linux
 
-notifications:
-  email:
-    on_success: change
-    on_failure: change
+sudo: required
+dist: trusty # Travis CI provides Precise and Trusty only
 
 before_install:
-  - aclocal
-  - automake --force-missing --add-missing
-  - autoconf
+  - sudo apt-get update -qq
+  - "export DISPLAY=:99.0"
+  - "sh -e /etc/init.d/xvfb start"  
+  - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
+  - sudo apt-get update -qq
+  - eval "${MATRIX_EVAL}"
+
+install:
+  - sudo apt-get install -qq qttools5-dev-tools ccache
+  - sudo apt-get install -qq automake gcc make libncursesw5-dev libreadline-dev
+  - "export HSTRHOME=`pwd`"
+
+script:
+  - echo "1) make hstr"
+  - cd "${HSTRHOME}"
+  - cd build/tarball && ./tarball-automake.sh
+  - cd "${HSTRHOME}"
+  - ./configure && make
+  - cd src && ./hstr --version
+  - echo "2) run unit tests"
+  - cd "${HSTRHOME}"
+  - cd build && ./test-units.sh

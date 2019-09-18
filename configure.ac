@@ -1,5 +1,4 @@
 # configure.ac      Autoconf configuration file
-#                   process this file with autoconf to produce a configure script
 #
 # Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 #
@@ -15,12 +14,16 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+#
+# Process this file with autoconf to produce a configure script.
+#
+
 AC_PREREQ([2.69])
 
-AC_INIT(hh, 1.24, martin.dvorak@mindforger.com)
+AC_INIT(hstr, 2.0.0, martin.dvorak@mindforger.com)
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
-# Checks for src dir existence.
+# Check src dir existence.
 AC_CONFIG_SRCDIR([src/hstr.c])
 
 # Init (no longer takes parameters).
@@ -32,10 +35,17 @@ AC_PROG_CC
 # NCURSES check w/o PKG_CHECK_MODULES macro: CHECK_LIB > MODULES > CHECK_LIB
 # Determine OS
 AC_CANONICAL_HOST
-# Notify user that pkg-tools are required
-AC_MSG_NOTICE([===================================================================================])
-AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
-AC_MSG_NOTICE([===================================================================================])
+
+AC_CHECK_PROG(PKG_CONFIG_EXISTS,[pkg-config],[pkg-config],[no])
+if test "$PKG_CONFIG_EXISTS" = "no"
+then
+    # Notify user that pkg-tools are required
+    AC_MSG_NOTICE([===================================================================================])
+    AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
+    AC_MSG_NOTICE([===================================================================================])
+    AC_MSG_ERROR([Please install required program 'pkg-config' and run build/tarball/tarball-automake.sh again.])
+fi
+
 # PKG_CHECK_MODULES macro is NOT used to avoid confusing syntax errors in case that pkg-config is NOT installed
 AC_CHECK_LIB(ncursesw, killwchar, [],
 [
@@ -107,6 +117,25 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset strdup strstr])
 
 # Bash@Ubuntu@Windows
-AC_CHECK_FILE(/tmp/hh-ms-wsl,AC_DEFINE(__MS_WSL__), [])
+AC_CHECK_FILE(/tmp/hstr-ms-wsl,AC_DEFINE(__MS_WSL__), [])
+
+# Bash CLI autocomplete
+AC_ARG_WITH([bash-completion-dir],
+    AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
+        [Install the Bash auto-completion script in this directory. @<:@default=yes@:>@]),
+    [],
+    [with_bash_completion_dir=yes])
+
+if test "x$with_bash_completion_dir" = "xyes"; then
+    # pkg-config command existence for PKG_CHECK_MODULES macro checked above
+    PKG_CHECK_MODULES([BASH_COMPLETION], [bash-completion >= 2.0],
+        [BASH_COMPLETION_DIR="`pkg-config --variable=completionsdir bash-completion`"],
+        [BASH_COMPLETION_DIR="$datadir/bash-completion/completions"])
+else
+    BASH_COMPLETION_DIR="$with_bash_completion_dir"
+fi
+
+AC_SUBST([BASH_COMPLETION_DIR])
+AM_CONDITIONAL([ENABLE_BASH_COMPLETION],[test "x$with_bash_completion_dir" != "xno"])
 
 AC_OUTPUT

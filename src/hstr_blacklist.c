@@ -1,7 +1,7 @@
 /*
  hstr_blacklist.c       commands to be skipped from history
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,16 +16,11 @@
  limitations under the License.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "include/hstr_blacklist.h"
-#include "include/hstr_utils.h"
 
 static const char *defaultCommandBlacklist[] = {
-        "ls", "pwd", "cd", "cd ..", "hh", "mc",
-        "ls ", "pwd ", "cd ", "cd .. ", "hh ", "mc "
+        "ls", "pwd", "cd", "cd ..", "hstr", "mc",
+        "ls ", "pwd ", "cd ", "cd .. ", "hstr ", "mc " // trailing space
 };
 
 void blacklist_init(Blacklist *blacklist)
@@ -40,10 +35,10 @@ void blacklist_init(Blacklist *blacklist)
 char* blacklist_get_filename()
 {
     char *home = getenv(ENV_VAR_HOME);
-    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_BLACKLIST) + 1);
+    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_BLACKLIST) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
-    strcat(fileName, FILE_HH_BLACKLIST);
+    strcat(fileName, FILE_HSTR_BLACKLIST);
     return fileName;
 }
 
@@ -70,8 +65,10 @@ void blacklist_load(Blacklist *blacklist)
                 fileSize = ftell(file);
                 rewind(file);
                 fileContent = malloc((fileSize + 1) * (sizeof(char)));
-                if(fread(fileContent, sizeof(char), fileSize, file)==-1) {
-                    exit(EXIT_FAILURE);
+                if(!fread(fileContent, sizeof(char), fileSize, file)) {
+                    if(ferror(file)) {
+                        exit(EXIT_FAILURE);
+                    }
                 }
                 fclose(file);
                 fileContent[fileSize] = 0;
@@ -128,36 +125,42 @@ void blacklist_dump(Blacklist *blacklist)
     printf("Command blacklist is empty\n");
 }
 
-void blacklist_destroy(Blacklist *blacklist)
+void blacklist_destroy(Blacklist *blacklist, bool freeBlacklist)
 {
     if(blacklist) {
         if(blacklist->useFile) {
             char* fileName = blacklist_get_filename();
             int size=hashset_size(blacklist->set);
             if(size) {
-                FILE *output_file = fopen(fileName, "wb");
-                rewind(output_file);
+                FILE *outputFile = fopen(fileName, "wb");
+                rewind(outputFile);
                 int i;
                 char **keys=hashset_keys(blacklist->set);
                 for(i=0; i<size; i++) {
-                    if(fwrite(keys[i], sizeof(char), strlen(keys[i]), output_file)==-1) {
-                        exit(EXIT_FAILURE);
+                    if(!fwrite(keys[i], sizeof(char), strlen(keys[i]), outputFile)) {
+                        if(ferror(outputFile)) {
+                            exit(EXIT_FAILURE);
+                        }
                     }
-                    if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
-                        exit(EXIT_FAILURE);
+                    if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
+                        if(ferror(outputFile)) {
+                            exit(EXIT_FAILURE);
+                        }
                     }
                 }
-                fclose(output_file);
+                fclose(outputFile);
             } else {
                 if(access(fileName, F_OK) != -1) {
-                    FILE *output_file = fopen(fileName, "wb");
-                    fclose(output_file);
+                    FILE *outputFile = fopen(fileName, "wb");
+                    fclose(outputFile);
                 }
             }
             free(fileName);
         }
         hashset_destroy(blacklist->set, false);
         free(blacklist->set);
-        free(blacklist);
+        if(freeBlacklist) {
+            free(blacklist);
+        }
     }
 }

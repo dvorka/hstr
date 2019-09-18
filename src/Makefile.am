@@ -18,10 +18,10 @@
 AM_CFLAGS = --pedantic -Wall -std=c99 -O2
 AM_LDFLAGS =
 
-# bin_ installs to bin; hh_ is the binary name
-bin_PROGRAMS = hh
+# bin_ installs to bin; hstr_ is the binary name
+bin_PROGRAMS = hstr
 
-hh_SOURCES = 						\
+hstr_SOURCES = 						\
 	hashset.c include/hashset.h 			\
 	hstr_curses.c include/hstr_curses.h 		\
 	hstr_history.c include/hstr_history.h 		\
@@ -30,10 +30,11 @@ hh_SOURCES = 						\
 	hstr_blacklist.c include/hstr_blacklist.h	\
 	hstr_regexp.c include/hstr_regexp.h		\
 	radixsort.c include/radixsort.h 		\
-	hstr.c 
+	hstr.c include/hstr.h                           \
+	main.c
 
-# create hh > hstr hard link on installation
+# create hstr > hh hard link on installation
 install-exec-hook:
-	ln $(DESTDIR)$(bindir)/hh$(EXEEXT) $(DESTDIR)$(bindir)/hstr$(EXEEXT)
+	ln $(DESTDIR)$(bindir)/hstr$(EXEEXT) $(DESTDIR)$(bindir)/hh$(EXEEXT)
 
-hh_LDADD = $(NCURSES_LIBS)
+hstr_LDADD = $(NCURSES_LIBS)

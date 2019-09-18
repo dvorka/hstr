@@ -1,0 +1,5 @@
+hstr (0.80-0ubuntu1) raring; urgency=low
+
+  * Fixed keyboard loop; Ctrl-r consistent shortcuts; propagation of the text from the prompt to HSTR.
+
+-- Martin Dvorak <martin.dvorak@mindforger.com> Wed, 25 Dec 2013 17:21:31 +0100

@@ -1,3 +1,25 @@
+2018-08-28  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v2.0.0 - Major release which resolves confusing hstr/hh ambuiguity by choosing
+    hstr to be the only name used. hh becomes just a shell alias. Therefore this release
+    introduces backward incompatible changes: all HH_ starting environment variables were
+    changed to HSTR_, similarly configuration file names starting with .hh_ were renamed to start
+    with .hstr_, identifiers used in HSTR_CONFIG were changed e.g. favorites to favorites-view.
+    Please check man page for details and update your 1.x.x configuration.
+        Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed as
+    well to have hstr prefix - please update your scripts.
+        Additional improvements: all memory leaks fixed, long commands handling improved (...), Bash
+    autocomplete added.
+
+2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.27.0 - Long lines support, QtCreator IDE migration, all build scripts rewritten,
+    new distros (my Debian PPA, snap, ...), CI, unit test framework and tests, various fixes.
+
+2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v1.25 - Community contributed fixes and improvements. Keyword search is default.
+
 2018-01-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v1.24 - Reproducible build and stabilization.

@@ -1,7 +1,7 @@
 /*
  hstr_favorites.c       favorite commands
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,12 +16,7 @@
  limitations under the License.
 */
 
-#include <stdio.h>
-#include <string.h>
-#include <unistd.h>
-
 #include "include/hstr_favorites.h"
-#include "include/hstr_utils.h"
 
 #define FAVORITE_SEGMENT_SIZE 10
 
@@ -30,6 +25,8 @@ void favorites_init(FavoriteItems* favorites)
     favorites->items=NULL;
     favorites->count=0;
     favorites->loaded=false;
+    favorites->reorderOnChoice=true;
+    favorites->skipComments=false;
     favorites->set=malloc(sizeof(HashSet));
     hashset_init(favorites->set);
 }
@@ -38,8 +35,8 @@ void favorites_show(FavoriteItems *favorites)
 {
     printf("\n\nFavorites (%d):", favorites->count);
     if(favorites->count) {
-        int i;
-        for(i=0;i<favorites->count;i++) {
+        unsigned i;
+        for(i=0; i<favorites->count; i++) {
             printf("\n%s",favorites->items[i]);
         }
     }
@@ -49,10 +46,10 @@ void favorites_show(FavoriteItems *favorites)
 char* favorites_get_filename()
 {
     char* home = getenv(ENV_VAR_HOME);
-    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HH_FAVORITES) + 1);
+    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_FAVORITES) + 1);
     strcpy(fileName, home);
     strcat(fileName, "/");
-    strcat(fileName, FILE_HH_FAVORITES);
+    strcat(fileName, FILE_HSTR_FAVORITES);
     return fileName;
 }
 
@@ -69,8 +66,10 @@ void favorites_get(FavoriteItems* favorites)
             inputFileSize = ftell(inputFile);
             rewind(inputFile);
             fileContent = malloc((inputFileSize + 1) * (sizeof(char)));
-            if(fread(fileContent, sizeof(char), inputFileSize, inputFile)==-1) {
-                exit(EXIT_FAILURE);
+            if(!fread(fileContent, sizeof(char), inputFileSize, inputFile)) {
+                if(ferror(inputFile)) {
+                    exit(EXIT_FAILURE);
+                }
             }
             fclose(inputFile);
             fileContent[inputFileSize] = 0;
@@ -90,9 +89,11 @@ void favorites_get(FavoriteItems* favorites)
                 while(pe!=NULL) {
                     *pe=0;
                     if(!hashset_contains(favorites->set,pb)) {
-                        s=hstr_strdup(pb);
-                        favorites->items[favorites->count++]=s;
-                        hashset_add(favorites->set,s);
+                        if(!favorites->skipComments || !(strlen(pb) && pb[0]=='#')) {
+                            s=hstr_strdup(pb);
+                            favorites->items[favorites->count++]=s;
+                            hashset_add(favorites->set,s);
+                        }
                     }
                     pb=pe+1;
                     pe=strchr(pb, '\n');
@@ -112,18 +113,22 @@ void favorites_save(FavoriteItems* favorites)
     char* fileName=favorites_get_filename();
 
     if(favorites->count) {
-        FILE* output_file = fopen(fileName, "wb");
-        rewind(output_file);
-        int i;
+        FILE* outputFile = fopen(fileName, "wb");
+        rewind(outputFile);
+        unsigned i;
         for(i=0; i<favorites->count; i++) {
-            if(fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), output_file)==-1) {
-                exit(EXIT_FAILURE);
+            if(!fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), outputFile)) {
+                if(ferror(outputFile)) {
+                    exit(EXIT_FAILURE);
+                }
             }
-            if(fwrite("\n", sizeof(char), strlen("\n"), output_file)==-1) {
-                exit(EXIT_FAILURE);
+            if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
+                if(ferror(outputFile)) {
+                    exit(EXIT_FAILURE);
+                }
             }
         }
-        fclose(output_file);
+        fclose(outputFile);
     } else {
         if(access(fileName, F_OK) != -1) {
             FILE *output_file = fopen(fileName, "wb");
@@ -151,8 +156,8 @@ void favorites_add(FavoriteItems* favorites, char* newFavorite)
 
 void favorites_choose(FavoriteItems* favorites, char* choice)
 {
-    if(favorites->count && choice) {
-        int r;
+    if(favorites->reorderOnChoice && favorites->count && choice) {
+        unsigned r;
         char* b=NULL, *next;
         for(r=0; r<favorites->count; r++) {
             if(!strcmp(favorites->items[r],choice)) {
@@ -197,11 +202,11 @@ void favorites_destroy(FavoriteItems* favorites)
 {
     if(favorites) {
         // TODO hashset destroys keys - no need to destroy items!
-        int i;
+        unsigned i;
         for(i=0; i<favorites->count; i++) {
             free(favorites->items[i]);
         }
-        // TODO hashset destroys keys - no need to destroy items!
+        free(favorites->items);
         hashset_destroy(favorites->set, false);
         free(favorites->set);
         free(favorites);

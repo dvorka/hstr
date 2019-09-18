@@ -1,7 +1,7 @@
 /*
  hashset.c      hash set implementation
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -17,7 +17,6 @@
 */
 
 #include "include/hashset.h"
-#include "include/hstr_utils.h"
 
 unsigned int hashmap_hash(const char *str)
 {
@@ -58,13 +57,14 @@ int hashset_contains(const HashSet * hs, const char *key)
     return (hashset_get(hs, key) != NULL);
 }
 
-int hashset_put(HashSet *hs, const char *key, void *value)
+// key is COPIED, value is REFERENCED
+int hashset_put(HashSet *hs, const char* key, void* value)
 {
     if(hashset_get(hs, key)) {
         return 0;
     } else {
         int listNum = hashmap_hash( key );
-        struct HashSetNode *newNode=(struct HashSetNode *)malloc(sizeof(struct HashSetNode));
+        struct HashSetNode* newNode=(struct HashSetNode *)malloc(sizeof(struct HashSetNode));
         if(newNode == NULL) {
             fprintf(stderr,"Unable to allocate hashset entry!");
             return 0;

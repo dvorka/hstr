@@ -1,202 +1,282 @@
-CONFIGURATION
-=============
+# Configuration
 Get most of HSTR by configuring it with:
+
 ```bash
-hh --show-configuration >> ~/.bashrc
+hstr --show-configuration >> ~/.bashrc
 ```
-Run `hh --show-configuration` to determine what will be appended to your Bash profile.
+
+Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to `source ~/.bashrc` to apply changes.
+
+---
 
 For more configuration options details please refer to:
-* bind `hh` command to a [keyboard shortcut](#binding-hh-to-keyboard-shortcut)
+
+* bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
+    * [Bash Emacs keymap](#bash-emacs-keymap-default) (default)
+    * [Bash Vim keymap](#bash-vim-keymap-default)
+    * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
+* create `hh` [alias](Alias) for `hstr`
 * get more [colors](#colors)
-* choose [default history view](#history-view)
-* [command blacklist](#blacklist)
+* choose [default history view](#default-history-view)
+* set [filtering preferences](#filtering)
+* configure commands [blacklist](#blacklist)
 * disable [confirm on delete](#confirm-on-delete)
-* [verbosity](#verbosity)
-* [Bash history settings](#bash-history-settings)
-* [zsh history settings](#zsh-history-settings)
+* tune [verbosity](#verbosity)
+* history settings:
+    * [Bash history settings](#bash-history-settings)
+    * [zsh history settings](#zsh-history-settings)
 
 Check also configuration [examples](#examples).
 
-
-BINDING HSTR TO KEYBOARD SHORTCUT
----------------------------------
+## Binding HSTR to Keyboard Shortcut
 Bash uses *Emacs* style keyboard shortcuts by default. There is
 also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
 based on the style you prefer below.
 
 Check your active Bash keymap with:
+
 ```bash
 bind -v | grep editing-mode
 bind -v | grep keymap
 ``` 
 
 To determine character sequence emitted by a pressed key in 
-terminal, type <kbd>Ctrl-v</kbd> and then press the key. Check your 
+terminal, type <kbd>Ctrl</kbd><kbd>v</kbd> and then press the key. Check your 
 current bindings using:
+
 ```bash
 bind -S
 ```
 
 
-## BASH EMACS KEYMAP (DEFAULT)
-Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
+### Bash Emacs Keymap (default)
+Bind HSTR to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+
 ```bash
-bind '"\C-r": "\C-ahh -- \C-j"'
+bind '"\C-r": "\C-ahstr -- \C-j"'
 ```
-or <kbd>Ctrl-Alt-r</kbd>:
+
+or <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>r</kbd>:
+
 ```bash
-bind '"\e\C-r":"\C-ahh -- \C-j"'
+bind '"\e\C-r":"\C-ahstr -- \C-j"'
 ```
-or <kbd>Ctrl-F12</kbd>:
+
+or <kbd>Ctrl</kbd><kbd>F12</kbd>:
+
 ```bash
-bind '"\e[24;5~":"\C-ahh -- \C-j"'
+bind '"\e[24;5~":"\C-ahstr -- \C-j"'
 ```
-Bind `hh` to <kbd>Ctrl-r</kbd> only if it is interactive shell:
+
+Bind HSTR to <kbd>Ctrl</kbd><kbd>r</kbd> only if it is interactive shell:
+
 ```bash
-if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hh -- \C-j"'; fi
+if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
 ```
-You can bind also other `hh` commands like `-kill-last-command`:
+
+You can bind also other HSTR commands like `--kill-last-command`:
+
 ```bash
-if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hh -k \C-j"'; fi
+if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi
+```
+
+### Bash Vim Keymap
+Bind HSTR to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+
+```bash
+bind '"\C-r": "\e0ihstr -- \C-j"'
+```
+
+### Zsh Emacs Keymap
+Bind HSTR to a `zsh` key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+
+```bash
+bindkey -s "\C-r" "\eqhstr --\n"
 ```
 
 
-## BASH VI KEYMAP
-Bind `hh` to a Bash key e.g. to <kbd>Ctrl-r</kbd>:
+## Alias
+If you want to make running of `hstr` from command line even easier, 
+then define alias in your `~/.bashrc`:
+
 ```bash
-bind '"\C-r": "\C-ahh -- \C-j"'
+alias hh=hstr
 ```
 
-## ZSH EMACS KEYMAP (DEFAULT)
-Bind `hh` to a Zsh key e.g. to <kbd>Ctrl-r</kbd>:
+Don't forget to source `~/.bashrc` to be able to to use `hh` command.
+## Colors
+Let HSTR to use colors:
+
 ```bash
-bindkey -s "\C-r" "\eqhh --\n"
+export HSTR_CONFIG=hicolor
 ```
 
-
-COLORS
-------
-Get `hh` in more colors:
-```bash
-export HH_CONFIG=hicolor
-```
 or ensure black and white mode:
+
 ```bash
-export HH_CONFIG=monochromatic
+export HSTR_CONFIG=monochromatic
 ```
 
+## Default History View
+To show normal history by default (instead of metrics-based view, which is default)
+use:
 
-HISTORY VIEW
-------------
-Show normal history by default (instead of metrics-based view):
 ```bash
-export HH_CONFIG=rawhistory
-```
-Show favorite commands by default (instead of metrics-based view):
-```bash
-export HH_CONFIG=favorites
+export HSTR_CONFIG=raw-history-view
 ```
 
+To show favorite commands as default view use:
 
-FILTERING
----------
+```bash
+export HSTR_CONFIG=favorites-view
+```
+
+## Filtering
+To use regular expressions based matching:
+
+```bash
+export HSTR_CONFIG=regexp-matching
+```
+
+To use substring based matching:
+
+```bash
+export HSTR_CONFIG=substring-matching
+```
+
+To use keywords (substrings whose order doesn't matter) search matching (default):
+
+```bash
+export HSTR_CONFIG=keywords-matching
+```
+
+---
+
 Make search case sensitive (insensitive by default):
+
 ```bash
-export HH_CONFIG=casesensitive
-```
-Keep duplicates in `rawhistory` view (duplicates discarded by default):
-```bash
-export HH_CONFIG=duplicates
+export HSTR_CONFIG=case-sensitive
 ```
 
+Keep duplicates in `raw-history-view` (duplicate commands are discarded by default):
 
-BLACKLIST
----------
+```bash
+export HSTR_CONFIG=duplicates
+```
+
+## Static favorites
+Last selected favorite command is put the head of favorite commands list
+by default. If you want to disable this behavior and make favorite
+commands list static, then use the following configuration:
+
+```bash
+export HSTR_CONFIG=static-favorites
+```
+## Skip favorites comments
+If you don't want to show lines starting with `#` (comments) among
+favorites, then use the following configuration:
+
+```bash
+export HSTR_CONFIG=skip-favorites-comments
+```
+## Blacklist
 Skip commands when processing history i.e. make sure that these commands
 will *not* be shown in any view:
+
 ```bash
-export HH_CONFIG=blacklist
+export HSTR_CONFIG=blacklist
 ```
-Commands to be stored in `~/.hh_blacklist` file with trailing empty line. For instance:
+
+Commands to be stored in `~/.hstr_blacklist` file with trailing empty line. For instance:
+
 ```
 cd
 my-private-command
 ls
 ll
-
 ```
 
-CONFIRM ON DELETE
----------
+## Confirm on Delete
 Do not prompt for confirmation when deleting history items:
+
 ```bash
-export HH_CONFIG=noconfirm
+export HSTR_CONFIG=no-confirm
 ```
 
-VERBOSITY
----------
+## Verbosity
 Show a message when deleting the last command from history:
+
 ```bash
-export HH_CONFIG=verbose-kill
+export HSTR_CONFIG=verbose-kill
 ```
+
 Show warnings:
+
 ```bash
-export HH_CONFIG=warning
+export HSTR_CONFIG=warning
 ```
+
 Show debug messages:
+
 ```bash
-export HH_CONFIG=debug
+export HSTR_CONFIG=debug
 ```
 
-BASH HISTORY SETTINGS
----------------------
-Use the following BASH settings to get most out of `hh`.
+## Bash History Settings
+Use the following Bash settings to get most out of HSTR.
 
-Increase the size of history maintained by BASH - variables defined below increase the
-number of history items and history file size (default value is 500):
+Increase the size of history maintained by BASH - variables defined below 
+increase the number of history items and history file size (default value is 500):
+
 ```bash
 export HISTFILESIZE=10000
 export HISTSIZE=${HISTFILESIZE}
 ```
-Ensure syncing (flushing and reloading) of `.bash_history` with in-memory
-  history:
+
+Ensure syncing (flushing and reloading) of `.bash_history` with 
+in-memory history:
+
 ```bash
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 ```
 
-Force appending of in-memory history to `.bash_history`
-  (instead of overwriting):
+Force appending of in-memory history to `.bash_history` (instead 
+of overwriting):
+
 ```bash
 shopt -s histappend
 ```
 
 Use leading space to hide commands from history:
+
 ```bash
 export HISTCONTROL=ignorespace
 ```
-Suitable for a sensitive information like passwords.
 
-ZSH HISTORY SETTINGS
---------------------
-If you use `zsh`, set HISTFILE environment variable in ~/.zshrc:
+Suitable for a sensitive information like passwords.
+## zsh History Settings
+If you use `zsh`, set `HISTFILE` environment variable in `~/.zshrc`:
 
 ```
 export HISTFILE=~/.zsh_history
 ```
 
 
-EXAMPLES
---------
+## Examples
 More colors with case sensitive search of history:
+
 ```bash
-export HH_CONFIG=hicolor,casesensitive
+export HSTR_CONFIG=hicolor,case-sensitive
 ```
-Favorite commands view in black and white:
+
+Favorite commands view in black and white with prompt at the bottom of the screen:
+
 ```bash
-export HH_CONFIG=favorites,monochromatic
+export HSTR_CONFIG=favorites-view,prompt-bottom
 ```
+
 Keywords based search in colors with debug mode verbosity:
+
 ```bash
-export HH_CONFIG=keywords,hicolor,debug
+export HSTR_CONFIG=keywords-matching,hicolor,debug
 ```

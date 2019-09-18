@@ -1,7 +1,7 @@
 /*
  hstr_utils.c       utilities
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -18,15 +18,18 @@
 
 #include "include/hstr_utils.h"
 
-#include <ctype.h>
-
 #define DEFAULT_COMMAND "pwd"
 #define PROC_HOSTNAME "/proc/sys/kernel/hostname"
 // TODO PID_BUFFER 20+ characters might be enough
 #define PID_BUFFER_SIZE 128
 
+// This define  is used to compile out code which inserts command to console - thus
+// define allows to activate and debug shell script workaround that is used on WSL
+// and Cygwin.
+//#define DEBUG_NO_TIOCSTI
+
 // strdup() not in ISO C
-char *hstr_strdup(const char * s)
+char* hstr_strdup(const char* s)
 {
   size_t len = 1+strlen(s);
   char *p = malloc(len);
@@ -59,6 +62,36 @@ int hstr_strlen(const char *s)
     }
 }
 
+// IMPROVE make this work w/ wide strings
+char* hstr_strelide(char* buffer, const char* s, unsigned maxlength)
+{
+    if(s) {
+        if(strlen(s)>maxlength && strlen(s)>3) {
+            unsigned dotOffset = maxlength/2-1; // 4/2-1=1 ~ "a..."
+            strncpy(buffer, s, dotOffset);
+            unsigned i, offset = dotOffset;
+            for(i=0; i<3; i++) {
+                buffer[offset] = '.';
+                offset++;
+            }
+            // fill from the end
+            dotOffset=offset;
+            offset=maxlength-1;
+            i=strlen(s)-1;
+            while(i && offset>=dotOffset) {
+                buffer[offset--] = s[i--];
+            }
+            buffer[maxlength]=0;
+        } else {
+            strcpy(buffer, s);
+        }
+    } else {
+        buffer[0] = 0;
+    }
+
+    return buffer;
+}
+
 void hstr_chop(char *s)
 {
     if(s) {
@@ -73,21 +106,21 @@ void hstr_chop(char *s)
     }
 }
 
-#if !defined(__MS_WSL__) && !defined(__CYGWIN__)
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__) && !defined(DEBUG_NO_TIOCSTI)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
-    int i;
-    for (i = 0; i < sizeof buf - 1; i++) {
+    unsigned i;
+    for (i=0; i<sizeof buf-1; i++) {
         ioctl(0, TIOCSTI, &buf[i]);
     }
 }
 #endif
 
-void fill_terminal_input(char *cmd, bool padding)
+void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#if defined(__MS_WSL__) || defined(__CYGWIN__)
+#if defined(__MS_WSL__) || defined(__CYGWIN__) || defined(DEBUG_NO_TIOCSTI)
         fprintf(stderr, "%s", cmd);
         if(padding) fprintf(stderr, "%s", "\n");
 #else
@@ -128,7 +161,7 @@ void get_hostname(int bufferSize, char *buffer)
             return;
         }
     }
-    strcpy(buffer,"localhost");
+    strcpy(buffer, "localhost");
 }
 
 void toggle_case(char *str, bool lowercase) {
@@ -148,8 +181,16 @@ char *get_shell_name_by_ppid(const int pid)
 {
     char* name = (char*)calloc(PID_BUFFER_SIZE,sizeof(char));
     if(name){
-        sprintf(name, "/proc/%d/cmdline",pid);
+        // First we should try to open /proc/[pid]/comm (since Linux 2.6.33) and only if it missing
+        // then use /proc/[pid]/cmdline. Second way have problems in some cases - when for example
+        // we open session with using "su - [username]". Then /proc/[pid]/cmdline will contains
+        // "-su" instead real shell name, which is present in the /proc/[pid]/comm file.
+        sprintf(name, "/proc/%d/comm",pid);
         FILE* f = fopen(name,"r");
+        if (!f){
+            sprintf(name, "/proc/%d/cmdline",pid);
+            f = fopen(name,"r");
+        }
         if(f){
             size_t size = fread(name, sizeof(char), PID_BUFFER_SIZE-1, f);
             if(size>0){
@@ -174,7 +215,7 @@ char *get_shell_name_by_ppid(const int pid)
     return name;
 }
 
-bool isZshParentShell() {
+bool isZshParentShell(void) {
     pid_t parentPid=getppid();
     char* cmdline=get_shell_name_by_ppid(parentPid);
     bool result=cmdline && strstr(cmdline, "zsh");

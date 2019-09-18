@@ -1,7 +1,7 @@
 /*
  hstr_history.c     loading and processing of BASH history
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,21 +16,17 @@
  limitations under the License.
 */
 
-#include <stdio.h>
-#include <limits.h>
-#include <readline/history.h>
 #include "include/hstr_history.h"
-#include "include/hstr_regexp.h"
 
 #define NDEBUG
 #include <assert.h>
 
 typedef struct {
-    char *item;
+    char* item;
     unsigned rank;
 } RankedHistoryItem;
 
-static HistoryItems *prioritizedHistory;
+static HistoryItems* prioritizedHistory;
 static bool dirty;
 
 #ifdef DEBUG_RADIX
@@ -49,13 +45,17 @@ unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t l
     return metrics;
 }
 
-char *get_history_file_name(void)
+char* get_history_file_name(void)
 {
-    char *historyFile=getenv(ENV_VAR_HISTFILE);
+    char* historyFile = getenv(ENV_VAR_HISTFILE);
     if(!historyFile || strlen(historyFile)==0) {
-        char *home = getenv(ENV_VAR_HOME);
+        char* home = getenv(ENV_VAR_HOME);
         historyFile = malloc(strlen(home) + 1 + strlen(FILE_DEFAULT_HISTORY) + 1);
         strcat(strcat(strcpy(historyFile, home), "/"), FILE_DEFAULT_HISTORY);
+    } else {
+        // allocate so that this function always returns string to be freed
+        // (getenv() returns pointer (no need to free), home is allocated (must be freed)
+        historyFile = hstr_strdup(historyFile);
     }
     return historyFile;
 }
@@ -63,7 +63,7 @@ char *get_history_file_name(void)
 void dump_prioritized_history(HistoryItems *historyItems)
 {
     printf("\n\nPrioritized history:");
-    int i;
+    unsigned i;
     for(i=0; i<historyItems->count; i++) {
         if(historyItems->items[i]!=NULL) {
             printf("\n%s",historyItems->items[i]); fflush(stdout);
@@ -74,22 +74,25 @@ void dump_prioritized_history(HistoryItems *historyItems)
     printf("\n"); fflush(stdout);
 }
 
-int get_item_offset(void)
+bool is_hist_timestamp(const char* line)
 {
-    if(isZshParentShell()) {
-        // In zsh history file, the format of item is
-        // [:][blank][unix_timestamp][:][0][;][cmd]
-        // Such as:
-        // : 1420549651:0;ls /tmp/b
-        // And the limit of unix timestamp 9999999999 is 2289/11/21,
-        // so we could skip first 15 chars in every zsh history item to get the cmd.
-        return ZSH_HISTORY_ITEM_OFFSET;
-    } else {
-        return BASH_HISTORY_ITEM_OFFSET;
+    // HISTTIMEFORMAT defined > ^#1234567890$
+
+    if(line[0] != '#') {
+        return false;
     }
+
+    int i;
+    for(i = 1; line[i] != '\0'; ++i) {
+        if(!isdigit(line[i])) {
+            return false;
+        }
+    }
+
+    return (i >= 11);
 }
 
-HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
+HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
 
@@ -98,24 +101,19 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
         exit(EXIT_FAILURE);
     }
-    HISTORY_STATE *historyState=history_get_history_state();
+    free(historyFile);
+    HISTORY_STATE* historyState=history_get_history_state();
 
-    int itemOffset = get_item_offset();
+    bool isZsh = isZshParentShell();
 
     if(historyState->length > 0) {
         HashSet rankmap;
         hashset_init(&rankmap);
 
-        int i;
         RadixSorter rs;
         unsigned radixMaxKeyEstimate=historyState->size*1000;
         radixsort_init(&rs, (radixMaxKeyEstimate<100000?100000:radixMaxKeyEstimate));
         rs.optionBigKeys=optionBigKeys;
-
-        regex_t regexp;
-        // HISTTIMEFORMAT defined > ^#1234567890$
-        const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
-        regexp_compile(&regexp, histtimeformatTimestamp);
 
         RankedHistoryItem *r;
         RadixItem *radixItem;
@@ -123,12 +121,28 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
         char **rawHistory=malloc(sizeof(char*) * historyState->length);
         int rawOffset=historyState->length-1, rawTimestamps=0;
         char *line;
+        int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
-            if(!regexp_match(&regexp, historyList[i]->line)) {
+            unsigned itemOffset;
+
+            if(is_hist_timestamp(historyList[i]->line)) {
                 rawHistory[rawOffset]=0;
                 rawTimestamps++;
                 continue;
             }
+
+            // In zsh history file, the format of item CAN BE prefixed w/ timestamp
+            // [:][blank][unix_timestamp][:][0][;][cmd]
+            // Such as:
+            // : 1420549651:0;ls /tmp/b
+            // And the limit of unix timestamp 9999999999 is 2289/11/21,
+            // so we could skip first 15 chars in every zsh history item to get the cmd.
+            if(isZsh && strlen(historyList[i]->line) && historyList[i]->line[0]==':') {
+                itemOffset=ZSH_HISTORY_ITEM_OFFSET;
+            } else {
+                itemOffset=BASH_HISTORY_ITEM_OFFSET;
+            }
+
             if(historyList[i]->line && strlen(historyList[i]->line)>itemOffset) {
                 line=historyList[i]->line+itemOffset;
             } else {
@@ -141,7 +155,7 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
             if((r=hashset_get(&rankmap, line))==NULL) {
                 r=malloc(sizeof(RankedHistoryItem));
                 r->rank=history_ranking_function(0, i, strlen(line));
-                r->item=historyList[i]->line;
+                r->item=hstr_strdup(line);
 
                 hashset_put(&rankmap, line, r);
 
@@ -162,6 +176,10 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
                 }
             }
         }
+
+        // rankmap's keys and values have owners - just destroy the search structure
+        hashset_destroy(&rankmap, false);
+
         if(rawTimestamps) {
             rawOffset=0;
             for(i=0; i<historyState->length; i++) {
@@ -171,41 +189,70 @@ HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist)
             }
         }
 
-        regfree(&regexp);
-
         DEBUG_RADIXSORT();
 
-        RadixItem **prioritizedRadix=radixsort_dump(&rs);
+        RadixItem** prioritizedRadix=radixsort_dump(&rs);
         prioritizedHistory=malloc(sizeof(HistoryItems));
         prioritizedHistory->count=rs.size;
         prioritizedHistory->rawCount=historyState->length-rawTimestamps;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
-        for(i=0; i<rs.size; i++) {
-            if(prioritizedRadix[i]->data) {
-                char* item = ((RankedHistoryItem *)(prioritizedRadix[i]->data))->item;
-                if(strlen(item)>itemOffset) {
-                    item += itemOffset;
+        unsigned u;
+        for(u=0; u<rs.size; u++) {
+            if(prioritizedRadix[u]->data) {
+                char* item = ((RankedHistoryItem*)(prioritizedRadix[u]->data))->item;
+                // In zsh history file, the format of item CAN BE prefixed w/ timestamp
+                // [:][blank][unix_timestamp][:][0][;][cmd]
+                // Such as:
+                // : 1420549651:0;ls /tmp/b
+                // And the limit of unix timestamp 9999999999 is 2289/11/21,
+                // so we could skip first 15 chars in every zsh history item to get the cmd.
+                if(isZsh && strlen(item) && item[0]==':') {
+                    if(strlen(item)>ZSH_HISTORY_ITEM_OFFSET) {
+                        item += ZSH_HISTORY_ITEM_OFFSET;
+                    }
                 }
-                prioritizedHistory->items[i]=item;
+                prioritizedHistory->items[u]=item;
             }
-            free(prioritizedRadix[i]->data);
-            free(prioritizedRadix[i]);
+            free(prioritizedRadix[u]->data);
+            free(prioritizedRadix[u]);
         }
+        free(prioritizedRadix);
 
         radixsort_destroy(&rs);
-        // TODO rankmap (?) and blacklist (?) to be destroyed
 
+        // history/readline cleanup, clear_history() called on exit as entries are used by raw view
+        free(historyState);
         return prioritizedHistory;
     } else {
+        // history/readline cleanup, clear_history() called on exit as entries are used by raw view
+        free(historyState);
         return NULL;
     }
+
 }
 
-void free_prioritized_history(void)
+void prioritized_history_destroy(HistoryItems* h)
 {
-    free(prioritizedHistory->items);
-    free(prioritizedHistory);
+    if(h->items) {
+        if(h->count) {
+            unsigned i;
+            for(i=0; i<h->count; i++) {
+                free(h->items[i]);
+            }
+        }
+        free(h->items);
+    }
+
+    if(h->rawItems) {
+        free(h->rawItems);
+    }
+
+    free(h);
+
+    // readline/history cleanup
+    free(history_get_history_state());
+    clear_history();
 }
 
 void history_mgmt_open(void)
@@ -224,13 +271,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
     char *l;
     HISTORY_STATE *historyState=history_get_history_state();
 
-    // TODO refactor this code to have this in source exactly once
-    regex_t tsRegexp;
     regex_t zshRegexp;
-    // HISTTIMEFORMAT defined > ^#1234567890$
-    const char *histtimeformatTimestamp = "^#[[:digit:]]\\{10,\\}$";
-    regexp_compile(&tsRegexp, histtimeformatTimestamp);
-
     const char *zshTimestamp = "^: [[:digit:]]\\{10,\\}:[[:digit:]];.*";
     regexp_compile(&zshRegexp, zshTimestamp);
 
@@ -246,7 +287,7 @@ int history_mgmt_remove_from_system_history(char *cmd)
                if(offset>0) {
                    l=historyState->entries[offset-1]->line;
                    if(l && strlen(l)) {
-                       if(!regexp_match(&tsRegexp, l)) {
+                       if(is_hist_timestamp(l)) {
                            // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
                            free_history_entry(remove_history(offset-1));
                        }
@@ -291,9 +332,9 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
 }
 
 int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
-    int occurences=history->rawCount;
+    unsigned occurences=history->rawCount;
     if(history->rawCount) {
-        int i, ii;
+        unsigned i, ii;
         for(i=0, ii=0; i<history->rawCount; i++) {
             if(strcmp(cmd, history->rawItems[i])) {
                 history->rawItems[ii++]=history->rawItems[i];
@@ -305,9 +346,9 @@ int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history) {
 }
 
 int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
-    int occurences=history->count;
+    unsigned occurences=history->count;
     if(history->count) {
-        int i, ii;
+        unsigned i, ii;
         for(i=0, ii=0; i<history->count; i++) {
             if(strcmp(cmd, history->items[i])) {
                 history->items[ii++]=history->items[i];

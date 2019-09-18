@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>MindForger and HSTR Debian repository</title>
+  </head>
+  <body>
+    <p>This is Personal Package Archive (PPA)
+       for <a href="https://www.mindforger.com/">MindForger</a>
+       and <a href="https://github.com/dvorka/hstr">HSTR</a>.
+    </p>    
+    <p>To install programs from this PPA add new repository
+       to <code>/etc/apt/sources.list</code> as follows:</p>
+    </p>    
+
+    <pre>
+      deb http://www.mindforger.com/debian stretch main
+    </pre>
+
+    <p>... and import key that is used to sign the release:</p>
+
+    <pre>
+      $ wget -qO - http://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
+    </pre>
+
+    <p>After that you can install MindForger as any other software package:</p>
+
+    <pre>
+      $ apt-get update
+      $ apt-get install mindforger
+    </pre>
+
+    <p>Similarly you can install HSTR:</p>
+
+    <pre>
+      $ apt-get update
+      $ apt-get install hstr
+    </pre>
+    
+    <p>
+      Don't worry about <code>squeeze</code> part in repo name: package should work on Debian squeeze+, Ubuntu 10.0+. Package contains binary, man page and bash completion.</p>
+
+  </body>
+</html>

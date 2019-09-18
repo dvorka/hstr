@@ -1,7 +1,7 @@
 /*
  hstr_history.h     header file for loading and processing of BASH history
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,21 +16,18 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_HISTORY_H_
-#define _HSTR_HISTORY_H_
+#ifndef HSTR_HISTORY_H
+#define HSTR_HISTORY_H
 
-#include <stdio.h>
-#include <string.h>
 #include <fcntl.h>
-#include <stdlib.h>
+#include <limits.h>
+// do NOT remove stdio.h include - must be present on certain system before readline to compile
+#include <stdio.h>
 #include <readline/history.h>
-#include <unistd.h>
-#include <stdbool.h>
 
-#include "hstr_favorites.h"
-#include "hstr_utils.h"
-#include "hashset.h"
+#include "hstr_regexp.h"
 #include "radixsort.h"
+#include "hstr_favorites.h"
 
 #define ENV_VAR_HISTFILE "HISTFILE"
 
@@ -42,27 +39,22 @@
 
 typedef struct {
     // ranked history
-    char **items;
+    char** items;
     unsigned count;
     // raw history
-    char **rawItems;
+    char** rawItems;
     unsigned rawCount;
 } HistoryItems;
 
-HistoryItems *get_prioritized_history(int optionBigKeys, HashSet *blacklist);
-
-HistoryItems *get_history_items(void);
-void free_history_items(void);
-
-HistoryItems *prioritize_history(HistoryItems *historyFileItems);
-void free_prioritized_history(void);
+HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
+void prioritized_history_destroy(HistoryItems* h);
 
 void history_mgmt_open(void);
 void history_clear_dirty(void);
-int history_mgmt_remove_from_system_history(char *cmd);
+int history_mgmt_remove_from_system_history(char* cmd);
 bool history_mgmt_remove_last_history_entry(bool verbose);
-int history_mgmt_remove_from_raw(char *cmd, HistoryItems *history);
-int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history);
+int history_mgmt_remove_from_raw(char* cmd, HistoryItems* history);
+int history_mgmt_remove_from_ranked(char* cmd, HistoryItems* history);
 void history_mgmt_flush(void);
 
 #endif

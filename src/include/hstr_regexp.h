@@ -1,7 +1,7 @@
 /*
  hstr_regexp.h      header file for simplified regexp that suits HSTR needs
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,12 +16,10 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_REGEXP_H
-#define _HSTR_REGEXP_H
+#ifndef HSTR_REGEXP_H
+#define HSTR_REGEXP_H
 
 #include <regex.h>
-#include <stdio.h>
-#include <stdbool.h>
 
 #include "hashset.h"
 
@@ -30,11 +28,17 @@ typedef struct {
     HashSet cache;
 } HstrRegexp;
 
-void hstr_regexp_init(HstrRegexp *hstrRegexp);
-bool hstr_regexp_match(HstrRegexp *hstrRegexp, const char *regexp, const char *text, regmatch_t *match, char *errorMessage, const size_t errorMessageSize);
-void hstr_regexp_destroy(HstrRegexp *hstrRegexp);
+void hstr_regexp_init(HstrRegexp* hstrRegexp);
+bool hstr_regexp_match(
+        HstrRegexp* hstrRegexp,
+        const char* regexp,
+        const char* text,
+        regmatch_t* match,
+        char* errorMessage,
+        const size_t errorMessageSize);
+void hstr_regexp_destroy(HstrRegexp* hstrRegexp);
 
-int regexp_compile(regex_t *regexp, const char *regexpText);
-int regexp_match(regex_t *regexp, const char *text);
+int regexp_compile(regex_t* regexp, const char* regexpText);
+int regexp_match(regex_t* regexp, const char* text);
 
 #endif

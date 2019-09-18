@@ -1,7 +1,7 @@
 /*
  hstr_favorites.h       header file for favorite commands
 
- Copyright (C) 2014  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,30 +16,30 @@
  limitations under the License.
 */
 
-#ifndef _HSTR_FAVORITES_H_
-#define _HSTR_FAVORITES_H_
+#ifndef HSTR_FAVORITES_H
+#define HSTR_FAVORITES_H
 
-#include <stdlib.h>
-#include <stdbool.h>
 #include "hashset.h"
 
 #define ENV_VAR_USER "USER"
 #define ENV_VAR_HOME "HOME"
 
-#define FILE_HH_FAVORITES ".hh_favorites"
+#define FILE_HSTR_FAVORITES ".hstr_favorites"
 
 typedef struct {
-    char **items;
+    char** items;
     unsigned count;
     bool loaded;
-    HashSet *set;
+    bool reorderOnChoice;
+    bool skipComments;
+    HashSet* set;
 } FavoriteItems;
 
-void favorites_init(FavoriteItems *favorites);
-void favorites_get(FavoriteItems *favorites);
-void favorites_add(FavoriteItems *favorites, char *favorite);
-void favorites_choose(FavoriteItems *favorites, char *choice);
-bool favorites_remove(FavoriteItems *favorites, char *almostDead);
-void favorites_destroy(FavoriteItems *favorites);
+void favorites_init(FavoriteItems* favorites);
+void favorites_get(FavoriteItems* favorites);
+void favorites_add(FavoriteItems* favorites, char* favorite);
+void favorites_choose(FavoriteItems* favorites, char* choice);
+bool favorites_remove(FavoriteItems* favorites, char* almostDead);
+void favorites_destroy(FavoriteItems* favorites);
 
 #endif
