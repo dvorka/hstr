@@ -169,7 +169,7 @@ export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu versi
 
 # https://wiki.ubuntu.com/Releases
 # old: precise quantal saucy precise utopic vivid wily yakkety artful
-# current: trusty xenial bionic
+# current: trusty xenial bionic cosmic
 for UBUNTU_VERSION in trusty xenial bionic
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"

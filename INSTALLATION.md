@@ -2,21 +2,25 @@
 Install:
 
 * [Ubuntu](#ubuntu)
-* [Fedora](#fedorarhelcentos)
+* [Fedora](#fedorarhelcentosscientific)
 * [Gentoo](#gentoo)
-* [CentOS](#fedorarhelcentos)
+* [CentOS](#fedorarhelcentosscientific)
 * [openSUSE](#opensuse)
-* [RHEL](#fedorarhelcentos)
+* [RHEL](#fedorarhelcentosscientific)
 * [Debian](#debianmint)
 * [Mint](#debianmint)
-* [Arch Linux](#arch-linux)
-* [Scientific Linux](#fedorarhelcentos)
+* [Arch Linux](#archmanjaro-linux)
+* [Manjaro Linux](#archmanjaro-linux)
+* [Scientific Linux](#fedorarhelcentosscientific)
+* [Haiku OS](#haiku-os)
 * [macOS](#macos)
+* [nix package manager](#nix-package-manager)
+* [Guix package manager](#guix-package-manager)
 
 Build:
 
 * [build on any Linux distro](#build-on-any-linux-distro)
-* [build snap](#snap)
+* [build snap](#build-snap)
 * [build on Ubuntu](#build-on-ubuntu)
 * [build on Debian](#build-on-debian)
 * [build on Fedora](#build-on-fedora)
@@ -48,15 +52,15 @@ sudo apt-get install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
-Install HSTR from PPA. Add [my PPA](http://www.mindforger.com/debian), 
-trust [GPG key](http://www.mindforger.com/gpgpubkey.txt) and install HSTR:
+Install HSTR from PPA. Add [my PPA](https://www.mindforger.com/debian),
+trust [GPG key](https://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
 # add PPA to APT sources:
-sudo echo -e "\ndeb http://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
+sudo echo -e "\ndeb https://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
 
 # import PPA's GPG key
-wget -qO - http://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
+wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
 
 # update sources
 sudo apt update
@@ -73,20 +77,20 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
+sudo dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
 ```
 
 
-## Fedora/RHEL/Centos
-Install HSTR on Fedora, RHEL or CentOS:
+## Fedora/RHEL/CentOS/Scientific
+Install HSTR on Fedora, RHEL, CentOS or Scientific Linux:
 
 ```bash
-sudo dnf install hstr -y
+sudo dnf install hstr
 ```
 ... or:
 
 ```bash
-sudo yum install hstr -y
+sudo yum install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
@@ -97,14 +101,14 @@ If you want to make sure you have the latest version, then download `.rpm` archi
 [GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
 
 ```bash
-sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
+sudo rpm -Uvh ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
 ```
 
 ## openSUSE
 To install HSTR on openSUSE Leap 42.1 run the following commands as root:
 
 ```bash
-zypper addrepo http://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
+zypper addrepo https://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
 zypper refresh
 zypper install hstr
 ```
@@ -120,25 +124,52 @@ emerge app-shells/hstr
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
-## Arch Linux
-To install HSTR on Arch Linux download latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
+## Arch/Manjaro Linux
+To install HSTR on Arch or Manjaro Linux download the latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
-https://aur.archlinux.org/packages/hstr-git/
+To install hstr from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hstr-git/) run `yaourt -S hstr-git` in command line.
 
-Install HSTR.
+
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+## Haiku OS
+To install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/userguide/en/applications/haikudepot.html):
+
+* https://depot.haiku-os.org/#!/?srchexpr=hstr
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## macOS
-Install HSTR on macOS using [Homebrew](http://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
+Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://formulae.brew.sh/formula/hh)):
 
 ```bash
 brew install hh
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## nix package manager
+To install HSTR using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for HSTR](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
+
+```bash
+nix-env -i hstr
+```
+
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## Guix package manager
+To install HSTR in [GuixSD](https://www.gnu.org/software/guix/) or using the standalone [Guix package manager](https://www.gnu.org/software/guix/manual/en/html_node/Binary-Installation.html#Binary-Installation) you can install the `hstr` package, e.g.
+
+```bash
+guix package -i hstr
+```
+
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 
 # Build
 Build HSTR from source code.

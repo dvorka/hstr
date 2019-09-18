@@ -5,7 +5,7 @@ Get most of HSTR by configuring it with:
 hstr --show-configuration >> ~/.bashrc
 ```
 
-Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to source `~/.bashrc` to apply changes.
+Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to `source ~/.bashrc` to apply changes.
 
 ---
 
@@ -16,8 +16,8 @@ For more configuration options details please refer to:
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
 * create `hh` [alias](Alias) for `hstr`
-* het more [colors](#colors)
-* choose [default history view](#history-view)
+* get more [colors](#colors)
+* choose [default history view](#default-history-view)
 * set [filtering preferences](#filtering)
 * configure commands [blacklist](#blacklist)
 * disable [confirm on delete](#confirm-on-delete)
