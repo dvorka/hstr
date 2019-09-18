@@ -10,6 +10,7 @@ Install:
 * [Debian](#debianmint)
 * [Mint](#debianmint)
 * [Arch Linux](#archmanjaro-linux)
+* [Milis Linux](#milis-linux)
 * [Manjaro Linux](#archmanjaro-linux)
 * [Scientific Linux](#fedorarhelcentosscientific)
 * [Haiku OS](#haiku-os)
@@ -131,7 +132,12 @@ Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the
 
 To install hstr from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hstr-git/) run `yaourt -S hstr-git` in command line.
 
+## Milis Linux
+To install HSTR on Milis Linux run the following commands as root:
 
+```bash
+mps kur hstr
+```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
