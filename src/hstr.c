@@ -824,7 +824,8 @@ void print_selection_row(char* text, int y, int width, char* pattern)
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
-    snprintf(screenLine, width, " %s", buffer);
+    int size = snprintf(screenLine, width, " %s", buffer);
+    if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
     if(pattern && strlen(pattern)) {

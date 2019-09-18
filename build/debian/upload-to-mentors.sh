@@ -14,9 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-. ./debian-env.sh
+# How to: https://mentors.debian.net/intro-maintainers
+#   Check section "How to upload packages to mentors.debian.net?"
+#   GPG key mgmt: https://mentors.debian.net/my
 
-cd ../..
 dput mentors hstr*source.changes
 
 # eof
