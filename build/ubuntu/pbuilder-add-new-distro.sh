@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=bionic
+export DISTRO=disco
 
 sudo pbuilder --create $DISTRO
 rm -vf ~/pbuilder/${DISTRO}-base.tgz

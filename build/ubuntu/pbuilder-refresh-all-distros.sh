@@ -14,7 +14,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-for DISTRO in precise quantal saucy trusty utopic
+# old distros: precise quantal saucy utopic
+for DISTRO in trusty xenial bionic disco
 do
 
 sudo pbuilder --create ${DISTRO}
