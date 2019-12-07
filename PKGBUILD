@@ -1,6 +1,7 @@
 # Maintainer: Christian Wieden <wiedenchr at gmail dot com>
 # Contributor: Ricardo Band <me at xengi dot de>
 # Contributor: Filip Szymański <fszymanski at, fedoraproject.org>
+# Contributor: Busindre <busilezas at busindre.com>
 
 pkgname=hstr
 pkgver=2.0
@@ -11,7 +12,7 @@ url="https://github.com/dvorka/hstr"
 license=('Apache')
 makedepends=('autoconf' 'automake' 'ncurses' 'readline')
 source=(${pkgname}-${pkgver}.tar.gz::https://github.com/dvorka/${pkgname}/archive/${pkgver}.tar.gz)
-sha256sums=('6c130afd8ca570ee1988a0c7d6a96efeeabd21be7e05ce1f3144bb3c86c74441')
+sha256sums=('8d93ed8bfee1a979e8d06646e162b70316e2097e16243636d81011ba1000627a')
 
 prepare() {
     cd "${pkgname}-${pkgver}"
