@@ -106,10 +106,10 @@ sudo rpm -Uvh ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
 ```
 
 ## openSUSE
-To install HSTR on openSUSE Leap 42.1 run the following commands as root:
+To install HSTR on openSUSE, please check https://software.opensuse.org/package/hstr first. You can install HSTR as shown below (just choose repository you like):
 
 ```bash
-zypper addrepo https://download.opensuse.org/repositories/home:tuw-e184/openSUSE_Leap_42.1/home:tuw-e184.repo
+zypper addrepo https://download.opensuse.org/repositories/home:lemmy04/openSUSE_Leap_15.1/home:lemmy04.repo
 zypper refresh
 zypper install hstr
 ```
