@@ -2,7 +2,7 @@ Source: hstr
 Section: utils
 Priority: optional
 Maintainer: Martin Dvorak <martin.dvorak@mindforger.com>
-Build-Depends: debhelper (>= 8.0.0), autotools-dev, libreadline-dev, libncursesw5-dev
+Build-Depends: debhelper (>= 8.0.0), autotools-dev, libreadline-dev, libncursesw5-dev, pkg-config
 Standards-Version: 3.9.5
 Homepage: https://github.com/dvorka/hstr
 Vcs-Git: https://github.com/dvorka/hstr.git

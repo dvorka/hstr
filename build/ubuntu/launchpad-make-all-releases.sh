@@ -165,11 +165,11 @@ fi
 
 export ARG_BAZAAR_MSG="Release 2.0"
 export ARG_MAJOR_VERSION=2.0.
-export ARG_MINOR_VERSION=8 # minor version is incremented for every Ubuntu version
+export ARG_MINOR_VERSION=9 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
 # old: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
-# current: trusty xenial bionic disco
+# current: trusty xenial bionic disco eoan
 for UBUNTU_VERSION in disco
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
