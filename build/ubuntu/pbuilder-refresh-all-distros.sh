@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # old distros: precise quantal saucy utopic
-for DISTRO in trusty xenial bionic disco
+for DISTRO in trusty xenial bionic disco eoan
 do
 
 sudo pbuilder --create ${DISTRO}
