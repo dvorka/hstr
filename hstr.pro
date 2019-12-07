@@ -28,7 +28,7 @@ CONFIG -= app_bundle
 CONFIG -= qt
 
 # -L for where to look for library, -l for linking the library
-LIBS += -lm -lreadline -lncursesw
+LIBS += -lm -lreadline -lncursesw -ltinfo
 
 SOURCES += \
     src/hashset.c \
