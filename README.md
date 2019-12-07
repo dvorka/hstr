@@ -3,7 +3,7 @@
 [![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka/hstr/issues)
 [![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka/hstr/releases)
-[![AUR](https://img.shields.io/aur/license/yaourt.svg)](https://github.com/dvorka/hstr/blob/master/LICENSE)
+[![License](https://img.shields.io/github/license/dvorka/hstr?color=%23fe0000)](https://github.com/dvorka/hstr/blob/master/LICENSE)
 
 Easily view, navigate and search your **command history** with shell history suggest box for Bash and
 [zsh](CONFIGURATION.md#zsh-history-settings).
@@ -66,7 +66,11 @@ Tarball:
 Configure HSTR just by running:
 
 ```bash
+# bash
 hstr --show-configuration >> ~/.bashrc
+
+# zsh
+hstr --show-configuration >> ~/.zshrc
 ```
 For detailed HSTR configuration documentation please refer to [Configuration](CONFIGURATION.md).
 

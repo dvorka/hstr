@@ -205,7 +205,7 @@ static const char* INSTALL_BASH_STRING=
 static const char* INSTALL_ZSH_STRING=
         "\n# HSTR configuration - add this to ~/.bashrc"
         "\nalias hh=hstr                    # hh to be alias for hstr"
-        "\nexport HISTFILE=~/.zsh_history  # ensure history file visibility"
+        "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
         "\nexport HSTR_CONFIG=hicolor        # get more colors"
 #if defined(__MS_WSL__)
         // TODO binding to be rewritten for zsh@WSL as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
@@ -238,13 +238,13 @@ static const char* INSTALL_ZSH_STRING=
         "\n"
         "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #else
-        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
+        "\nbindkey -s \"\\C-r\" \"\\C-ahstr -- \\C-j\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #endif
         // TODO try variant with args/pars separation
         //"\nbindkey -s \"\\C-r\" \"\\eqhstr --\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
         // alternate binding options in zsh:
         //   bindkey -s '^R' '^Ahstr ^M'
-        //   bindkey -s "\C-r" "\C-ahstr \C-j"
+        //   bindkey -s "\C-r" "\C-ahstr -- \C-j"
         "\n\n";
 
 static const char* HELP_STRING=

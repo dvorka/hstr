@@ -2,10 +2,16 @@
 Get most of HSTR by configuring it with:
 
 ```bash
+# bash
 hstr --show-configuration >> ~/.bashrc
+
+# zsh
+hstr --show-configuration >> ~/.zshrc
 ```
 
-Run `hstr --show-configuration` to determine what will be appended to your Bash profile. Don't forget to `source ~/.bashrc` to apply changes.
+Run `hstr --show-configuration` to determine what will be appended to your
+bash / zsh profile. Don't forget to `source ~/.bashrc` / `source ~/.zshrc`
+to apply changes.
 
 ---
 
@@ -28,7 +34,7 @@ For more configuration options details please refer to:
 
 Check also configuration [examples](#examples).
 
-## Binding HSTR to Keyboard Shortcut
+## Bash Binding HSTR to Keyboard Shortcut
 Bash uses *Emacs* style keyboard shortcuts by default. There is
 also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
 based on the style you prefer below.
@@ -91,7 +97,7 @@ bind '"\C-r": "\e0ihstr -- \C-j"'
 Bind HSTR to a `zsh` key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
-bindkey -s "\C-r" "\eqhstr --\n"
+bindkey -s "\C-r" "\C-ahstr -- \C-j"
 ```
 
 

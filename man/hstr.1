@@ -188,9 +188,9 @@ if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
 Optionally add the following lines to ~/.zshrc:
 .nf
 .sp
-export HISTFILE=~/.zsh_history   # ensure history file visibility
-export HSTR_CONFIG=hicolor         # get more colors
-bindkey -s "\eC\-r" "\eeqhstr\en"  # bind hstr to Ctrl-r (for Vi mode check doc, experiment with --)
+export HISTFILE=~/.zsh_history       # ensure history file visibility
+export HSTR_CONFIG=hicolor           # get more colors
+bindkey -s "\eC\-r" "\eC\-ahstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode check doc)
 .sp
 .fi
 .SH EXAMPLES
