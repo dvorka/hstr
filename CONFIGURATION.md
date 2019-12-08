@@ -59,19 +59,19 @@ bind -S
 Bind HSTR to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
-bind '"\C-r": "\C-ahstr -- \C-j"'
+bind '"\C-r": "\C-a hstr -- \C-j"'
 ```
 
 or <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>r</kbd>:
 
 ```bash
-bind '"\e\C-r":"\C-ahstr -- \C-j"'
+bind '"\e\C-r":"\C-a hstr -- \C-j"'
 ```
 
 or <kbd>Ctrl</kbd><kbd>F12</kbd>:
 
 ```bash
-bind '"\e[24;5~":"\C-ahstr -- \C-j"'
+bind '"\e[24;5~":"\C-a hstr -- \C-j"'
 ```
 
 Bind HSTR to <kbd>Ctrl</kbd><kbd>r</kbd> only if it is interactive shell:
@@ -97,7 +97,7 @@ bind '"\C-r": "\e0ihstr -- \C-j"'
 Bind HSTR to a `zsh` key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
 
 ```bash
-bindkey -s "\C-r" "\C-ahstr -- \C-j"
+bindkey -s "\C-r" "\C-a hstr -- \C-j"
 ```
 
 

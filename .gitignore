@@ -29,3 +29,5 @@ hh
 *.pro.user
 test/hstr-unit-tests
 /hstr.pro.user*
+*.stash
+*.save

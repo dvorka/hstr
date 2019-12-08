@@ -201,6 +201,7 @@ char *get_shell_name_by_ppid(const int pid)
             fclose(f);
         }
     }
+
     // if name isn't e.g. bash/zsh at this point, fall back to $SHELL
     if(strlen(name) > 4){
       char* shell = getenv("SHELL");
@@ -212,6 +213,7 @@ char *get_shell_name_by_ppid(const int pid)
           }
       }
     }
+
     return name;
 }
 

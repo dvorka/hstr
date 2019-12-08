@@ -50,8 +50,14 @@ char* get_history_file_name(void)
     char* historyFile = getenv(ENV_VAR_HISTFILE);
     if(!historyFile || strlen(historyFile)==0) {
         char* home = getenv(ENV_VAR_HOME);
-        historyFile = malloc(strlen(home) + 1 + strlen(FILE_DEFAULT_HISTORY) + 1);
-        strcat(strcat(strcpy(historyFile, home), "/"), FILE_DEFAULT_HISTORY);
+        char* fileHistory;
+        if(isZshParentShell()) {
+            fileHistory=FILE_ZSH_HISTORY;
+        } else {
+            fileHistory=FILE_DEFAULT_HISTORY;
+        }
+        historyFile = malloc(strlen(home) + 1 + strlen(fileHistory) + 1);
+        strcat(strcat(strcpy(historyFile, home), "/"), fileHistory);
     } else {
         // allocate so that this function always returns string to be freed
         // (getenv() returns pointer (no need to free), home is allocated (must be freed)
