@@ -206,7 +206,8 @@ static const char* INSTALL_ZSH_STRING=
         "\n# HSTR configuration - add this to ~/.zshrc"
         "\nalias hh=hstr                    # hh to be alias for hstr"
         "\nsetopt histignorespace           # skip cmds w/ leading space from history"
-        "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
+        // HISTFILE should not be needed - HSTR must work on blank environment as well
+        // "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
         "\nexport HSTR_CONFIG=hicolor       # get more colors"
 #if defined(__MS_WSL__)
         // TODO binding to be rewritten for zsh@WSL as it's done for bash - hstr_winwsl() like function to be implemented to make it work on WSL
