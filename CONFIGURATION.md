@@ -186,10 +186,9 @@ favorites, then use the following configuration:
 export HSTR_CONFIG=skip-favorites-comments
 ```
 ## Blacklist
-Skip commands when processing history i.e. make sure that these commands
-will *not* be shown in any view. Use of blacklist file is **disabled**
-by default - you can enable it by adding `blacklist` to `HSTR_CONFIG`
-environment variable:
+Skip commands when processing ranking view history. Use of blacklist
+file is **disabled** by default - you can enable it by adding `blacklist`
+to `HSTR_CONFIG` environment variable:
 
 ```bash
 export HSTR_CONFIG=blacklist
