@@ -133,7 +133,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.0.0\" (2018-08-28T13:30:00)"
+        "hstr version \"2.1.0\" (2019-12-08T13:30:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -165,12 +165,12 @@ static const char* INSTALL_BASH_STRING=
         //   history -a ... append NEW entries from memory to .bash_history (i.e. flush to file where HSTR reads commands)
         //   history -n ... append NEW entries from .bash_history to memory i.e. NOT entire history reload
         //   history -c ... CLEAR in memory history (keeps .bash_history content)
-        //   history -r ... append ALL entries from .bash_history to memory (useful to sync DIFFERENT Bash sessions)
+        //   history -r ... append ALL entries from .bash_history to memory (useful to sync DIFFERENT bash sessions)
         // Conclusion:
         //   -a -n ... Fastest and almost-consistent option i.e. there is efficiency/integrity trade-off.
         //             It works correctly if memory entries are not deleted by HSTR. It doesn't synchronize history
-        //             across different Bash sessions.
-        //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different Bash sessions)
+        //             across different bash sessions.
+        //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different bash sessions)
         "\n# ensure synchronization between Bash memory and history file"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
@@ -209,10 +209,10 @@ static const char* INSTALL_ZSH_STRING=
         "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
         "\nexport HSTR_CONFIG=hicolor       # get more colors"
 #if defined(__MS_WSL__)
-        // TODO binding to be rewritten for zsh@WSL as it's done for Bash - hstr_winwsl() like function to be implemented to make it work on WSL
+        // TODO binding to be rewritten for zsh@WSL as it's done for bash - hstr_winwsl() like function to be implemented to make it work on WSL
 
-        "\n# Function and binding below is Bash script that makes command completion work under WSL."
-        "\n# If you can rewrite the function and binding from Bash to zsh please send it to martin.dvorak@mindforger.com"
+        "\n# Function and binding below is bash script that makes command completion work under WSL."
+        "\n# If you can rewrite the function and binding from bash to zsh please send it to martin.dvorak@mindforger.com"
         "\n# so that I can share it with other users."
         "\n#function hstr_winwsl {"
         "\n#  offset=${READLINE_POINT}"
@@ -224,10 +224,10 @@ static const char* INSTALL_ZSH_STRING=
         "\n"
         "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
 #elif defined(__CYGWIN__)
-        // TODO binding to be rewritten for zsh@Cygwin as it's done for Bash - hstr_cygwin() like function to be implemented to make it work under Cygwin
+        // TODO binding to be rewritten for zsh@Cygwin as it's done for bash - hstr_cygwin() like function to be implemented to make it work under Cygwin
 
-        "\n# Function and binding below is Bash script that makes command completion work under Cygwin."
-        "\n# If you can rewrite the function and binding from Bash to zsh please send it to martin.dvorak@mindforger.com"
+        "\n# Function and binding below is bash script that makes command completion work under Cygwin."
+        "\n# If you can rewrite the function and binding from bash to zsh please send it to martin.dvorak@mindforger.com"
         "\n# so that I can share it with other users."
         "\n#function hstr_cygwin {"
         "\n#  offset=${READLINE_POINT}"
@@ -256,7 +256,7 @@ static const char* HELP_STRING=
         "\n  --kill-last-command      -k ... delete last command in history"
         "\n  --non-interactive        -n ... print filtered history and exit"
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
-        "\n  --show-zsh-configuration -z ... show Zsh configuration to be added to ~/.zshrc"
+        "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
@@ -1533,7 +1533,7 @@ void hstr_getopt(int argc, char **argv)
             printf("%s", INSTALL_ZSH_STRING);
             exit(EXIT_SUCCESS);
         case 's':
-            // ZSH_VERSION is not exported by Zsh > detected by parent process name
+            // ZSH_VERSION is not exported by zsh > detected by parent process name
             if(isZshParentShell()) {
                 printf("%s", INSTALL_ZSH_STRING);
             } else {

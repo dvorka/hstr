@@ -1,3 +1,7 @@
+2019-12-08  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v2.1.0 - significant zsh support improvements and stabilization.
+
 2018-08-28  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v2.0.0 - Major release which resolves confusing hstr/hh ambuiguity by choosing
@@ -30,7 +34,7 @@
 
 2017-01-21  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.22 - Zsh history mgmt improvements (delete).
+  * Released v1.22 - zsh history mgmt improvements (delete).
 
 2016-11-22  Martin Dvorak  <martin.dvorak@mindforger.com>
 

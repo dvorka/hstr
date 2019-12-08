@@ -178,7 +178,7 @@ shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
 export HISTFILESIZE=10000        # increase history file size (default is 500)
 export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
-# ensure synchronization between Bash memory and history file
+# ensure synchronization between bash memory and history file
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
@@ -188,8 +188,8 @@ if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
 Optionally add the following lines to ~/.zshrc:
 .nf
 .sp
-export HISTFILE=~/.zsh_history       # ensure history file visibility
-export HSTR_CONFIG=hicolor           # get more colors
+export HSTR_CONFIG=hicolor            # get more colors
+setopt histignorespace                # skip cmds w/ leading space from history
 bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode check doc)
 .sp
 .fi
@@ -205,7 +205,9 @@ bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode
  Print history items containing 'git' to standard output and exit.
 .TP
 \fBhstr --show-configuration >> ~/.bashrc\fR
- Append default \fBhstr\fR configuration to your Bash profile.
+ Append default \fBhstr\fR configuration to your bash profile.
+\fBhstr --show-configuration >> ~/.zhrc\fR
+ Append default \fBhstr\fR configuration to your zsh profile.
 .TP
 \fBhstr --show-blacklist\fR
  Show blacklist configured for history processing.
