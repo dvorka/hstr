@@ -170,7 +170,7 @@ export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu versi
 # https://wiki.ubuntu.com/Releases
 # old: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
 # current: trusty xenial bionic disco eoan
-for UBUNTU_VERSION in eoan
+for UBUNTU_VERSION in trusty xenial bionic disco eoan
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
