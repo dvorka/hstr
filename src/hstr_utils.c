@@ -164,6 +164,14 @@ void get_hostname(int bufferSize, char *buffer)
     strcpy(buffer, "localhost");
 }
 
+char* get_home_file_path(char* filename)
+{
+    char* home = getenv(ENV_VAR_HOME);
+    char* path = malloc(strlen(home) + 1 + strlen(filename) + 1);
+    strcat(strcat(strcpy(path, home), "/"), filename);
+    return path;
+}
+
 void toggle_case(char *str, bool lowercase) {
     if(str && strlen(str)>0) {
         int i;

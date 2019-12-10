@@ -25,6 +25,7 @@
 #include <stdio.h>
 #include <readline/history.h>
 
+#include "hstr_utils.h"
 #include "hstr_regexp.h"
 #include "radixsort.h"
 #include "hstr_favorites.h"
@@ -33,6 +34,7 @@
 
 #define FILE_DEFAULT_HISTORY ".bash_history"
 #define FILE_ZSH_HISTORY ".zsh_history"
+#define FILE_ZSH_ZHISTORY ".zhistory"
 
 #define ZSH_HISTORY_ITEM_OFFSET 15
 #define BASH_HISTORY_ITEM_OFFSET 0
