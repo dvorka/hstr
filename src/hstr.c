@@ -67,6 +67,7 @@
 
 #define HSTR_ENV_VAR_CONFIG      "HSTR_CONFIG"
 #define HSTR_ENV_VAR_PROMPT      "HSTR_PROMPT"
+#define HSTR_ENV_VAR_IS_SUBSHELL "HSTR_IS_SUBSHELL"
 
 #define HSTR_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
 #define HSTR_CONFIG_THEME_HICOLOR         "hicolor"
@@ -1082,6 +1083,12 @@ void loop_to_select(void)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
 
+    bool isSubshellHint=FALSE;
+    char* isSubshellHintText = getenv(HSTR_ENV_VAR_IS_SUBSHELL);
+    if(isSubshellHintText && strlen(isSubshellHintText)>0) {
+        isSubshellHint=TRUE;
+    }
+
     hstr_curses_start();
     // TODO move the code below to hstr_curses
     color_init_pair(HSTR_COLOR_NORMAL, -1, -1);
@@ -1405,7 +1412,12 @@ void loop_to_select(void)
             break;
         case K_TAB:
         case KEY_RIGHT:
-            editCommand=TRUE;
+            if(!isSubshellHint) {
+                editCommand=TRUE;
+            } else {
+                // Not setting editCommand to TRUE here,
+                // because else an unnecessary blank line gets emitted before returning to prompt.
+            }
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
                 if(hstr->view==HSTR_VIEW_FAVORITES) {

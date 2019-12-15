@@ -110,6 +110,15 @@ alias hh=hstr
 ```
 
 Don't forget to source `~/.bashrc` to be able to to use `hh` command.
+
+
+## Environment variables
+- `HISTFILE` (defaults to `~/.bash_history` or `~/.zsh_history`)
+- `HSTR_PROMPT` (defaults to `<user>@<hostname>$ `)
+- `HSTR_IS_SUBSHELL` (when HSTR is used in a subshell, set to `1` to fix output when pressing `TAB` or `RIGHT` arrow key)
+- `HSTR_CONFIG` (see below)
+
+
 ## Colors
 Let HSTR to use colors:
 
