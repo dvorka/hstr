@@ -1073,10 +1073,14 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
 
     move(hstr->promptYItemsStart, 0);
     clrtobot();
-    if(hstr->promptBottom) {
-        // TODO: Why is this printed conditionally? Make a comment or fix!
+    bool labelsAreOnBottom = (hstr->promptBottom && !hstr->helpOnOppositeSide) || (!hstr->promptBottom && hstr->helpOnOppositeSide);
+    if(labelsAreOnBottom) {
+        // TODO: Why is the reprinting here necessary? Please make a comment.
         print_help_label();
         print_history_label();
+    }
+    if(hstr->promptBottom) {
+        // TODO: Why is the reprinting here necessary? Please make a comment.
         print_pattern(pattern, hstr->promptY, print_prompt());
         y=hstr->promptYItemsEnd;
     } else {
@@ -1248,8 +1252,9 @@ void loop_to_select(void)
     // TODO why do I print non-filtered selection when on command line there is a pattern?
     hstr_print_selection(recalculate_max_history_items(), NULL);
     color_attr_off(COLOR_PAIR(HSTR_COLOR_NORMAL));
-    if(!hstr->promptBottom) {
-        // TODO: Why is this printed conditionally? Make a comment or fix!
+    bool labelsAreOnBottom = (hstr->promptBottom && !hstr->helpOnOppositeSide) || (!hstr->promptBottom && hstr->helpOnOppositeSide);
+    if(!labelsAreOnBottom) {
+        // TODO: Why is the reprinting here necessary? Please make a comment.
         print_help_label();
         print_history_label();
     }
