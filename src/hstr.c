@@ -69,27 +69,30 @@
 #define HSTR_ENV_VAR_PROMPT      "HSTR_PROMPT"
 #define HSTR_ENV_VAR_IS_SUBSHELL "HSTR_IS_SUBSHELL"
 
-#define HSTR_CONFIG_THEME_MONOCHROMATIC   "monochromatic"
-#define HSTR_CONFIG_THEME_HICOLOR         "hicolor"
-#define HSTR_CONFIG_STATIC_FAVORITES      "static-favorites"
+#define HSTR_CONFIG_THEME_MONOCHROMATIC     "monochromatic"
+#define HSTR_CONFIG_THEME_HICOLOR           "hicolor"
+#define HSTR_CONFIG_STATIC_FAVORITES        "static-favorites"
 #define HSTR_CONFIG_SKIP_FAVORITES_COMMENTS "skip-favorites-comments"
-#define HSTR_CONFIG_FAVORITES         "favorites-view"
-#define HSTR_CONFIG_SORTING           "raw-history-view"
-#define HSTR_CONFIG_CASE              "case-sensitive"
-#define HSTR_CONFIG_REGEXP            "regexp-matching"
-#define HSTR_CONFIG_SUBSTRING         "substring-matching"
-#define HSTR_CONFIG_KEYWORDS          "keywords-matching"
-#define HSTR_CONFIG_NOCONFIRM         "no-confirm"
-#define HSTR_CONFIG_VERBOSE_KILL      "verbose-kill"
-#define HSTR_CONFIG_PROMPT_BOTTOM     "prompt-bottom"
-#define HSTR_CONFIG_BLACKLIST         "blacklist"
-#define HSTR_CONFIG_KEEP_PAGE         "keep-page"
-#define HSTR_CONFIG_DEBUG             "debug"
-#define HSTR_CONFIG_WARN              "warning"
-#define HSTR_CONFIG_BIG_KEYS_SKIP     "big-keys-skip"
-#define HSTR_CONFIG_BIG_KEYS_FLOOR    "big-keys-floor"
-#define HSTR_CONFIG_BIG_KEYS_EXIT     "big-keys-exit"
-#define HSTR_CONFIG_DUPLICATES        "duplicates"
+#define HSTR_CONFIG_FAVORITES               "favorites-view"
+#define HSTR_CONFIG_SORTING                 "raw-history-view"
+#define HSTR_CONFIG_CASE                    "case-sensitive"
+#define HSTR_CONFIG_REGEXP                  "regexp-matching"
+#define HSTR_CONFIG_SUBSTRING               "substring-matching"
+#define HSTR_CONFIG_KEYWORDS                "keywords-matching"
+#define HSTR_CONFIG_NOCONFIRM               "no-confirm"
+#define HSTR_CONFIG_VERBOSE_KILL            "verbose-kill"
+#define HSTR_CONFIG_PROMPT_BOTTOM           "prompt-bottom"
+#define HSTR_CONFIG_HELP_ON_OPPOSITE_SIDE   "help-on-opposite-side"
+#define HSTR_CONFIG_HIDE_BASIC_HELP         "hide-basic-help"
+#define HSTR_CONFIG_HIDE_HELP               "hide-help"
+#define HSTR_CONFIG_BLACKLIST               "blacklist"
+#define HSTR_CONFIG_KEEP_PAGE               "keep-page"
+#define HSTR_CONFIG_DEBUG                   "debug"
+#define HSTR_CONFIG_WARN                    "warning"
+#define HSTR_CONFIG_BIG_KEYS_SKIP           "big-keys-skip"
+#define HSTR_CONFIG_BIG_KEYS_FLOOR          "big-keys-floor"
+#define HSTR_CONFIG_BIG_KEYS_EXIT           "big-keys-exit"
+#define HSTR_CONFIG_DUPLICATES              "duplicates"
 
 #define HSTR_DEBUG_LEVEL_NONE  0
 #define HSTR_DEBUG_LEVEL_WARN  1
@@ -313,10 +316,14 @@ typedef struct {
     int bigKeys;
     int debugLevel;
     bool promptBottom;
+    bool helpOnOppositeSide;
+    bool hideBasicHelp;
+    bool hideHistoryHelp;
 
     int promptY;
     int promptYHelp;
     int promptYHistory;
+    int promptYNotification;
     int promptYItemsStart;
     int promptYItemsEnd;
     int promptItems;
@@ -354,10 +361,14 @@ void hstr_init(void)
     hstr->bigKeys=RADIX_BIG_KEYS_SKIP;
     hstr->debugLevel=HSTR_DEBUG_LEVEL_NONE;
     hstr->promptBottom=false;
+    hstr->helpOnOppositeSide=false;
+    hstr->hideBasicHelp=false;
+    hstr->hideHistoryHelp=false;
 
     hstr->promptY
      =hstr->promptYHelp
      =hstr->promptYHistory
+     =hstr->promptYNotification
      =hstr->promptYItemsStart
      =hstr->promptYItemsEnd
      =hstr->promptItems
@@ -395,19 +406,107 @@ void signal_callback_handler_ctrl_c(int signum)
 
 unsigned recalculate_max_history_items(void)
 {
-    hstr->promptItems = getmaxy(stdscr) - 3;
+    int n = getmaxy(stdscr);
+    hstr->promptItems = n-1;
+    if(!hstr->hideBasicHelp) {
+        hstr->promptItems--;
+    }
+    if(!hstr->hideHistoryHelp) {
+        hstr->promptItems--;
+    }
     if(hstr->promptBottom) {
-        hstr->promptY = getmaxy(stdscr) - 1;
-        hstr->promptYHelp = hstr->promptY - 1;
-        hstr->promptYHistory = hstr->promptY - 2;
-        hstr->promptYItemsStart = 0;
-        hstr->promptYItemsEnd = hstr->promptItems-1;
+        if(hstr->helpOnOppositeSide) {
+            // Layout:
+            // - [basic help]
+            // - [history help]
+            // - items start
+            // - ...
+            // - items end
+            // - prompt
+            int top = 0;
+            hstr->promptY = n-1;
+            if(!hstr->hideBasicHelp) {
+                hstr->promptYHelp = top++;
+            }
+            if(!hstr->hideHistoryHelp) {
+                hstr->promptYHistory = top++;
+            }
+            hstr->promptYItemsStart = top++;
+        } else {
+            // Layout:
+            // - items start
+            // - ...
+            // - items end
+            // - [history help]
+            // - [basic help]
+            // - prompt
+            int bottom = n-1;
+            hstr->promptY = bottom--;
+            if(!hstr->hideBasicHelp) {
+                hstr->promptYHelp = bottom--;
+            }
+            if(!hstr->hideHistoryHelp) {
+                hstr->promptYHistory = bottom--;
+            }
+            hstr->promptYItemsStart = 0;
+        }
     } else {
-        hstr->promptY = 0;
-        hstr->promptYHelp = 1;
-        hstr->promptYHistory = 2;
-        hstr->promptYItemsStart = 3;
-        hstr->promptYItemsEnd = getmaxy(stdscr);
+        if(hstr->helpOnOppositeSide) {
+            // Layout:
+            // - prompt
+            // - items start
+            // - ...
+            // - items end
+            // - [history help]
+            // - [basic help]
+            int bottom = n-1;
+            hstr->promptY = 0;
+            if(!hstr->hideBasicHelp) {
+                hstr->promptYHelp = bottom--;
+            }
+            if(!hstr->hideHistoryHelp) {
+                hstr->promptYHistory = bottom--;
+            }
+            hstr->promptYItemsStart = 1;
+        } else {
+            // Layout:
+            // - prompt
+            // - [basic help]
+            // - [history help]
+            // - items start
+            // - ...
+            // - items end
+            int top = 0;
+            hstr->promptY = top++;
+            if(!hstr->hideBasicHelp) {
+                hstr->promptYHelp = top++;
+            }
+            if(!hstr->hideHistoryHelp) {
+                hstr->promptYHistory = top++;
+            }
+            hstr->promptYItemsStart = top++;
+        }
+    }
+    hstr->promptYItemsEnd = hstr->promptYItemsStart+hstr->promptItems-1;
+    if(!hstr->hideBasicHelp) {
+        // Use basic help label for notifications.
+        hstr->promptYNotification = hstr->promptYHelp;
+    }
+    else {
+        // If basic help is hidden, we need another place to put notifications to.
+        if(hstr->hideBasicHelp) {
+            if(!hstr->hideHistoryHelp) {
+                // Use history help label.
+                hstr->promptYHelp = hstr->promptYHistory;
+            } else {
+                // Use one of the command item lines.
+                if((hstr->promptBottom && hstr->helpOnOppositeSide) || (!hstr->promptBottom && !hstr->helpOnOppositeSide)) {
+                    hstr->promptYHelp = hstr->promptYItemsStart;
+                } else {
+                    hstr->promptYHelp = hstr->promptYItemsEnd;
+                }
+            }
+        }
     }
     return hstr->promptItems;
 }
@@ -489,6 +588,23 @@ void hstr_get_env_configuration()
         } else {
             hstr->promptBottom = false;
         }
+        if(strstr(hstr_config,HSTR_CONFIG_HELP_ON_OPPOSITE_SIDE)) {
+            hstr->helpOnOppositeSide = true;
+        } else {
+            hstr->helpOnOppositeSide = false;
+        }
+        if(strstr(hstr_config,HSTR_CONFIG_HIDE_HELP)) {
+            hstr->hideBasicHelp = true;
+            hstr->hideHistoryHelp = true;
+        } else {
+            if(strstr(hstr_config,HSTR_CONFIG_HIDE_BASIC_HELP)) {
+                hstr->hideBasicHelp = true;
+                hstr->hideHistoryHelp = false;
+            } else {
+                hstr->hideBasicHelp = false;
+                hstr->hideHistoryHelp = false;
+            }
+        }
         recalculate_max_history_items();
     }
 }
@@ -536,11 +652,14 @@ void add_to_selection(char* line, unsigned int* index)
         }
     }
     hstr->selection[*index]=line;
-    *index = *index + 1;
+    (*index)++;
 }
 
 void print_help_label(void)
 {
+    if(hstr->hideBasicHelp)
+        return;
+
     int cursorX=getcurx(stdscr);
     int cursorY=getcury(stdscr);
 
@@ -565,7 +684,7 @@ void print_confirm_delete(const char* cmd)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYNotification, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
@@ -587,7 +706,7 @@ void print_cmd_deleted_label(const char* cmd, int occurences)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYNotification, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
@@ -604,7 +723,7 @@ void print_regexp_error(const char* errorMessage)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, "%s", screenLine);
+    mvprintw(hstr->promptYNotification, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
@@ -621,7 +740,7 @@ void print_cmd_added_favorite_label(const char* cmd)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYHelp, 0, screenLine);
+    mvprintw(hstr->promptYNotification, 0, screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
@@ -632,6 +751,9 @@ void print_cmd_added_favorite_label(const char* cmd)
 
 void print_history_label(void)
 {
+    if(hstr->hideHistoryHelp)
+        return;
+
     unsigned width=getmaxx(stdscr);
 
     char screenLine[CMDLINE_LNG];
@@ -952,6 +1074,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
     move(hstr->promptYItemsStart, 0);
     clrtobot();
     if(hstr->promptBottom) {
+        // TODO: Why is this printed conditionally? Make a comment or fix!
         print_help_label();
         print_history_label();
         print_pattern(pattern, hstr->promptY, print_prompt());
@@ -1080,11 +1203,25 @@ void stdout_history_and_return(void)
 // IMPROVE hstr doesn't have to be passed as parameter - it's global static
 char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* result) {
     if (hstr->promptBottom) {
-        result=hstr->selection[hstr->promptYItemsEnd-selectionCursorPosition];
+        result=hstr->selection[hstr->promptItems-selectionCursorPosition-1];
     } else {
         result=hstr->selection[selectionCursorPosition];
     }
     return result;
+}
+
+void hide_notification(void)
+{
+    if(!hstr->hideBasicHelp) {
+        print_help_label();
+    } else {
+        if(!hstr->hideHistoryHelp) {
+            print_history_label();
+        } else {
+            // TODO: If possible, we should rerender the command list here,
+            //  because one of the items was used to print the notification.
+        }
+    }
 }
 
 void loop_to_select(void)
@@ -1112,12 +1249,13 @@ void loop_to_select(void)
     hstr_print_selection(recalculate_max_history_items(), NULL);
     color_attr_off(COLOR_PAIR(HSTR_COLOR_NORMAL));
     if(!hstr->promptBottom) {
+        // TODO: Why is this printed conditionally? Make a comment or fix!
         print_help_label();
         print_history_label();
     }
 
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
-    bool printDefaultLabel=TRUE, fixCommand=FALSE, editCommand=FALSE;
+    bool hideNotificationOnNextTick=TRUE, fixCommand=FALSE, editCommand=FALSE;
     unsigned basex=print_prompt();
     int x=basex, c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
@@ -1149,9 +1287,9 @@ void loop_to_select(void)
             continue;
         }
 
-        if(printDefaultLabel) {
-            print_help_label();
-            printDefaultLabel=FALSE;
+        if(hideNotificationOnNextTick) {
+            hide_notification();
+            hideNotificationOnNextTick=FALSE;
         }
 
         if(c == K_CTRL_R) {
@@ -1180,12 +1318,12 @@ void loop_to_select(void)
                     result=hstr_print_selection(maxHistoryItems, pattern);
                     print_cmd_deleted_label(msg, deletedOccurences);
                 } else {
-                    print_help_label();
+                    hide_notification();
                 }
                 free(msg);
                 move(hstr->promptY, basex+strlen(pattern));
-                printDefaultLabel=TRUE;
-                print_history_label();
+                hideNotificationOnNextTick=TRUE;
+                print_history_label();  // TODO: Why is this necessary? Add comment!
 
                 if(hstr->selectionSize == 0) {
                     // just update the cursor, there are no elements to select
@@ -1194,12 +1332,12 @@ void loop_to_select(void)
                 }
 
                 if(hstr->promptBottom) {
-                    if(selectionCursorPosition <= (int)(hstr->promptYItemsEnd-hstr->selectionSize+1)) {
-                        selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
+                    if(selectionCursorPosition < (int)(hstr->promptItems-hstr->selectionSize)) {
+                        selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
                     }
                 } else {
                     if(selectionCursorPosition >= (int)hstr->selectionSize) {
-                        selectionCursorPosition = hstr->selectionSize - 1;
+                        selectionCursorPosition = hstr->selectionSize-1;
                     }
                 }
                 highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern);
@@ -1259,7 +1397,7 @@ void loop_to_select(void)
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
                 if(hstr->view!=HSTR_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result);
-                    printDefaultLabel=TRUE;
+                    hideNotificationOnNextTick=TRUE;
                 }
                 // TODO code review
                 if(strlen(pattern)<(width-basex-1)) {
@@ -1315,8 +1453,8 @@ void loop_to_select(void)
             previousSelectionCursorPosition=selectionCursorPosition;
             if(selectionCursorPosition>0) {
                 if(hstr->promptBottom) {
-                    if(selectionCursorPosition <= (int)(hstr->promptYItemsEnd-hstr->selectionSize+1)) {
-                        selectionCursorPosition=hstr->promptYItemsEnd;
+                    if(selectionCursorPosition <= (int)(hstr->promptItems-hstr->selectionSize)) {
+                        selectionCursorPosition=hstr->promptItems-1;
                     } else {
                         selectionCursorPosition--;
                     }
@@ -1325,7 +1463,7 @@ void loop_to_select(void)
                 }
             } else {
                 if(hstr->promptBottom) {
-                    selectionCursorPosition=hstr->promptYItemsEnd;
+                    selectionCursorPosition=hstr->promptItems-1;
                 } else {
                     selectionCursorPosition=hstr->selectionSize-1;
                 }
@@ -1348,17 +1486,17 @@ void loop_to_select(void)
         case K_CTRL_N:
             if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
                 if(hstr->promptBottom) {
-                    selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
+                    selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
                 } else {
                     selectionCursorPosition=previousSelectionCursorPosition=0;
                 }
             } else {
                 previousSelectionCursorPosition=selectionCursorPosition;
                 if(hstr->promptBottom) {
-                    if(selectionCursorPosition<hstr->promptYItemsEnd) {
+                    if(selectionCursorPosition<hstr->promptItems-1) {
                         selectionCursorPosition++;
                     } else {
-                        selectionCursorPosition=hstr->promptYItemsEnd-hstr->selectionSize+1;
+                        selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
                     }
                 } else {
                     if((selectionCursorPosition+1) < (int)hstr->selectionSize) {
