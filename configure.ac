@@ -122,7 +122,7 @@ AC_CHECK_FILE(/tmp/hstr-ms-wsl,AC_DEFINE(__MS_WSL__), [])
 # Bash CLI autocomplete
 AC_ARG_WITH([bash-completion-dir],
     AS_HELP_STRING([--with-bash-completion-dir[=PATH]],
-        [Install the Bash auto-completion script in this directory. @<:@default=yes@:>@]),
+        [Install the bash auto-completion script in this directory. @<:@default=yes@:>@]),
     [],
     [with_bash_completion_dir=yes])
 

@@ -12,7 +12,7 @@
     Please check man page for details and update your 1.x.x configuration.
         Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed as
     well to have hstr prefix - please update your scripts.
-        Additional improvements: all memory leaks fixed, long commands handling improved (...), Bash
+        Additional improvements: all memory leaks fixed, long commands handling improved (...), bash
     autocomplete added.
 
 2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>

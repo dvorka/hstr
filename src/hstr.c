@@ -175,7 +175,7 @@ static const char* INSTALL_BASH_STRING=
         //             It works correctly if memory entries are not deleted by HSTR. It doesn't synchronize history
         //             across different bash sessions.
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different bash sessions)
-        "\n# ensure synchronization between Bash memory and history file"
+        "\n# ensure synchronization between bash memory and history file"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
 #if defined(__MS_WSL__)

@@ -66,7 +66,7 @@ function tarballBuildUsingAutomake() {
 	IS_MS=`grep Microsoft ${VENDOR_FILE}`
 	if [[ ! -z "${IS_MS}" ]]
 	then
-	    echo "DETECTED Bash on Linux on Windows (MS WSL)"
+	    echo "DETECTED bash on Linux on Windows (MS WSL)"
 	    touch ${HINT_FILE}
 	else
 	    rm -vf ${HINT_FILE}

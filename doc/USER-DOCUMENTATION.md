@@ -63,7 +63,7 @@ items is highlighted. Once you are done with your choice:
 
 * press `ENTER` to choose the command and execute it
 * or press `TAB` or `RIGHT` arrow key to choose the command and edit it on command line after exiting HSTR
-* or press `LEFT` arrow key to choose the command and open it in editor (Bash `fc` i.e. fix command)
+* or press `LEFT` arrow key to choose the command and open it in editor (`bash` `fc` i.e. fix command)
 
 
 ## Favorite Commands
@@ -124,7 +124,7 @@ Tips:
   it with your own blacklist.
 * You can skip any command from history just by
   prefixing it with `SPACE`. For example:
-  ` echo "Skip this from history"` It's a Bash
+  ` echo "Skip this from history"` It's a `bash`
   option that is configured using 
   `HISTCONTROL=ignorespace` environment variable.
 
@@ -162,7 +162,7 @@ Print history items containing 'git' to standard output and exit:
 hh --non-interactive git
 ```
 
-Append  default `hh` configuration to your Bash profile:
+Append  default `hh` configuration to your `bash` profile:
 
 ```bash
 hh --show-configuration >> ~/.bashrc
