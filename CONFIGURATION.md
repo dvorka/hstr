@@ -19,8 +19,8 @@ For more configuration options details please refer to:
 
 * bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
     * [Bash Emacs keymap](#bash-emacs-keymap-default) (default)
-    * [Bash Vim keymap](#bash-vim-keymap-default)
-    * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
+    * [Bash Vim keymap](#bash-vim-keymap)
+    * [zsh Emacs keymap](#zsh-emacs-keymap) (default)
 * create `hh` [alias](Alias) for `hstr`
 * use [HSTR config options](#hstr-config-options)
     * get more [colors](#colors)
@@ -38,11 +38,11 @@ For more configuration options details please refer to:
 Don't miss the HSTR config [examples](#examples).
 
 ## Bash Binding HSTR to Keyboard Shortcut
-Bash uses *Emacs* style keyboard shortcuts by default. There is
+`Bash` uses *Emacs* style keyboard shortcuts by default. There is
 also *Vi* mode. Find out how to bind HSTR to a keyboard shortcut 
 based on the style you prefer below.
 
-Check your active Bash keymap with:
+Check your active bash keymap with:
 
 ```bash
 bind -v | grep editing-mode
@@ -50,7 +50,7 @@ bind -v | grep keymap
 ``` 
 
 To determine character sequence emitted by a pressed key in 
-terminal, type <kbd>Ctrl</kbd><kbd>v</kbd> and then press the key. Check your 
+terminal, type <kbd>Ctrl-v</kbd> and then press the key. Check your 
 current bindings using:
 
 ```bash
@@ -59,25 +59,25 @@ bind -S
 
 
 ### Bash Emacs Keymap (default)
-Bind HSTR to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+Bind HSTR to a `bash` key e.g. to <kbd>Ctrl-r</kbd>:
 
 ```bash
 bind '"\C-r": "\C-a hstr -- \C-j"'
 ```
 
-or <kbd>Ctrl</kbd><kbd>Alt</kbd><kbd>r</kbd>:
+or <kbd>Ctrl-Alt-r</kbd>:
 
 ```bash
 bind '"\e\C-r":"\C-a hstr -- \C-j"'
 ```
 
-or <kbd>Ctrl</kbd><kbd>F12</kbd>:
+or <kbd>Ctrl-F12</kbd>:
 
 ```bash
 bind '"\e[24;5~":"\C-a hstr -- \C-j"'
 ```
 
-Bind HSTR to <kbd>Ctrl</kbd><kbd>r</kbd> only if it is interactive shell:
+Bind HSTR to <kbd>Ctrl-r</kbd> only if it is interactive shell:
 
 ```bash
 if [[ $- =~ .*i.* ]]; then bind '"\C-r": "\C-a hstr -- \C-j"'; fi
@@ -90,14 +90,14 @@ if [[ $- =~ .*i.* ]]; then bind '"\C-xk": "\C-a hstr -k \C-j"'; fi
 ```
 
 ### Bash Vim Keymap
-Bind HSTR to a Bash key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+Bind HSTR to a `bash` key e.g. to <kbd>Ctrl-r</kbd>:
 
 ```bash
-bind '"\C-r": "\e0ihstr -- \C-j"'
+bind '"\C-r": "\e^ihstr -- \n"'
 ```
 
 ### Zsh Emacs Keymap
-Bind HSTR to a `zsh` key e.g. to <kbd>Ctrl</kbd><kbd>r</kbd>:
+Bind HSTR to a `zsh` key e.g. to <kbd>Ctrl-r</kbd>:
 
 ```bash
 bindkey -s "\C-r" "\C-a hstr -- \C-j"
@@ -292,9 +292,9 @@ export HSTR_CONFIG=keywords-matching,hicolor,debug
 ```
 
 ## Bash History Settings
-Use the following Bash settings to get most out of HSTR.
+Use the following `bash` settings to get most out of HSTR.
 
-Increase the size of history maintained by BASH - variables defined below 
+Increase the size of history maintained by `bash` - variables defined below 
 increase the number of history items and history file size (default value is 500):
 
 ```bash
@@ -323,9 +323,11 @@ export HISTCONTROL=ignorespace
 ```
 
 Suitable for a sensitive information like passwords.
-## zsh History Settings
+## Zsh History Settings
 If you use `zsh`, set `HISTFILE` environment variable in `~/.zshrc`:
 
 ```
 export HISTFILE=~/.zsh_history
 ```
+
+Please check your system configuration - history might be store in `~/.zsh_history`, `~/.zhistory` or other file.
