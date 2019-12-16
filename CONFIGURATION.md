@@ -22,17 +22,20 @@ For more configuration options details please refer to:
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
 * create `hh` [alias](Alias) for `hstr`
-* get more [colors](#colors)
-* choose [default history view](#default-history-view)
-* set [filtering preferences](#filtering)
-* configure commands [blacklist](#blacklist)
-* disable [confirm on delete](#confirm-on-delete)
-* tune [verbosity](#verbosity)
+* use [HSTR config options](#hstr-config-options)
+    * get more [colors](#colors)
+    * change [positioning of elements](#positioning)
+    * choose [default history view](#default-history-view)
+    * set [filtering preferences](#filtering)
+    * configure commands [blacklist](#blacklist)
+    * disable [confirm on delete](#confirm-on-delete)
+    * tune [verbosity](#verbosity)
+    * some [examples](#examples)
 * history settings:
     * [Bash history settings](#bash-history-settings)
     * [zsh history settings](#zsh-history-settings)
 
-Check also configuration [examples](#examples).
+Don't miss the HSTR config [examples](#examples).
 
 ## Bash Binding HSTR to Keyboard Shortcut
 Bash uses *Emacs* style keyboard shortcuts by default. There is
@@ -110,7 +113,12 @@ alias hh=hstr
 ```
 
 Don't forget to source `~/.bashrc` to be able to to use `hh` command.
-## Colors
+
+## HSTR Config Options
+
+HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list** of options.
+
+### Colors
 Let HSTR to use colors:
 
 ```bash
@@ -123,7 +131,32 @@ or ensure black and white mode:
 export HSTR_CONFIG=monochromatic
 ```
 
-## Default History View
+### Positioning
+To show the prompt at the bottom of the screen (instead at the top) use:
+
+```bash
+export HSTR_CONFIG=prompt-bottom
+```
+
+To show the basic help and history help labels on the opposite site (instead of next to the prompt) use:
+
+```bash
+export HSTR_CONFIG=help-on-opposite-side
+```
+
+To hide the basic help label:
+
+```bash
+export HSTR_CONFIG=hide-basic-help
+```
+
+To hide both the basic help and history help labels:
+
+```bash
+export HSTR_CONFIG=hide-help
+```
+
+### Default History View
 To show normal history by default (instead of metrics-based view, which is default)
 use:
 
@@ -137,7 +170,7 @@ To show favorite commands as default view use:
 export HSTR_CONFIG=favorites-view
 ```
 
-## Filtering
+### Filtering
 To use regular expressions based matching:
 
 ```bash
@@ -170,7 +203,7 @@ Keep duplicates in `raw-history-view` (duplicate commands are discarded by defau
 export HSTR_CONFIG=duplicates
 ```
 
-## Static favorites
+### Static favorites
 Last selected favorite command is put the head of favorite commands list
 by default. If you want to disable this behavior and make favorite
 commands list static, then use the following configuration:
@@ -178,14 +211,16 @@ commands list static, then use the following configuration:
 ```bash
 export HSTR_CONFIG=static-favorites
 ```
-## Skip favorites comments
+
+### Skip favorites comments
 If you don't want to show lines starting with `#` (comments) among
 favorites, then use the following configuration:
 
 ```bash
 export HSTR_CONFIG=skip-favorites-comments
 ```
-## Blacklist
+
+### Blacklist
 Skip commands when processing ranking view history. Use of blacklist
 file is **disabled** by default - you can enable it by adding `blacklist`
 to `HSTR_CONFIG` environment variable:
@@ -203,14 +238,14 @@ ls
 ll
 ```
 
-## Confirm on Delete
+### Confirm on Delete
 Do not prompt for confirmation when deleting history items:
 
 ```bash
 export HSTR_CONFIG=no-confirm
 ```
 
-## Verbosity
+### Verbosity
 Show a message when deleting the last command from history:
 
 ```bash
@@ -227,6 +262,25 @@ Show debug messages:
 
 ```bash
 export HSTR_CONFIG=debug
+```
+
+### Examples
+More colors with case sensitive search of history:
+
+```bash
+export HSTR_CONFIG=hicolor,case-sensitive
+```
+
+Favorite commands view in black and white with prompt at the bottom of the screen:
+
+```bash
+export HSTR_CONFIG=favorites-view,prompt-bottom
+```
+
+Keywords based search in colors with debug mode verbosity:
+
+```bash
+export HSTR_CONFIG=keywords-matching,hicolor,debug
 ```
 
 ## Bash History Settings
@@ -266,24 +320,4 @@ If you use `zsh`, set `HISTFILE` environment variable in `~/.zshrc`:
 
 ```
 export HISTFILE=~/.zsh_history
-```
-
-
-## Examples
-More colors with case sensitive search of history:
-
-```bash
-export HSTR_CONFIG=hicolor,case-sensitive
-```
-
-Favorite commands view in black and white with prompt at the bottom of the screen:
-
-```bash
-export HSTR_CONFIG=favorites-view,prompt-bottom
-```
-
-Keywords based search in colors with debug mode verbosity:
-
-```bash
-export HSTR_CONFIG=keywords-matching,hicolor,debug
 ```
