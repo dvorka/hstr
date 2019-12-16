@@ -338,7 +338,7 @@ hstr --show-configuration >> ~/.bashrc
 . ~/.bashrc
 ```
 
-Make sure to **run** HSTR using <kbd>Ctrl</kbd><kbd>r</kbd> (or `hstrwsl`) - otherwise commands will not appear in prompt.
+Make sure to **run** HSTR using <kbd>Ctrl-r</kbd> (or `hstrwsl`) - otherwise commands will not appear in prompt.
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
@@ -369,7 +369,7 @@ hstr --show-configuration >> ~/.bashrc
 . ~/.bashrc
 ```
 
-Make sure to **run** HSTR using <kbd>Ctrl</kbd><kbd>r</kbd> (or `hstrcygwin`) - otherwise commands will not appear in prompt.
+Make sure to **run** HSTR using <kbd>Ctrl-r</kbd> (or `hstrcygwin`) - otherwise commands will not appear in prompt.
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## Build on macOS
