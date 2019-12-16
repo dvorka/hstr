@@ -17,16 +17,17 @@ to apply changes.
 
 For more configuration options details please refer to:
 
-* bind HSTR to a [keyboard shortcut](#binding-hstr-to-keyboard-shortcut)
-    * [Bash Emacs keymap](#bash-emacs-keymap-default) (default)
+* bind HSTR to a [keyboard shortcut](#bash-binding-hstr-to-keyboard-shortcut)
+    * [Bash Emacs keymap](#bash-emacs-keymap--default) (default)
     * [Bash Vim keymap](#bash-vim-keymap)
     * [zsh Emacs keymap](#zsh-emacs-keymap) (default)
 * create `hh` [alias](Alias) for `hstr`
-* use [HSTR config options](#hstr-config-options)
+* use [environment variables](#environment-variables) and [HSTR config options](#hstr-config-options)
     * get more [colors](#colors)
     * change [positioning of elements](#positioning)
     * choose [default history view](#default-history-view)
     * set [filtering preferences](#filtering)
+    * set up [static favorites](#static-favorites) or [skip favorites comments](#skip-favorites-comments)
     * configure commands [blacklist](#blacklist)
     * disable [confirm on delete](#confirm-on-delete)
     * tune [verbosity](#verbosity)
@@ -115,10 +116,6 @@ alias hh=hstr
 Don't forget to source `~/.bashrc` to be able to to use `hh` command.
 
 
-## HSTR Config Options
-HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list** of options.
-
-
 ## Environment variables
 - `HISTFILE` (defaults to `~/.bash_history` or `~/.zsh_history`)
 - `HSTR_PROMPT` (defaults to `<user>@<hostname>$ `)
@@ -126,7 +123,11 @@ HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list**
 - `HSTR_CONFIG` (see below)
 
 
-## Colors
+## HSTR Config Options
+HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list** of options.
+
+
+### Colors
 Let HSTR to use colors:
 
 ```bash
