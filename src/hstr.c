@@ -67,6 +67,7 @@
 
 #define HSTR_ENV_VAR_CONFIG      "HSTR_CONFIG"
 #define HSTR_ENV_VAR_PROMPT      "HSTR_PROMPT"
+#define HSTR_ENV_VAR_IS_SUBSHELL "HSTR_IS_SUBSHELL"
 
 #define HSTR_CONFIG_THEME_MONOCHROMATIC     "monochromatic"
 #define HSTR_CONFIG_THEME_HICOLOR           "hicolor"
@@ -673,7 +674,11 @@ void print_help_label(void)
 void print_confirm_delete(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
+    if(hstr->view==HSTR_VIEW_FAVORITES) {
+        snprintf(screenLine, getmaxx(stdscr), "Do you want to delete favorites item '%s'? y/n", cmd);
+    } else {
+        snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
+    }
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -691,7 +696,11 @@ void print_confirm_delete(const char* cmd)
 void print_cmd_deleted_label(const char* cmd, int occurences)
 {
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+    if(hstr->view==HSTR_VIEW_FAVORITES) {
+        snprintf(screenLine, getmaxx(stdscr), "Favorites item '%s' deleted", cmd);
+    } else {
+        snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+    }
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -1159,7 +1168,7 @@ void highlight_selection(int selectionCursorPosition, int previousSelectionCurso
 int remove_from_history_model(char* almostDead)
 {
     if(hstr->view==HSTR_VIEW_FAVORITES) {
-        return favorites_remove(hstr->favorites, almostDead);
+        return (int)favorites_remove(hstr->favorites, almostDead);
     } else {
         // raw & ranked history is pruned first as its items point to system history lines
         int systemOccurences=0, rawOccurences=history_mgmt_remove_from_raw(almostDead, hstr->history);
@@ -1218,6 +1227,12 @@ void hide_notification(void)
 void loop_to_select(void)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
+
+    bool isSubshellHint=FALSE;
+    char* isSubshellHintText = getenv(HSTR_ENV_VAR_IS_SUBSHELL);
+    if(isSubshellHintText && strlen(isSubshellHintText)>0) {
+        isSubshellHint=TRUE;
+    }
 
     hstr_curses_start();
     // TODO move the code below to hstr_curses
@@ -1543,7 +1558,12 @@ void loop_to_select(void)
             break;
         case K_TAB:
         case KEY_RIGHT:
-            editCommand=TRUE;
+            if(!isSubshellHint) {
+                editCommand=TRUE;
+            } else {
+                // Not setting editCommand to TRUE here,
+                // because else an unnecessary blank line gets emitted before returning to prompt.
+            }
             if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
                 result=getResultFromSelection(selectionCursorPosition, hstr, result);
                 if(hstr->view==HSTR_VIEW_FAVORITES) {

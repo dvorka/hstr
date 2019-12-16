@@ -49,15 +49,16 @@ char* get_history_file_name(void)
 {
     char* historyFile = getenv(ENV_VAR_HISTFILE);
     if(!historyFile || strlen(historyFile)==0) {
-        char* home = getenv(ENV_VAR_HOME);
-        char* fileHistory;
         if(isZshParentShell()) {
-            fileHistory=FILE_ZSH_HISTORY;
+            historyFile = get_home_file_path(FILE_ZSH_HISTORY);
+            if(access(historyFile, F_OK) == -1) {
+                free(historyFile);
+                historyFile = get_home_file_path(FILE_ZSH_ZHISTORY);
+                // ... fallback if this file doesn't exist?
+            }
         } else {
-            fileHistory=FILE_DEFAULT_HISTORY;
+            historyFile = get_home_file_path(FILE_DEFAULT_HISTORY);
         }
-        historyFile = malloc(strlen(home) + 1 + strlen(fileHistory) + 1);
-        strcat(strcat(strcpy(historyFile, home), "/"), fileHistory);
     } else {
         // allocate so that this function always returns string to be freed
         // (getenv() returns pointer (no need to free), home is allocated (must be freed)

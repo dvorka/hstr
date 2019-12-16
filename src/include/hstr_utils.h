@@ -28,6 +28,8 @@
 #include <stdbool.h>
 #include <unistd.h>
 
+#define ENV_VAR_HOME "HOME"
+
 #define UNUSED_ARG(expr) do { (void)(expr); } while (0)
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
@@ -43,6 +45,7 @@ void tiocsti();
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char** array, unsigned length);
 void get_hostname(int bufferSize, char* buffer);
+char* get_home_file_path(char* filename);
 void toggle_case(char* str, bool lowercase);
 bool isZshParentShell(void);
 

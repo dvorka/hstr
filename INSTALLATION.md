@@ -78,7 +78,7 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-sudo dpkg -i hstr_-<major>.<minor>.<revision>_1-amd64.deb
+sudo dpkg -i hstr_-<major>.<minor>.<revision>-1-amd64.deb
 ```
 
 
