@@ -22,6 +22,7 @@ For more configuration options details please refer to:
     * [Bash Vim keymap](#bash-vim-keymap-default)
     * [zsh Emacs keymap](#zsh-emacs-keymap-default) (default)
 * create `hh` [alias](Alias) for `hstr`
+* use [environment variables](#environment-variables)
 * use [HSTR config options](#hstr-config-options)
     * get more [colors](#colors)
     * change [positioning of elements](#positioning)
@@ -115,18 +116,18 @@ alias hh=hstr
 Don't forget to source `~/.bashrc` to be able to to use `hh` command.
 
 
-## HSTR Config Options
-HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list** of options.
-
-
 ## Environment variables
+This is an overview of HSTR-specific environment variables:
 - `HISTFILE` (defaults to `~/.bash_history` or `~/.zsh_history`)
 - `HSTR_PROMPT` (defaults to `<user>@<hostname>$ `)
 - `HSTR_IS_SUBSHELL` (when HSTR is used in a subshell, set to `1` to fix output when pressing `TAB` or `RIGHT` arrow key)
 - `HSTR_CONFIG` (see below)
 
 
-## Colors
+## HSTR Config Options
+HSTR reads the environment variable `HSTR_CONFIG` for a **comma-separated list** of options.
+
+### Colors
 Let HSTR to use colors:
 
 ```bash
