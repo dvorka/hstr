@@ -5,8 +5,8 @@
 [![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka/hstr/releases)
 [![License](https://img.shields.io/github/license/dvorka/hstr?color=%23fe0000)](https://github.com/dvorka/hstr/blob/master/LICENSE)
 
-Easily view, navigate and search your **command history** with shell history suggest box for Bash and
-[zsh](CONFIGURATION.md#zsh-history-settings).
+Easily view, navigate and search your **command history** with shell history suggest box for 
+[bash](https://www.gnu.org/software/bash/) and [zsh](CONFIGURATION.md#zsh-history-settings).
 
 [![Shell History Suggest Box](doc/hstr-v2.gif "Shell History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
 
