@@ -16,21 +16,42 @@
 
 # Run HSTR w/ 1 history entry to hunt memleaks w/ valgrind
 
-# compile
+# true or ""
+export OPT_ALL_SCENARIOS=true
+
+# build
 cd .. && qmake CONFIG+=hstrdebug hstr.pro && make clean && make -j 8
 if [ ${?} -ne 0 ]
 then
     exit 1
 fi
 
+# test scenarios
+export FILE_SCENARIOS="/tmp/hstr-scenarios.txt"
+if [ ${OPT_ALL_SCENARIOS} ]
+then
+    echo "./hstr --help" > ${FILE_SCENARIOS}
+    echo "./hstr --show-configuration" >> ${FILE_SCENARIOS}
+    echo "./hstr --version" >> ${FILE_SCENARIOS}
+    echo "./hstr --show-blacklist" >> ${FILE_SCENARIOS}
+    echo "./hstr -n sudo" >> ${FILE_SCENARIOS}
+    echo "./hstr -n log" >> ${FILE_SCENARIOS}
+else
+    echo "./hstr --help" > ${FILE_SCENARIOS}	 
+fi	 
+
 # test history file - comment ALL HISTFILE exports below for test w/ production
 #export HISTFILE=`pwd`/test/resources/.bash_history_valgrind_empty
 export HISTFILE=`pwd`/test/resources/.bash_history_valgrind_1_entry
 
-# Valgrind
-#valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr -n hist
-valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr a
-# Valgrind's GDB
-#valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr -n hist
+# run tests w/ Valgrind
+cat ${FILE_SCENARIOS} | while read SCENARIO
+do
+    # Valgrind
+    valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ${SCENARIO}
+
+    # Valgrind's GDB
+    #valgrind --vgdb=yes --vgdb-error=0 --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ${SCENARIO}
+done
 
 # eof
