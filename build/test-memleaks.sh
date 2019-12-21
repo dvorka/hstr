@@ -38,8 +38,20 @@ then
     echo "./hstr -n sudo" >> ${FILE_SCENARIOS}
     echo "./hstr -n log" >> ${FILE_SCENARIOS}
 else
-    echo "./hstr a" > ${FILE_SCENARIOS}
+    echo "./hstr -n log" > ${FILE_SCENARIOS}
 fi	 
+# ELSE following scenarios must be run MANUALLY from CLI
+# valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr
+#   ENTER
+#   Ctrl-g
+#   a > ENTER
+#   a > right arrow
+# valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr log
+#   ENTER
+#   Ctrl-g
+#   right arrow
+
+
 
 # test history file - comment ALL HISTFILE exports below for test w/ production
 #export HISTFILE=`pwd`/../test/resources/.bash_history_valgrind_empty

@@ -34,10 +34,12 @@ void hstr_curses_start(void)
     }
 
 #if defined(NCURSES_EXT_FUNCS) && NCURSES_EXT_FUNCS >= 20081102
-    // Use ncurses specific function to make delay after pressing escape key
-    // unnoticeable.  Can be zero, but in some corner cases multiple bytes
-    // composing a functional key code might be handled to the application with
-    // a delay, so small delay is safer.
+    /*
+     * Use ncurses specific function to make delay after pressing escape key
+     * unnoticeable. Can be zero, but in some corner cases multiple bytes
+     * composing a functional key code might be handled to the application with
+     * a delay, so small delay is safer.
+     */
     set_escdelay(5);
 #endif
 }
@@ -53,4 +55,20 @@ void hstr_curses_stop(bool keepPage) {
     refresh();
     doupdate();
     endwin();
+
+    /* On ncurses memory leaks
+     *
+     * The ncurses configure script has an option, --disable-leaks, which you can
+     * use to continue the analysis. It tells ncurses to free memory if possible.
+     * However, most of the in-use memory is "permanent".
+     *
+     * Any implementation of curses must not free the memory associated with a screen,
+     * since (even after calling endwin()), it must be available for use in the next
+     * call to refresh(). There are also chunks of memory held for performance reasons.
+     * That makes it hard to analyze curses applications for memory leaks. To work
+     * around this, build a debugging version of the ncurses library which frees those
+     * chunks which it can, and provides the _nc_free_and_exit() function to free the
+     * remainder on exit. The ncurses utility and test programs use this
+     * feature, e.g., via the ExitProgram() macro.
+     */
 }
