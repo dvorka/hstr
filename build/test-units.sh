@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2018  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,7 +14,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Run unit tests.
+# Run unit tests: local + CI
+
+# TODO calculate CORE count and use it below
 
 # options
 #export OPTION_RUN_VALGRIND=yes # run test(s) w/ Valgrind (comment this line to disable)
