@@ -1582,7 +1582,7 @@ void loop_to_select(void)
         case K_CTRL_G:
         case K_ESC:
             result=NULL;
-            history_clear_dirty();
+            history_mgmt_clear_dirty();
             done=TRUE;
             break;
         case K_CTRL_X:
@@ -1660,9 +1660,7 @@ void hstr_interactive(void)
             stdout_history_and_return();
         }
         history_mgmt_flush();
-    } else {
-        printf("No history - nothing to suggest...\n");
-    }
+    } // else (no history) handled in create() method
 
     hstr_exit(EXIT_SUCCESS);
 }

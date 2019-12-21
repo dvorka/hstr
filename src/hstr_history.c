@@ -99,19 +99,25 @@ bool is_hist_timestamp(const char* line)
     return (i >= 11);
 }
 
+bool history_mgmt_load_history_file(void)
+{
+    char *historyFile = get_history_file_name();
+    // TODO memleak in readline lib: read_history() > add_history()
+    if(read_history(historyFile)!=0) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
+        free(historyFile);
+        return false;
+    }
+    free(historyFile);
+    return true;
+}
+
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
-
-    char *historyFile = get_history_file_name();
-    // TODO read_history() > add_history() w/ memory leak?
-    if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
-        // TODO memory leaks on prompt exit
-        // TODO make this function (one other occurence in this file)
-        exit(EXIT_FAILURE);
+    if(!history_mgmt_load_history_file()) {
+        return NULL;
     }
-    free(historyFile);
     HISTORY_STATE* historyState=history_get_history_state();
 
     bool isZsh = isZshParentShell();
@@ -236,6 +242,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         return prioritizedHistory;
     } else {
         // history/readline cleanup, clear_history() called on exit as entries are used by raw view
+        printf("No history - nothing to suggest...\n");
         free(historyState);
         return NULL;
     }
@@ -272,7 +279,7 @@ void history_mgmt_open(void)
     dirty=false;
 }
 
-void history_clear_dirty(void)
+void history_mgmt_clear_dirty(void)
 {
     dirty=false;
 }
@@ -319,18 +326,11 @@ int history_mgmt_remove_from_system_history(char *cmd)
 bool history_mgmt_remove_last_history_entry(bool verbose)
 {
     using_history();
-
-    char *historyFile = get_history_file_name();
-    // TODO read_history() > add_history() w/ memory leak?
-    if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
-        // TODO memory leaks on prompt exit
-        // TODO make this function (one other occurence in this file)
-        exit(EXIT_FAILURE);
+    if(!history_mgmt_load_history_file()) {
+        return false;
     }
-    free(historyFile);
-
     HISTORY_STATE *historyState=history_get_history_state();
+
     // delete the last command + the command that was used to run HSTR
     if(historyState->length > 1) {
         // length is NOT updated on history entry removal
@@ -339,14 +339,19 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
         }
         free_history_entry(remove_history(historyState->length-1));
         free_history_entry(remove_history(historyState->length-2));
-        write_history(get_history_file_name());
+        char *historyFile = get_history_file_name();
+        write_history(historyFile);
+        free(historyState);
+        free(historyFile);
+
         return true;
     }
-    free(historyState);
 
     if(verbose) {
         fprintf(stderr, "Unable to delete the last command from history.\n");
     }
+
+    free(historyState);
     return false;
 }
 

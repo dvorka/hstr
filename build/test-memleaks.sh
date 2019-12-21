@@ -18,6 +18,13 @@
 
 #export OPT_ALL_SCENARIOS=true
 
+# both valid and INVALID history file to be tested
+#export HISTFILE=
+export HISTFILE="/tmp/invalid-history-file-01"
+#export HISTFILE="~/.bash_history"
+#export HISTFILE="~/.zhistory"
+#export HISTFILE="~/.zshrc"
+
 # build
 cd .. && qmake CONFIG+=hstrdebug hstr.pro && make clean && make -j 8
 if [ ${?} -ne 0 ]
@@ -35,10 +42,10 @@ then
     echo "./hstr --show-configuration" >> ${FILE_SCENARIOS}
     echo "./hstr --show-zsh-configuration" >> ${FILE_SCENARIOS}
     echo "./hstr --show-blacklist" >> ${FILE_SCENARIOS}
-    echo "./hstr -n sudo" >> ${FILE_SCENARIOS}
+    echo "./hstr --non-interactive echo" >> ${FILE_SCENARIOS}
     echo "./hstr -n log" >> ${FILE_SCENARIOS}
 else
-    echo "./hstr -n log" > ${FILE_SCENARIOS}
+    echo "./hstr -k" > ${FILE_SCENARIOS}
 fi	 
 # ELSE following scenarios must be run MANUALLY from CLI
 # valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr

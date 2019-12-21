@@ -52,7 +52,8 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
 void prioritized_history_destroy(HistoryItems* h);
 
 void history_mgmt_open(void);
-void history_clear_dirty(void);
+void history_mgmt_clear_dirty(void);
+bool history_mgmt_load_history_file(void);
 int history_mgmt_remove_from_system_history(char* cmd);
 bool history_mgmt_remove_last_history_entry(bool verbose);
 int history_mgmt_remove_from_raw(char* cmd, HistoryItems* history);
