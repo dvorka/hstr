@@ -104,8 +104,11 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
     using_history();
 
     char *historyFile = get_history_file_name();
+    // TODO read_history() > add_history() w/ memory leak?
     if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
+        // TODO memory leaks on prompt exit
+        // TODO make this function (one other occurence in this file)
         exit(EXIT_FAILURE);
     }
     free(historyFile);
@@ -241,24 +244,26 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 
 void prioritized_history_destroy(HistoryItems* h)
 {
-    if(h->items) {
-        if(h->count) {
-            unsigned i;
-            for(i=0; i<h->count; i++) {
-                free(h->items[i]);
+    if(h) {
+        if(h->items) {
+            if(h->count) {
+                unsigned i;
+                for(i=0; i<h->count; i++) {
+                    free(h->items[i]);
+                }
             }
+            free(h->items);
         }
-        free(h->items);
+
+        if(h->rawItems) {
+            free(h->rawItems);
+        }
+
+        free(h);
+
+        // readline/history cleanup
+        free(history_get_history_state());
     }
-
-    if(h->rawItems) {
-        free(h->rawItems);
-    }
-
-    free(h);
-
-    // readline/history cleanup
-    free(history_get_history_state());
     clear_history();
 }
 
@@ -316,10 +321,15 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
     using_history();
 
     char *historyFile = get_history_file_name();
+    // TODO read_history() > add_history() w/ memory leak?
     if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n",historyFile);
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
+        // TODO memory leaks on prompt exit
+        // TODO make this function (one other occurence in this file)
         exit(EXIT_FAILURE);
     }
+    free(historyFile);
+
     HISTORY_STATE *historyState=history_get_history_state();
     // delete the last command + the command that was used to run HSTR
     if(historyState->length > 1) {
@@ -332,6 +342,8 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
         write_history(get_history_file_name());
         return true;
     }
+    free(historyState);
+
     if(verbose) {
         fprintf(stderr, "Unable to delete the last command from history.\n");
     }

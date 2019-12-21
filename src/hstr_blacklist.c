@@ -118,6 +118,10 @@ void blacklist_dump(Blacklist *blacklist)
             char **keys=hashset_keys(blacklist->set);
             for(i=0; i<size; i++) {
                 printf("  '%s'\n",keys[i]);
+                free(keys[i]);
+            }
+            if(keys) {
+                free(keys);
             }
             return;
         }

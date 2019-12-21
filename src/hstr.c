@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.1.0\" (2019-12-08T13:30:00)"
+        "hstr version \"2.2.0\" (2019-12-21T08:47:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -389,18 +389,18 @@ void hstr_destroy(void)
     free(hstr);
 }
 
-void hstr_on_exit(void)
+void hstr_exit(int status)
 {
-    history_mgmt_flush();
     hstr_destroy();
+    exit(status);
 }
 
 void signal_callback_handler_ctrl_c(int signum)
 {
     if(signum==SIGINT) {
+        history_mgmt_flush();
         hstr_curses_stop(false);
-        hstr_on_exit();
-        exit(signum);
+        hstr_exit(signum);
     }
 }
 
@@ -1659,10 +1659,12 @@ void hstr_interactive(void)
         } else {
             stdout_history_and_return();
         }
-        hstr_on_exit();
+        history_mgmt_flush();
     } else {
         printf("No history - nothing to suggest...\n");
     }
+
+    hstr_exit(EXIT_SUCCESS);
 }
 
 void hstr_getopt(int argc, char **argv)
@@ -1679,23 +1681,29 @@ void hstr_getopt(int argc, char **argv)
             break;
         case 'k':
             if(history_mgmt_remove_last_history_entry(hstr->verboseKill)) {
-                exit(EXIT_SUCCESS);
+                hstr_exit(EXIT_SUCCESS);
+                break;
             } else {
-                exit(EXIT_FAILURE);
+                hstr_exit(EXIT_FAILURE);
+                break;
             }
         case 'b':
             blacklist_load(&hstr->blacklist);
             blacklist_dump(&hstr->blacklist);
-            exit(EXIT_SUCCESS);
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case 'V':
             printf("%s", VERSION_STRING);
-            exit(EXIT_SUCCESS);
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case 'h':
             printf("%s", HELP_STRING);
-            exit(EXIT_SUCCESS);
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case 'z':
             printf("%s", INSTALL_ZSH_STRING);
-            exit(EXIT_SUCCESS);
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case 's':
             // ZSH_VERSION is not exported by zsh > detected by parent process name
             if(isZshParentShell()) {
@@ -1703,12 +1711,12 @@ void hstr_getopt(int argc, char **argv)
             } else {
                 printf("%s", INSTALL_BASH_STRING);
             }
-            exit(EXIT_SUCCESS);
-
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case '?':
         default:
             printf("%s", HELP_STRING);
-            exit(EXIT_SUCCESS);
+            hstr_exit(EXIT_SUCCESS);
         }
     }
 
@@ -1728,9 +1736,8 @@ int hstr_main(int argc, char* argv[])
     hstr_getopt(argc, argv);
     favorites_get(hstr->favorites);
     blacklist_load(&hstr->blacklist);
+    // hstr cleanup is handled by hstr_exit()
     hstr_interactive();
-
-    // hstr cleanup is handled by hstr_on_exit()
 
     return EXIT_SUCCESS;
 }

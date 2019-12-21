@@ -1,3 +1,8 @@
+2019-12-21  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v2.2.0 - toggle visibility/move help lines (Fabian Saldias),
+    zsh support fixes, several memory leaks fixed.
+
 2019-12-08  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v2.1.0 - significant zsh support improvements and stabilization.
