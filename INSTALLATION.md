@@ -102,7 +102,7 @@ If you want to make sure you have the latest version, then download `.rpm` archi
 [GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
 
 ```bash
-sudo rpm -Uvh ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm -y
+sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm
 ```
 
 ## openSUSE
