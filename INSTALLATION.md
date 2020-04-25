@@ -266,7 +266,7 @@ git clone https://github.com/dvorka/hstr.git
 Install dependencies:
 
 ```bash
-sudo apt install autotools gcc make libncursesw5-dev libreadline-dev
+sudo apt install autotools gcc make pkgconf libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:
