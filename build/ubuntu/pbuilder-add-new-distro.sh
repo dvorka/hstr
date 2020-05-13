@@ -15,7 +15,7 @@
 # limitations under the License.
 
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=disco
+export DISTRO=focal
 
 sudo pbuilder --create $DISTRO
 rm -vf ~/pbuilder/${DISTRO}-base.tgz
