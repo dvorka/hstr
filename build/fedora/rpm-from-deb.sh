@@ -62,10 +62,18 @@ function compose() {
 
 ######################################################################################
 
-#decompose
-# build HSTR locally to get binaries w/ right dependencies > replace hstr and hh binaries in decomposed .rpm
-compose
+# Steps:
+# 1. run decompose
+# 2. build HSTR manually (dependencies like libncursesw5 will be replaced w/ libncursesw6, etc.)
+#    build/tarball/tarball-automake.sh > cd .. > ./configure > make
+# 3. replace `hstr` binary in decomposed package ... so that compose can infer lib dependencies
+#    supported on fedure
+# 4. run compose
+# 5. install rpm to verify package
+#    sudo dnf install hstr-...rpm
 
-# sudo dnf install hstr.rpm
+#decompose
+# build HSTR
+# compose
 
 # end
