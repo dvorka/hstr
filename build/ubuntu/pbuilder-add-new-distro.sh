@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+# https://wiki.ubuntu.com/Releases
+
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=disco
+export DISTRO=fossa
 
 sudo pbuilder --create $DISTRO
 rm -vf ~/pbuilder/${DISTRO}-base.tgz

@@ -79,7 +79,7 @@
 #define HSTR_CONFIG_REGEXP                  "regexp-matching"
 #define HSTR_CONFIG_SUBSTRING               "substring-matching"
 #define HSTR_CONFIG_KEYWORDS                "keywords-matching"
-#define HSTR_CONFIG_NOCONFIRM               "no-confirm"
+#define HSTR_CONFIG_NO_CONFIRM              "no-confirm"
 #define HSTR_CONFIG_VERBOSE_KILL            "verbose-kill"
 #define HSTR_CONFIG_PROMPT_BOTTOM           "prompt-bottom"
 #define HSTR_CONFIG_HELP_ON_OPPOSITE_SIDE   "help-on-opposite-side"
@@ -531,7 +531,7 @@ void hstr_get_env_configuration()
             if(strstr(hstr_config,HSTR_CONFIG_SUBSTRING)) {
                 hstr->matching=HSTR_MATCH_SUBSTRING;
             } else {
-                if(strstr(hstr_config, HSTR_CONFIG_KEYWORDS)) {
+                if(strstr(hstr_config,HSTR_CONFIG_KEYWORDS)) {
                     hstr->matching=HSTR_MATCH_KEYWORDS;
                 }
             }
@@ -561,7 +561,7 @@ void hstr_get_env_configuration()
         if(strstr(hstr_config,HSTR_CONFIG_KEEP_PAGE)) {
             hstr->keepPage=true;
         }
-        if(strstr(hstr_config,HSTR_CONFIG_NOCONFIRM)) {
+        if(strstr(hstr_config,HSTR_CONFIG_NO_CONFIRM)) {
             hstr->noConfirm=true;
         }
         if(strstr(hstr_config,HSTR_CONFIG_STATIC_FAVORITES)) {
@@ -643,7 +643,7 @@ unsigned print_prompt(void)
 
 void add_to_selection(char* line, unsigned int* index)
 {
-    if (hstr->noRawHistoryDuplicates) {
+    if(hstr->noRawHistoryDuplicates) {
         unsigned i;
         for(i = 0; i < *index; i++) {
             if (strcmp(hstr->selection[i], line) == 0) {
