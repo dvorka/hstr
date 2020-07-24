@@ -36,8 +36,7 @@
 #define FILE_ZSH_HISTORY ".zsh_history"
 #define FILE_ZSH_ZHISTORY ".zhistory"
 
-#define ZSH_HISTORY_ITEM_OFFSET 15
-#define BASH_HISTORY_ITEM_OFFSET 0
+#define ZSH_HISTORY_EXT_DIGITS 10
 
 typedef struct {
     // ranked history
@@ -48,6 +47,7 @@ typedef struct {
     unsigned rawCount;
 } HistoryItems;
 
+char* parse_history_line(char *l);
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
 void prioritized_history_destroy(HistoryItems* h);
 
