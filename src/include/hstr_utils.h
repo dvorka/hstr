@@ -31,6 +31,7 @@
 #define ENV_VAR_HOME "HOME"
 
 #define UNUSED_ARG(expr) do { (void)(expr); } while (0)
+#define ZSH_META ((char) 0x83)
 
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
@@ -48,5 +49,6 @@ void get_hostname(int bufferSize, char* buffer);
 char* get_home_file_path(char* filename);
 void toggle_case(char* str, bool lowercase);
 bool isZshParentShell(void);
+char *zsh_unmetafy(char *s, int *len);
 
 #endif
