@@ -164,6 +164,9 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             } else {
                 line=historyList[i]->line;
             }
+            if (isZsh) {
+                line = zsh_unmetafy(line, NULL);
+            }
             rawHistory[rawOffset]=line;
             if(hashset_contains(blacklist, line)) {
                 continue;
