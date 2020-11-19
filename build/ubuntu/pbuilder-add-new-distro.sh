@@ -17,7 +17,7 @@
 # https://wiki.ubuntu.com/Releases
 
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=focal
+export DISTRO=groovy
 
 sudo pbuilder --create $DISTRO
 rm -vf ~/pbuilder/${DISTRO}-base.tgz
