@@ -18,6 +18,7 @@ TEMPLATE = app
 CONFIG += console
 CONFIG -= app_bundle
 CONFIG -= qt
+QMAKE_CFLAGS += -DHSTR_TESTS_UNIT
 
 # includes
 INCLUDEPATH += unity/src/c

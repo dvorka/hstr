@@ -29,6 +29,7 @@
 #include <stdio.h>
 #include "../../src/include/hashset.h"
 #include "../../src/include/hstr_utils.h"
+#include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
 #include "../../src/include/hstr.h"
 #include <string.h>
@@ -50,6 +51,7 @@ extern void test_regexp(void);
 extern void test_help_long(void);
 extern void test_help_short(void);
 extern void test_string_elide();
+extern void test_parse_history_line();
 
 
 /*=======Suite Setup=====*/
@@ -84,16 +86,17 @@ int main(void)
 {
   suite_setup();
   UnityBegin("../test/src/test.c");
-  RUN_TEST(test_args, 46);
-  RUN_TEST(test_getopt, 79);
-  RUN_TEST(test_locate_char_in_string_overflow, 162);
-  RUN_TEST(test_favorites, 173);
-  RUN_TEST(test_hashset_blacklist, 197);
-  RUN_TEST(test_hashset_get_keys, 212);
-  RUN_TEST(test_regexp, 233);
-  RUN_TEST(test_help_long, 273);
-  RUN_TEST(test_help_short, 289);
-  RUN_TEST(test_string_elide, 305);
+  RUN_TEST(test_args, 49);
+  RUN_TEST(test_getopt, 82);
+  RUN_TEST(test_locate_char_in_string_overflow, 165);
+  RUN_TEST(test_favorites, 176);
+  RUN_TEST(test_hashset_blacklist, 200);
+  RUN_TEST(test_hashset_get_keys, 215);
+  RUN_TEST(test_regexp, 236);
+  RUN_TEST(test_help_long, 276);
+  RUN_TEST(test_help_short, 292);
+  RUN_TEST(test_string_elide, 308);
+  RUN_TEST(test_parse_history_line, 340);
 
   return suite_teardown(UnityEnd());
 }
