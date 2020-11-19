@@ -21,7 +21,7 @@ For more configuration options details please refer to:
     * [Bash Emacs keymap](#bash-emacs-keymap--default) (default)
     * [Bash Vim keymap](#bash-vim-keymap)
     * [zsh Emacs keymap](#zsh-emacs-keymap) (default)
-* create `hh` [alias](Alias) for `hstr`
+* create `hh` [alias](#Alias) for `hstr`
 * use [environment variables](#environment-variables) and [HSTR config options](#hstr-config-options)
     * get more [colors](#colors)
     * change [positioning of elements](#positioning)
