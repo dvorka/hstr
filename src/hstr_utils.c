@@ -217,7 +217,9 @@ char *get_shell_name_by_ppid(const int pid)
           shell=strrchr(shell,'/');
           if(shell != NULL) {
               shell++;
-              strncpy(name,shell,sizeof(char)*strlen(shell));
+              unsigned len=strlen(shell)*sizeof(char);
+              name = realloc(name, len);
+              strncpy(name, shell, len);
           }
       }
     }

@@ -19,8 +19,8 @@
 #include "include/hstr_blacklist.h"
 
 static const char *defaultCommandBlacklist[] = {
-        "ls", "pwd", "cd", "cd ..", "hstr", "mc",
-        "ls ", "pwd ", "cd ", "cd .. ", "hstr ", "mc " // trailing space
+        "ls", "pwd", "cd", "cd ..", "hstr", "hh", "mc",
+        "ls ", "pwd ", "cd ", "cd .. ", "hstr ", "hh ", "mc " // trailing space
 };
 
 void blacklist_init(Blacklist *blacklist)

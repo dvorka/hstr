@@ -99,6 +99,38 @@ bool is_hist_timestamp(const char* line)
     return (i >= 11);
 }
 
+char* parse_history_line(char *l)
+{
+    if(
+#ifndef HSTR_TESTS_UNIT
+    !isZshParentShell() ||
+#endif
+    !l ||
+    l[0]!=':') {
+        return l;
+    }
+
+    // In zsh history file, the format of item CAN BE prefixed w/ timestamp
+    // [:][blank][unix_timestamp][:][0][;][cmd]
+    // Such as:
+    // : 1420549651:0;ls /tmp/b
+    // And the limit of unix timestamp 9999999999 is 2289/11/21,
+    // so we could skip first 15 chars in every zsh history item to get the cmd.
+    char *pt=l+2;
+    unsigned u;
+    for(u=0; u<ZSH_HISTORY_EXT_DIGITS && isdigit(*pt); u++, pt++);
+    if (u==ZSH_HISTORY_EXT_DIGITS && *pt==':') {
+        pt++;
+        while(isdigit(*pt)) {
+            pt++;
+            if(*pt==';')
+                return ++pt;
+        }
+    }
+
+    return l;
+}
+
 bool history_mgmt_load_history_file(void)
 {
     char *historyFile = get_history_file_name();
@@ -120,8 +152,6 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
     }
     HISTORY_STATE* historyState=history_get_history_state();
 
-    bool isZsh = isZshParentShell();
-
     if(historyState->length > 0) {
         HashSet rankmap;
         hashset_init(&rankmap);
@@ -139,7 +169,9 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         char *line;
         int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
-            unsigned itemOffset;
+            if(!historyList[i]->line || !strlen(historyList[i]->line)) {
+                continue;
+            }
 
             if(is_hist_timestamp(historyList[i]->line)) {
                 rawHistory[rawOffset]=0;
@@ -147,23 +179,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
                 continue;
             }
 
-            // In zsh history file, the format of item CAN BE prefixed w/ timestamp
-            // [:][blank][unix_timestamp][:][0][;][cmd]
-            // Such as:
-            // : 1420549651:0;ls /tmp/b
-            // And the limit of unix timestamp 9999999999 is 2289/11/21,
-            // so we could skip first 15 chars in every zsh history item to get the cmd.
-            if(isZsh && strlen(historyList[i]->line) && historyList[i]->line[0]==':') {
-                itemOffset=ZSH_HISTORY_ITEM_OFFSET;
-            } else {
-                itemOffset=BASH_HISTORY_ITEM_OFFSET;
-            }
-
-            if(historyList[i]->line && strlen(historyList[i]->line)>itemOffset) {
-                line=historyList[i]->line+itemOffset;
-            } else {
-                line=historyList[i]->line;
-            }
+            line=parse_history_line(historyList[i]->line);
             rawHistory[rawOffset]=line;
             if(hashset_contains(blacklist, line)) {
                 continue;
@@ -217,17 +233,6 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         for(u=0; u<rs.size; u++) {
             if(prioritizedRadix[u]->data) {
                 char* item = ((RankedHistoryItem*)(prioritizedRadix[u]->data))->item;
-                // In zsh history file, the format of item CAN BE prefixed w/ timestamp
-                // [:][blank][unix_timestamp][:][0][;][cmd]
-                // Such as:
-                // : 1420549651:0;ls /tmp/b
-                // And the limit of unix timestamp 9999999999 is 2289/11/21,
-                // so we could skip first 15 chars in every zsh history item to get the cmd.
-                if(isZsh && strlen(item) && item[0]==':') {
-                    if(strlen(item)>ZSH_HISTORY_ITEM_OFFSET) {
-                        item += ZSH_HISTORY_ITEM_OFFSET;
-                    }
-                }
                 prioritizedHistory->items[u]=item;
             }
             free(prioritizedRadix[u]->data);
