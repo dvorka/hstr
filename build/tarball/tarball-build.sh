@@ -24,10 +24,12 @@ export HSTR_VERSION="2.2.0"
 
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export GH_RELEASE_DIR=~/p/hstr/release
+export GH_SRC_DIR=~/p/hstr/github/hstr
 export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
 
 function makeTarballRelease() {
-    cp -vrf ${SCRIPT_HOME}/../../../hstr .
+    cp -vrf ${GH_SRC_DIR} .
+    mv `basename ${GH_SRC_DIR}` hstr
     cd hstr && rm -vrf debian doc test hstr && cd build/tarball && ./tarball-automake.sh --purge
     if [ ${?} -ne 0 ]
     then
@@ -48,6 +50,11 @@ echo "HSTR tarball and binary builder"
 if [ ! -e "../../.git" ]
 then
     echo "ERROR: this script must be run FROM Git repository"
+    exit 1
+fi
+if [ ! -e "${GH_SRC_DIR}" ]
+then
+    echo "ERROR: HSTR sources directory must exist: ${GH_SRC_DIR}"
     exit 1
 fi
 if [ ! -e "${GH_RELEASE_DIR}" ]
