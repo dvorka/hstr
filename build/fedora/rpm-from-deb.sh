@@ -20,7 +20,7 @@
 # This script is available from http://www.mindforger.com/fedora/fedora-rpm-from-deb.sh
 # to be easily available in VMs
 
-export MFVERSION="2.2.0"
+export MFVERSION="2.3.0"
 export MFPRJNAME="hstr-${MFVERSION}"
 export AMD64NAME="hstr_${MFVERSION}-1_amd64"
 export I386NAME="hstr_${MFVERSION}-1_i386"

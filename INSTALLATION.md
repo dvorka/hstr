@@ -78,7 +78,7 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.2/hstr_<major>.<minor>.<revision>-1_amd64.deb
+wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.3/hstr_<major>.<minor>.<revision>-1_amd64.deb
 
 # dependencies:
 apt-get install libncursesw5 libtinfo5

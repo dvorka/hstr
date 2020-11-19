@@ -163,14 +163,14 @@ then
     exit 1
 fi
 
-export ARG_BAZAAR_MSG="Release 2.2"
-export ARG_MAJOR_VERSION=2.2.
-export ARG_MINOR_VERSION=5 # minor version is incremented for every Ubuntu version
+export ARG_BAZAAR_MSG="Release 2.3"
+export ARG_MAJOR_VERSION=2.3.
+export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
 # old: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
 # current: trusty xenial bionic disco eoan focal
-for UBUNTU_VERSION in focal
+for UBUNTU_VERSION in bionic
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
