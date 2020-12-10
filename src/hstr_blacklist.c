@@ -74,10 +74,6 @@ void blacklist_load(Blacklist *blacklist)
                 fileContent[fileSize] = 0;
 
                 if(fileContent && strlen(fileContent)) {
-                    char *p=strchr(fileContent,'\n');
-                    while (p!=NULL) {
-                        p=strchr(p+1,'\n');
-                    }
                     char *pb=fileContent, *pe;
                     pe=strchr(fileContent, '\n');
                     while(pe!=NULL) {
