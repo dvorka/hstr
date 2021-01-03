@@ -101,9 +101,17 @@ bool is_hist_timestamp(const char* line)
 
 char* parse_history_line(char *l)
 {
+#ifndef HSTR_TESTS_UNIT
+    static bool isZsh, c;
+    if(!c) {
+        isZsh=isZshParentShell();
+        c=true;
+    }
+#endif
+
     if(
 #ifndef HSTR_TESTS_UNIT
-    !isZshParentShell() ||
+    !isZsh ||
 #endif
     !l ||
     l[0]!=':') {
