@@ -27,7 +27,9 @@
 
 typedef struct {
     char** items;
+    char** itemsView;
     unsigned count;
+    unsigned countView;
     bool loaded;
     bool reorderOnChoice;
     bool skipComments;

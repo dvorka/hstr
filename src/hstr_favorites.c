@@ -22,6 +22,8 @@
 
 void favorites_init(FavoriteItems* favorites)
 {
+    favorites->itemsView=NULL;
+    favorites->countView=0;
     favorites->items=NULL;
     favorites->count=0;
     favorites->loaded=false;
@@ -83,18 +85,26 @@ void favorites_get(FavoriteItems* favorites)
                 }
 
                 favorites->items = malloc(sizeof(char*) * favorites->count);
+                favorites->itemsView = malloc(sizeof(char*) * favorites->count);
                 favorites->count = 0;
                 char* pb=fileContent, *pe, *s;
                 pe=strchr(fileContent, '\n');
                 while(pe!=NULL) {
                     *pe=0;
-                    if(!hashset_contains(favorites->set,pb)) {
-                        if(!favorites->skipComments || !(strlen(pb) && pb[0]=='#')) {
-                            s=hstr_strdup(pb);
-                            favorites->items[favorites->count++]=s;
-                            hashset_add(favorites->set,s);
-                        }
+                    if(!strlen(pb)) {
+                        goto next;
                     }
+                    s=hstr_strdup(pb);
+                    favorites->items[favorites->count++]=s;
+                    if(pb[0]=='#' && favorites->skipComments) {
+                        goto next;
+                    }
+                    if(!hashset_contains(favorites->set,pb)) {
+                        s=hstr_strdup(pb);
+                        favorites->itemsView[favorites->countView++]=s;
+                        hashset_add(favorites->set,s);
+                    }
+next:
                     pb=pe+1;
                     pe=strchr(pb, '\n');
                 }
@@ -206,7 +216,11 @@ void favorites_destroy(FavoriteItems* favorites)
         for(i=0; i<favorites->count; i++) {
             free(favorites->items[i]);
         }
+        for(i=0; i<favorites->countView; i++) {
+            free(favorites->itemsView[i]);
+        }
         free(favorites->items);
+        free(favorites->itemsView);
         hashset_destroy(favorites->set, false);
         free(favorites->set);
         free(favorites);
