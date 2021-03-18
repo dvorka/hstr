@@ -9,6 +9,7 @@ Install:
 * [RHEL](#fedorarhelcentosscientific)
 * [Debian](#debianmint)
 * [Mint](#debianmint)
+* [Alpine Linux](#alpine-linux)
 * [Arch Linux](#archmanjaro-linux)
 * [Milis Linux](#milis-linux)
 * [Manjaro Linux](#archmanjaro-linux)
@@ -126,6 +127,16 @@ To install HSTR on Gentoo run (HSTR has been added to [Portage](https://bugs.gen
 
 ```bash
 emerge app-shells/hstr
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## Alpine Linux
+
+To install HSTR on Alpine Linux run the following command as root:
+
+```bash
+apk add hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
