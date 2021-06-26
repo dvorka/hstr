@@ -398,7 +398,7 @@ int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
 
 void history_mgmt_flush(void)
 {
-    if(dirty) {
+    if(dirty && !isZshParentShell()) {
         fill_terminal_input("history -r\n", false);
     }
 }
