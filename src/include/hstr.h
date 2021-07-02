@@ -26,7 +26,7 @@
 #elif defined(__FreeBSD__)
   #include <ncurses.h>
 #else
-  #include <ncursesw/curses.h>
+  #include <ncurses.h>
 #endif
 #include <readline/chardefs.h>
 #include <signal.h>
