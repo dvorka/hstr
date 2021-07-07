@@ -39,6 +39,7 @@ Install:
 * [Debian](INSTALLATION.md#debianmint)
 * [Mint](INSTALLATION.md#debianmint)
 * [Arch Linux](INSTALLATION.md#archmanjaro-linux)
+* [Milis Linux](INSTALLATION.md#milis-linux)
 * [Manjaro Linux](INSTALLATION.md#archmanjaro-linux)
 * [Scientific Linux](INSTALLATION.md#fedorarhelcentosscientific)
 * [Haiku OS](INSTALLATION.md#haiku-os)
