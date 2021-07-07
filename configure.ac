@@ -36,51 +36,32 @@ AC_PROG_CC
 # Determine OS
 AC_CANONICAL_HOST
 
-AC_CHECK_PROG(PKG_CONFIG_EXISTS,[pkg-config],[pkg-config],[no])
-if test "$PKG_CONFIG_EXISTS" = "no"
-then
+# Check for existence of pkg-config
+PKG_PROG_PKG_CONFIG
+
+AS_IF([ test -z $PKG_CONFIG ], [
     # Notify user that pkg-tools are required
     AC_MSG_NOTICE([===================================================================================])
     AC_MSG_NOTICE([IMPORTANT: Make sure you have pkg-config installed - it's needed to run this script])
     AC_MSG_NOTICE([===================================================================================])
     AC_MSG_ERROR([Please install required program 'pkg-config' and run build/tarball/tarball-automake.sh again.])
-fi
+])
 
-# PKG_CHECK_MODULES macro is NOT used to avoid confusing syntax errors in case that pkg-config is NOT installed
-AC_CHECK_LIB(ncursesw, killwchar, [],
-[
-    AC_CHECK_LIB(ncurses, killwchar, [], 
-    [
-        AC_SUBST([NCURSESW_CFLAGS])
-        AC_SUBST([NCURSESW_LIBS])
-        if pkg-config --exists ncursesw
-        then
-            AC_MSG_NOTICE([Module ncursesw found])
-            NCURSESW_CFLAGS=`pkg-config --cflags ncursesw`
-            NCURSESW_LIBS=`pkg-config --libs ncursesw`
-        else
-            if pkg-config --exists ncurses
-            then
-                AC_MSG_NOTICE([Module ncurses found])
-                NCURSESW_CFLAGS=`pkg-config --cflags ncursesw`
-                NCURSESW_LIBS=`pkg-config --libs ncurses`
-            else
-                AS_CASE([$host_os],
-                  [darwin*],
-                    [
-                      AC_CHECK_LIB(ncurses, killwchar, [], [AC_MSG_ERROR([Could not find ncurses library])])
-                      AC_CHECK_HEADER(curses.h)
-                    ],
-                  [
-                    AC_CHECK_LIB(ncursesw, killwchar, [], [AC_MSG_ERROR([Could not find ncursesw library])])
-                    AC_CHECK_HEADER(ncursesw/curses.h)
-                  ]
-                )
-            fi
-        fi
-    ]) # FAIL of ncurses
-]) # FAIL of ncursesw
-
+AS_IF([ test -n $PKG_CONFIG ], [
+       NCURSES_IMPL=ncurses
+       AS_IF([$PKG_CONFIG --exists ncursesw], [NCURSES_IMPL=ncursesw])
+       PKG_CHECK_MODULES([NCURSES], [$NCURSES_IMPL], ,
+			 [AC_MSG_ERROR([Could not find ncurses library])]
+			)
+     ], [
+      AC_CHECK_LIB(ncursesw, killwchar, [],
+		   [
+		    AC_CHECK_LIB(ncurses, killwchar, [],
+				 [AC_MSG_ERROR([Could not find ncurses library])]
+				)
+		   ])
+     ]
+)
 
 # Checks for libraries.
 AC_CHECK_LIB(m, cos, [], [AC_MSG_ERROR([Could not find m library])])
