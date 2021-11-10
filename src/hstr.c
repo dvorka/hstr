@@ -740,7 +740,7 @@ void print_cmd_added_favorite_label(const char* cmd)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYNotification, 0, screenLine);
+    mvprintw(hstr->promptYNotification, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
