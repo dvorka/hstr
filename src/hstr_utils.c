@@ -235,8 +235,8 @@ bool isZshParentShell(void) {
     return result;
 }
 
-/* from zsh utils.c https://github.com/zsh-users/zsh/blob/master/Src/utils.c#L4922 */
-char *zsh_unmetafy(char *s, int *len)
+/* See zsh utils.c https://github.com/zsh-users/zsh/blob/master/Src/utils.c#L4922 */
+char* zsh_unmetafy(char* s, int* len)
 {
   char *p, *t;
 
@@ -246,5 +246,6 @@ char *zsh_unmetafy(char *s, int *len)
       t[-1] = *p++ ^ 32;
   if (len)
     *len = t - s;
+
   return s;
 }

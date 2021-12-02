@@ -49,6 +49,6 @@ void get_hostname(int bufferSize, char* buffer);
 char* get_home_file_path(char* filename);
 void toggle_case(char* str, bool lowercase);
 bool isZshParentShell(void);
-char *zsh_unmetafy(char *s, int *len);
+char* zsh_unmetafy(char* s, int* len);
 
 #endif
