@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.4.0\" (2021-06-25T08:30:00)"
+        "hstr version \"2.4.0\" (2021-12-03T21:30:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
