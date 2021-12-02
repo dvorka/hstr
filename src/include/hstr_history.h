@@ -1,7 +1,7 @@
 /*
  hstr_history.h     header file for loading and processing of BASH history
 
- Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -36,8 +36,7 @@
 #define FILE_ZSH_HISTORY ".zsh_history"
 #define FILE_ZSH_ZHISTORY ".zhistory"
 
-#define ZSH_HISTORY_ITEM_OFFSET 15
-#define BASH_HISTORY_ITEM_OFFSET 0
+#define ZSH_HISTORY_EXT_DIGITS 10
 
 typedef struct {
     // ranked history
@@ -48,6 +47,7 @@ typedef struct {
     unsigned rawCount;
 } HistoryItems;
 
+char* parse_history_line(char *l);
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
 void prioritized_history_destroy(HistoryItems* h);
 

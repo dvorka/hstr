@@ -1,7 +1,7 @@
 /*
  hstr_blacklist.c       commands to be skipped from history
 
- Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -19,8 +19,8 @@
 #include "include/hstr_blacklist.h"
 
 static const char *defaultCommandBlacklist[] = {
-        "ls", "pwd", "cd", "cd ..", "hstr", "mc",
-        "ls ", "pwd ", "cd ", "cd .. ", "hstr ", "mc " // trailing space
+        "ls", "pwd", "cd", "cd ..", "hstr", "hh", "mc",
+        "ls ", "pwd ", "cd ", "cd .. ", "hstr ", "hh ", "mc " // trailing space
 };
 
 void blacklist_init(Blacklist *blacklist)

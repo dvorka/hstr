@@ -1,3 +1,11 @@
+2021-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v2.4.0 - inject any command to terminal and minor fixes.
+
+2020-11-19  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v2.3.0 - zsh timestamp extended history parsing and SEGFAULT fixes.
+
 2019-12-21  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v2.2.0 - toggle visibility/move help lines (Fabian Saldias),

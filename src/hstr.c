@@ -1,7 +1,7 @@
 /*
  hstr.c     HSTR shell history completion utility
 
- Copyright (C) 2014-2020 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -79,7 +79,7 @@
 #define HSTR_CONFIG_REGEXP                  "regexp-matching"
 #define HSTR_CONFIG_SUBSTRING               "substring-matching"
 #define HSTR_CONFIG_KEYWORDS                "keywords-matching"
-#define HSTR_CONFIG_NOCONFIRM               "no-confirm"
+#define HSTR_CONFIG_NO_CONFIRM              "no-confirm"
 #define HSTR_CONFIG_VERBOSE_KILL            "verbose-kill"
 #define HSTR_CONFIG_PROMPT_BOTTOM           "prompt-bottom"
 #define HSTR_CONFIG_HELP_ON_OPPOSITE_SIDE   "help-on-opposite-side"
@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.2.0\" (2019-12-21T08:47:00)"
+        "hstr version \"2.4.0\" (2021-12-03T21:30:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -263,6 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
+        "\n  --inject-in-terminal=[c] -i ... inject command c in terminal and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
@@ -287,6 +288,7 @@ static const struct option long_options[] = {
         {"show-configuration",     GETOPT_NO_ARGUMENT, NULL, 's'},
         {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL, 'z'},
         {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL, 'b'},
+        {"inject-in-terminal",     GETOPT_OPTIONAL_ARGUMENT, NULL, 'i'},
         {0,                        0,                  NULL,  0 }
 };
 
@@ -531,7 +533,7 @@ void hstr_get_env_configuration()
             if(strstr(hstr_config,HSTR_CONFIG_SUBSTRING)) {
                 hstr->matching=HSTR_MATCH_SUBSTRING;
             } else {
-                if(strstr(hstr_config, HSTR_CONFIG_KEYWORDS)) {
+                if(strstr(hstr_config,HSTR_CONFIG_KEYWORDS)) {
                     hstr->matching=HSTR_MATCH_KEYWORDS;
                 }
             }
@@ -561,7 +563,7 @@ void hstr_get_env_configuration()
         if(strstr(hstr_config,HSTR_CONFIG_KEEP_PAGE)) {
             hstr->keepPage=true;
         }
-        if(strstr(hstr_config,HSTR_CONFIG_NOCONFIRM)) {
+        if(strstr(hstr_config,HSTR_CONFIG_NO_CONFIRM)) {
             hstr->noConfirm=true;
         }
         if(strstr(hstr_config,HSTR_CONFIG_STATIC_FAVORITES)) {
@@ -643,7 +645,7 @@ unsigned print_prompt(void)
 
 void add_to_selection(char* line, unsigned int* index)
 {
-    if (hstr->noRawHistoryDuplicates) {
+    if(hstr->noRawHistoryDuplicates) {
         unsigned i;
         for(i = 0; i < *index; i++) {
             if (strcmp(hstr->selection[i], line) == 0) {
@@ -1668,7 +1670,7 @@ void hstr_interactive(void)
 void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fkVhnszb", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnszbi", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1688,6 +1690,10 @@ void hstr_getopt(int argc, char **argv)
         case 'b':
             blacklist_load(&hstr->blacklist);
             blacklist_dump(&hstr->blacklist);
+            hstr_exit(EXIT_SUCCESS);
+            break;
+        case 'i':
+            fill_terminal_input(optarg, FALSE);
             hstr_exit(EXIT_SUCCESS);
             break;
         case 'V':

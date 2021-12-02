@@ -9,6 +9,7 @@ Install:
 * [RHEL](#fedorarhelcentosscientific)
 * [Debian](#debianmint)
 * [Mint](#debianmint)
+* [Alpine Linux](#alpine-linux)
 * [Arch Linux](#archmanjaro-linux)
 * [Milis Linux](#milis-linux)
 * [Manjaro Linux](#archmanjaro-linux)
@@ -78,7 +79,7 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.2/hstr_<major>.<minor>.<revision>-1_amd64.deb
+wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.3/hstr_<major>.<minor>.<revision>-1_amd64.deb
 
 # dependencies:
 apt-get install libncursesw5 libtinfo5
@@ -126,6 +127,16 @@ To install HSTR on Gentoo run (HSTR has been added to [Portage](https://bugs.gen
 
 ```bash
 emerge app-shells/hstr
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## Alpine Linux
+
+To install HSTR on Alpine Linux run the following command as root:
+
+```bash
+apk add hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
@@ -266,7 +277,7 @@ git clone https://github.com/dvorka/hstr.git
 Install dependencies:
 
 ```bash
-sudo apt install autotools gcc make libncursesw5-dev libreadline-dev
+sudo apt install autotools gcc make pkgconf libncursesw5-dev libreadline-dev
 ```
 
 Create build files using:

@@ -1,7 +1,7 @@
 /*
  test.c     UNIT tests main for HSTR shell history completion utility
 
- Copyright (C) 2014-2020 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -16,6 +16,8 @@
  limitations under the License.
 */
 
+#define HSTR_TESTS_UNIT 1
+
 #include <string.h>
 #include <regex.h>
 #include <stdio.h>
@@ -27,6 +29,7 @@
 
 #include "../../src/include/hashset.h"
 #include "../../src/include/hstr_utils.h"
+#include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
 #include "../../src/include/hstr.h"
 
@@ -332,4 +335,22 @@ void test_string_elide()
     hstr_strelide(buffer, "0123456789", 8);
     TEST_ASSERT_EQUAL_STRING("012...89", buffer);
     printf("%s\n", buffer);
+}
+
+void test_parse_history_line()
+{
+    TEST_ASSERT_EQUAL(NULL, parse_history_line(NULL));
+
+    TEST_ASSERT_EQUAL_STRING("ls", parse_history_line("ls"));
+    TEST_ASSERT_EQUAL_STRING(":::", parse_history_line(":::"));
+
+    TEST_ASSERT_EQUAL_STRING(":vspman epoll_ctl", parse_history_line(": 1592444398:0;:vspman epoll_ctl"));
+    TEST_ASSERT_EQUAL_STRING("scan-view work/scans/2020-07-30-114451-3063582-1", parse_history_line(": 1596135828:6109;scan-view work/scans/2020-07-30-114451-3063582-1"));
+    TEST_ASSERT_EQUAL_STRING(":wq", parse_history_line(": 1592444398:0;:wq"));
+    TEST_ASSERT_EQUAL_STRING(":wq", parse_history_line(":wq"));
+
+    TEST_ASSERT_EQUAL_STRING(": 159244439:0;:wq", parse_history_line(": 159244439:0;:wq"));
+    TEST_ASSERT_EQUAL_STRING(": 1592444398:;:wq", parse_history_line(": 1592444398:;:wq"));
+    TEST_ASSERT_EQUAL_STRING(": 1592444398:0:wq", parse_history_line(": 1592444398:0:wq"));
+    TEST_ASSERT_EQUAL_STRING(":1592444398:0;:vspman epoll_ctl", parse_history_line(":1592444398:0;:vspman epoll_ctl"));
 }

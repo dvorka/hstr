@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2016-2020 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 # This script is available from http://www.mindforger.com/fedora/fedora-rpm-from-deb.sh
 # to be easily available in VMs
 
-export MFVERSION="2.2.0"
+export MFVERSION="2.4.0"
 export MFPRJNAME="hstr-${MFVERSION}"
 export AMD64NAME="hstr_${MFVERSION}-1_amd64"
 export I386NAME="hstr_${MFVERSION}-1_i386"
@@ -62,10 +62,18 @@ function compose() {
 
 ######################################################################################
 
-#decompose
-# build HSTR locally to get binaries w/ right dependencies > replace hstr and hh binaries in decomposed .rpm
-compose
+# Steps:
+# 1. run decompose
+# 2. build HSTR manually (dependencies like libncursesw5 will be replaced w/ libncursesw6, etc.)
+#    build/tarball/tarball-automake.sh > cd .. > ./configure > make
+# 3. replace `hstr` binary in decomposed package ... so that compose can infer lib dependencies
+#    supported on fedure
+# 4. run compose
+# 5. install rpm to verify package
+#    sudo dnf install hstr-...rpm
 
-# sudo dnf install hstr.rpm
+#decompose
+# build HSTR
+# compose
 
 # end
