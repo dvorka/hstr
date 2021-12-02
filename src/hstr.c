@@ -1,7 +1,7 @@
 /*
  hstr.c     HSTR shell history completion utility
 
- Copyright (C) 2014-2020 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -263,6 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
+        "\n  --inject-in-terminal=[c] -i ... inject command c in terminal and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
@@ -287,6 +288,7 @@ static const struct option long_options[] = {
         {"show-configuration",     GETOPT_NO_ARGUMENT, NULL, 's'},
         {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL, 'z'},
         {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL, 'b'},
+        {"inject-in-terminal",     GETOPT_OPTIONAL_ARGUMENT, NULL, 'i'},
         {0,                        0,                  NULL,  0 }
 };
 
@@ -1668,7 +1670,7 @@ void hstr_interactive(void)
 void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fkVhnszb", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnszbi", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1688,6 +1690,10 @@ void hstr_getopt(int argc, char **argv)
         case 'b':
             blacklist_load(&hstr->blacklist);
             blacklist_dump(&hstr->blacklist);
+            hstr_exit(EXIT_SUCCESS);
+            break;
+        case 'i':
+            fill_terminal_input(optarg, FALSE);
             hstr_exit(EXIT_SUCCESS);
             break;
         case 'V':
