@@ -24,8 +24,8 @@ Print filtered history on standard output and exit
 \fB-k --kill-last-command\fR
 Delete the last command from history and exit
 .TP 
-\fB-i --inject-in-terminal=[command]\fR
-Inject custom command to terminal prompt and exit
+\fB-i --insert-in-terminal=[command]\fR
+Insert custom command to terminal prompt and exit
 .TP
 \fB-f --favorites\fR
 Show favorites view immediately
@@ -225,7 +225,7 @@ bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode
 \fBhstr --show-blacklist\fR
  Show blacklist configured for history processing.
 .TP
-\fBhstr --inject-in-terminal="git add . && git diff --cached"\fR
+\fBhstr --insert-in-terminal="git add . && git diff --cached"\fR
  Insert command in terminal prompt and exit.
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>

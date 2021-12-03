@@ -1,6 +1,6 @@
 2021-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.4.0 - ability to inject custom command to terminal prompt,
+  * Released v2.4.0 - ability to insert custom command to terminal prompt,
     minor fixes.
 
 2020-11-19  Martin Dvorak  <martin.dvorak@mindforger.com>

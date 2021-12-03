@@ -263,7 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
-        "\n  --inject-in-terminal=[c] -i ... inject command c in terminal prompt and exit"
+        "\n  --insert-in-terminal=[c] -i ... insert command c in terminal prompt and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
@@ -280,16 +280,16 @@ static const char* LABEL_HELP=
 #define GETOPT_OPTIONAL_ARGUMENT     2
 
 static const struct option long_options[] = {
-        {"favorites",              GETOPT_NO_ARGUMENT, NULL, 'f'},
-        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL, 'k'},
-        {"version",                GETOPT_NO_ARGUMENT, NULL, 'V'},
-        {"help",                   GETOPT_NO_ARGUMENT, NULL, 'h'},
-        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL, 'n'},
-        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL, 's'},
-        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL, 'z'},
-        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL, 'b'},
-        {"inject-in-terminal",     GETOPT_OPTIONAL_ARGUMENT, NULL, 'i'},
-        {0,                        0,                  NULL,  0 }
+        {"favorites",              GETOPT_NO_ARGUMENT, NULL,       'f'},
+        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL,       'k'},
+        {"version",                GETOPT_NO_ARGUMENT, NULL,       'V'},
+        {"help",                   GETOPT_NO_ARGUMENT, NULL,       'h'},
+        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL,       'n'},
+        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL,       's'},
+        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL,       'z'},
+        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL,       'b'},
+        {"insert-in-terminal",     GETOPT_REQUIRED_ARGUMENT, NULL, 'i'},
+        {0,                        0,                  NULL,        0 }
 };
 
 typedef struct {
