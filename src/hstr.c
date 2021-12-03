@@ -263,7 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
-        "\n  --inject-in-terminal=[c] -i ... inject command c in terminal and exit"
+        "\n  --inject-in-terminal=[c] -i ... inject command c in terminal prompt and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
