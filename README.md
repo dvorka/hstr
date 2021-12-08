@@ -62,6 +62,7 @@ Tarball:
 
 * [build and install tarball](INSTALLATION.md#build-and-install-tarball)
 
+Check also [packages](https://pkgs.org/search/?q=hstr) for Linux and Unix.
 
 ## Configuration
 Configure HSTR just by running:

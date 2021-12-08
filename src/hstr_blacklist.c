@@ -1,7 +1,7 @@
 /*
  hstr_blacklist.c       commands to be skipped from history
 
- Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -74,17 +74,12 @@ void blacklist_load(Blacklist *blacklist)
                 fileContent[fileSize] = 0;
 
                 if(fileContent && strlen(fileContent)) {
-                    char *p=strchr(fileContent,'\n');
-                    while (p!=NULL) {
-                        p=strchr(p+1,'\n');
-                    }
-                    char *pb=fileContent, *pe, *s;
+                    char *pb=fileContent, *pe;
                     pe=strchr(fileContent, '\n');
                     while(pe!=NULL) {
                         *pe=0;
                         if(!hashset_contains(blacklist->set,pb)) {
-                            s=hstr_strdup(pb);
-                            hashset_add(blacklist->set,s);
+                            hashset_add(blacklist->set,pb);
                         }
                         pb=pe+1;
                         pe=strchr(pb, '\n');
@@ -151,8 +146,10 @@ void blacklist_destroy(Blacklist *blacklist, bool freeBlacklist)
                             exit(EXIT_FAILURE);
                         }
                     }
+                    free(keys[i]);
                 }
                 fclose(outputFile);
+                free(keys);
             } else {
                 if(access(fileName, F_OK) != -1) {
                     FILE *outputFile = fopen(fileName, "wb");

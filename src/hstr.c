@@ -1,7 +1,7 @@
 /*
  hstr.c     HSTR shell history completion utility
 
- Copyright (C) 2014-2020 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.3.0\" (2020-11-19T07:41:00)"
+        "hstr version \"2.4.0\" (2021-12-03T21:30:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -263,6 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
+        "\n  --insert-in-terminal=[c] -i ... insert command c in terminal prompt and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
         "\n"
@@ -279,15 +280,16 @@ static const char* LABEL_HELP=
 #define GETOPT_OPTIONAL_ARGUMENT     2
 
 static const struct option long_options[] = {
-        {"favorites",              GETOPT_NO_ARGUMENT, NULL, 'f'},
-        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL, 'k'},
-        {"version",                GETOPT_NO_ARGUMENT, NULL, 'V'},
-        {"help",                   GETOPT_NO_ARGUMENT, NULL, 'h'},
-        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL, 'n'},
-        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL, 's'},
-        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL, 'z'},
-        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL, 'b'},
-        {0,                        0,                  NULL,  0 }
+        {"favorites",              GETOPT_NO_ARGUMENT, NULL,       'f'},
+        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL,       'k'},
+        {"version",                GETOPT_NO_ARGUMENT, NULL,       'V'},
+        {"help",                   GETOPT_NO_ARGUMENT, NULL,       'h'},
+        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL,       'n'},
+        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL,       's'},
+        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL,       'z'},
+        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL,       'b'},
+        {"insert-in-terminal",     GETOPT_REQUIRED_ARGUMENT, NULL, 'i'},
+        {0,                        0,                  NULL,        0 }
 };
 
 typedef struct {
@@ -1668,7 +1670,7 @@ void hstr_interactive(void)
 void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fkVhnszb", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnszbi", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1688,6 +1690,10 @@ void hstr_getopt(int argc, char **argv)
         case 'b':
             blacklist_load(&hstr->blacklist);
             blacklist_dump(&hstr->blacklist);
+            hstr_exit(EXIT_SUCCESS);
+            break;
+        case 'i':
+            fill_terminal_input(optarg, FALSE);
             hstr_exit(EXIT_SUCCESS);
             break;
         case 'V':

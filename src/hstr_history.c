@@ -1,7 +1,7 @@
 /*
  hstr_history.c     loading and processing of BASH history
 
- Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -134,6 +134,10 @@ char* parse_history_line(char *l)
             if(*pt==';')
                 return ++pt;
         }
+    }
+
+    if (isZsh) {
+        l = zsh_unmetafy(l, NULL);
     }
 
     return l;
@@ -398,7 +402,7 @@ int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
 
 void history_mgmt_flush(void)
 {
-    if(dirty) {
+    if(dirty && !isZshParentShell()) {
         fill_terminal_input("history -r\n", false);
     }
 }

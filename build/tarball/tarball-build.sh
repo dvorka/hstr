@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -20,7 +20,7 @@
 
 export SCRIPT_HOME=`pwd`
 
-export HSTR_VERSION="2.3.0"
+export HSTR_VERSION="2.4.0"
 
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
 export GH_RELEASE_DIR=~/p/hstr/release

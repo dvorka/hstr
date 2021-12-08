@@ -1,7 +1,7 @@
 /*
  hstr_utils.c       utilities
 
- Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -233,4 +233,19 @@ bool isZshParentShell(void) {
     bool result=cmdline && strstr(cmdline, "zsh");
     free(cmdline);
     return result;
+}
+
+/* See zsh utils.c https://github.com/zsh-users/zsh/blob/master/Src/utils.c#L4922 */
+char* zsh_unmetafy(char* s, int* len)
+{
+  char *p, *t;
+
+  for (p = s; *p && *p != ZSH_META; p++);
+  for (t = p; (*t = *p++);)
+    if (*t++ == ZSH_META)
+      t[-1] = *p++ ^ 32;
+  if (len)
+    *len = t - s;
+
+  return s;
 }

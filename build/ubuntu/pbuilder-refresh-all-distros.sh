@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2020  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,8 +14,10 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# old distros: precise quantal saucy utopic
-for DISTRO in trusty xenial bionic disco eoan
+# https://wiki.ubuntu.com/Releases
+# obsolete: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
+# current : (trusty) xenial bionic (cosmic disco eoan) focal (groovy) hirsute impish
+for DISTRO in xenial bionic focal hirsute impish
 do
 
 sudo pbuilder --create ${DISTRO}
