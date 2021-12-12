@@ -34,8 +34,7 @@ Tarball:
 
 * [build and install tarball](#build-and-install-tarball)
 # Install
-Install HSTR using a [package](https://pkgs.org/search/?q=hstr).
-
+Install HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository.
 ## Ubuntu
 HSTR is [included in Ubuntu 21.10](https://packages.ubuntu.com/impish/utils/hstr) and [newer](https://wiki.ubuntu.com/Releases) releases:
 
@@ -243,6 +242,10 @@ guix package -i hstr
 
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+
+# Upgrade
+Upgrade HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository. If you are `HSTR 1.x` user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
 
 
 # Build
