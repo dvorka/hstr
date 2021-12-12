@@ -34,10 +34,18 @@ Tarball:
 
 * [build and install tarball](#build-and-install-tarball)
 # Install
-Install HSTR using a package.
+Install HSTR using a [package](https://pkgs.org/search/?q=hstr).
 
 ## Ubuntu
-Install HSTR on Ubuntu using one-liner:
+HSTR is [included in Ubuntu 21.10](https://packages.ubuntu.com/impish/utils/hstr) and [newer](https://wiki.ubuntu.com/Releases) releases:
+
+```
+sudo apt install hstr
+```
+
+---
+
+Install HSTR on **Ubuntu 21.04 and older** using one-liner:
 
 ```bash
 sudo add-apt-repository ppa:ultradvorka/ppa && sudo apt-get update && sudo apt-get install hstr && hstr --show-configuration >> ~/.bashrc && . ~/.bashrc
@@ -54,7 +62,15 @@ sudo apt-get install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
-Install HSTR from PPA. Add [my PPA](https://www.mindforger.com/debian),
+HSTR is [included in Debian 11](https://packages.debian.org/bullseye/hstr) and [newer](https://www.debian.org/releases/) releases:
+
+```
+sudo apt install hstr
+```
+
+---
+
+Install HSTR on **Debian 10 and older** from my PPA. Add [PPA](https://www.mindforger.com/debian),
 trust [GPG key](https://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
@@ -79,7 +95,7 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.3/hstr_<major>.<minor>.<revision>-1_amd64.deb
+wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.4/hstr_<major>.<minor>.<revision>-1_amd64.deb
 
 # dependencies:
 apt-get install libncursesw5 libtinfo5
@@ -89,7 +105,7 @@ sudo dpkg -i hstr.deb
 
 
 ## Fedora/RHEL/CentOS/Scientific
-Install HSTR on Fedora, RHEL, CentOS or Scientific Linux:
+Install HSTR on [Fedora](https://src.fedoraproject.org/rpms/hstr), RHEL, CentOS or Scientific Linux:
 
 ```bash
 sudo dnf install hstr
@@ -105,14 +121,14 @@ sudo yum install hstr
 ---
 
 If you want to make sure you have the latest version, then download `.rpm` archive from
-[GitHub releases](https://github.com/dvorka/hstr/releases) and install it:
+[GitHub releases](https://github.com/dvorka/hstr/releases) or [pkgs.org](https://pkgs.org/search/?q=hstr) and install it:
 
 ```bash
 sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm
 ```
 
 ## openSUSE
-To install HSTR on openSUSE, please check https://software.opensuse.org/package/hstr first. You can install HSTR as shown below (just choose repository you like):
+To install HSTR on openSUSE, please check [software.opensuse.org](https://software.opensuse.org/package/hstr) or [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
 zypper addrepo https://download.opensuse.org/repositories/home:lemmy04/openSUSE_Leap_15.1/home:lemmy04.repo
@@ -121,7 +137,6 @@ zypper install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
-
 ## Gentoo
 To install HSTR on Gentoo run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
 
@@ -141,13 +156,50 @@ apk add hstr
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+## ALT Linux
+To install HSTR on ALT Linux, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
+
+```bash
+rpm [p10] http://ftp.altlinux.org/pub/distributions/ALTLinux/autoimports/p10 x86_64 autoimports
+rpm [p10] http://ftp.altlinux.org/pub/distributions/ALTLinux/autoimports/p10 noarch autoimports
+
+sudo apt-get update
+
+sudo apt-get install hstr
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## Arch/Manjaro Linux
-To install HSTR on Arch or Manjaro Linux download the latest distribution from [GitHub releases](https://github.com/dvorka/hstr/releases).
+To install HSTR on Arch or Manjaro Linux download the latest distribution either from [pkgs.org](https://pkgs.org/search/?q=hstr) or [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
 
 To install HSTR from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hstr-git/) run `yaourt -S hstr-git` in command line.
 
+## FreeBSD
+To install HSTR on FreeBSD, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
+
+```bash
+pkg install hstr
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+## Slackware
+To install HSTR on Slackware, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
+
+```bash
+upgradepkg --install-new hstr-2.4-x86_64-1cf.txz
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+## Void Linux
+To install HSTR on Void Linux, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
+
+```bash
+xbps-install -Su hstr
+```
+
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 ## Milis Linux
 To install HSTR on Milis Linux run the following commands as root:
 
