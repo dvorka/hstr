@@ -33,6 +33,10 @@ Build:
 Tarball:
 
 * [build and install tarball](#build-and-install-tarball)
+
+Upgrade:
+
+* [HSTR 1.x to 2.x](#upgrade)
 # Install
 Install HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository.
 ## Ubuntu
@@ -242,10 +246,6 @@ guix package -i hstr
 
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
-
-
-# Upgrade
-Upgrade HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository. If you are `HSTR 1.x` user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
 
 
 # Build
@@ -489,3 +489,7 @@ Expand the archive and install HSTR using:
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+# Upgrade
+Upgrade HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository. If you are `HSTR 1.x` user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
+
+
