@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.4.0\" (2021-12-03T21:30:00)"
+        "hstr version \"2.5.0\" (2021-12-13T22:00:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -742,7 +742,7 @@ void print_cmd_added_favorite_label(const char* cmd)
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
     }
-    mvprintw(hstr->promptYNotification, 0, screenLine);
+    mvprintw(hstr->promptYNotification, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_off(A_BOLD);
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));

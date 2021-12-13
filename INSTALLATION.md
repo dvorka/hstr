@@ -98,7 +98,7 @@ Alternatively you can download and install `.deb` archive from [GitHub releases]
 section of the project:
 
 ```bash
-wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/2.4/hstr_<major>.<minor>.<revision>-1_amd64.deb
+wget -O hstr.deb https://github.com/dvorka/hstr/releases/download/<major>.<minor>/hstr_<major>.<minor>.<revision>-1_amd64.deb
 
 # dependencies:
 apt-get install libncursesw5 libtinfo5
@@ -191,7 +191,7 @@ pkg install hstr
 To install HSTR on Slackware, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
-upgradepkg --install-new hstr-2.4-x86_64-1cf.txz
+upgradepkg --install-new hstr-<major>.<minor>-x86_64-1cf.txz
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).

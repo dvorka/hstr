@@ -163,8 +163,8 @@ then
     exit 1
 fi
 
-export ARG_BAZAAR_MSG="Release 2.4"
-export ARG_MAJOR_VERSION=2.4.
+export ARG_BAZAAR_MSG="Release 2.5"
+export ARG_MAJOR_VERSION=2.5.
 export ARG_MINOR_VERSION=7 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
