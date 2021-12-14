@@ -165,7 +165,7 @@ fi
 
 export ARG_BAZAAR_MSG="Release 2.5"
 export ARG_MAJOR_VERSION=2.5.
-export ARG_MINOR_VERSION=7 # minor version is incremented for every Ubuntu version
+export ARG_MINOR_VERSION=0 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
 # obsolete: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
