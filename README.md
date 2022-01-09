@@ -49,7 +49,7 @@ Install:
 * [macOS](INSTALLATION.md#macos)
 * [nix package manager](INSTALLATION.md#nix-package-manager)
 * [Guix package manager](INSTALLATION.md#guix-package-manager)
-* [MPR](INSTALLATION.md#mpr-package-manager)
+* [MPR package manager](INSTALLATION.md#mpr-package-manager)
 
 Build:
 
