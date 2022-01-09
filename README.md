@@ -68,6 +68,7 @@ Tarball:
 
 Check also [packages](https://pkgs.org/search/?q=hstr) for Linux and Unix.
 
+
 ## Configuration
 Configure HSTR just by running:
 
@@ -93,5 +94,7 @@ man hstr
 ```
 
 User videos: [Zack](https://www.youtube.com/watch?v=Qd75pIeQkH8), [Dvorka](https://www.youtube.com/watch?v=sPF29NyXe2U) and [Yu-Jie Lin](https://www.youtube.com/watch?v=Qx5n_5B5xUw).
+
+
 ## Bugs
 https://github.com/dvorka/hstr/issues
