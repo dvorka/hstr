@@ -322,6 +322,8 @@ Build and install HSTR using:
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+Alternatively, you can use [MPR](https://makedeb.hunterwittenborn.com/home/introduction/) and install `hstr-git` package.
+
 ## Build on Debian
 To build HSTR on Debian clone Git repository:
 
@@ -346,6 +348,8 @@ Build and install HSTR using:
 ```bash
 ./configure && make && make install
 ```
+
+Alternatively, you can use [MPR](https://makedeb.hunterwittenborn.com/home/introduction/) and install `hstr-git` package.
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
