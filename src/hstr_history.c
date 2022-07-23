@@ -364,6 +364,7 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
         free(historyState);
         free(historyFile);
 
+        dirty=true;
         return true;
     }
 
@@ -406,6 +407,6 @@ int history_mgmt_remove_from_ranked(char *cmd, HistoryItems *history) {
 void history_mgmt_flush(void)
 {
     if(dirty && !is_zsh_parent_shell()) {
-        fill_terminal_input("history -r\n", false);
+        fill_terminal_input(" \\history -r\n", false);
     }
 }

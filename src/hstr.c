@@ -338,8 +338,8 @@ void hstr_exit(int status)
 void signal_callback_handler_ctrl_c(int signum)
 {
     if(signum==SIGINT) {
-        history_mgmt_flush();
         hstr_curses_stop(false);
+        history_mgmt_flush();
         hstr_exit(signum);
     }
 }
@@ -1605,7 +1605,6 @@ void loop_to_select(void)
         case K_CTRL_G:
         case K_ESC:
             result=NULL;
-            history_mgmt_clear_dirty();
             done=TRUE;
             break;
         case K_CTRL_X:
@@ -1636,6 +1635,9 @@ void loop_to_select(void)
         }
     }
     hstr_curses_stop(hstr->keepPage);
+    if(deletedOccurences > 0) {
+        history_mgmt_flush();
+    }
 
     if(result!=NULL) {
         if(fixCommand) {
@@ -1683,7 +1685,6 @@ void hstr_interactive(void)
         } else {
             stdout_history_and_return();
         }
-        history_mgmt_flush();
     } // else (no history) handled in create() method
 
     hstr_exit(EXIT_SUCCESS);
@@ -1703,6 +1704,7 @@ void hstr_getopt(int argc, char **argv)
             break;
         case 'k':
             if(history_mgmt_remove_last_history_entry(hstr->verboseKill)) {
+                history_mgmt_flush();
                 hstr_exit(EXIT_SUCCESS);
                 break;
             } else {
