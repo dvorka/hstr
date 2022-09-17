@@ -1,5 +1,4 @@
 # HSTR
-[![Travis CI](https://travis-ci.org/dvorka/hstr.svg?branch=master)](https://travis-ci.org/dvorka/hstr)
 [![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
 [![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka/hstr/issues)
 [![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka/hstr/releases)
@@ -50,6 +49,7 @@ Install:
 * [macOS](INSTALLATION.md#macos)
 * [nix package manager](INSTALLATION.md#nix-package-manager)
 * [Guix package manager](INSTALLATION.md#guix-package-manager)
+* [MPR package manager](INSTALLATION.md#mpr-package-manager)
 
 Build:
 
@@ -67,6 +67,7 @@ Tarball:
 * [build and install tarball](INSTALLATION.md#build-and-install-tarball)
 
 Check also [packages](https://pkgs.org/search/?q=hstr) for Linux and Unix.
+
 
 ## Configuration
 Configure HSTR just by running:
@@ -93,5 +94,7 @@ man hstr
 ```
 
 User videos: [Zack](https://www.youtube.com/watch?v=Qd75pIeQkH8), [Dvorka](https://www.youtube.com/watch?v=sPF29NyXe2U) and [Yu-Jie Lin](https://www.youtube.com/watch?v=Qx5n_5B5xUw).
+
+
 ## Bugs
 https://github.com/dvorka/hstr/issues
