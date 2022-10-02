@@ -1098,7 +1098,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
                 if(hstr->matching==HSTR_MATCH_REGEXP) {
                     start=hstr->selectionRegexpMatch[i].rm_so;
                     count=hstr->selectionRegexpMatch[i].rm_eo-start;
-                    if(count>CMDLINE_LNG) {
+                    if(count>=CMDLINE_LNG) {
                         count=CMDLINE_LNG-1;
                     }
                     strncpy(screenLine,
