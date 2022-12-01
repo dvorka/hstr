@@ -226,6 +226,12 @@ Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://form
 brew install hstr
 ```
 
+You can also install HSTR on macOS using [MacPorts](https://www.macports.org) ([port info](https://ports.macports.org/port/hstr/)):
+
+```bash
+sudo port install hstr
+```
+
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## nix package manager
