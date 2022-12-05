@@ -114,7 +114,8 @@ char* parse_history_line(char *l)
     !isZsh ||
 #endif
     !l ||
-    l[0]!=':') {
+    l[0]!=':' ||
+    l[1]!=' ') {
         return l;
     }
 
