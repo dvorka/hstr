@@ -108,13 +108,14 @@ char* parse_history_line(char *l)
         c=true;
     }
 #endif
-
+    isZsh=true;
     if(
 #ifndef HSTR_TESTS_UNIT
     !isZsh ||
 #endif
     !l ||
-    l[0]!=':') {
+    l[0]!=':' ||
+    l[1]!=' ') {
         return l;
     }
 
