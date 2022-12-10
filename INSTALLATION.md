@@ -18,6 +18,7 @@ Install:
 * [macOS](#macos)
 * [nix package manager](#nix-package-manager)
 * [Guix package manager](#guix-package-manager)
+* [MPR package manager](#mpr-package-manager)
 
 Build:
 
@@ -234,7 +235,6 @@ To install HSTR using the [nix package manager](https://nixos.org/nix/) e.g. on 
 nix-env -i hstr
 ```
 
-
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Guix package manager
@@ -244,9 +244,15 @@ To install HSTR in [GuixSD](https://www.gnu.org/software/guix/) or using the sta
 guix package -i hstr
 ```
 
+[Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
+## MPR package manager
+To install HSTR in Ubuntu or derivative operating systems using MPR, you can search for `hstr-git` using helper
+or install it manually using `makedeb -s`
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+[MPR package](https://mpr.hunterwittenborn.com/packages/hstr-git)
 
 # Build
 Build HSTR from source code.
@@ -322,6 +328,7 @@ Build and install HSTR using:
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
+
 ## Build on Debian
 To build HSTR on Debian clone Git repository:
 
@@ -346,6 +353,7 @@ Build and install HSTR using:
 ```bash
 ./configure && make && make install
 ```
+
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
