@@ -1273,7 +1273,8 @@ void loop_to_select(void)
     pattern[0]=0;
     // TODO this is too late! > don't render twice
     // TODO overflow
-    strcpy(pattern, hstr->cmdline);
+    strncpy(pattern, hstr->cmdline, SELECTION_PREFIX_MAX_LNG-1);
+    pattern[SELECTION_PREFIX_MAX_LNG-1]=0;
 
     while (!done) {
         maxHistoryItems=recalculate_max_history_items();
