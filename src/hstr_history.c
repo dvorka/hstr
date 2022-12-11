@@ -137,9 +137,11 @@ char* parse_history_line(char *l)
         }
     }
 
+#ifndef HSTR_TESTS_UNIT
     if (isZsh) {
         l = zsh_unmetafy(l, NULL);
     }
+#endif
 
     return l;
 }
