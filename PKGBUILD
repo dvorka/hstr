@@ -7,7 +7,12 @@ pkgname=hstr
 pkgver=2.5
 pkgrel=1
 pkgdesc="A command line utility that brings improved BASH command completion from the history. It aims to make completion easier and more efficient than Ctrl-r."
-arch=('any')
+arch=('x86_64'
+	'i686'
+	'arm'
+	'armv6h'
+	'armv7h'
+	'aarch64')
 url="https://github.com/dvorka/hstr"
 license=('Apache')
 makedepends=('autoconf' 'automake' 'ncurses' 'readline')
