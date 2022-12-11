@@ -1,7 +1,7 @@
 /*
  hstr_utils.c       utilities
 
- Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -217,7 +217,7 @@ char *get_shell_name_by_ppid(const int pid)
           shell=strrchr(shell,'/');
           if(shell != NULL) {
               shell++;
-              unsigned len=strlen(shell)*sizeof(char);
+              unsigned len=(strlen(shell)+1)*sizeof(char);
               name = realloc(name, len);
               strncpy(name, shell, len);
           }

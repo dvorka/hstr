@@ -1,7 +1,7 @@
 /*
  test.c     UNIT tests main for HSTR shell history completion utility
 
- Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2022 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -35,19 +35,23 @@
 
 /*
  * IMPORTANT: make sure to run TEST RUNNER GENERATOR script after any change to this file!
- *
  */
 
 void setUp(void)
 {
+    // code to be run before this test suite
 }
 
 void tearDown(void)
 {
+    // code to be after this test suite
 }
 
 void test_args(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
     const unsigned  LINELNG = 500;
     int argc = 3;
     char* argv[argc];
@@ -55,6 +59,7 @@ void test_args(void)
     argv[1] = "-o";
     argv[2] = "_args";
 
+    // WHEN
     if(argc>0) {
         int i;
         char line[LINELNG];
@@ -72,6 +77,7 @@ void test_args(void)
             strcat(line, " ");
         }
 
+        // THEN
         printf("#%s#\n", line);
         TEST_ASSERT_EQUAL_STRING("hstr -o _args ", line);
     } else {
@@ -81,6 +87,9 @@ void test_args(void)
 
 void test_getopt(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
     int argc = 3;
     char* argv[argc];
     argv[0] = "hstr";
@@ -164,6 +173,8 @@ void test_getopt(void)
 
 void test_locate_char_in_string_overflow(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     TEST_ASSERT_EQUAL_STRING(0, strchr("a\nb",1));
 
     printf("%s\n",strchr("a\nb",98));
@@ -175,6 +186,8 @@ void test_locate_char_in_string_overflow(void)
 
 void test_favorites(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     FavoriteItems favoriteItems;
 
     favorites_init(&favoriteItems);
@@ -199,6 +212,8 @@ void test_favorites(void)
 
 void test_hashset_blacklist()
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     const char* commandBlacklist[] = { "a","b","c","d","e" };
     HashSet blacklist;
     int i;
@@ -214,6 +229,8 @@ void test_hashset_blacklist()
 
 void test_hashset_get_keys()
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     const char* commandBlacklist[] = { "a","b","c","d","e" };
     HashSet blacklist;
     int i;
@@ -235,6 +252,8 @@ void test_hashset_get_keys()
 
 void test_regexp(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     unsigned REGEXP_MATCH_BUFFER_SIZE = 10;
 
     bool caseSensitive=false;
@@ -275,6 +294,8 @@ void test_regexp(void)
 
 void test_help_long(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     TEST_IGNORE_MESSAGE("Tests exits the program");
 
     char* ARG_HSTR = "hstr";
@@ -291,6 +312,8 @@ void test_help_long(void)
 
 void test_help_short(void)
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     TEST_IGNORE_MESSAGE("Tests exits the program");
 
     char* ARG_HSTR = "hstr";
@@ -307,6 +330,8 @@ void test_help_short(void)
 
 void test_string_elide()
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     char buffer[1000];
 
     // do nothing - string fits to screen
@@ -339,6 +364,8 @@ void test_string_elide()
 
 void test_parse_history_line()
 {
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
     TEST_ASSERT_EQUAL(NULL, parse_history_line(NULL));
 
     TEST_ASSERT_EQUAL_STRING("ls", parse_history_line("ls"));

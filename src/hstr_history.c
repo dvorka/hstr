@@ -1,7 +1,7 @@
 /*
  hstr_history.c     loading and processing of BASH history
 
- Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -114,7 +114,8 @@ char* parse_history_line(char *l)
     !isZsh ||
 #endif
     !l ||
-    l[0]!=':') {
+    l[0]!=':' ||
+    l[1]!=' ') {
         return l;
     }
 
@@ -136,9 +137,11 @@ char* parse_history_line(char *l)
         }
     }
 
+#ifndef HSTR_TESTS_UNIT
     if (isZsh) {
         l = zsh_unmetafy(l, NULL);
     }
+#endif
 
     return l;
 }

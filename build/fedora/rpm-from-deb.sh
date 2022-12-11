@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2022 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -20,7 +20,7 @@
 # This script is available from http://www.mindforger.com/fedora/fedora-rpm-from-deb.sh
 # to be easily available in VMs
 
-export MFVERSION="2.5.0"
+export MFVERSION="2.6.0"
 export MFPRJNAME="hstr-${MFVERSION}"
 export AMD64NAME="hstr_${MFVERSION}-1_amd64"
 export I386NAME="hstr_${MFVERSION}-1_i386"

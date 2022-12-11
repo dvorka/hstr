@@ -2,7 +2,7 @@
 <!--
  pad.xml        PAD file for HSTR
 
- Copyright (C) 2014-2021  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -51,10 +51,10 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>HSTR</Program_Name>
-		<Program_Version>2.5.0</Program_Version>
+		<Program_Version>2.6.0</Program_Version>
 		<Program_Release_Month>12</Program_Release_Month>
-		<Program_Release_Day>13</Program_Release_Day>
-		<Program_Release_Year>2021</Program_Release_Year>
+		<Program_Release_Day>10</Program_Release_Day>
+		<Program_Release_Year>2022</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code>USD</Program_Cost_Other_Code>
 		<Program_Cost_Other />

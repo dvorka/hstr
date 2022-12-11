@@ -79,7 +79,7 @@ trust [GPG key](https://www.mindforger.com/gpgpubkey.txt) and install HSTR:
 
 ```bash
 # add PPA to APT sources:
-sudo echo -e "\ndeb https://www.mindforger.com/debian stretch main" >> /etc/apt/sources.list
+sudo bash -c 'echo -e "\ndeb https://www.mindforger.com/debian stretch main" > /etc/apt/sources.list.d/mindforger.list'
 
 # import PPA's GPG key
 wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
@@ -87,7 +87,7 @@ wget -qO - https://www.mindforger.com/gpgpubkey.txt | sudo apt-key add -
 # update sources
 sudo apt update
 
-# install MindForger
+# install HSTR
 sudo apt install hstr
 ```
 
@@ -224,6 +224,12 @@ Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://form
 
 ```bash
 brew install hstr
+```
+
+You can also install HSTR on macOS using [MacPorts](https://www.macports.org) ([port info](https://ports.macports.org/port/hstr/)):
+
+```bash
+sudo port install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).

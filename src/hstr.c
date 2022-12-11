@@ -1,7 +1,7 @@
 /*
  hstr.c     HSTR shell history completion utility
 
- Copyright (C) 2014-2021 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2022 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.5.0\" (2021-12-13T22:00:00)"
+        "hstr version \"2.6.0\" (2022-12-11T22:00:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -1098,7 +1098,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
                 if(hstr->matching==HSTR_MATCH_REGEXP) {
                     start=hstr->selectionRegexpMatch[i].rm_so;
                     count=hstr->selectionRegexpMatch[i].rm_eo-start;
-                    if(count>CMDLINE_LNG) {
+                    if(count>=CMDLINE_LNG) {
                         count=CMDLINE_LNG-1;
                     }
                     strncpy(screenLine,
@@ -1272,8 +1272,8 @@ void loop_to_select(void)
     char pattern[SELECTION_PREFIX_MAX_LNG];
     pattern[0]=0;
     // TODO this is too late! > don't render twice
-    // TODO overflow
-    strcpy(pattern, hstr->cmdline);
+    strncpy(pattern, hstr->cmdline, SELECTION_PREFIX_MAX_LNG-1);
+    pattern[SELECTION_PREFIX_MAX_LNG-1]=0;
 
     while (!done) {
         maxHistoryItems=recalculate_max_history_items();
