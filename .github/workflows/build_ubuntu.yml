@@ -11,7 +11,7 @@ jobs:
           submodules: recursive
 
       - name: Install packages
-        run: sudo apt-get update && sudo apt install -y build-essential qt5-qmake ccache libncursesw5-dev libreadline-dev
+        run: sudo apt-get update && sudo apt install -y build-essential qt5-default qt5-qmake ccache libncursesw5-dev libreadline-dev
 
       - name: Build lib and run unit tests using Unity test framework
         run: cd test && qmake hstr-unit-tests.pro && make clean all && ./hstr-unit-tests
