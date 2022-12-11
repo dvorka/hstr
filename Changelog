@@ -1,6 +1,7 @@
-2022-12-??  Martin Dvorak  <martin.dvorak@mindforger.com>
+2022-12-11  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.6.0 - fix release.
+  * Released v2.6.0 - fix release (several memory leak and overflow fixes,
+    MacPorts and Debian documentation, Snap script fix, GitHub Actions workflow).
 
 2021-12-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
