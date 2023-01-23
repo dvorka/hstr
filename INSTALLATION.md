@@ -41,7 +41,7 @@ Upgrade:
 # Install
 Install HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository.
 ## Ubuntu
-HSTR is [included in Ubuntu 21.10](https://packages.ubuntu.com/impish/utils/hstr) and [newer](https://wiki.ubuntu.com/Releases) releases:
+HSTR is [included in Ubuntu 21.10](https://packages.ubuntu.com/search?keywords=hstr) and [newer](https://wiki.ubuntu.com/Releases) releases:
 
 ```
 sudo apt install hstr
