@@ -106,7 +106,7 @@ void hstr_chop(char *s)
     }
 }
 
-#if !defined(__MS_WSL__) && !defined(__CYGWIN__) && !defined(DEBUG_NO_TIOCSTI)
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__) && !defined(LINUX_KERNEL_6) && !defined(DEBUG_NO_TIOCSTI)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -120,7 +120,7 @@ void tiocsti()
 void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#if defined(__MS_WSL__) || defined(__CYGWIN__) || defined(DEBUG_NO_TIOCSTI)
+#if defined(__MS_WSL__) || defined(__CYGWIN__) || defined(LINUX_KERNEL_6) || defined(DEBUG_NO_TIOCSTI)
         fprintf(stderr, "%s", cmd);
         if(padding) fprintf(stderr, "%s", "\n");
 #else

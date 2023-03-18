@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.6.0\" (2022-12-11T22:00:00)"
+        "hstr version \"2.7.0\" (2023-03-11T18:15:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -190,7 +190,7 @@ static const char* INSTALL_BASH_STRING=
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
-#elif defined(__CYGWIN__)
+#elif defined(__CYGWIN__) || defined(LINUX_KERNEL_6)
         "\nfunction hstrcygwin {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
