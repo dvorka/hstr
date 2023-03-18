@@ -60,3 +60,7 @@ hstrdebug {
     QMAKE_CC = ccache gcc
 }
 QMAKE_LINK = gcc
+
+DEFINES += LINUX_KERNEL_6
+
+message(DEFINES of hstr.pro build: $$DEFINES)
