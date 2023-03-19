@@ -12,6 +12,7 @@
 /src/hstr
 /src/hh
 .deps/
+.vscode
 Makefile
 Makefile.in
 *.o

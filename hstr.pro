@@ -1,6 +1,6 @@
-# hstr.pro     Qt project file for HSTR shell history compleation utility
+# hstr.pro     Qt project file for HSTR shell history completion utility
 #
-# Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -61,6 +61,7 @@ hstrdebug {
 }
 QMAKE_LINK = gcc
 
-DEFINES += LINUX_KERNEL_6
+# TIOCSTI debugging:
+# DEFINES += __CYGWIN__
 
 message(DEFINES of hstr.pro build: $$DEFINES)

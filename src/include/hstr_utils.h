@@ -1,7 +1,7 @@
 /*
  hstr_utils.h       header file for HSTR utilities
 
- Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -20,12 +20,14 @@
 #define HSTR_UTILS_H
 
 #include <ctype.h>
+#include <fcntl.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <termios.h>
 #include <unistd.h>
 
 #define ENV_VAR_HOME "HOME"
@@ -36,10 +38,51 @@
 #define MIN(a,b) (((a)<(b))?(a):(b))
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
+// TIOCSTI is an acronym for "Terminal Input Output Control STack Input",
+// and it is a system call used in Unix-like operating systems.
+// The TIOCSTI system call allows to insert data into the input buffer
+// of a terminal as if it had been typed by the user.
+//
+// TIOCSTI is NOT available on:
+//  - Linux kernel >=6.2.0
+//  - Cygwin
+//  - WSL
+//
+// HSTR uses TIOCSTI to insert a command chosen by the user in HSTR
+// to shell prompt.
+//
+// HSTR run:
+//
+// - user runs `hstr` command
+//   - `hstr` checks whther TIOCSTI is supported by the kernel or not
+//      - if SUPPORTED, then HSTR continues as it will be able to insert
+//        any chosen command into bash prompt
+//      - if NOT supported, then:
+//        - HSTR checks for HSTR_TIOCSTI environment variable:
+//          - if it is NOT defined, then it prints error and asks
+//            user to configure HSTR (--show-configuration >> .*rc)
+//          - if it is DEFINED, then:
+//            - if it is SET to `n`, then HSTR presumes that it has
+//              been configured (shell function is defined) and continues > DONE
+//            - OTHERWISE it prints error and ask user to configure HSTR
+//
+// HSTR features related to TIOCSTI
+//
+// - HSTR can detect whether TIOCSTI is supported by the kernel:
+//     hstr --is-tiocsti
+//   the command returns "y" or "n" (and exit code: 0 or 1)
+// - HSTR checks for the following env variable if TIOCSTI is not detected
+//     HSTR_TIOCSTI=y or HSTR_TIOCSTI=n
+//
+
+// global TIOCSTI indicator declaration
+extern bool is_tiocsti;
+
 char* hstr_strdup(const char* s);
 int hstr_strlen(const char* s);
 char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);
+bool is_tiocsti_supported();
 #ifndef __CYGWIN__
 void tiocsti();
 #endif
@@ -48,7 +91,7 @@ void reverse_char_pointer_array(char** array, unsigned length);
 void get_hostname(int bufferSize, char* buffer);
 char* get_home_file_path(char* filename);
 void toggle_case(char* str, bool lowercase);
-bool isZshParentShell(void);
+bool is_zsh_parent_shell(void);
 char* zsh_unmetafy(char* s, int* len);
 
 #endif
