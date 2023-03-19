@@ -133,7 +133,9 @@ bool is_tiocsti_supported()
    }
 
    bool is_supported = false;
-   if (!ioctl(fd, TIOCSTI, "a")) {
+   // probe w/o sending characters which would appear @ prompt
+   if (!ioctl(fd, TIOCSTI, " ")) { // send character to probe
+      tcflush(fd, TCIOFLUSH); // flush probe character so that it doesn't appear @ prompt
       return true;
    }
    close(fd);

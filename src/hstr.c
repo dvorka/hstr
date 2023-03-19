@@ -1704,9 +1704,9 @@ void hstr_getopt(int argc, char **argv)
             break;
         case 't':
             if(is_tiocsti) {
-                printf("y");
+                printf("y\n");
             } else {
-                printf("n");
+                printf("n\n");
             }
             hstr_exit(EXIT_SUCCESS);
             break;
