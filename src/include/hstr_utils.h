@@ -82,9 +82,9 @@ char* hstr_strdup(const char* s);
 int hstr_strlen(const char* s);
 char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);
-bool is_tiocsti_supported();
+bool is_tiocsti_supported(void);
 #ifndef __CYGWIN__
-void tiocsti();
+void tiocsti(void);
 #endif
 void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char** array, unsigned length);
