@@ -111,31 +111,30 @@ void hstr_chop(char *s)
     }
 }
 
-bool is_tiocsti_supported()
+bool is_tiocsti_supported(void)
 {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)
     return false;
 #else
-
    int fd;
    struct termios t;
 
    fd = open("/dev/tty", O_RDWR);
    if (fd < 0) {
-      perror("open /dev/tty");
       printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
+      perror("open /dev/tty");
       return false;
    }
    if (tcgetattr(fd, &t) < 0) {
-      perror("tcgetattr");
       printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
+      perror("tcgetattr");
       return false;
    }
 
    bool is_supported = false;
-   // probe w/o sending characters which would appear @ prompt
-   if (!ioctl(fd, TIOCSTI, " ")) { // send character to probe
-      tcflush(fd, TCIOFLUSH); // flush probe character so that it doesn't appear @ prompt
+   // probe TIOCSTI by sending (and clearing) the character
+   if (!ioctl(fd, TIOCSTI, " ")) { // send probe character
+      tcflush(fd, TCIOFLUSH); // flush probe character (avoid insert to prompt)
       return true;
    }
    close(fd);
@@ -145,7 +144,7 @@ bool is_tiocsti_supported()
 }
 
 #if !defined(__MS_WSL__) && !defined(__CYGWIN__)
-void tiocsti()
+void tiocsti(void)
 {
     char buf[] = DEFAULT_COMMAND;
     unsigned i;

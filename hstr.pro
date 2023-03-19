@@ -62,6 +62,6 @@ hstrdebug {
 QMAKE_LINK = gcc
 
 # TIOCSTI debugging:
-# DEFINES += __CYGWIN__
+#DEFINES += DEBUG_NO_TIOCSTI
 
 message(DEFINES of hstr.pro build: $$DEFINES)

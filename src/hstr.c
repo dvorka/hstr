@@ -157,7 +157,7 @@ static const char* HSTR_CASE_LABELS[]={
         "sensitive"
 };
 
-static const char* INSTALL_BASH_STRING=
+static const char* INSTALL_BASH_CODE_PREFIX=
         "\n# HSTR configuration - add this to ~/.bashrc"
         "\nalias hh=hstr                    # hh to be alias for hstr"
         "\nexport HSTR_CONFIG=hicolor       # get more colors"
@@ -177,33 +177,7 @@ static const char* INSTALL_BASH_STRING=
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different bash sessions)
         "\n# ensure synchronization between bash memory and history file"
         "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
-        "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
-#if defined(__MS_WSL__)
-        // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
-        // Script hints:
-        //  {...} is inline group ~ lambda function whose vars are visible to the other commands
-        //   V=$(c) executes commands and stores it to var V
-        "\nfunction hstrwsl {"
-        "\n  offset=${READLINE_POINT}"
-        "\n  READLINE_POINT=0"
-        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n  READLINE_POINT=${#READLINE_LINE}"
-        "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
-#elif defined(__CYGWIN__)
-        "\nfunction hstrcygwin {"
-        "\n  offset=${READLINE_POINT}"
-        "\n  READLINE_POINT=0"
-        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n  READLINE_POINT=${#READLINE_LINE}"
-        "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrcygwin\"'; fi"
-#else
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hstr -- \\C-j\"'; fi"
-        "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"
-        "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-xk\": \"\\C-a hstr -k \\C-j\"'; fi"
-#endif
-        "\n\n";
+        "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)";
 
 // zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
 static const char* INSTALL_ZSH_STRING=
@@ -405,6 +379,64 @@ void signal_callback_handler_ctrl_c(int signum)
         history_mgmt_flush();
         hstr_curses_stop(false);
         hstr_exit(signum);
+    }
+}
+
+void print_bash_install_code(void)
+{
+    printf("%s", INSTALL_BASH_CODE_PREFIX);
+
+    if(is_tiocsti) {
+        printf(
+            "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hstr -- \\C-j\"'; fi"
+            "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"
+            "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-xk\": \"\\C-a hstr -k \\C-j\"'; fi"
+            "\nexport HSTR_TIOCSTI=y"
+        );
+    } else {
+        printf(
+#if defined(__MS_WSL__)
+        // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
+        // Script hints:
+        //  {...} is inline group ~ lambda function whose vars are visible to the other commands
+        //   V=$(c) executes commands and stores it to var V
+        "\nfunction hstrwsl {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
+#elif defined(__CYGWIN__)
+        "\nfunction hstrcygwin {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrcygwin\"'; fi"
+#else
+        "\nfunction hstrnotiocsti {"
+        "\n  offset=${READLINE_POINT}"
+        "\n  READLINE_POINT=0"
+        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
+        "\n  READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrnotiocsti\"'; fi"
+#endif
+        );
+        printf("\nexport HSTR_TIOCSTI=n");
+    }
+
+    printf("\n\n");
+}
+
+void print_zsh_install_code(void)
+{
+    if(is_tiocsti) {
+
+    } else {
+
     }
 }
 
@@ -1209,6 +1241,7 @@ void stdout_history_and_return(void)
 }
 
 // IMPROVE hstr doesn't have to be passed as parameter - it's global static
+// TODO rename method _
 char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* result) {
     if (hstr->promptBottom) {
         result=hstr->selection[hstr->promptItems-selectionCursorPosition-1];
@@ -1723,7 +1756,7 @@ void hstr_getopt(int argc, char **argv)
             if(is_zsh_parent_shell()) {
                 printf("%s", INSTALL_ZSH_STRING);
             } else {
-                printf("%s", INSTALL_BASH_STRING);
+                print_bash_install_code();
             }
             hstr_exit(EXIT_SUCCESS);
             break;
@@ -1744,7 +1777,11 @@ int hstr_main(int argc, char* argv[])
     setlocale(LC_ALL, "");
 
     // initialize global TIOCSTI indicator
+#ifdef DEBUG_NO_TIOCSTI
+    is_tiocsti = false;
+#else
     is_tiocsti = is_tiocsti_supported();
+#endif
 
     hstr=malloc(sizeof(Hstr));
     hstr_init();
