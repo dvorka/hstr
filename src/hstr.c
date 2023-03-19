@@ -1,7 +1,7 @@
 /*
  hstr.c     HSTR shell history completion utility
 
- Copyright (C) 2014-2022 Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.7.0\" (2023-03-11T18:15:00)"
+        "hstr version \"2.7.0\" (2023-03-19T18:15:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -190,7 +190,7 @@ static const char* INSTALL_BASH_STRING=
         "\n  READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
-#elif defined(__CYGWIN__) || defined(LINUX_KERNEL_6)
+#elif defined(__CYGWIN__)
         "\nfunction hstrcygwin {"
         "\n  offset=${READLINE_POINT}"
         "\n  READLINE_POINT=0"
@@ -263,6 +263,7 @@ static const char* HELP_STRING=
         "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
         "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
         "\n  --show-blacklist         -b ... show commands to skip on history indexation"
+        "\n  --is-tiocsti             -t ... detect whether TIOCSTI is supported and print y or n"
         "\n  --insert-in-terminal=[c] -i ... insert command c in terminal prompt and exit"
         "\n  --version                -V ... show version details"
         "\n  --help                   -h ... help"
@@ -288,6 +289,7 @@ static const struct option long_options[] = {
         {"show-configuration",     GETOPT_NO_ARGUMENT, NULL,       's'},
         {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL,       'z'},
         {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL,       'b'},
+        {"is-tiocsti",             GETOPT_NO_ARGUMENT, NULL,       't'},
         {"insert-in-terminal",     GETOPT_REQUIRED_ARGUMENT, NULL, 'i'},
         {0,                        0,                  NULL,        0 }
 };
@@ -1670,7 +1672,7 @@ void hstr_interactive(void)
 void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fkVhnszbi", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnszbti", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1700,6 +1702,14 @@ void hstr_getopt(int argc, char **argv)
             printf("%s", VERSION_STRING);
             hstr_exit(EXIT_SUCCESS);
             break;
+        case 't':
+            if(is_tiocsti) {
+                printf("y");
+            } else {
+                printf("n");
+            }
+            hstr_exit(EXIT_SUCCESS);
+            break;
         case 'h':
             printf("%s", HELP_STRING);
             hstr_exit(EXIT_SUCCESS);
@@ -1710,7 +1720,7 @@ void hstr_getopt(int argc, char **argv)
             break;
         case 's':
             // ZSH_VERSION is not exported by zsh > detected by parent process name
-            if(isZshParentShell()) {
+            if(is_zsh_parent_shell()) {
                 printf("%s", INSTALL_ZSH_STRING);
             } else {
                 printf("%s", INSTALL_BASH_STRING);
@@ -1732,6 +1742,9 @@ void hstr_getopt(int argc, char **argv)
 int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
+
+    // initialize global TIOCSTI indicator
+    is_tiocsti = is_tiocsti_supported();
 
     hstr=malloc(sizeof(Hstr));
     hstr_init();

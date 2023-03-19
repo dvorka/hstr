@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -163,8 +163,8 @@ then
     exit 1
 fi
 
-export ARG_BAZAAR_MSG="Release 2.6"
-export ARG_MAJOR_VERSION=2.6.
+export ARG_BAZAAR_MSG="Release 2.7"
+export ARG_MAJOR_VERSION=2.7.
 export ARG_MINOR_VERSION=1 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases

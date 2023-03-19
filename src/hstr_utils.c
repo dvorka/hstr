@@ -1,7 +1,7 @@
 /*
  hstr_utils.c       utilities
 
- Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
+ Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 
  Licensed under the Apache License, Version 2.0 (the "License");
  you may not use this file except in compliance with the License.
@@ -23,10 +23,15 @@
 // TODO PID_BUFFER 20+ characters might be enough
 #define PID_BUFFER_SIZE 128
 
-// This define  is used to compile out code which inserts command to console - thus
-// define allows to activate and debug shell script workaround that is used on WSL
-// and Cygwin.
-//#define DEBUG_NO_TIOCSTI
+/*
+ * global variables
+ */
+
+bool is_tiocsti = false;
+
+/*
+ * functions
+ */
 
 // strdup() not in ISO C
 char* hstr_strdup(const char* s)
@@ -106,7 +111,38 @@ void hstr_chop(char *s)
     }
 }
 
-#if !defined(__MS_WSL__) && !defined(__CYGWIN__) && !defined(LINUX_KERNEL_6) && !defined(DEBUG_NO_TIOCSTI)
+bool is_tiocsti_supported()
+{
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
+    return false;
+#else
+
+   int fd;
+   struct termios t;
+
+   fd = open("/dev/tty", O_RDWR);
+   if (fd < 0) {
+      perror("open /dev/tty");
+      printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
+      return false;
+   }
+   if (tcgetattr(fd, &t) < 0) {
+      perror("tcgetattr");
+      printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
+      return false;
+   }
+
+   bool is_supported = false;
+   if (!ioctl(fd, TIOCSTI, "a")) {
+      return true;
+   }
+   close(fd);
+
+   return is_supported;
+#endif
+}
+
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti()
 {
     char buf[] = DEFAULT_COMMAND;
@@ -120,7 +156,7 @@ void tiocsti()
 void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#if defined(__MS_WSL__) || defined(__CYGWIN__) || defined(LINUX_KERNEL_6) || defined(DEBUG_NO_TIOCSTI)
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
         fprintf(stderr, "%s", cmd);
         if(padding) fprintf(stderr, "%s", "\n");
 #else
@@ -227,7 +263,7 @@ char *get_shell_name_by_ppid(const int pid)
     return name;
 }
 
-bool isZshParentShell(void) {
+bool is_zsh_parent_shell(void) {
     pid_t parentPid=getppid();
     char* cmdline=get_shell_name_by_ppid(parentPid);
     bool result=cmdline && strstr(cmdline, "zsh");

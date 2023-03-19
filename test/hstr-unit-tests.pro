@@ -1,6 +1,6 @@
 # hstr-unit-tests.pro     Qt project file of UNIT tests for HSTR
 #
-# Copyright (C) 2014-2022  Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
