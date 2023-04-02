@@ -6,7 +6,7 @@ The following HSTR versions are currently being supported with security updates.
 
 | Version  | Supported          |
 | -------- | ------------------ |
-| 2.7.0    | :white_check_mark: |
+| 3.0.0    | :white_check_mark: |
 | 2.6.0    | :white_check_mark: |
 | 2.5.0    | :white_check_mark: |
 | 2.4.0    | :white_check_mark: |

@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"2.7.0\" (2023-03-19T18:15:00)"
+        "hstr version \"3.0.0\" (2023-04-02T18:50:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -180,52 +180,13 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)";
 
 // zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
-static const char* INSTALL_ZSH_STRING=
+static const char* INSTALL_ZSH_CODE_PREFIX=
         "\n# HSTR configuration - add this to ~/.zshrc"
         "\nalias hh=hstr                    # hh to be alias for hstr"
         "\nsetopt histignorespace           # skip cmds w/ leading space from history"
         // HISTFILE should not be needed - HSTR must work on blank environment as well
         // "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
-        "\nexport HSTR_CONFIG=hicolor       # get more colors"
-#if defined(__MS_WSL__)
-        // TODO binding to be rewritten for zsh@WSL as it's done for bash - hstr_winwsl() like function to be implemented to make it work on WSL
-
-        "\n# Function and binding below is bash script that makes command completion work under WSL."
-        "\n# If you can rewrite the function and binding from bash to zsh please send it to martin.dvorak@mindforger.com"
-        "\n# so that I can share it with other users."
-        "\n#function hstr_winwsl {"
-        "\n#  offset=${READLINE_POINT}"
-        "\n#  READLINE_POINT=0"
-        "\n#  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n#  READLINE_POINT=${#READLINE_LINE}"
-        "\n#}"
-        "\n#bindkey -s \"\\C-r\" \"\\eqhstr_winwsl\\n\""
-        "\n"
-        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
-#elif defined(__CYGWIN__)
-        // TODO binding to be rewritten for zsh@Cygwin as it's done for bash - hstr_cygwin() like function to be implemented to make it work under Cygwin
-
-        "\n# Function and binding below is bash script that makes command completion work under Cygwin."
-        "\n# If you can rewrite the function and binding from bash to zsh please send it to martin.dvorak@mindforger.com"
-        "\n# so that I can share it with other users."
-        "\n#function hstr_cygwin {"
-        "\n#  offset=${READLINE_POINT}"
-        "\n#  READLINE_POINT=0"
-        "\n#  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n#  READLINE_POINT=${#READLINE_LINE}"
-        "\n#}"
-        "\n#bindkey -s \"\\C-r\" \"\\eqhstr_cygwin\\n\""
-        "\n"
-        "\nbindkey -s \"\\C-r\" \"\\eqhstr\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
-#else
-        "\nbindkey -s \"\\C-r\" \"\\C-a hstr -- \\C-j\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
-#endif
-        // TODO try variant with args/pars separation
-        //"\nbindkey -s \"\\C-r\" \"\\eqhstr --\\n\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
-        // alternate binding options in zsh:
-        //   bindkey -s '^R' '^Ahstr ^M'
-        //   bindkey -s "\C-r" "\C-a hstr -- \C-j"
-        "\n\n";
+        "\nexport HSTR_CONFIG=hicolor       # get more colors";
 
 static const char* HELP_STRING=
         "Usage: hstr [option] [arg1] [arg2]..."
@@ -396,32 +357,21 @@ void print_bash_install_code(void)
     } else {
         printf(
 #if defined(__MS_WSL__)
-        // IMPROVE commands are NOT executed on return under win10 > consider hstr_utils changes
-        // Script hints:
-        //  {...} is inline group ~ lambda function whose vars are visible to the other commands
-        //   V=$(c) executes commands and stores it to var V
         "\nfunction hstrwsl {"
-        "\n  offset=${READLINE_POINT}"
-        "\n  READLINE_POINT=0"
-        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n  READLINE_POINT=${#READLINE_LINE}"
-        "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
 #elif defined(__CYGWIN__)
         "\nfunction hstrcygwin {"
-        "\n  offset=${READLINE_POINT}"
-        "\n  READLINE_POINT=0"
-        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n  READLINE_POINT=${#READLINE_LINE}"
-        "\n}"
-        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrcygwin\"'; fi"
 #else
         "\nfunction hstrnotiocsti {"
-        "\n  offset=${READLINE_POINT}"
-        "\n  READLINE_POINT=0"
-        "\n  { READLINE_LINE=$(</dev/tty hstr ${READLINE_LINE:0:offset} 2>&1 1>&$hstrout); } {hstrout}>&1"
-        "\n  READLINE_POINT=${#READLINE_LINE}"
-        "\n}"
+#endif
+
+        "\n    READLINE_LINE=\"$(hstr ${READLINE_LINE})\""
+        "\n    READLINE_POINT=${#READLINE_LINE}"
+
+#if defined(__MS_WSL__)
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
+#elif defined(__CYGWIN__)
+        "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrcygwin\"'; fi"
+#else
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrnotiocsti\"'; fi"
 #endif
         );
@@ -433,11 +383,43 @@ void print_bash_install_code(void)
 
 void print_zsh_install_code(void)
 {
+    printf("%s", INSTALL_ZSH_CODE_PREFIX);
+
     if(is_tiocsti) {
-
+        printf(
+            "\nbindkey -s \"\\C-r\" \"\\C-a hstr -- \\C-j\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
+            "\nexport HSTR_TIOCSTI=y"
+        );
     } else {
+        printf(
+#if defined(__MS_WSL__)
+        "\nhstr_wsl() {"
+#elif defined(__CYGWIN__)
+        "\nhstr_cygwin() {"
+#else
+        "\nhstr_notiocsti() {"
+#endif
 
+        "\n    BUFFER=\"$(hstr ${BUFFER})\""
+        "\n    CURSOR=${#BUFFER}"
+        "\n    zle redisplay"
+        "\n}"
+
+#if defined(__MS_WSL__)
+        "\nzle -N hstr_wsl"
+        "\nbindkey '\\C-r' hstr_wsl"
+#elif defined(__CYGWIN__)
+        "\nzle -N hstr_cygwin"
+        "\nbindkey '\\C-r' hstr_cygwin"
+#else
+        "\nzle -N hstr_notiocsti"
+        "\nbindkey '\\C-r' hstr_notiocsti"
+#endif
+        );
+        printf("\nexport HSTR_TIOCSTI=n");
     }
+
+    printf("\n\n");
 }
 
 unsigned recalculate_max_history_items(void)
@@ -1748,13 +1730,13 @@ void hstr_getopt(int argc, char **argv)
             hstr_exit(EXIT_SUCCESS);
             break;
         case 'z':
-            printf("%s", INSTALL_ZSH_STRING);
+            print_zsh_install_code();
             hstr_exit(EXIT_SUCCESS);
             break;
         case 's':
             // ZSH_VERSION is not exported by zsh > detected by parent process name
             if(is_zsh_parent_shell()) {
-                printf("%s", INSTALL_ZSH_STRING);
+                print_zsh_install_code();
             } else {
                 print_bash_install_code();
             }

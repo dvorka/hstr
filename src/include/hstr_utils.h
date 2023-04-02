@@ -39,9 +39,9 @@
 #define MAX(a,b) (((a)>(b))?(a):(b))
 
 // TIOCSTI is an acronym for "Terminal Input Output Control STack Input",
-// and it is a system call used in Unix-like operating systems.
-// The TIOCSTI system call allows to insert data into the input buffer
-// of a terminal as if it had been typed by the user.
+// and it is a system call used in Unix-like operating systems. The TIOCSTI
+// system call allows to insert data into the input buffer of a terminal
+// as if it had been typed by the user.
 //
 // TIOCSTI is NOT available on:
 //  - Linux kernel >=6.2.0
@@ -49,22 +49,25 @@
 //  - WSL
 //
 // HSTR uses TIOCSTI to insert a command chosen by the user in HSTR
-// to shell prompt.
+// to shell prompt - if TIOCSTI is available. Otherwise shell features
+// must be used.
 //
-// HSTR run:
+// HSTR modus operandi:
 //
 // - user runs `hstr` command
-//   - `hstr` checks whther TIOCSTI is supported by the kernel or not
-//      - if SUPPORTED, then HSTR continues as it will be able to insert
-//        any chosen command into bash prompt
-//      - if NOT supported, then:
-//        - HSTR checks for HSTR_TIOCSTI environment variable:
-//          - if it is NOT defined, then it prints error and asks
+//   - `hstr` checks whether TIOCSTI is supported by the kernel or not
+//      - if TIOCSTI SUPPORTED, then HSTR continues as it is able to insert
+//        any chosen command into Bash/Zsh prompt
+//      - if TIOCSTI NOT supported, then:
+//        - HSTR checks for `HSTR_TIOCSTI` environment variable:
+//          - if `HSTR_TIOCSTI` is NOT defined, then it prints an error and asks
 //            user to configure HSTR (--show-configuration >> .*rc)
-//          - if it is DEFINED, then:
+//          - if `HSTR_TIOCSTI` is DEFINED, then:
 //            - if it is SET to `n`, then HSTR presumes that it has
-//              been configured (shell function is defined) and continues > DONE
-//            - OTHERWISE it prints error and ask user to configure HSTR
+//              been configured and that the shell function (which replaces TIOCSTI)
+//              is defined > HSTR uses the function to insert command > DONE
+//            - OTHERWISE HSTR prints and error and ask user to configure HSTR
+//              with --show-configuration >> .*rc
 //
 // HSTR features related to TIOCSTI
 //
