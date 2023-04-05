@@ -157,21 +157,21 @@ void tiocsti(void)
 void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-#if defined(__MS_WSL__) || defined(__CYGWIN__)
-        fprintf(stderr, "%s", cmd);
-        if(padding) fprintf(stderr, "%s", "\n");
-#else
-        size_t size = strlen(cmd);
-        unsigned i;
-        char *c;
-        for (i = 0; i < size; i++) {
-            // terminal I/O control, simulate terminal input
-            c=(cmd+i);
-            ioctl(0, TIOCSTI, c);
+            if(is_tiocsti) {
+            size_t size = strlen(cmd);
+            unsigned i;
+            char *c;
+            for (i = 0; i < size; i++) {
+                // terminal I/O control, simulate terminal input
+                c=(cmd+i);
+                ioctl(0, TIOCSTI, c);
+            }
+            // echo, but don't flush to terminal
+            if(padding) printf("\n");
+        } else {
+            fprintf(stderr, "%s", cmd);
+            if(padding) fprintf(stderr, "%s", "\n");
         }
-        // echo, but don't flush to terminal
-        if(padding) printf("\n");
-#endif
     }
 }
 
