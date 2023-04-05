@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.0.0\" (2023-04-02T18:50:00)"
+        "hstr version \"3.0.0\" (2023-04-05T08:50:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -366,6 +366,7 @@ void print_bash_install_code(void)
 
         "\n    READLINE_LINE=\"$(hstr ${READLINE_LINE})\""
         "\n    READLINE_POINT=${#READLINE_LINE}"
+        "\n}"
 
 #if defined(__MS_WSL__)
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"

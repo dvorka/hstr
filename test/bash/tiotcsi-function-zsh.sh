@@ -41,21 +41,58 @@ bindkey '\C-r' hstrnotiocsti
 # ##################################################################
 #
 # EXAMPLE: WORKING minimal production version w/ foo HSTR
-
-# PROBLEM!
-# - active ZLE takes over the terminal, therefore HSTR cannot be run
+#
+# PROBLEM:
+# - active ZLE takes over the terminal input & output streams
+# - attempt to run HSTR using $(), ``, ... BLOCKS active ZLE progress
 # - w/o ZLE it is not possible to insert text into the terminal
+#
+# SOLUTION:
+# - HSTR input: can be enable by reading from </dev/tty
+# - HSTR output: is sent to stderr (as stdout is occupied by Curses)
 
-foohstr() {
-    echo "command-by-hstr-${1}"
+hstr_notiocsti() {
+    zle -I
+    TMPFILE=$(mktemp)
+    </dev/tty hstr ${BUFFER} 2> ${TMPFILE}
+    BUFFER="$(cat ${TMPFILE})"
+    CURSOR=${#BUFFER}
+    zle redisplay
+    rm TMPFILE > /dev/null 2>&1
 }
+zle -N hstr_notiocsti
+bindkey '\C-r' hstr_notiocsti
 
-hstrnotiocsti() {
-  BUFFER="$(foohstr ${BUFFER})"
-  CURSOR=${#BUFFER}
-  zle redisplay
+export HSTR_TIOCSTI=n
+
+# ##################################################################
+#
+# EXAMPLE: WORKING minimal production version w/ foo HSTR
+#
+# PROBLEM:
+# - active ZLE takes over the terminal input & output streams
+# - attempt to run HSTR using $(), ``, ... BLOCKS active ZLE progress
+# - w/o ZLE it is not possible to insert text into the terminal
+#
+# SOLUTION:
+# - HSTR input: can be enable by reading from </dev/tty
+# - HSTR output: we use CUSTOM file handle to get stderr output ONLY
+#   1. 2>&1 ... redirect stderr to stdout
+#   2. 1>&3 ... redirect stdout to custom file handle
+#               (thus ONLY stderr is sent to stdout)
+#   3. 3>&- ... close custom file handle
+#               (thus close stdout i.e. stdout won't be sent anywhere)
+#   { ... } ... to execute in the current shell & set HSTR_OUT
+#   3>&1    ... restore stdout to custom file handle
+
+hstr_no_tiocsti() {
+    zle -I
+    { HSTR_OUT="$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+    BUFFER="${HSTR_OUT}"
+    CURSOR=${#BUFFER}
+    zle redisplay
 }
-zle -N hstrnotiocsti
-bindkey '\C-r' hstrnotiocsti
+zle -N hstr_no_tiocsti
+bindkey '\C-r' hstr_no_tiocsti
 
 # eof
