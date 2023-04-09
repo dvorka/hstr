@@ -1,4 +1,5 @@
 # Installation
+
 Install:
 
 * [Ubuntu](#ubuntu)
@@ -37,13 +38,17 @@ Tarball:
 
 Upgrade:
 
-* [HSTR 1.x to 2.x](#upgrade)
+* [HSTR 1.x to 2.x](#hstr-1-x-to-2-x--from-hh-to-hstr)
+* [HSTR 2.x to 3.x](#hstr-2-x-to-3-x--ioctl---tiocsti)
 # Install
+
 Install HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository.
+
 ## Ubuntu
+
 HSTR is [included in Ubuntu 21.10](https://packages.ubuntu.com/search?keywords=hstr) and [newer](https://wiki.ubuntu.com/Releases) releases:
 
-```
+```bash
 sudo apt install hstr
 ```
 
@@ -66,9 +71,10 @@ sudo apt-get install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Debian/Mint
+
 HSTR is [included in Debian 11](https://packages.debian.org/bullseye/hstr) and [newer](https://www.debian.org/releases/) releases:
 
-```
+```bash
 sudo apt install hstr
 ```
 
@@ -107,13 +113,14 @@ apt-get install libncursesw5 libtinfo5
 sudo dpkg -i hstr.deb
 ```
 
-
 ## Fedora/RHEL/CentOS/Scientific
+
 Install HSTR on [Fedora](https://src.fedoraproject.org/rpms/hstr), RHEL, CentOS or Scientific Linux:
 
 ```bash
 sudo dnf install hstr
 ```
+
 ... or:
 
 ```bash
@@ -132,6 +139,7 @@ sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm
 ```
 
 ## openSUSE
+
 To install HSTR on openSUSE, please check [software.opensuse.org](https://software.opensuse.org/package/hstr) or [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
@@ -141,7 +149,9 @@ zypper install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Gentoo
+
 To install HSTR on Gentoo run (HSTR has been added to [Portage](https://bugs.gentoo.org/show_bug.cgi?id=527122)):
 
 ```bash
@@ -161,6 +171,7 @@ apk add hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## ALT Linux
+
 To install HSTR on ALT Linux, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
@@ -173,7 +184,9 @@ sudo apt-get install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Arch/Manjaro Linux
+
 To install HSTR on Arch or Manjaro Linux download the latest distribution either from [pkgs.org](https://pkgs.org/search/?q=hstr) or [GitHub releases](https://github.com/dvorka/hstr/releases).
 
 Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the distribution to build package using `makepkg`.
@@ -181,6 +194,7 @@ Use [PKGBUILD](https://wiki.archlinux.org/index.php/PKGBUILD) in the root of the
 To install HSTR from the [Arch User Repository (AUR)](https://aur.archlinux.org/packages/hstr-git/) run `yaourt -S hstr-git` in command line.
 
 ## FreeBSD
+
 To install HSTR on FreeBSD, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
@@ -188,7 +202,9 @@ pkg install hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Slackware
+
 To install HSTR on Slackware, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
@@ -196,7 +212,9 @@ upgradepkg --install-new hstr-<major>.<minor>-x86_64-1cf.txz
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Void Linux
+
 To install HSTR on Void Linux, please check [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
@@ -204,7 +222,9 @@ xbps-install -Su hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Milis Linux
+
 To install HSTR on Milis Linux run the following commands as root:
 
 ```bash
@@ -214,12 +234,15 @@ mps kur hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Haiku OS
+
 To install HSTR on Haiku OS use [Haiku Depot](https://www.haiku-os.org/docs/userguide/en/applications/haikudepot.html):
 
 * https://depot.haiku-os.org/#!/?srchexpr=hstr
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## macOS
+
 Install HSTR on macOS using [Homebrew](https://brew.sh/) ([formula](https://formulae.brew.sh/formula/hstr)):
 
 ```bash
@@ -235,6 +258,7 @@ sudo port install hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## nix package manager
+
 To install HSTR using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for HSTR](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
 
 ```bash
@@ -244,6 +268,7 @@ nix-env -i hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Guix package manager
+
 To install HSTR in [GuixSD](https://www.gnu.org/software/guix/) or using the standalone [Guix package manager](https://www.gnu.org/software/guix/manual/en/html_node/Binary-Installation.html#Binary-Installation) you can install the `hstr` package, e.g.
 
 ```bash
@@ -253,6 +278,7 @@ guix package -i hstr
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## MPR package manager
+
 To install HSTR in Ubuntu or derivative operating systems using MPR, you can search for `hstr-git` using helper
 or install it manually using `makedeb -s`
 
@@ -261,9 +287,11 @@ or install it manually using `makedeb -s`
 [MPR package](https://mpr.hunterwittenborn.com/packages/hstr-git)
 
 # Build
+
 Build HSTR from source code.
 
 ## Build on any Linux distro
+
 Clone Git repository:
 
 ```bash
@@ -285,6 +313,7 @@ Build and install HSTR using:
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build snap
+
 To build [snap](https://snapcraft.io/) for HSTR first clone Git repository:
 
 ```bash
@@ -298,7 +327,7 @@ distribution.
 Install [snapcraft](https://snapcraft.io/) and build
 snap by running snapcraft in the root of Git repository:
 
-```
+```bash
 $ ls ./snap
   snapcraft.yaml
 $ snapcraft
@@ -308,6 +337,7 @@ $ snapcraft
 Find `hstr_0+git..._amd64.snap` in the current directory.
 
 ## Build on Ubuntu
+
 To build HSTR on Ubuntu clone Git repository:
 
 ```bash
@@ -334,8 +364,8 @@ Build and install HSTR using:
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
-
 ## Build on Debian
+
 To build HSTR on Debian clone Git repository:
 
 ```bash
@@ -360,10 +390,10 @@ Build and install HSTR using:
 ./configure && make && make install
 ```
 
-
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on Fedora
+
 To build HSTR on Fedora clone Git repository:
 
 ```bash
@@ -391,6 +421,7 @@ Build and install HSTR using:
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on WSL
+
 To build HSTR on [Windows Subsystem for Linux (WSL)](https://msdn.microsoft.com/en-us/commandline/wsl/about) clone Git repository:
 
 ```bash
@@ -428,6 +459,7 @@ Make sure to **run** HSTR using <kbd>Ctrl-r</kbd> (or `hstrwsl`) - otherwise com
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 ## Build on Cygwin
+
 To build HSTR on [Cygwin](https://www.cygwin.com) clone Git repository:
 
 ```bash
@@ -457,7 +489,9 @@ hstr --show-configuration >> ~/.bashrc
 Make sure to **run** HSTR using <kbd>Ctrl-r</kbd> (or `hstrcygwin`) - otherwise commands will not appear in prompt.
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 ## Build on macOS
+
 HSTR can be built on macOS either using [MacPorts](https://www.macports.org/) or [Homebrew](https://brew.sh/).
 
 ---
@@ -492,9 +526,11 @@ make
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
 
 # Tarball
+
 Download and install HSTR tarball.
 
 ## Build and Install Tarball
+
 Download latest tarball from [GitHub releases](https://github.com/dvorka/hstr/releases) section.
 Expand the archive and install HSTR using:
 
@@ -503,7 +539,32 @@ Expand the archive and install HSTR using:
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
+
 # Upgrade
+
+HSTR major versions upgrades instructions.
+
+## HSTR 1.x to 2.x: from HH to HSTR
+
 Upgrade HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository. If you are `HSTR 1.x` user, please read about [HSTR 2.x changes](https://github.com/dvorka/hstr/releases/tag/2.0).
 
+## HSTR 2.x to 3.x: ioctl / TIOCSTI
 
+`TIOCSTI` is an acronym for "Terminal Input Output Control STack Input",
+and it is a system call used in Unix-like operating systems. The `TIOCSTI`
+system call allows to insert data into the input buffer of a terminal
+as if it had been typed by the user.
+
+`TIOCSTI` is NOT available at:
+
+* Linux kernel >=6.2.0
+* Cygwin
+* WSL
+
+HSTR uses `TIOCSTI` to insert a command chosen by the user in HSTR
+to shell prompt - if `TIOCSTI` is available. Otherwise shell specific
+line editors features are used.
+
+**Therefore it is important to configure HSTR after the installation:**
+
+* [HSTR configuration](README.md#configuration)

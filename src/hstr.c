@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.0.0\" (2023-04-05T08:50:00)"
+        "hstr version \"3.0.0\" (2023-04-08T08:50:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -176,8 +176,7 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         //             across different bash sessions.
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different bash sessions)
         "\n# ensure synchronization between bash memory and history file"
-        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\""
-        "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)";
+        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"";
 
 // zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
 static const char* INSTALL_ZSH_CODE_PREFIX=
@@ -192,16 +191,17 @@ static const char* HELP_STRING=
         "Usage: hstr [option] [arg1] [arg2]..."
         "\nShell history suggest box:"
         "\n"
-        "\n  --favorites              -f ... show favorites view"
-        "\n  --kill-last-command      -k ... delete last command in history"
-        "\n  --non-interactive        -n ... print filtered history and exit"
-        "\n  --show-configuration     -s ... show configuration to be added to ~/.bashrc"
-        "\n  --show-zsh-configuration -z ... show zsh configuration to be added to ~/.zshrc"
-        "\n  --show-blacklist         -b ... show commands to skip on history indexation"
-        "\n  --is-tiocsti             -t ... detect whether TIOCSTI is supported and print y or n"
-        "\n  --insert-in-terminal=[c] -i ... insert command c in terminal prompt and exit"
-        "\n  --version                -V ... show version details"
-        "\n  --help                   -h ... help"
+        "\n  --favorites               -f ... show favorites view"
+        "\n  --kill-last-command       -k ... delete last command in history"
+        "\n  --non-interactive         -n ... print filtered history and exit"
+        "\n  --show-configuration      -s ... show configuration to be added to ~/.bashrc"
+        "\n  --show-bash-configuration -B ... show bash configuration to be added to ~/.bashrc"
+        "\n  --show-zsh-configuration  -Z ... show zsh configuration to be added to ~/.zshrc"
+        "\n  --show-blacklist          -b ... show commands to skip on history indexation"
+        "\n  --is-tiocsti              -t ... detect whether TIOCSTI is supported and print y or n"
+        "\n  --insert-in-terminal=[c]  -i ... insert command c in terminal prompt and exit"
+        "\n  --version                 -V ... show version details"
+        "\n  --help                    -h ... help"
         "\n"
         "\nReport bugs to martin.dvorak@mindforger.com"
         "\nHome page: https://github.com/dvorka/hstr"
@@ -216,17 +216,18 @@ static const char* LABEL_HELP=
 #define GETOPT_OPTIONAL_ARGUMENT     2
 
 static const struct option long_options[] = {
-        {"favorites",              GETOPT_NO_ARGUMENT, NULL,       'f'},
-        {"kill-last-command",      GETOPT_NO_ARGUMENT, NULL,       'k'},
-        {"version",                GETOPT_NO_ARGUMENT, NULL,       'V'},
-        {"help",                   GETOPT_NO_ARGUMENT, NULL,       'h'},
-        {"non-interactive",        GETOPT_NO_ARGUMENT, NULL,       'n'},
-        {"show-configuration",     GETOPT_NO_ARGUMENT, NULL,       's'},
-        {"show-zsh-configuration", GETOPT_NO_ARGUMENT, NULL,       'z'},
-        {"show-blacklist",         GETOPT_NO_ARGUMENT, NULL,       'b'},
-        {"is-tiocsti",             GETOPT_NO_ARGUMENT, NULL,       't'},
-        {"insert-in-terminal",     GETOPT_REQUIRED_ARGUMENT, NULL, 'i'},
-        {0,                        0,                  NULL,        0 }
+        {"favorites",               GETOPT_NO_ARGUMENT, NULL,       'f'},
+        {"kill-last-command",       GETOPT_NO_ARGUMENT, NULL,       'k'},
+        {"version",                 GETOPT_NO_ARGUMENT, NULL,       'V'},
+        {"help",                    GETOPT_NO_ARGUMENT, NULL,       'h'},
+        {"non-interactive",         GETOPT_NO_ARGUMENT, NULL,       'n'},
+        {"show-configuration",      GETOPT_NO_ARGUMENT, NULL,       's'},
+        {"show-bash-configuration", GETOPT_NO_ARGUMENT, NULL,       'B'},
+        {"show-zsh-configuration",  GETOPT_NO_ARGUMENT, NULL,       'Z'},
+        {"show-blacklist",          GETOPT_NO_ARGUMENT, NULL,       'b'},
+        {"is-tiocsti",              GETOPT_NO_ARGUMENT, NULL,       't'},
+        {"insert-in-terminal",      GETOPT_REQUIRED_ARGUMENT, NULL, 'i'},
+        {0,                         0,                  NULL,        0 }
 };
 
 typedef struct {
@@ -363,10 +364,11 @@ void print_bash_install_code(void)
 #else
         "\nfunction hstrnotiocsti {"
 #endif
-
+        "\n    { HSTR_OUT=\"$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
         "\n    READLINE_LINE=\"$(hstr ${READLINE_LINE})\""
         "\n    READLINE_POINT=${#READLINE_LINE}"
         "\n}"
+        "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
 
 #if defined(__MS_WSL__)
         "\nif [[ $- =~ .*i.* ]]; then bind -x '\"\\C-r\": \"hstrwsl\"'; fi"
@@ -398,10 +400,12 @@ void print_zsh_install_code(void)
 #elif defined(__CYGWIN__)
         "\nhstr_cygwin() {"
 #else
-        "\nhstr_notiocsti() {"
+        "\nhstr_no_tiocsti() {"
 #endif
 
-        "\n    BUFFER=\"$(hstr ${BUFFER})\""
+        "\n    zle -I"
+        "\n    { HSTR_OUT=\"$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
+        "\n    BUFFER=\"${HSTR_OUT}\""
         "\n    CURSOR=${#BUFFER}"
         "\n    zle redisplay"
         "\n}"
@@ -413,8 +417,8 @@ void print_zsh_install_code(void)
         "\nzle -N hstr_cygwin"
         "\nbindkey '\\C-r' hstr_cygwin"
 #else
-        "\nzle -N hstr_notiocsti"
-        "\nbindkey '\\C-r' hstr_notiocsti"
+        "\nzle -N hstr_no_tiocsti"
+        "\nbindkey '\\C-r' hstr_no_tiocsti"
 #endif
         );
         printf("\nexport HSTR_TIOCSTI=n");
@@ -1643,6 +1647,7 @@ void loop_to_select(void)
             fill_terminal_input("\"", FALSE);
         }
         if(executeResult) {
+            // TODO w/o TIOCSTI the command is NOT executed, just shown in the prompt
             fill_terminal_input("\n", FALSE);
         }
     }
@@ -1688,7 +1693,7 @@ void hstr_interactive(void)
 void hstr_getopt(int argc, char **argv)
 {
     int option_index = 0;
-    int option = getopt_long(argc, argv, "fkVhnszbti", long_options, &option_index);
+    int option = getopt_long(argc, argv, "fkVhnsBZbti", long_options, &option_index);
     if(option != -1) {
         switch(option) {
         case 'f':
@@ -1730,7 +1735,11 @@ void hstr_getopt(int argc, char **argv)
             printf("%s", HELP_STRING);
             hstr_exit(EXIT_SUCCESS);
             break;
-        case 'z':
+        case 'B':
+            print_bash_install_code();
+            hstr_exit(EXIT_SUCCESS);
+            break;
+        case 'Z':
             print_zsh_install_code();
             hstr_exit(EXIT_SUCCESS);
             break;

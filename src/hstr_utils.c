@@ -149,7 +149,10 @@ void tiocsti(void)
     char buf[] = DEFAULT_COMMAND;
     unsigned i;
     for (i=0; i<sizeof buf-1; i++) {
-        ioctl(0, TIOCSTI, &buf[i]);
+        if (ioctl(0, TIOCSTI, &buf[i]) < 0) {
+            perror("Unable to execute TIOCSTI using ioctl()");
+            exit(1);
+        }
     }
 }
 #endif

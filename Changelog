@@ -1,7 +1,7 @@
-2023-04-02  Martin Dvorak  <martin.dvorak@mindforger.com>
+2023-04-10  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.0.0 - important fix release ensuring that HSTR will work
-    on operating systems and Linux kernels without TIOCSTI support.
+  * Released v3.0.0 - important release which adds ability of HSTR to work
+    on operating systems and Linux kernels without ioctl/TIOCSTI support.
 
 2022-12-11  Martin Dvorak  <martin.dvorak@mindforger.com>
 
