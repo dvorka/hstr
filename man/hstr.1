@@ -31,30 +31,36 @@ Insert custom command to terminal prompt and exit
 Show favorites view immediately
 .TP 
 \fB-s --show-configuration\fR
-Show configuration that can be added to ~/.bashrc
-.TP 
+Show configuration to be added to the config file of the shell (~/.bashrc or ~/.zshrc)
+.TP
+\fB-B --show-bash-configuration\fR
+Show Bash configuration to be added to ~/.bashrc
+.TP
+\fB-Z --show-zsh-configuration\fR
+Show Zsh configuration to be added to ~/.zshrc
+.TP
 \fB-b --show-blacklist\fR
 Show blacklist of commands to be filtered out before history processing
-.TP 
+.TP
 \fB-V --version\fR
 Show version information
 .SH KEYS
-.TP 
+.TP
 \fBpattern\fR
 Type to filter shell history.
-.TP 
+.TP
 \fBCtrl\-e\fR
 Toggle regular expression and substring search.
-.TP 
+.TP
 \fBCtrl\-t\fR
 Toggle case sensitive search.
-.TP 
+.TP
 \fBCtrl\-/\fR, \fBCtrl\-7\fR
 Rotate view of history as provided by bash, ranked history ordered by the number of occurrences/length/timestamp and favorites.
-.TP 
+.TP
 \fBCtrl\-f\fR
 Add currently selected command to favorites.
-.TP 
+.TP
 \fBCtrl\-l\fR
 Toggle search pattern case.
 .TP
@@ -181,7 +187,28 @@ Example:
  Commands to be hidden.
 
 .SH BASH CONFIGURATION
-Optionally add the following lines to ~/.bashrc:
+Add the following lines to ~/bashrc if TIOCSTI is not supported by your OS:
+.nf
+.sp
+alias hh=hstr                    # hh to be alias for hstr
+export HSTR_CONFIG=hicolor       # get more colors
+shopt -s histappend              # append new history items to .bash_history
+export HISTCONTROL=ignorespace   # leading space hides commands from history
+export HISTFILESIZE=10000        # increase history file size (default is 500)
+export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+# ensure synchronization between bash memory and history file
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+function hstrnotiocsti {
+    { HSTR_OUT="$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+    READLINE_LINE="$(hstr ${READLINE_LINE})"
+    READLINE_POINT=${#READLINE_LINE}
+}
+# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
+if [[ $- =~ .*i.* ]]; then bind -x '"\C-r": "hstrnotiocsti"'; fi
+export HSTR_TIOCSTI=n
+.sp
+.fi
+Optionally add the following lines to ~/.bashrc if TIOCSTI is supported by your OS:
 .nf
 .sp
 alias hh=hstr                    # make hh alias of hstr
@@ -197,7 +224,25 @@ if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
 .sp
 .fi
 .SH ZSH CONFIGURATION
-Optionally add the following lines to ~/.zshrc:
+Add the following lines to ~/zshrc if TIOCSTI is not supported by your OS:
+.nf
+.sp
+alias hh=hstr                    # hh to be alias for hstr
+setopt histignorespace           # skip cmds w/ leading space from history
+export HSTR_CONFIG=hicolor       # get more colors
+hstr_no_tiocsti() {
+    zle -I
+    { HSTR_OUT="$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+    BUFFER="${HSTR_OUT}"
+    CURSOR=${#BUFFER}
+    zle redisplay
+}
+zle -N hstr_no_tiocsti
+bindkey '\C-r' hstr_no_tiocsti
+export HSTR_TIOCSTI=n
+.sp
+.fi
+Optionally add the following lines to ~/.zshrc if TIOCSTI is supported by your OS:
 .nf
 .sp
 export HSTR_CONFIG=hicolor            # get more colors
@@ -217,10 +262,10 @@ bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode
  Print history items containing 'git' to standard output and exit.
 .TP
 \fBhstr --show-configuration >> ~/.bashrc\fR
- Append default \fBhstr\fR configuration to your bash profile.
+ Append default \fBhstr\fR configuration to your Bash profile.
 .TP
 \fBhstr --show-configuration >> ~/.zhrc\fR
- Append default \fBhstr\fR configuration to your zsh profile.
+ Append default \fBhstr\fR configuration to your Zsh profile.
 .TP
 \fBhstr --show-blacklist\fR
  Show blacklist configured for history processing.

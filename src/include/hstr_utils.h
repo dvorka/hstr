@@ -86,7 +86,7 @@ int hstr_strlen(const char* s);
 char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);
 bool is_tiocsti_supported(void);
-#ifndef __CYGWIN__
+#if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti(void);
 #endif
 void fill_terminal_input(char* cmd, bool padding);
