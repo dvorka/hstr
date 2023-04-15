@@ -1,6 +1,6 @@
-2023-04-10  Martin Dvorak  <martin.dvorak@mindforger.com>
+2023-04-15  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.0.0 - important release which adds ability of HSTR to work
+  * Released v3.0.0 - major release which adds ability of HSTR to work
     on operating systems and Linux kernels without ioctl/TIOCSTI support.
 
 2022-12-11  Martin Dvorak  <martin.dvorak@mindforger.com>
@@ -32,21 +32,23 @@
 
 2018-08-28  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.0.0 - Major release which resolves confusing hstr/hh ambuiguity by choosing
+  * Released v2.0.0 - Major release which resolves confusing hstr/hh ambiguity by choosing
     hstr to be the only name used. hh becomes just a shell alias. Therefore this release
     introduces backward incompatible changes: all HH_ starting environment variables were
-    changed to HSTR_, similarly configuration file names starting with .hh_ were renamed to start
-    with .hstr_, identifiers used in HSTR_CONFIG were changed e.g. favorites to favorites-view.
-    Please check man page for details and update your 1.x.x configuration.
-        Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed as
-    well to have hstr prefix - please update your scripts.
-        Additional improvements: all memory leaks fixed, long commands handling improved (...), bash
-    autocomplete added.
+    changed to HSTR_, similarly configuration file names starting with .hh_ were renamed
+    to start with .hstr_, identifiers used in HSTR_CONFIG were changed e.g. favorites to
+    favorites-view.
+  * Please check man page for details and update your 1.x.x configuration.
+  * Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed
+    as well to have hstr prefix - please update your scripts.
+  * Additional improvements: all memory leaks fixed, long commands handling improved (...),
+    bash autocomplete added.
 
 2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.27.0 - Long lines support, QtCreator IDE migration, all build scripts rewritten,
-    new distros (my Debian PPA, snap, ...), CI, unit test framework and tests, various fixes.
+  * Released v1.27.0 - Long lines support, QtCreator IDE migration, all build scripts
+    rewritten, new distros (my Debian PPA, snap, ...), CI, unit test framework and tests,
+    various fixes.
 
 2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
@@ -66,7 +68,7 @@
 
 2016-11-22  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.21 - Ubuntu Yakkety Yak release
+  * Released v1.21 - Ubuntu Yakkety Yak release.
 
 2016-04-27  Martin Dvorak  <martin.dvorak@mindforger.com>
 
@@ -107,7 +109,7 @@
   * New release brings keyboard based search i.e. matching
     of history entries by occurrence of words in arbitrary
     order.
-        * In addition highlighting of matching segments in history
+  * In addition highlighting of matching segments in history
     entries has been improved.
 
 2014-09-11  Martin Dvorak  <martin.dvorak@mindforger.com>
@@ -122,17 +124,17 @@
 
   * Released v1.12 - Regexp
   * New release brings regexp based filtering of command
-    history. In addition it's possible to use HSTR in
+    history. In addition it is possible to use HSTR in
     non-interactive mode i.e. filtered output is written
     to standard output. openSUSE became newly supported
     distribution.
 
 2014-04-14  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.10 - Favorites
+  * Released v1.10 - Favorites.
   * Major release that brings favorites - favorite
     commands can be bookmarked for later use and managed
-    in a brand new view
+    in a brand new view.
 
 2014-03-16  Martin Dvorak  <martin.dvorak@mindforger.com>
 
@@ -143,8 +145,8 @@
 
 2014-01-25  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.0 - The First Stable Release
+  * Released v1.0 - The First Stable Release.
 
 2013-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v0.2 - Initial Release
+  * Released v0.2 - Initial Release.
