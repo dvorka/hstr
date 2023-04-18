@@ -4,7 +4,7 @@
 # Contributor: Busindre <busilezas at busindre.com>
 
 pkgname=hstr
-pkgver=3.0
+pkgver=3.1
 pkgrel=1
 pkgdesc="A command line utility that brings improved BASH command completion from the history. It aims to make completion easier and more efficient than Ctrl-r."
 arch=('x86_64'
