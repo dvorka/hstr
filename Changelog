@@ -1,6 +1,6 @@
 2023-04-18  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.1.0 - minor release which fixes Bash function that is used
+  * Released v3.1.0 - Minor release fixing a Bash function that is used
     when ioctl/TIOCSTI is not available.
 
 2023-04-15  Martin Dvorak  <martin.dvorak@mindforger.com>
