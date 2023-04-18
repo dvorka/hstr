@@ -38,8 +38,9 @@ Tarball:
 
 Upgrade:
 
-* [HSTR 1.x to 2.x](#hstr-1-x-to-2-x--from-hh-to-hstr)
-* [HSTR 2.x to 3.x](#hstr-2-x-to-3-x--ioctl---tiocsti)
+* [HSTR 1.x to 2.x](#hstr-1x-to-2x-from-hh-to-hstr)
+* [HSTR 2.x to 3.x](#hstr-2x-to-3x-ioctl--tiocsti)
+
 # Install
 
 Install HSTR using a [package](https://pkgs.org/search/?q=hstr) or repository.
