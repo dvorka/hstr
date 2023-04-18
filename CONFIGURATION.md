@@ -3,10 +3,10 @@ Get most of HSTR by configuring it with:
 
 ```bash
 # bash
-hstr --show-configuration >> ~/.bashrc
+hstr --show-bash-configuration >> ~/.bashrc
 
 # zsh
-hstr --show-configuration >> ~/.zshrc
+hstr --show-zsh-configuration >> ~/.zshrc
 ```
 
 Run `hstr --show-configuration` to determine what will be appended to your
