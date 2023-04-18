@@ -137,7 +137,7 @@
 
 // major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.0.0\" (2023-04-15T08:50:00)"
+        "hstr version \"3.1.0\" (2023-04-18T08:50:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -364,8 +364,7 @@ void print_bash_install_code(void)
 #else
         "\nfunction hstrnotiocsti {"
 #endif
-        "\n    { HSTR_OUT=\"$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
-        "\n    READLINE_LINE=\"$(hstr ${READLINE_LINE})\""
+        "\n    { READLINE_LINE=\"$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
         "\n    READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
