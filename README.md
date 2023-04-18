@@ -76,10 +76,10 @@ Configure HSTR just by running:
 
 ```bash
 # bash
-hstr --show-configuration >> ~/.bashrc
+hstr --show-bash-configuration >> ~/.bashrc
 
 # zsh
-hstr --show-configuration >> ~/.zshrc
+hstr --show-zsh-configuration >> ~/.zshrc
 ```
 
 For detailed HSTR configuration documentation please refer to [Configuration](CONFIGURATION.md).
