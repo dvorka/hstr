@@ -199,8 +199,7 @@ export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 # ensure synchronization between bash memory and history file
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 function hstrnotiocsti {
-    { HSTR_OUT="$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )"; } 3>&1;
-    READLINE_LINE="$(hstr ${READLINE_LINE})"
+    { READLINE_LINE=\"$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;
     READLINE_POINT=${#READLINE_LINE}
 }
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
@@ -232,7 +231,7 @@ setopt histignorespace           # skip cmds w/ leading space from history
 export HSTR_CONFIG=hicolor       # get more colors
 hstr_no_tiocsti() {
     zle -I
-    { HSTR_OUT="$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+    { HSTR_OUT="$( { </dev/tty hstr -- ${BUFFER}; } 2>&1 1>&3 3>&- )"; } 3>&1;
     BUFFER="${HSTR_OUT}"
     CURSOR=${#BUFFER}
     zle redisplay
