@@ -364,7 +364,7 @@ void print_bash_install_code(void)
 #else
         "\nfunction hstrnotiocsti {"
 #endif
-        "\n    { READLINE_LINE=\"$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
+        "\n    { READLINE_LINE=\"$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
         "\n    READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
@@ -403,7 +403,7 @@ void print_zsh_install_code(void)
 #endif
 
         "\n    zle -I"
-        "\n    { HSTR_OUT=\"$( { </dev/tty hstr ${BUFFER}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
+        "\n    { HSTR_OUT=\"$( { </dev/tty hstr -- ${BUFFER}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
         "\n    BUFFER=\"${HSTR_OUT}\""
         "\n    CURSOR=${#BUFFER}"
         "\n    zle redisplay"
