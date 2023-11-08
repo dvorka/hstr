@@ -3,7 +3,7 @@ Get most of HSTR by configuring it with:
 
 ```bash
 # bash
-hstr --show-bash-configuration >> ~/.bashrc
+hstr --show-configuration >> ~/.bashrc
 
 # zsh
 hstr --show-zsh-configuration >> ~/.zshrc
