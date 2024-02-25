@@ -19,7 +19,7 @@ Table of contents:
   
 # Features
 HSTR is typically started by pressing <kbd>Ctrl-r</kbd> after
-you configure it for this shorcut in your shell. However,
+you configure it for this shortcut in your shell. However,
 you can run it as a normal program just by typing:
 
 ```bash
@@ -51,7 +51,7 @@ Prints history items containing `git` to standard output and
 exits.
 
 ## History Filtering
-When HSTR starts in interative mode, a view of commands
+When HSTR starts in interactive mode, a view of commands
 is shown. This list of commands can be filtered just by typing
 a string pattern.
 
@@ -76,7 +76,7 @@ ranking or raw history view by pressing <kbd>Ctrl-f</kbd>.
 You can check your favorite commands by choosing 
 favorite view - rotate views using <kbd>Ctrl-/</kbd> or start
 HSTR by adding `favorites-view` to `HSTR_CONFIG` environment
-property. A favorite command can be choosen just
+property. A favorite command can be chosen just
 by pressing `ENTER` when on command in favorite view.
 Last chosen favorite commands appears as the first
 one (at the top of the page) in the favorite view.
