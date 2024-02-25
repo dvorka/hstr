@@ -854,8 +854,8 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
         count=history->rawCount;
         break;
     case HSTR_VIEW_FAVORITES:
-        source=hstr->favorites->items;
-        count=hstr->favorites->count;
+        source=hstr->favorites->itemsView;
+        count=hstr->favorites->countView;
         break;
     case HSTR_VIEW_RANKING:
     default:
