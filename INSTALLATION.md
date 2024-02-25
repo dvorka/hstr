@@ -263,7 +263,7 @@ sudo port install hstr
 To install HSTR using the [nix package manager](https://nixos.org/nix/) e.g. on [NixOS](https://nixos.org/) you can use the [nix derivation for HSTR](https://github.com/NixOS/nixpkgs/blob/master/pkgs/applications/misc/hstr/default.nix):
 
 ```bash
-nix-env -i hstr
+nix profile install nixpkgs#hstr
 ```
 
 [Configure](CONFIGURATION.md) HSTR and check its [man page](README.md#documentation).
