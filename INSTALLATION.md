@@ -144,7 +144,7 @@ sudo dnf install ./hstr-<major>.<minor>.<revision>-2.x86_64.rpm
 To install HSTR on openSUSE, please check [software.opensuse.org](https://software.opensuse.org/package/hstr) or [pkgs.org](https://pkgs.org/search/?q=hstr). You can install HSTR as follows:
 
 ```bash
-zypper addrepo https://download.opensuse.org/repositories/home:lemmy04/openSUSE_Leap_15.1/home:lemmy04.repo
+zypper addrepo https://download.opensuse.org/repositories/home:/lemmy04/15.5/home:lemmy04.repo
 zypper refresh
 zypper install hstr
 ```
