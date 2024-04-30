@@ -663,7 +663,7 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
-void add_to_selection(char* line, unsigned int* index)
+void maybe_add_to_selection_regexp(char* line, unsigned int* index, regmatch_t *regexpMatch)
 {
     if(hstr->noRawHistoryDuplicates) {
         unsigned i;
@@ -674,7 +674,16 @@ void add_to_selection(char* line, unsigned int* index)
         }
     }
     hstr->selection[*index]=line;
+    if (regexpMatch != NULL) {
+        hstr->selectionRegexpMatch[*index].rm_so=regexpMatch->rm_so;
+        hstr->selectionRegexpMatch[*index].rm_eo=regexpMatch->rm_eo;
+    }
     (*index)++;
+}
+
+void maybe_add_to_selection(char* line, unsigned int* index)
+{
+  maybe_add_to_selection_regexp(line, index, NULL);
 }
 
 void print_help_label(void)
@@ -875,29 +884,26 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
-                add_to_selection(source[i], &selectionCount);
+                maybe_add_to_selection(source[i], &selectionCount);
             } else {
                 switch(hstr->matching) {
                 case HSTR_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HSTR_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount);
+                            maybe_add_to_selection(source[i], &selectionCount);
                         }
                         break;
                     case HSTR_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount);
+                            maybe_add_to_selection(source[i], &selectionCount);
                         }
                         break;
                     }
                     break;
                 case HSTR_MATCH_REGEXP:
                     if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch, regexpErrorMessage, CMDLINE_LNG)) {
-                        hstr->selection[selectionCount]=source[i];
-                        hstr->selectionRegexpMatch[selectionCount].rm_so=regexpMatch.rm_so;
-                        hstr->selectionRegexpMatch[selectionCount].rm_eo=regexpMatch.rm_eo;
-                        selectionCount++;
+                        maybe_add_to_selection_regexp(source[i], &selectionCount, &regexpMatch);
                     } else {
                         if(!regexpCompilationError) {
                             // TODO fix broken messages - getting just escape sequences
@@ -930,7 +936,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                     }
                     if(keywordsAllMatch) {
-                        add_to_selection(source[i], &selectionCount);
+                        maybe_add_to_selection(source[i], &selectionCount);
                     }
                     free(keywordsPointerToDelete);
                     break;
@@ -948,13 +954,13 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                 case HSTR_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount);
+                        maybe_add_to_selection(source[i], &selectionCount);
                     }
                     break;
                 case HSTR_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount);
+                        maybe_add_to_selection(source[i], &selectionCount);
                     }
                     break;
                 }
