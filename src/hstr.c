@@ -1598,7 +1598,11 @@ void loop_to_select(void)
                     favorites_choose(hstr->favorites,result);
                 }
             } else {
-                result=pattern;
+                if (hstr->selectionSize > 0) {
+                    result=hstr->selection[0];
+                } else {
+                    result=pattern;
+                }
             }
             done=TRUE;
             break;
