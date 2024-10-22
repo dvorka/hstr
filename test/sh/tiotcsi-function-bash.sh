@@ -188,7 +188,7 @@ export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 function hstrnotiocsti {
-    { HSTR_OUT="$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )"; } 3>&1;
+    { HSTR_OUT="$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )"; } 3>&1;
     READLINE_LINE="${HSTR_OUT}"
     READLINE_POINT=${#READLINE_LINE}
 }

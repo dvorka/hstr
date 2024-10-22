@@ -364,7 +364,7 @@ void print_bash_install_code(void)
 #else
         "\nfunction hstrnotiocsti {"
 #endif
-        "\n    { READLINE_LINE=\"$( { </dev/tty hstr ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
+        "\n    { READLINE_LINE=\"$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;"
         "\n    READLINE_POINT=${#READLINE_LINE}"
         "\n}"
         "\n# if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)"
