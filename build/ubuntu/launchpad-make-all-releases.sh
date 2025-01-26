@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -94,7 +94,7 @@ function releaseForParticularUbuntuVersion() {
     export HSTRRELEASE=hstr_${HSTRFULLVERSION}
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
     export HSTRBUILD=hstr-${NOW}
-    
+
     # checkout HSTR from Bazaar and prepare *configure using Autotools
     mkdir ${HSTRBUILD} && cd ${HSTRBUILD}
     checkoutHstr `pwd`
@@ -116,7 +116,7 @@ function releaseForParticularUbuntuVersion() {
 	echo "OK: GPG agent running."
     else
 	gpg-agent --daemon
-    fi    
+    fi
 
     # build .debs
     # OPTIONAL test build w/o signing: build UNSIGNED .deb package (us uc tells that no GPG signing is needed)
@@ -124,7 +124,7 @@ function releaseForParticularUbuntuVersion() {
     # build SIGNED source .deb package
     bzr builddeb -S
     cd ../build-area
-    
+
     # build binary from source deb on CLEAN system - no deps installed
     echo -e "\n_ hstr pbuilder-dist build  _______________________________________________\n"
     # BEGIN: bug workaround - pbuilder's caches in /var and /home must be on same physical drive
@@ -165,13 +165,16 @@ fi
 
 export ARG_BAZAAR_MSG="Release 3.1"
 export ARG_MAJOR_VERSION=3.1.
-export ARG_MINOR_VERSION=1 # minor version is incremented for every Ubuntu version
+export ARG_MINOR_VERSION=8 # minor version is incremented for every Ubuntu version
 
 # https://wiki.ubuntu.com/Releases
-# obsolete: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
-# current : (trusty) xenial bionic (cosmic disco eoan) focal (groovy) (hirsute) (impish) jammy kinetic
-# command : trusty xenial bionic focal jammy kinetic
-for UBUNTU_VERSION in trusty xenial bionic focal jammy kinetic
+# obsolete:
+#   precise quantal saucy precise utopic vivid wily yakkety xenial artful cosmic disco eoan groovy hirsute impish
+# current :
+#   trusty xenial bionic focal jammy noble
+# command :
+#   trusty xenial bionic focal jammy noble
+for UBUNTU_VERSION in noble
 do
     echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ then
     echo "./hstr -n log" >> ${FILE_SCENARIOS}
 else
     echo "./hstr -k" > ${FILE_SCENARIOS}
-fi	 
+fi
 # ELSE following scenarios must be run MANUALLY from CLI
 # valgrind --track-origins=yes --tool=memcheck --leak-check=full --show-leak-kinds=all ./hstr
 #   ENTER

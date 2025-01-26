@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -32,7 +32,7 @@ function tarballClean() {
     rm -rvf atom5te.cache src/.deps
     rm -vf Makefile Makefile.in aclocal.m4 config.log config.status configure depcomp install-sh missing
     rm -vf man/Makefile man/Makefile.in
-    rm -vf src/Makefile src/Makefile.in src/hstr src/hh *.o src/*.o 
+    rm -vf src/Makefile src/Makefile.in src/hstr src/hh *.o src/*.o
 }
 
 function tarballBuildUsingAutomake() {
@@ -52,7 +52,7 @@ function tarballBuildUsingAutomake() {
 	# platform specific detection in configure.ac
 	cp -vf ${AUTOMAKE_LIB}/config.sub .
 	cp -vf ${AUTOMAKE_LIB}/config.guess .
-    else 
+    else
 	echo "ERROR: automake ${AUTOMAKE_LIB} not found!"
 	exit 1
     fi
