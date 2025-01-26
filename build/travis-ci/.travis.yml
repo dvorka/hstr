@@ -1,6 +1,6 @@
 # .travis.yml     Travis CI configuration file for HSTR
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -31,7 +31,7 @@ dist: trusty # Travis CI provides Precise and Trusty only
 before_install:
   - sudo apt-get update -qq
   - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"  
+  - "sh -e /etc/init.d/xvfb start"
   - sudo add-apt-repository --yes ppa:ubuntu-sdk-team/ppa
   - sudo apt-get update -qq
   - eval "${MATRIX_EVAL}"

@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,6 +14,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-cd ../test && make clean && rm -vf _* hstr-unit-tests Makefile 
+cd ../test && make clean && rm -vf _* hstr-unit-tests Makefile
 
 # eof

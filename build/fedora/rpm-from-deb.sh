@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -50,10 +50,10 @@ function decompose() {
 function compose() {
     # recreate RPM
     cd ${MFPRJNAME}
-    export MFRPMROOT=`pwd` 
-   
+    export MFRPMROOT=`pwd`
+
     # bin build
-    # --target=x86_64 
+    # --target=x86_64
     # --target=i386
     rpmbuild --target=x86_64 --buildroot ${MFRPMROOT}/ -bb ${MFPRJNAME}-2.spec
     # noarch would be for SOURCE deb

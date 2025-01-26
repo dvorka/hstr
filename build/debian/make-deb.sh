@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2014-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -33,9 +33,9 @@
 # ############################################################################
 
 function createChangelog() {
-  # Debian tooling changelog hints: 
+  # Debian tooling changelog hints:
   # - signature line MUST have one whitespace prefix
-  # - signature line MUST have double space between email and timestamp 
+  # - signature line MUST have double space between email and timestamp
   # - traling lines must have exactly one space
 
   export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
@@ -78,7 +78,7 @@ function buildDebPackage() {
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
     export HSTRBUILD=hstr-${NOW}
     export DEBIANVERSION=unstable
-    
+
     #
     # 1) create upstream tarball
     #
@@ -91,18 +91,18 @@ function buildDebPackage() {
 
     # 1.x) generate makefiles
     cd build/tarball && ./tarball-automake.sh && cd ../.. && ./configure
-    
+
     # 1.2) prune HSTR project source: tests, *.o/... build files, ...
     echo -e "\n# HSTR project cleanup ########################################"
     rm -vrf ./.git ./hstr ./build ./test ./hstr.pro ./doc ./pad.xml ./snap
     find . -type f \( -name "*.a" -or -name "*.o" -or -name "*.*~" -or -name ".gitignore" -or -name ".git" \) | while read F; do rm -vf $F; done
-        
+
     # 1.4) create tar archive
     createTarball
 
     #
     # 2) create source deb
-    #    
+    #
     # 2.a) add Debian control files
     cp -rvf ${HSTRSRC}/build/debian/debian  .
     createChangelog ./debian/changelog
@@ -113,7 +113,7 @@ function buildDebPackage() {
 	echo "OK: GPG agent running."
     else
 	gpg-agent --daemon
-    fi    
+    fi
 
     DEBEMAIL="martin.dvorak@mindforger.com"
     DEBFULLNAME="Martin Dvorak"
@@ -126,7 +126,7 @@ function buildDebPackage() {
     pushd .. && mkdir -v deb-binary && cp -vf *.dsc *.changes *.deb deb-binary && popd
 
     # 3) create source deb
-    #    
+    #
     # 3.a) build deb
     # build SOURCE deb package
     #debuild -S

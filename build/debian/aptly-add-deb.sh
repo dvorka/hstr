@@ -1,6 +1,6 @@
 #!/bin/bash
 #
-# Copyright (C) 2016-2023 Martin Dvorak <martin.dvorak@mindforger.com>
+# Copyright (C) 2014-2025 Martin Dvorak <martin.dvorak@mindforger.com>
 #
 # This program is free software; you can redistribute it and/or
 # modify it under the terms of the GNU General Public License
@@ -34,16 +34,16 @@ echo "See 'MindForger Release Guide#Debian and my PPA' notebook for detailed ste
 #aptly repo show -with-packages mindforger-com-ppa
 
 # show snapshots
-#aptly snapshot list 
+#aptly snapshot list
 
 # delete snapshot(s) ONLY if needed - publish must be deleted first!
 #aptly snapshot drop hstr-2.0.0-snapshot
 
-# create snapshot in the time of release - note release NAME 
+# create snapshot in the time of release - note release NAME
 #aptly snapshot create hstr-2.0.0-snapshot from repo mindforger-com-ppa
 
 # show published snapshots
-#aptly publish list 
+#aptly publish list
 
 # delete published snapshot(s) ONLY if needed
 #aptly publish drop stretch
