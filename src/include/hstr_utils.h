@@ -22,6 +22,7 @@
 #include <ctype.h>
 #include <fcntl.h>
 #include <sys/ioctl.h>
+#include <sys/stat.h>
 #include <sys/types.h>
 #include <stdlib.h>
 #include <string.h>
@@ -31,6 +32,7 @@
 #include <unistd.h>
 
 #define ENV_VAR_HOME "HOME"
+#define ENV_VAR_XDG_CONFIG_HOME "XDG_CONFIG_HOME"
 
 #define UNUSED_ARG(expr) do { (void)(expr); } while (0)
 #define ZSH_META ((char) 0x83)
@@ -93,6 +95,7 @@ void fill_terminal_input(char* cmd, bool padding);
 void reverse_char_pointer_array(char** array, unsigned length);
 void get_hostname(int bufferSize, char* buffer);
 char* get_home_file_path(char* filename);
+char* get_hstr_configuration_file_path(const char* legacy_filename, const char* xdg_filename);
 void toggle_case(char* str, bool lowercase);
 bool is_zsh_parent_shell(void);
 char* zsh_unmetafy(char* s, int* len);
