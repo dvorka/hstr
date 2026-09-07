@@ -725,7 +725,7 @@ unsigned print_prompt(void)
     char *prompt = getenv(HSTR_ENV_VAR_PROMPT);
     if(prompt) {
         mvprintw(hstr->promptY, xoffset, "%s", prompt);
-        promptLength=strlen(prompt);
+        promptLength=hstr_strlen(prompt);
     } else {
         char *user = getenv(ENV_VAR_USER);
         char *hostname=malloc(HOSTNAME_BUFFER);
