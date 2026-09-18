@@ -17,6 +17,7 @@
 */
 
 #include "include/hstr_favorites.h"
+#include "include/hstr_utils.h"
 
 #define FAVORITE_SEGMENT_SIZE 10
 
@@ -45,12 +46,7 @@ void favorites_show(FavoriteItems *favorites)
 
 char* favorites_get_filename()
 {
-    char* home = getenv(ENV_VAR_HOME);
-    char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_FAVORITES) + 1);
-    strcpy(fileName, home);
-    strcat(fileName, "/");
-    strcat(fileName, FILE_HSTR_FAVORITES);
-    return fileName;
+    return get_hstr_configuration_file_path(FILE_HSTR_FAVORITES, "favorites");
 }
 
 void favorites_get(FavoriteItems* favorites)
@@ -114,25 +110,27 @@ void favorites_save(FavoriteItems* favorites)
 
     if(favorites->count) {
         FILE* outputFile = fopen(fileName, "wb");
-        rewind(outputFile);
-        unsigned i;
-        for(i=0; i<favorites->count; i++) {
-            if(!fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), outputFile)) {
-                if(ferror(outputFile)) {
-                    exit(EXIT_FAILURE);
+        if (outputFile) {
+            rewind(outputFile);
+            unsigned i;
+            for(i=0; i<favorites->count; i++) {
+                if(!fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), outputFile)) {
+                    if(ferror(outputFile)) {
+                        exit(EXIT_FAILURE);
+                    }
+                }
+                if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
+                    if(ferror(outputFile)) {
+                        exit(EXIT_FAILURE);
+                    }
                 }
             }
-            if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
-                if(ferror(outputFile)) {
-                    exit(EXIT_FAILURE);
-                }
-            }
+            fclose(outputFile);
         }
-        fclose(outputFile);
     } else {
         if(access(fileName, F_OK) != -1) {
             FILE *output_file = fopen(fileName, "wb");
-            fclose(output_file);
+            if (output_file) fclose(output_file);
         }
     }
     free(fileName);

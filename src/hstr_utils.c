@@ -212,6 +212,63 @@ char* get_home_file_path(char* filename)
     return path;
 }
 
+char* get_hstr_configuration_file_path(const char* legacy_filename, const char* xdg_filename)
+{
+    char* home = getenv(ENV_VAR_HOME);
+    if (!home) return NULL;
+
+    // 1. check legacy file in HOME
+    char* legacy_path = malloc(strlen(home) + 1 + strlen(legacy_filename) + 1);
+    strcpy(legacy_path, home);
+    strcat(legacy_path, "/");
+    strcat(legacy_path, legacy_filename);
+
+    if (access(legacy_path, F_OK) != -1) {
+        return legacy_path;
+    }
+
+    // 2. check XDG config home
+    const char* xdg_config_home_env = getenv(ENV_VAR_XDG_CONFIG_HOME);
+    char* xdg_path_dir;
+
+    if (xdg_config_home_env && strlen(xdg_config_home_env) > 0) {
+        xdg_path_dir = malloc(strlen(xdg_config_home_env) + 1 + strlen("hstr") + 1);
+        sprintf(xdg_path_dir, "%s/hstr", xdg_config_home_env);
+    } else {
+        xdg_path_dir = malloc(strlen(home) + 1 + strlen(".config/hstr") + 1);
+        sprintf(xdg_path_dir, "%s/.config/hstr", home);
+    }
+
+    char* xdg_path = malloc(strlen(xdg_path_dir) + 1 + strlen(xdg_filename) + 1);
+    sprintf(xdg_path, "%s/%s", xdg_path_dir, xdg_filename);
+
+    if (access(xdg_path, F_OK) != -1) {
+        free(legacy_path);
+        free(xdg_path_dir);
+        return xdg_path;
+    }
+
+    // 3. default to XDG (create directory)
+    if (access(xdg_path_dir, F_OK) == -1) {
+        // attempt to create config dir (assuming .config exists or simple structure)
+        // separate mkdir calls to ensure both exist if falling back to .config
+        if (xdg_config_home_env) {
+            // Ensure parent directory exists (handle custom XDG_CONFIG_HOME case)
+            mkdir(xdg_config_home_env, 0700);
+        } else {
+            char* config_dir = malloc(strlen(home) + 1 + strlen(".config") + 1);
+            sprintf(config_dir, "%s/.config", home);
+            mkdir(config_dir, 0700);
+            free(config_dir);
+        }
+        mkdir(xdg_path_dir, 0700);
+    }
+
+    free(legacy_path);
+    free(xdg_path_dir);
+    return xdg_path;
+}
+
 void toggle_case(char *str, bool lowercase) {
     if(str && strlen(str)>0) {
         int i;
