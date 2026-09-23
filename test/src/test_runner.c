@@ -81,6 +81,9 @@ extern void test_strcat_char_fitting(void);
 extern void test_parse_history_line();
 extern void test_assemble_cmdline_pattern(void);
 extern void test_is_tiocsti_supported_without_terminal(void);
+extern void test_raw_history_skips_empty_entries(void);
+extern void test_raw_history_skips_empty_entries_and_timestamps(void);
+extern void test_raw_history_only_empty_entries(void);
 
 
 /*=======Suite Setup=====*/
@@ -147,6 +150,9 @@ int main(void)
   RUN_TEST(test_parse_history_line, 1169);
   RUN_TEST(test_assemble_cmdline_pattern, 1189);
   RUN_TEST(test_is_tiocsti_supported_without_terminal, 1298);
+  RUN_TEST(test_raw_history_skips_empty_entries, 1392);
+  RUN_TEST(test_raw_history_skips_empty_entries_and_timestamps, 1407);
+  RUN_TEST(test_raw_history_only_empty_entries, 1422);
 
   return suite_teardown(UnityEnd());
 }
