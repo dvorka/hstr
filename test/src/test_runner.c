@@ -53,6 +53,9 @@ extern void test_help_short(void);
 extern void test_string_elide();
 extern void test_parse_history_line();
 extern void test_assemble_cmdline_pattern(void);
+extern void test_raw_history_skips_empty_entries(void);
+extern void test_raw_history_skips_empty_entries_and_timestamps(void);
+extern void test_raw_history_only_empty_entries(void);
 
 
 /*=======Suite Setup=====*/
@@ -87,18 +90,21 @@ int main(void)
 {
   suite_setup();
   UnityBegin("../test/src/test.c");
-  RUN_TEST(test_args, 49);
-  RUN_TEST(test_getopt, 82);
-  RUN_TEST(test_locate_char_in_string_overflow, 165);
-  RUN_TEST(test_favorites, 176);
-  RUN_TEST(test_hashset_blacklist, 200);
-  RUN_TEST(test_hashset_get_keys, 215);
-  RUN_TEST(test_regexp, 236);
-  RUN_TEST(test_help_long, 276);
-  RUN_TEST(test_help_short, 292);
-  RUN_TEST(test_string_elide, 308);
-  RUN_TEST(test_parse_history_line, 340);
+  RUN_TEST(test_args, 50);
+  RUN_TEST(test_getopt, 88);
+  RUN_TEST(test_locate_char_in_string_overflow, 174);
+  RUN_TEST(test_favorites, 187);
+  RUN_TEST(test_hashset_blacklist, 213);
+  RUN_TEST(test_hashset_get_keys, 230);
+  RUN_TEST(test_regexp, 253);
+  RUN_TEST(test_help_long, 295);
+  RUN_TEST(test_help_short, 313);
+  RUN_TEST(test_string_elide, 331);
+  RUN_TEST(test_parse_history_line, 365);
   RUN_TEST(test_assemble_cmdline_pattern, 385);
+  RUN_TEST(test_raw_history_skips_empty_entries, 499);
+  RUN_TEST(test_raw_history_skips_empty_entries_and_timestamps, 514);
+  RUN_TEST(test_raw_history_only_empty_entries, 529);
 
   return suite_teardown(UnityEnd());
 }

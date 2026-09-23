@@ -956,7 +956,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     char *keywordsParsedLine=NULL;
     char *keywordsPointerToDelete=NULL;
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
-        if(source[i]) {
+        if(source[i] && *source[i]) {
             if(!prefix || !strlen(prefix)) {
                 add_to_selection(source[i], &selectionCount);
             } else {
@@ -1025,6 +1025,9 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     if(prefix && selectionCount<maxSelectionCount) {
         char *substring;
         for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
+            if(!source[i] || !*source[i]) {
+                continue;
+            }
             switch(hstr->matching) {
             case HSTR_MATCH_SUBSTRING:
                 switch(hstr->caseSensitive) {
