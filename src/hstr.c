@@ -25,8 +25,6 @@
 #define CMDLINE_LNG 8192
 #define HOSTNAME_BUFFER 128
 
-#define PG_JUMP_SIZE 10
-
 #define K_CTRL_A 1
 #define K_CTRL_E 5
 #define K_CTRL_F 6
@@ -277,6 +275,8 @@ typedef struct {
 } Hstr;
 
 static Hstr* hstr;
+// index of the first visible match; selection cursors index the complete list.
+static unsigned selectionOffset=0;
 
 bool show_tiocsti_configuration_warning(void)
 {
@@ -591,6 +591,7 @@ unsigned recalculate_max_history_items(void)
             hstr->promptYItemsStart = top++;
         }
     }
+    if(hstr->promptItems < 0) hstr->promptItems=0;
     hstr->promptYItemsEnd = hstr->promptYItemsStart+hstr->promptItems-1;
     if(!hstr->hideBasicHelp) {
         // Use basic help label for notifications.
@@ -1162,14 +1163,8 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     color_attr_off(A_BOLD);
 }
 
-char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
+void hstr_draw_selection(char* pattern)
 {
-    char* result=NULL;
-    unsigned selectionCount=hstr_make_selection(pattern, hstr->history, maxHistoryItems);
-    if (selectionCount > 0) {
-        result=hstr->selection[0];
-    }
-
     unsigned height=recalculate_max_history_items();
     unsigned width=getmaxx(stdscr);
     unsigned i;
@@ -1193,7 +1188,7 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
 
     int start, count;
     char screenLine[CMDLINE_LNG];
-    for(i=0; i<height; ++i) {
+    for(i=selectionOffset; i<selectionOffset+height; ++i) {
         if(i<hstr->selectionSize) {
             // TODO make this function
             if(pattern && strlen(pattern)) {
@@ -1225,52 +1220,41 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
         }
     }
     refresh();
+}
 
+char* hstr_update_selection(char* pattern)
+{
+    // keep all matches, not just the first terminal-sized page.
+    unsigned capacity=MAX(hstr->history->rawCount, hstr->history->count);
+    capacity=MAX(capacity, hstr->favorites->count);
+    hstr_make_selection(pattern, hstr->history, capacity);
+    return hstr->selectionSize ? hstr->selection[0] : NULL;
+}
+
+char* hstr_print_selection(char* pattern)
+{
+    char* result=hstr_update_selection(pattern);
+    selectionOffset=0;
+    hstr_draw_selection(pattern);
     return result;
 }
 
-void highlight_selection(int selectionCursorPosition, int previousSelectionCursorPosition, char* pattern)
+void highlight_selection(int selectionCursorPosition, char* pattern)
 {
-    if(previousSelectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-        // TODO make this function
-        char buffer[CMDLINE_LNG];
-        if(pattern && strlen(pattern) && hstr->matching==HSTR_MATCH_REGEXP) {
-            int start=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_so;
-            int end=hstr->selectionRegexpMatch[previousSelectionCursorPosition].rm_eo-start;
-            end = MIN(end,getmaxx(stdscr));
-            strncpy(buffer,
-                    hstr->selection[previousSelectionCursorPosition]+start,
-                    end);
-            buffer[end]=0;
-        } else {
-            strcpy(buffer, pattern);
-        }
-
-        int text, y;
-        if(hstr->promptBottom) {
-            text=hstr->promptItems-previousSelectionCursorPosition-1;
-            y=hstr->promptYItemsStart+previousSelectionCursorPosition;
-        } else {
-            text=previousSelectionCursorPosition;
-            y=hstr->promptYItemsStart+previousSelectionCursorPosition;
-        }
-        print_selection_row(
-                hstr->selection[text],
-                y,
-                getmaxx(stdscr),
-                buffer);
+    unsigned height=recalculate_max_history_items();
+    if(selectionCursorPosition < 0 ||
+            selectionCursorPosition >= (int)hstr->selectionSize || !height) {
+        hstr_draw_selection(pattern);
+        return;
     }
-    if(selectionCursorPosition!=SELECTION_CURSOR_IN_PROMPT) {
-        int text, y;
-        if(hstr->promptBottom) {
-            text=hstr->promptItems-selectionCursorPosition-1;
-            y=hstr->promptYItemsStart+selectionCursorPosition;
-        } else {
-            text=selectionCursorPosition;
-            y=hstr->promptYItemsStart+selectionCursorPosition;
-        }
-        hstr_print_highlighted_selection_row(hstr->selection[text], y, getmaxx(stdscr));
-    }
+    unsigned selected=(unsigned)selectionCursorPosition;
+    if(selected < selectionOffset) selectionOffset=selected;
+    if(selected >= selectionOffset+height) selectionOffset=selected-height+1;
+    // leave spare rows at the end rather than shifting the viewport after deletion.
+    hstr_draw_selection(pattern);
+    int row=selected-selectionOffset;
+    int y=hstr->promptBottom ? hstr->promptYItemsEnd-row : hstr->promptYItemsStart+row;
+    hstr_print_highlighted_selection_row(hstr->selection[selected], y, getmaxx(stdscr));
 }
 
 int remove_from_history_model(char* almostDead)
@@ -1311,11 +1295,7 @@ void stdout_history_and_return(void)
 // IMPROVE hstr doesn't have to be passed as parameter - it's global static
 // TODO rename method _
 char* getResultFromSelection(int selectionCursorPosition, Hstr* hstr, char* result) {
-    if (hstr->promptBottom) {
-        result=hstr->selection[hstr->promptItems-selectionCursorPosition-1];
-    } else {
-        result=hstr->selection[selectionCursorPosition];
-    }
+    result=hstr->selection[selectionCursorPosition];
     return result;
 }
 
@@ -1356,7 +1336,7 @@ void loop_to_select(void)
 
     color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     // TODO why do I print non-filtered selection when on command line there is a pattern?
-    hstr_print_selection(recalculate_max_history_items(), NULL);
+    hstr_print_selection(NULL);
     color_attr_off(COLOR_PAIR(HSTR_COLOR_NORMAL));
     bool labelsAreOnBottom = (hstr->promptBottom && !hstr->helpOnOppositeSide) || (!hstr->promptBottom && hstr->helpOnOppositeSide);
     if(!labelsAreOnBottom) {
@@ -1368,10 +1348,9 @@ void loop_to_select(void)
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
     bool hideNotificationOnNextTick=TRUE, fixCommand=FALSE, editCommand=FALSE;
     unsigned basex=print_prompt();
-    int x=basex, c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
+    int x=basex, c, cc, cursorX=0, cursorY=0, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-    int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     char *result="", *msg, *almostDead;
     char pattern[SELECTION_PREFIX_MAX_LNG];
     pattern[0]=0;
@@ -1380,7 +1359,7 @@ void loop_to_select(void)
     pattern[SELECTION_PREFIX_MAX_LNG-1]=0;
 
     while (!done) {
-        maxHistoryItems=recalculate_max_history_items();
+        recalculate_max_history_items();
 
         if(!skip) {
             c = wgetch(stdscr);
@@ -1391,7 +1370,7 @@ void loop_to_select(void)
                 color_attr_off(A_BOLD);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
-                result=hstr_print_selection(maxHistoryItems, pattern);
+                result=hstr_print_selection(pattern);
                 move(cursorY, cursorX);
             }
             skip=FALSE;
@@ -1426,7 +1405,9 @@ void loop_to_select(void)
                 }
                 if(hstr->noConfirm || cc == 'y') {
                     deletedOccurences=remove_from_history_model(msg);
-                    result=hstr_print_selection(maxHistoryItems, pattern);
+                    // keep the viewport: the next match takes the deleted row.
+                    // highlight_selection below clamps it at the end of the list.
+                    result=hstr_update_selection(pattern);
                     print_cmd_deleted_label(msg, deletedOccurences);
                 } else {
                     hide_notification();
@@ -1436,22 +1417,12 @@ void loop_to_select(void)
                 hideNotificationOnNextTick=TRUE;
                 print_history_label();  // TODO: Why is this necessary? Add comment!
 
-                if(hstr->selectionSize == 0) {
-                    // just update the cursor, there are no elements to select
-                    move(hstr->promptY, basex+strlen(pattern));
-                    break;
+                if(!hstr->selectionSize) {
+                    selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+                } else if(selectionCursorPosition >= (int)hstr->selectionSize) {
+                    selectionCursorPosition=hstr->selectionSize-1;
                 }
-
-                if(hstr->promptBottom) {
-                    if(selectionCursorPosition < (int)(hstr->promptItems-hstr->selectionSize)) {
-                        selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
-                    }
-                } else {
-                    if(selectionCursorPosition >= (int)hstr->selectionSize) {
-                        selectionCursorPosition = hstr->selectionSize-1;
-                    }
-                }
-                highlight_selection(selectionCursorPosition, SELECTION_CURSOR_IN_PROMPT, pattern);
+                highlight_selection(selectionCursorPosition, pattern);
                 move(hstr->promptY, basex+strlen(pattern));
             }
             break;
@@ -1459,7 +1430,7 @@ void loop_to_select(void)
             hstr->matching++;
             hstr->matching=hstr->matching%HSTR_NUM_HISTORY_MATCH;
             // TODO make this a function
-            result=hstr_print_selection(maxHistoryItems, pattern);
+            result=hstr_print_selection(pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
@@ -1471,7 +1442,7 @@ void loop_to_select(void)
         case K_CTRL_T:
             hstr->caseSensitive=!hstr->caseSensitive;
             hstr->regexp.caseSensitive=hstr->caseSensitive;
-            result=hstr_print_selection(maxHistoryItems, pattern);
+            result=hstr_print_selection(pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             if(strlen(pattern)<(width-basex-1)) {
@@ -1486,7 +1457,7 @@ void loop_to_select(void)
 #endif
         case K_CTRL_SLASH:
             hstr_next_view();
-            result=hstr_print_selection(maxHistoryItems, pattern);
+            result=hstr_print_selection(pattern);
             print_history_label();
             // TODO function
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1504,7 +1475,7 @@ void loop_to_select(void)
                 } else {
                     favorites_add(hstr->favorites, result);
                 }
-                hstr_print_selection(maxHistoryItems, pattern);
+                hstr_print_selection(pattern);
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
                 if(hstr->view!=HSTR_VIEW_FAVORITES) {
                     print_cmd_added_favorite_label(result);
@@ -1519,11 +1490,14 @@ void loop_to_select(void)
             }
             break;
         case KEY_RESIZE:
+            width=getmaxx(stdscr);
+            recalculate_max_history_items();
+            clear();
+            print_help_label();
             print_history_label();
-            maxHistoryItems=recalculate_max_history_items();
-            result=hstr_print_selection(maxHistoryItems, pattern);
-            print_history_label();
-            selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+            basex=print_prompt();
+            print_pattern(pattern, hstr->promptY, basex);
+            highlight_selection(selectionCursorPosition, pattern);
             move(hstr->promptY, basex+strlen(pattern));
             break;
 #ifndef __APPLE__
@@ -1531,11 +1505,15 @@ void loop_to_select(void)
 #endif
         case K_CTRL_U:
             pattern[0]=0;
+            selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             print_pattern(pattern, hstr->promptY, basex);
+            result=hstr_print_selection(pattern);
+            move(hstr->promptY, basex);
             break;
         case K_CTRL_L:
             toggle_case(pattern, lowercase);
             lowercase=!lowercase;
+            result=hstr_print_selection(pattern);
             print_pattern(pattern, hstr->promptY, basex);
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
             break;
@@ -1548,96 +1526,36 @@ void loop_to_select(void)
                 print_pattern(pattern, hstr->promptY, basex);
             }
 
-            // TODO why I make selection if it's done in print_selection?
-            if(strlen(pattern)>0) {
-                hstr_make_selection(pattern, hstr->history, maxHistoryItems);
-            } else {
-                hstr_make_selection(NULL, hstr->history, maxHistoryItems);
-            }
-            result=hstr_print_selection(maxHistoryItems, pattern);
+            selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
+            result=hstr_print_selection(pattern);
 
             move(hstr->promptY, basex+hstr_strlen(pattern));
             break;
         case KEY_UP:
         case K_CTRL_K:
         case K_CTRL_P:
-            previousSelectionCursorPosition=selectionCursorPosition;
-            if(selectionCursorPosition>0) {
-                if(hstr->promptBottom) {
-                    if(selectionCursorPosition <= (int)(hstr->promptItems-hstr->selectionSize)) {
-                        selectionCursorPosition=hstr->promptItems-1;
-                    } else {
-                        selectionCursorPosition--;
-                    }
-                } else {
-                    selectionCursorPosition--;
-                }
-            } else {
-                if(hstr->promptBottom) {
-                    selectionCursorPosition=hstr->promptItems-1;
-                } else {
-                    selectionCursorPosition=hstr->selectionSize-1;
-                }
-            }
-            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
-            move(hstr->promptY, basex+strlen(pattern));
-            break;
         case KEY_PPAGE:
-            previousSelectionCursorPosition=selectionCursorPosition;
-            if(selectionCursorPosition>=PG_JUMP_SIZE) {
-                selectionCursorPosition=selectionCursorPosition-PG_JUMP_SIZE;
-            } else {
-                selectionCursorPosition=0;
-            }
-            highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
-            move(hstr->promptY, basex+strlen(pattern));
-            break;
         case KEY_DOWN:
         case K_CTRL_J:
         case K_CTRL_N:
+        case KEY_NPAGE: {
+            if(!hstr->selectionSize || !hstr->promptItems) break;
+            bool up=(c==KEY_UP || c==K_CTRL_K || c==K_CTRL_P || c==KEY_PPAGE);
+            int step=(c==KEY_PPAGE || c==KEY_NPAGE) ? hstr->promptItems : 1;
+            int direction=up ? -1 : 1;
+            if(hstr->promptBottom) direction=-direction;
             if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
-                if(hstr->promptBottom) {
-                    selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
-                } else {
-                    selectionCursorPosition=previousSelectionCursorPosition=0;
-                }
+                selectionCursorPosition=0;
             } else {
-                previousSelectionCursorPosition=selectionCursorPosition;
-                if(hstr->promptBottom) {
-                    if(selectionCursorPosition<hstr->promptItems-1) {
-                        selectionCursorPosition++;
-                    } else {
-                        selectionCursorPosition=hstr->promptItems-hstr->selectionSize;
-                    }
-                } else {
-                    if((selectionCursorPosition+1) < (int)hstr->selectionSize) {
-                        selectionCursorPosition++;
-                    } else {
-                        selectionCursorPosition=0;
-                    }
-                }
-            }
-            if(hstr->selectionSize) {
-                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
-            }
-            move(hstr->promptY, basex+strlen(pattern));
-            break;
-        case KEY_NPAGE:
-            if(selectionCursorPosition==SELECTION_CURSOR_IN_PROMPT) {
-                selectionCursorPosition=previousSelectionCursorPosition=0;
-            } else {
-                previousSelectionCursorPosition=selectionCursorPosition;
-                if((selectionCursorPosition+PG_JUMP_SIZE) < (int)hstr->selectionSize) {
-                    selectionCursorPosition = selectionCursorPosition+PG_JUMP_SIZE;
-                } else {
+                selectionCursorPosition+=direction*step;
+                if(selectionCursorPosition < 0) selectionCursorPosition=0;
+                if(selectionCursorPosition >= (int)hstr->selectionSize)
                     selectionCursorPosition=hstr->selectionSize-1;
-                }
             }
-            if(hstr->selectionSize) {
-                highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
-            }
+            highlight_selection(selectionCursorPosition, pattern);
             move(hstr->promptY, basex+strlen(pattern));
             break;
+        }
         case K_ENTER:
         case KEY_ENTER:
             executeResult=TRUE;
@@ -1711,7 +1629,7 @@ void loop_to_select(void)
                     cursorY=getcury(stdscr);
                 }
 
-                result = hstr_print_selection(maxHistoryItems, pattern);
+                result = hstr_print_selection(pattern);
                 move(cursorY, cursorX);
                 refresh();
             }

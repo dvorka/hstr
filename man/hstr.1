@@ -65,7 +65,11 @@ Add currently selected command to favorites.
 Toggle search pattern case.
 .TP
 \fBCtrl\-r\fR, \fBUP\fR arrow, \fBDOWN\fR arrow, \fBCtrl\-n\fR, \fBCtrl\-p\fR, \fBCtrl\-j\fR, \fBCtrl\-k\fR
-Navigate in the history list.
+Navigate through the complete list of matching history entries. The list scrolls
+when the selection reaches the edge of the screen and does not wrap at either end.
+.TP
+\fBPAGE UP\fR, \fBPAGE DOWN\fR
+Move the selection by one visible page, scrolling the list as needed.
 .TP
 \fBTAB\fR, \fBRIGHT\fR arrow
 Choose currently selected item for completion and let user edit it on the command prompt.
@@ -78,6 +82,8 @@ Choose currently selected item for completion and execute it.
 .TP
 \fBDEL\fR
 Remove currently selected item from the shell history.
+The following entry takes its screen position without resetting the scroll
+offset. When deleting the final entry, the preceding entry is selected instead.
 .TP
 \fBBACKSPACE\fR, \fBCtrl\-h\fR
 Delete last pattern character.
