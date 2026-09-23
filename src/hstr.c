@@ -1228,8 +1228,8 @@ void hstr_draw_selection(char* pattern)
 char* hstr_update_selection(char* pattern)
 {
     // keep all matches, not just the first terminal-sized page.
-    unsigned capacity=MAX(hstr->history->rawCount, hstr->history->count);
-    capacity=MAX(capacity, hstr->favorites->count);
+    unsigned capacity = hstr->view == HSTR_VIEW_HISTORY ? hstr->history->rawCount :
+        hstr->view == HSTR_VIEW_FAVORITES ? hstr->favorites->count : hstr->history->count;
     hstr_make_selection(pattern, hstr->history, capacity);
     return hstr->selectionSize ? hstr->selection[0] : NULL;
 }

@@ -195,4 +195,20 @@ with terminal(count=1) as ui:
     ui.finish(b"\x18")
     assert not ui.history.read_text().strip()
 
-print("PASS: scrolling, paging, boundaries, resize, deletion, filtering, regex, empty lists, prompt layouts")
+for favorites_count in (0, 150):
+    with tempfile.TemporaryDirectory() as directory:
+        Path(directory, ".hstr_favorites").write_text("".join(f"entry-{i:03d}\n" for i in range(1000, 1000+favorites_count)))
+        ui=Terminal(directory)
+        try:
+            ui.send(b"\x1f" + DOWN * 200)
+            if favorites_count:
+                ui.expect(1149)
+            ui.send(b"\x1f" + DOWN * 200)
+            ui.expect(0)
+            ui.send(b"\x1f" + DOWN * 200)
+            ui.expect(0)
+            ui.finish(b"\x07")
+        finally:
+            ui.close()
+
+print("PASS: scrolling, paging, boundaries, resize, deletion, filtering, regex, empty lists, prompt layouts, view switching")
