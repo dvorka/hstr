@@ -734,6 +734,15 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
+static void make_single_line(char* text)
+{
+    for(char* p=text; *p; ++p) {
+        if((unsigned char)*p<32 || (unsigned char)*p==127) {
+            *p=' ';
+        }
+    }
+}
+
 void print_help_label(void)
 {
     if(hstr->hideBasicHelp)
@@ -758,6 +767,7 @@ void print_confirm_delete(const char* cmd)
     } else {
         snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
     }
+    make_single_line(screenLine);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -780,6 +790,7 @@ void print_cmd_deleted_label(const char* cmd, int occurences)
     } else {
         snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
     }
+    make_single_line(screenLine);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -815,6 +826,7 @@ void print_cmd_added_favorite_label(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
+    make_single_line(screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
@@ -1045,13 +1057,26 @@ const char* get_selection_row_indent(void)
     return (prompt && !strlen(prompt))?"":" ";
 }
 
+static void format_selection_text(char* buffer, size_t bufferSize, const char* text, unsigned width)
+{
+    // One history entry occupies one screen row. Never pass embedded terminal
+    // controls to curses; keep the original entry for matching and selection.
+    hstr_strelide(buffer, bufferSize, text, width);
+    make_single_line(buffer);
+}
+
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
+    char displayPattern[CMDLINE_LNG];
     const char* indent = get_selection_row_indent();
     // indent bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
-    hstr_strelide(buffer, sizeof(buffer)-strlen(indent), text, width>2?width-2:0);
+    format_selection_text(buffer, sizeof(buffer)-strlen(indent), text, width>2?width-2:0);
+    if(pattern) {
+        format_selection_text(displayPattern, sizeof(displayPattern), pattern, CMDLINE_LNG-1);
+        pattern=displayPattern;
+    }
     int size = snprintf(screenLine, sizeof(screenLine), "%s%s", indent, buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
@@ -1143,7 +1168,7 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     const char* prefix = terminal_has_colors()?indent:(strlen(indent)?">":"");
     char buffer[CMDLINE_LNG];
     // prefix bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
-    hstr_strelide(buffer, sizeof(buffer)-strlen(prefix), text, width>2?width-2:0);
+    format_selection_text(buffer, sizeof(buffer)-strlen(prefix), text, width>2?width-2:0);
     // pad the row to the screen width (in columns) so that the whole row is highlighted
     char screenLine[CMDLINE_LNG];
     int length = snprintf(screenLine, sizeof(screenLine), "%s%s", prefix, buffer);

@@ -162,11 +162,21 @@ bool history_line_equals(char* line, const char* cmd, bool isZsh)
 
 bool history_mgmt_load_history_file(const char* historyFile)
 {
+    // Readline needs Bash's timestamp marker to recognize multiline entries.
+    // Keep the delimiters when rewriting history after deletion as well.
+    if(!is_zsh_parent_shell()) {
+        history_comment_char = '#';
+        history_multiline_entries = 0;
+        history_write_timestamps = 1;
+    }
     // TODO memleak in readline lib: read_history() > add_history()
     if(!historyFile || read_history(historyFile)!=0) {
         fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile ? historyFile : "");
         return false;
     }
+    // read_history enables multiline entries for timestamp-delimited files.
+    // Preserve that format, without adding timestamps to plain history files.
+    history_write_timestamps = history_multiline_entries != 0;
     return true;
 }
 

@@ -23,9 +23,18 @@ PAGE_UP, PAGE_DOWN, DELETE = b"\x1b[5~", b"\x1b[6~", b"\x1b[3~"
 
 
 class Terminal:
-    def __init__(self, directory, options="", count=120):
+    def __init__(self, directory, options="", count=120, entries=None,
+                 history_text=None, confirm=False):
         self.history = Path(directory) / ".bash_history"
-        self.history.write_text("".join(f"entry-{i:03d}\n" for i in range(count)))
+        if history_text is not None:
+            self.history.write_text(history_text)
+        elif entries is None:
+            self.history.write_text("".join(f"entry-{i:03d}\n" for i in range(count)))
+        else:
+            # Bash's timestamp delimiters keep literal newlines in one entry.
+            self.history.write_text("".join(
+                f"#{1700000000 + i}\n{entry}\n" for i, entry in enumerate(entries)))
+            count = len(entries)
         self.fd, slave = pty.openpty()
         self.screen = pyte.Screen(80, 12)
         self.stream = pyte.ByteStream(self.screen)
@@ -40,7 +49,8 @@ class Terminal:
             preexec_fn=session,
             env={**os.environ, "HOME": directory, "HISTFILE": str(self.history),
                  "TERM": "xterm", "HSTR_TIOCSTI": "n",
-                 "HSTR_CONFIG": "raw-history-view,no-confirm,monochromatic," + options},
+                 "HSTR_CONFIG": "raw-history-view,monochromatic,"
+                 + ("" if confirm else "no-confirm,") + options},
         )
         os.close(slave)
         if count:
@@ -109,13 +119,78 @@ class Terminal:
 
 
 @contextlib.contextmanager
-def terminal(options="", count=120):
+def terminal(options="", count=120, entries=None, history_text=None, confirm=False):
     with tempfile.TemporaryDirectory() as directory:
-        ui = Terminal(directory, options, count)
+        ui = Terminal(directory, options, count, entries, history_text, confirm)
         try:
             yield ui
         finally:
             ui.close()
+
+
+def test_multiline(options, bottom=False):
+    older = UP if bottom else DOWN
+    page_older, page_newer = (PAGE_UP, PAGE_DOWN) if bottom else (PAGE_DOWN, PAGE_UP)
+    entries = [f"entry-{i:03d}\nnext-{i:03d}\tend-{i:03d}" for i in range(40)]
+    entries[15] = "entry-015\n\nnext-015\tend-015"
+    displayed = entries[15].replace("\n", " ").replace("\t", " ")
+    with terminal(options, entries=entries) as ui:
+        assert any("entry-039 next-039 end-039" in row for row in ui.screen.display), (
+            "Multiline entry spills out of its row:\n" + "\n".join(ui.screen.display))
+        ui.send(older * 25)
+        ui.expect(15)
+        row = ui.selected_row()
+        assert displayed in ui.screen.display[row]
+        highlighted = [y for y, line in enumerate(ui.screen.display)
+                       if ("entry-" in line or "next-" in line)
+                       and any(cell.reverse for cell in ui.screen.buffer[y].values())]
+        assert highlighted == [row], "Highlight spills into neighboring entries"
+        ui.send(page_older)
+        ui.expect(6)
+        ui.send(page_newer)
+        ui.expect(15)
+        ui.resize(7, 40)
+        ui.expect(15)
+        result = ui.finish(b"\t")
+        assert result == entries[15] + "\n", repr(result)
+
+    with terminal(options + ",regexp-matching", entries=entries) as ui:
+        # The regexp match spans the embedded newline and tab. Highlighting must
+        # use the same one-row representation as the entry itself.
+        ui.send(b"entry-015.*end-015" + older)
+        ui.expect(15)
+        assert displayed in ui.screen.display[ui.selected_row()]
+        result = ui.finish(b"\t")
+        assert result == entries[15] + "\n", repr(result)
+
+    with terminal(options + ",substring-matching", entries=entries) as ui:
+        ui.send(b"\x1f\x1f" + b"next-015" + older)  # ranked history
+        ui.expect(15)
+        assert ui.finish(b"\t") == entries[15] + "\n"
+
+    with terminal(options, entries=entries) as ui:
+        ui.send(older * 25)
+        ui.expect(15)
+        ui.send(DELETE)
+        ui.expect(14)
+        ui.finish(b"\x18")
+        remaining = ui.history.read_text()
+        assert entries[15] not in remaining
+        assert entries[14] in remaining and entries[16] in remaining
+        assert f"#{1700000014}\n{entries[14]}\n" in remaining
+
+    # Reopen the rewritten file: surviving commands must still be whole entries.
+    with terminal(options, history_text=remaining, confirm=True) as ui:
+        ui.send(b"next-014" + older)
+        ui.expect(14)
+        before_delete = ui.screen.display[:]
+        ui.send(DELETE)
+        notification_row = next(y for y, line in enumerate(ui.screen.display)
+                                if "Do you want to delete" in line)
+        assert all(line == before_delete[y] for y, line in enumerate(ui.screen.display)
+                   if y != notification_row), "Delete confirmation overwrites another row"
+        ui.send(b"n")
+        assert ui.finish(b"\t") == entries[14] + "\n"
 
 
 def test_layout(options, bottom=False):
@@ -166,6 +241,7 @@ def test_layout(options, bottom=False):
 for options, bottom in [("", False), ("prompt-bottom", True),
                         ("help-on-opposite-side", False),
                         ("prompt-bottom,help-on-opposite-side", True)]:
+    test_multiline(options, bottom)
     test_layout(options, bottom)
 
 with terminal() as ui:
@@ -211,4 +287,4 @@ for favorites_count in (0, 150):
         finally:
             ui.close()
 
-print("PASS: scrolling, paging, boundaries, resize, deletion, filtering, regex, empty lists, prompt layouts, view switching")
+print("PASS: scrolling, paging, boundaries, resize, deletion, filtering, regex, empty lists, prompt layouts, view switching, multiline history")
