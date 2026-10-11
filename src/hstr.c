@@ -760,6 +760,15 @@ void add_to_selection(char* line, unsigned int* index)
     (*index)++;
 }
 
+static void make_single_line(char* text)
+{
+    for(char* p=text; *p; ++p) {
+        if((unsigned char)*p<32 || (unsigned char)*p==127) {
+            *p=' ';
+        }
+    }
+}
+
 void print_help_label(void)
 {
     if(hstr->hideBasicHelp)
@@ -784,6 +793,7 @@ void print_confirm_delete(const char* cmd)
     } else {
         snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
     }
+    make_single_line(screenLine);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -806,6 +816,7 @@ void print_cmd_deleted_label(const char* cmd, int occurences)
     } else {
         snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
     }
+    make_single_line(screenLine);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -841,6 +852,7 @@ void print_cmd_added_favorite_label(const char* cmd)
 {
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
+    make_single_line(screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
@@ -1060,11 +1072,30 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     return selectionCount;
 }
 
+static void format_selection_text(char* buffer, const char* text, unsigned width)
+{
+    // One history entry occupies one screen row. Never pass embedded terminal
+    // controls to curses; keep the original entry for matching and selection.
+    width=MIN(width, CMDLINE_LNG-1);
+    if(width<3) {
+        snprintf(buffer, width+1, "%s", text);
+    } else {
+        hstr_strelide(buffer, text, width);
+    }
+    make_single_line(buffer);
+}
+
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
-    hstr_strelide(buffer, text, width>2?width-2:0);
+    char displayPattern[CMDLINE_LNG];
+    width=MIN(width, CMDLINE_LNG);
+    format_selection_text(buffer, text, width>2?width-2:0);
+    if(pattern) {
+        format_selection_text(displayPattern, pattern, CMDLINE_LNG-1);
+        pattern=displayPattern;
+    }
     int size = snprintf(screenLine, width, " %s", buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
@@ -1152,11 +1183,12 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
         color_attr_on(A_REVERSE);
     }
     char buffer[CMDLINE_LNG];
-    hstr_strelide(buffer, text, width>2?width-2:0);
+    width=MIN(width, CMDLINE_LNG-1);
+    format_selection_text(buffer, text, width>2?width-2:0);
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
+    snprintf(screenLine, width+1, "%s%-*.*s ",
             (terminal_has_colors()?" ":">"),
-            getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
+            width>2?width-2:0, width>2?width-2:0, buffer);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));

@@ -15,6 +15,10 @@ Coverage includes scrolling beyond the first page, Page Up/Down, both list ends,
 resizing, deleting after scrolling, preserving the selected screen row after
 repeated deletion and deletion on the final page, query changes, regular
 expressions, empty results, and all prompt/help placements.
+Timestamp-delimited Bash multiline entries are checked for one-row rendering,
+scrolling, paging, resizing, regex and substring filtering, ranked view, exact
+selection output, deletion confirmation, and preservation after deletion and
+reopening the history file.
 
 These are terminal integration tests; the existing Unity backend tests can be
 run separately as documented in the build scripts.
