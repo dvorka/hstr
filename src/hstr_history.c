@@ -149,12 +149,22 @@ char* parse_history_line(char *l)
 bool history_mgmt_load_history_file(void)
 {
     char *historyFile = get_history_file_name();
+    // Readline needs Bash's timestamp marker to recognize multiline entries.
+    // Keep the delimiters when rewriting history after deletion as well.
+    if(!is_zsh_parent_shell()) {
+        history_comment_char = '#';
+        history_multiline_entries = 0;
+        history_write_timestamps = 1;
+    }
     // TODO memleak in readline lib: read_history() > add_history()
     if(read_history(historyFile)!=0) {
         fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
         free(historyFile);
         return false;
     }
+    // read_history enables multiline entries for timestamp-delimited files.
+    // Preserve that format, without adding timestamps to plain history files.
+    history_write_timestamps = history_multiline_entries != 0;
     free(historyFile);
     return true;
 }
@@ -179,22 +189,23 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         RankedHistoryItem *r;
         RadixItem *radixItem;
         HIST_ENTRY **historyList=history_list();
-        char **rawHistory=malloc(sizeof(char*) * historyState->length);
-        int rawOffset=historyState->length-1, rawTimestamps=0;
+        char **rawHistory=calloc(historyState->length, sizeof(char*));
+        int rawOffset=historyState->length-1;
         char *line;
         int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
-            if(!historyList[i]->line || !strlen(historyList[i]->line)) {
+            if(!historyList[i] || !historyList[i]->line || !strlen(historyList[i]->line)) {
                 continue;
             }
 
             if(is_hist_timestamp(historyList[i]->line)) {
-                rawHistory[rawOffset]=0;
-                rawTimestamps++;
                 continue;
             }
 
             line=parse_history_line(historyList[i]->line);
+            if(!line || !*line) {
+                continue;
+            }
             rawHistory[rawOffset]=line;
             if(hashset_contains(blacklist, line)) {
                 continue;
@@ -227,12 +238,11 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         // rankmap's keys and values have owners - just destroy the search structure
         hashset_destroy(&rankmap, false);
 
-        if(rawTimestamps) {
-            rawOffset=0;
-            for(i=0; i<historyState->length; i++) {
-                if(rawHistory[i]) {
-                    rawHistory[rawOffset++]=rawHistory[i];
-                }
+        // compact skipped entries while preserving newest-first order
+        rawOffset=0;
+        for(i=0; i<historyState->length; i++) {
+            if(rawHistory[i]) {
+                rawHistory[rawOffset++]=rawHistory[i];
             }
         }
 
@@ -241,7 +251,7 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         RadixItem** prioritizedRadix=radixsort_dump(&rs);
         prioritizedHistory=malloc(sizeof(HistoryItems));
         prioritizedHistory->count=rs.size;
-        prioritizedHistory->rawCount=historyState->length-rawTimestamps;
+        prioritizedHistory->rawCount=rawOffset;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
         unsigned u;

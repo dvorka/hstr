@@ -464,3 +464,77 @@ void test_assemble_cmdline_pattern(void)
 
     printf("DONE\n");
 }
+
+static HistoryItems* create_history_with_empty_entries(bool commands, bool timestamps)
+{
+    char path[]="/tmp/hstr-history-test-XXXXXX";
+    int fd=mkstemp(path);
+    TEST_ASSERT_TRUE(fd>=0);
+    close(fd);
+    const char* previous=getenv("HISTFILE");
+    char* saved=previous ? strdup(previous) : NULL;
+    setenv("HISTFILE", path, 1);
+    clear_history();
+    add_history("");
+    if(commands) add_history("echo oldest");
+    add_history("");
+    if(timestamps) add_history("#1234567890");
+    add_history(": 1234567890:0;");
+    if(commands) add_history("echo newest");
+    add_history("");
+    HashSet blacklist;
+    hashset_init(&blacklist);
+    HistoryItems* items=prioritized_history_create(0, &blacklist);
+    hashset_destroy(&blacklist, false);
+    if(saved) {
+        setenv("HISTFILE", saved, 1);
+        free(saved);
+    } else {
+        unsetenv("HISTFILE");
+    }
+    unlink(path);
+    return items;
+}
+
+void test_raw_history_skips_empty_entries(void)
+{
+    // GIVEN
+    // empty entries surround commands, without timestamp-triggered compaction
+    // WHEN
+    HistoryItems* items=create_history_with_empty_entries(true, false);
+    // THEN
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(2, items->rawCount);
+    TEST_ASSERT_EQUAL_UINT(2, items->count);
+    TEST_ASSERT_EQUAL_STRING("echo newest", items->rawItems[0]);
+    TEST_ASSERT_EQUAL_STRING("echo oldest", items->rawItems[1]);
+    prioritized_history_destroy(items);
+}
+
+void test_raw_history_skips_empty_entries_and_timestamps(void)
+{
+    // GIVEN
+    // empty entries and a timestamp are mixed with commands
+    // WHEN
+    HistoryItems* items=create_history_with_empty_entries(true, true);
+    // THEN
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(2, items->rawCount);
+    TEST_ASSERT_EQUAL_UINT(2, items->count);
+    TEST_ASSERT_EQUAL_STRING("echo newest", items->rawItems[0]);
+    TEST_ASSERT_EQUAL_STRING("echo oldest", items->rawItems[1]);
+    prioritized_history_destroy(items);
+}
+
+void test_raw_history_only_empty_entries(void)
+{
+    // GIVEN
+    // no command remains after skipping empty entries and timestamps
+    // WHEN
+    HistoryItems* items=create_history_with_empty_entries(false, true);
+    // THEN
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(0, items->rawCount);
+    TEST_ASSERT_EQUAL_UINT(0, items->count);
+    prioritized_history_destroy(items);
+}
