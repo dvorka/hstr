@@ -1061,7 +1061,7 @@ void print_selection_row(char* text, int y, int width, char* pattern)
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
-    int size = snprintf(screenLine, width, " %s", buffer);
+    int size = snprintf(screenLine, width, terminal_has_colors()?"%s":"  %s", buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
@@ -1151,7 +1151,7 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     hstr_strelide(buffer, text, width>2?width-2:0);
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
-            (terminal_has_colors()?" ":">"),
+            (terminal_has_colors()?"":"> "),
             getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
@@ -1214,8 +1214,6 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
             } else {
                 print_selection_row(hstr->selection[i], y, width, pattern);
             }
-        } else {
-            mvprintw(y, 0, " ");
         }
 
         if(hstr->promptBottom) {
