@@ -20,7 +20,15 @@
 # This script is available from http://www.mindforger.com/fedora/fedora-rpm-from-deb.sh
 # to be easily available in VMs
 
-export MFVERSION="3.2.0"
+# version is parsed from hstr.c which is authoritative - set HSTRSRC
+# to HSTR source directory when running in a VM
+export HSTRSRC=${HSTRSRC:-/home/dvorka/p/hstr/github/hstr}
+export MFVERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
+if [ -z "${MFVERSION}" ]
+then
+    echo "ERROR: unable to parse HSTR version from ${HSTRSRC}/src/hstr.c"
+    exit 1
+fi
 export MFPRJNAME="hstr-${MFVERSION}"
 export AMD64NAME="hstr_${MFVERSION}-1_amd64"
 export I386NAME="hstr_${MFVERSION}-1_i386"

@@ -74,7 +74,6 @@ function buildDebPackage() {
     export HSTRFULLVERSION=${HSTRVERSION}-1    # mantainer upload
     export HSTR=hstr_${HSTRVERSION}
     export HSTRRELEASE=hstr-${HSTRFULLVERSION}
-    export HSTRSRC=/home/dvorka/p/hstr/github/hstr
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
     export HSTRBUILD=hstr-${NOW}
     export DEBIANVERSION=unstable
@@ -147,8 +146,15 @@ then
   exit 1
 fi
 
-export ARG_BAZAAR_MSG="HSTR 3.2.0"
-export ARG_VERSION="3.2.0"
+# version is parsed from hstr.c which is authoritative
+export HSTRSRC=/home/dvorka/p/hstr/github/hstr
+export ARG_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
+if [ -z "${ARG_VERSION}" ]
+then
+  echo "ERROR: unable to parse HSTR version from ${HSTRSRC}/src/hstr.c"
+  exit 1
+fi
+export ARG_BAZAAR_MSG="HSTR ${ARG_VERSION}"
 
 # Debian releases: https://www.debian.org/releases/
 #   6/7/8/9/10: squeeze wheezy jessie stretch buster

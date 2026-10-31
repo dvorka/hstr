@@ -294,8 +294,15 @@ fi
 # check all required dependencies
 checkDependencies
 
-export ARG_BAZAAR_MSG="Release 3.2"
-export ARG_MAJOR_VERSION=3.2.
+# version is parsed from hstr.c which is authoritative
+export HSTR_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
+if [ -z "${HSTR_VERSION}" ]
+then
+    echo "ERROR: unable to parse HSTR version from ${HSTRSRC}/src/hstr.c"
+    exit 1
+fi
+export ARG_MAJOR_VERSION="${HSTR_VERSION%.*}."
+export ARG_BAZAAR_MSG="Release ${HSTR_VERSION%.*}"
 export ARG_MINOR_VERSION=10 # minor version is incremented for every Ubuntu version
 
 # https://en.wikipedia.org/wiki/Ubuntu_version_history
