@@ -1,6 +1,9 @@
 2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release bringing:
+    - Added HSTR_HISTFILE environment variable with history file to be used
+      by HSTR instead of HISTFILE e.g. global history shared by shells with
+      per-shell history files - thanks to @xobes
     - Fixed leading space in case of empty HSTR prompt
       (indent kept for non-empty prompts) - thanks to @roshal
     - Fixed favorites corruption and crash on empty selection
@@ -8,6 +11,7 @@
       (PgUp/PgDn, regexp highlighting) and stale cursor after backspace
     - Fixed duplicate favorites when adding an existing favorite
     - Fixed memory leak and misleading deletion count on favorite removal
+    - Fixed memory leak on deletion of a command from history
     - Fixed search pattern buffer overflow on very wide terminals and garbage
       characters in the pattern after pressing unhandled special keys
     - Fixed build on Linux distributions without ncursesw/curses.h header

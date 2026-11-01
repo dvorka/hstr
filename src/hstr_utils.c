@@ -41,6 +41,13 @@ char* hstr_strdup(const char* s)
   return p ? memcpy(p, s, len) : NULL;
 }
 
+// allocate copy of the environment variable value or NULL if it is not set or empty
+char* hstr_getenv_strdup(const char* name)
+{
+    char* value = name ? getenv(name) : NULL;
+    return (value && strlen(value)) ? hstr_strdup(value) : NULL;
+}
+
 // wide char aware strlen()
 int hstr_strlen(const char *s)
 {
@@ -300,7 +307,7 @@ bool is_zsh_parent_shell(void) {
     return result;
 }
 
-/* See zsh utils.c https://github.com/zsh-users/zsh/blob/master/Src/utils.c#L4922 */
+// see zsh utils.c https://github.com/zsh-users/zsh/blob/master/Src/utils.c#L4922
 char* zsh_unmetafy(char* s, int* len)
 {
   char *p, *t;

@@ -31,6 +31,7 @@
 #include "hstr_favorites.h"
 
 #define ENV_VAR_HISTFILE "HISTFILE"
+#define ENV_VAR_HSTR_HISTFILE "HSTR_HISTFILE"
 
 #define FILE_DEFAULT_HISTORY ".bash_history"
 #define FILE_ZSH_HISTORY ".zsh_history"
@@ -47,13 +48,15 @@ typedef struct {
     unsigned rawCount;
 } HistoryItems;
 
+char* get_shell_history_file_name(void);
+char* get_history_file_name(void);
 char* parse_history_line(char *l);
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
 void prioritized_history_destroy(HistoryItems* h);
 
 void history_mgmt_open(void);
 void history_mgmt_clear_dirty(void);
-bool history_mgmt_load_history_file(void);
+bool history_mgmt_load_history_file(const char* historyFile);
 int history_mgmt_remove_from_system_history(char* cmd);
 bool history_mgmt_remove_last_history_entry(bool verbose);
 int history_mgmt_remove_from_raw(char* cmd, HistoryItems* history);

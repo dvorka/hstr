@@ -1278,16 +1278,17 @@ void stdout_history_and_return(void)
     }
 }
 
-// returns NULL if the cursor doesn't point to a selection item
 char* getResultFromSelection(int selectionCursorPosition)
 {
     int index=selection_index(selectionCursorPosition);
+    // return NULL if the cursor doesn't point to a selection item
     return index>=0 ? hstr->selection[index] : NULL;
 }
 
-// returns the command under the cursor (and promotes it among favorites) or the fallback
 static char* choose_result(int selectionCursorPosition, char* fallback)
 {
+    // return command under the cursor (and promote it among favorites) or the fallback
+
     char* chosen=getResultFromSelection(selectionCursorPosition);
     if(!chosen) {
         return fallback;
