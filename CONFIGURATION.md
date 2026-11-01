@@ -295,13 +295,20 @@ export HSTR_CONFIG=keywords-matching,hicolor,debug
 ## Bash History Settings
 Use the following `bash` settings to get the most out of HSTR.
 
-Increase the size of history maintained by `bash` - variables defined below 
+Increase the size of history maintained by `bash` - variables defined below
 increase the number of history items and history file size (default value is 500):
 
 ```bash
-export HISTFILESIZE=10000
-export HISTSIZE=${HISTFILESIZE}
+if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
+if [[ $HISTFILESIZE =~ ^[0-9]+$ && 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
 ```
+
+The sizes are only increased, never decreased - existing larger or unlimited
+(negative or empty) values are kept. **Beware:** assignment of a smaller value
+to `HISTFILESIZE` immediately truncates your `.bash_history` (removes the oldest
+entries). `HISTFILESIZE` is intentionally not set if it is unset, because `bash`
+defaults it to `HISTSIZE` after reading startup files. The `10#` prefix forces
+decimal comparison (leading zeros would be interpreted as octal numbers otherwise).
 
 Ensure syncing (flushing and reloading) of `.bash_history` with 
 in-memory history:
@@ -332,3 +339,11 @@ export HISTFILE=~/.zsh_history
 ```
 
 Please check your system configuration - history might be stored in `~/.zsh_history`, `~/.zhistory` or other file.
+
+Increase the size of history maintained by `zsh` (history file is truncated to `SAVEHIST`
+entries when it is saved, therefore sizes are only increased, never decreased):
+
+```
+if (( ${HISTSIZE:-0} < 10000 )); then HISTSIZE=10000; fi
+if (( ${SAVEHIST:-0} < 10000 )); then SAVEHIST=10000; fi
+```

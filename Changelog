@@ -1,6 +1,10 @@
 2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release bringing:
+    - Fixed truncation of bash history file by HSTR configuration
+      (--show-configuration) - history size (bash HISTSIZE and HISTFILESIZE,
+      zsh HISTSIZE and SAVEHIST) is only increased, never decreased and
+      unlimited sizes are kept - thanks to @awcator
     - Added HSTR_HISTFILE environment variable with history file to be used
       by HSTR instead of HISTFILE e.g. global history shared by shells with
       per-shell history files - thanks to @xobes
