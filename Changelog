@@ -1,4 +1,4 @@
-2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
+2026-11-01  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release bringing:
     - Fixed truncation of bash history file by HSTR configuration
