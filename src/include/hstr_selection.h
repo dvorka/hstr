@@ -1,0 +1,82 @@
+/*
+ hstr_selection.h       header file for HSTR selection cursor navigation
+
+ Copyright (C) 2014-2026 Martin Dvorak <martin.dvorak@mindforger.com>
+
+ Licensed under the Apache License, Version 2.0 (the "License");
+ you may not use this file except in compliance with the License.
+ You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+ Unless required by applicable law or agreed to in writing, software
+ distributed under the License is distributed on an "AS IS" BASIS,
+ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ See the License for the specific language governing permissions and
+ limitations under the License.
+*/
+
+#ifndef HSTR_SELECTION_H
+#define HSTR_SELECTION_H
+
+#include <stdbool.h>
+
+// selection cursor (e.g. selectionCursorPosition in loop_to_select()) is the
+// highlighted screen row relative to the first selection row - it is a row,
+// not an index into the selection (use hstr_selection_index() to convert),
+// or SELECTION_CURSOR_IN_PROMPT if no item is highlighted (user is typing)
+#define SELECTION_CURSOR_IN_PROMPT -1
+
+// rows by which page up/down moves the selection cursor
+#define PG_JUMP_SIZE 10
+
+// key codes
+#define K_CTRL_A 1
+#define K_CTRL_E 5
+#define K_CTRL_F 6
+#define K_CTRL_G 7
+#define K_CTRL_H 8
+#define K_CTRL_L 12
+#define K_CTRL_J 10
+#define K_CTRL_K 11
+
+#define K_CTRL_N 14
+#define K_CTRL_P 16
+
+#define K_CTRL_R 18
+#define K_CTRL_T 20
+#define K_CTRL_U 21
+#define K_CTRL_W 23
+#define K_CTRL_X 24
+#define K_CTRL_Z 26
+
+#define K_CTRL_SLASH 31
+
+#define K_ESC 27
+#define K_TAB 9
+#define K_BACKSPACE 127
+#define K_ENTER 13
+
+bool hstr_selection_add(
+   char** selection,
+   unsigned capacity,
+   unsigned* selectionSize,
+   char* line,
+   bool noDuplicates
+);
+int hstr_selection_cursor_step(int key);
+int hstr_selection_index(
+   int cursor,
+   bool promptBottom,
+   int promptItems,
+   int selectionSize
+);
+int hstr_selection_cursor_move(
+   int cursor,
+   int step,
+   bool promptBottom,
+   int promptItems,
+   int selectionSize
+);
+
+#endif

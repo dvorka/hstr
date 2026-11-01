@@ -102,6 +102,10 @@ test: ## run HSTR unit tests
 test-memleaks: ## run HSTR memory leak tests with Valgrind
 	./test-memleaks.sh
 
+.PHONY: test-memleaks-units
+test-memleaks-units: ## run HSTR unit tests with Valgrind
+	cd ../test && qmake hstr-unit-tests.pro && make clean all && valgrind --track-origins=yes --leak-check=full ./hstr-unit-tests
+
 #
 # INSTALL
 #

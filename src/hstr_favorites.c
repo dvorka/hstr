@@ -43,7 +43,7 @@ void favorites_show(FavoriteItems *favorites)
     printf("\n");
 }
 
-char* favorites_get_filename()
+char* favorites_get_filename(void)
 {
     char* home = getenv(ENV_VAR_HOME);
     char* fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_FAVORITES) + 1);
@@ -138,16 +138,47 @@ void favorites_save(FavoriteItems* favorites)
     free(fileName);
 }
 
+static int favorites_index_of(FavoriteItems* favorites, const char* favorite)
+{
+    unsigned i;
+    for(i=0; i<favorites->count; i++) {
+        if(!strcmp(favorites->items[i], favorite)) {
+            return (int)i;
+        }
+    }
+    return -1;
+}
+
+// moves the item to the head and keeps the order of the other items
+static void favorites_move_to_head(FavoriteItems* favorites, unsigned index)
+{
+    char* item=favorites->items[index];
+    memmove(&favorites->items[1], &favorites->items[0], sizeof(char*) * index);
+    favorites->items[0]=item;
+}
+
 void favorites_add(FavoriteItems* favorites, char* newFavorite)
 {
-    if(favorites->count) {
-        favorites->items=realloc(favorites->items, sizeof(char*) * ++favorites->count);
-        favorites->items[favorites->count-1]=hstr_strdup(newFavorite);
+    if(!newFavorite) {
+        return;
+    }
+    if(favorites_index_of(favorites, newFavorite) >= 0) {
+        // already a favorite - adding it again is choosing it
         favorites_choose(favorites, newFavorite);
-    } else {
-        favorites->items=malloc(sizeof(char*));
-        favorites->items[0]=hstr_strdup(newFavorite);
-        favorites->count=1;
+        return;
+    }
+
+    char* item=hstr_strdup(newFavorite);
+    char** items=item ? realloc(favorites->items, sizeof(char*) * (favorites->count+1)) : NULL;
+    if(!items) {
+        // out of memory - favorites are left intact
+        free(item);
+        return;
+    }
+    favorites->items=items;
+    favorites->items[favorites->count++]=item;
+    if(favorites->reorderOnChoice) {
+        favorites_move_to_head(favorites, favorites->count-1);
     }
 
     favorites_save(favorites);
@@ -156,46 +187,29 @@ void favorites_add(FavoriteItems* favorites, char* newFavorite)
 
 void favorites_choose(FavoriteItems* favorites, char* choice)
 {
-    if(favorites->reorderOnChoice && favorites->count && choice) {
-        unsigned r;
-        char* b=NULL, *next;
-        for(r=0; r<favorites->count; r++) {
-            if(!strcmp(favorites->items[r],choice)) {
-                favorites->items[0]=favorites->items[r];
-                if(b) {
-                    favorites->items[r]=b;
-                }
-                favorites_save(favorites);
-                return;
-            }
-            next=favorites->items[r];
-            favorites->items[r]=b;
-            b=next;
-        }
+    if(!favorites->reorderOnChoice || !choice) {
+        return;
+    }
+    int index=favorites_index_of(favorites, choice);
+    if(index > 0) {
+        favorites_move_to_head(favorites, (unsigned)index);
+        favorites_save(favorites);
     }
 }
 
+// favorites are unique (deduplicated on load and add) - at most one item is removed
 bool favorites_remove(FavoriteItems* favorites, char* almostDead)
 {
-    if(favorites->count) {
-        int r, w, count;
-        count=favorites->count;
-        for(r=0, w=0; r<count; r++) {
-            if(!strcmp(favorites->items[r], almostDead)) {
-                favorites->count--;
-            } else {
-                if(w<r) {
-                    favorites->items[w]=favorites->items[r];
-                }
-                w++;
-            }
-        }
-        favorites_save(favorites);
-        // kept in set and removed/freed on favs destroy
-        return true;
-    } else {
+    int index=almostDead ? favorites_index_of(favorites, almostDead) : -1;
+    if(index < 0) {
         return false;
     }
+
+    free(favorites->items[index]);
+    favorites->count--;
+    memmove(&favorites->items[index], &favorites->items[index+1], sizeof(char*) * (favorites->count-index));
+    favorites_save(favorites);
+    return true;
 }
 
 void favorites_destroy(FavoriteItems* favorites)

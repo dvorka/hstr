@@ -23,6 +23,9 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <getopt.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
 
 // HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
 #include "unity/src/c/unity.h"
@@ -31,20 +34,51 @@
 #include "../../src/include/hstr_utils.h"
 #include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
+#include "../../src/include/hstr_selection.h"
 #include "../../src/include/hstr.h"
 
 /*
  * IMPORTANT: make sure to run TEST RUNNER GENERATOR script after any change to this file!
  */
 
+// tests run with a temporary HOME so that files like favorites of the user are never touched
+static char testHome[PATH_MAX];
+static bool testHomeCreated=false;
+static char* originalHome=NULL;
+
 void setUp(void)
 {
-    // code to be run before this test suite
+    // code to be run before each test
+    char* home=getenv(ENV_VAR_HOME);
+    originalHome=home ? hstr_strdup(home) : NULL;
+
+    const char* tmp=getenv("TMPDIR");
+    snprintf(testHome, sizeof(testHome), "%s/hstr-unit-tests-XXXXXX", (tmp && *tmp) ? tmp : "/tmp");
+    testHomeCreated=mkdtemp(testHome)!=NULL;
+    TEST_ASSERT_TRUE_MESSAGE(testHomeCreated, "unable to create temporary HOME");
+    setenv(ENV_VAR_HOME, testHome, 1);
 }
 
 void tearDown(void)
 {
-    // code to be after this test suite
+    // code to be run after each test - also after a failed one
+    if(testHomeCreated) {
+        char fileName[PATH_MAX];
+        int length=snprintf(fileName, sizeof(fileName), "%s/%s", testHome, FILE_HSTR_FAVORITES);
+        if(length>0 && length<(int)sizeof(fileName)) {
+            unlink(fileName);
+        }
+        rmdir(testHome);
+        testHomeCreated=false;
+    }
+
+    if(originalHome) {
+        setenv(ENV_VAR_HOME, originalHome, 1);
+        free(originalHome);
+        originalHome=NULL;
+    } else {
+        unsetenv(ENV_VAR_HOME);
+    }
 }
 
 void test_args(void)
@@ -210,6 +244,341 @@ void test_favorites(void)
     TEST_ASSERT_NOT_EQUAL(favorite, favoriteItems.items[0]);
 }
 
+static FavoriteItems* favorites_test_create(const char** items, unsigned count)
+{
+    FavoriteItems* favorites=malloc(sizeof(FavoriteItems));
+    TEST_ASSERT_NOT_NULL(favorites);
+    favorites_init(favorites);
+    favorites->items=malloc(sizeof(char*) * count);
+    TEST_ASSERT_NOT_NULL(favorites->items);
+    unsigned i;
+    for(i=0; i<count; i++) {
+        favorites->items[i]=hstr_strdup(items[i]);
+    }
+    favorites->count=count;
+    favorites->loaded=true;
+    return favorites;
+}
+
+static void favorites_test_assert_items(FavoriteItems* favorites, const char** expected, unsigned count)
+{
+    TEST_ASSERT_EQUAL_UINT(count, favorites->count);
+    unsigned i;
+    for(i=0; i<count; i++) {
+        TEST_ASSERT_NOT_NULL(favorites->items[i]);
+        TEST_ASSERT_EQUAL_STRING(expected[i], favorites->items[i]);
+    }
+}
+
+static bool favorites_test_file_exists(void)
+{
+    char* fileName=favorites_get_filename();
+    bool exists=access(fileName, F_OK)==0;
+    free(fileName);
+    return exists;
+}
+
+static void favorites_test_assert_file(const char* expected)
+{
+    char* fileName=favorites_get_filename();
+    FILE* file=fopen(fileName, "rb");
+    free(fileName);
+    TEST_ASSERT_NOT_NULL(file);
+    char content[512]={0};
+    size_t size=fread(content, sizeof(char), sizeof(content)-1, file);
+    fclose(file);
+    content[size]=0;
+    TEST_ASSERT_EQUAL_STRING(expected, content);
+}
+
+// bug #470: choosing a command which is not a favorite corrupted favorites
+void test_favorites_choose_missing_choice(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_choose(favorites, "not a favorite");
+
+    // THEN
+    favorites_test_assert_items(favorites, items, 3);
+    TEST_ASSERT_FALSE(favorites_test_file_exists());
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_choose_moves_choice_to_head(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_choose(favorites, "echo fav");
+    favorites_choose(favorites, "echo fav");
+
+    // THEN
+    const char* expected[]={"echo fav", "ls -la", "git status"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("echo fav\nls -la\ngit status\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_add_new_to_head(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    favorites_add(favorites, "echo new");
+
+    // THEN
+    const char* expected[]={"echo new", "ls -la", "git status"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("echo new\nls -la\ngit status\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+// adding a command which already is a favorite must not create a duplicate
+void test_favorites_add_existing_no_duplicate(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_add(favorites, "git status");
+
+    // THEN
+    const char* expected[]={"git status", "ls -la", "echo fav"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("git status\nls -la\necho fav\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_remove(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    bool removed=favorites_remove(favorites, "git status");
+
+    // THEN (removed item is freed - checked by valgrind)
+    TEST_ASSERT_TRUE(removed);
+    const char* expected[]={"ls -la", "echo fav"};
+    favorites_test_assert_items(favorites, expected, 2);
+    favorites_test_assert_file("ls -la\necho fav\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_remove_missing(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    bool removed=favorites_remove(favorites, "not a favorite");
+
+    // THEN
+    TEST_ASSERT_FALSE(removed);
+    favorites_test_assert_items(favorites, items, 2);
+    TEST_ASSERT_FALSE(favorites_test_file_exists());
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_null_safety(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    favorites_choose(favorites, NULL);
+    favorites_add(favorites, NULL);
+    bool removed=favorites_remove(favorites, NULL);
+
+    // THEN
+    TEST_ASSERT_FALSE(removed);
+    favorites_test_assert_items(favorites, items, 2);
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+// bug #470: cursor must never point beyond the selection (stale items)
+void test_selection_index(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN 3 items on a 20 rows screen
+    const int promptItems=20, selectionSize=3;
+
+    // WHEN / THEN prompt at the top: rows 0..2 are items
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(SELECTION_CURSOR_IN_PROMPT, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_index(0, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_index(2, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(3, false, promptItems, selectionSize));
+
+    // WHEN / THEN prompt at the bottom: rows 17..19 are items, the first item is on the last row
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(SELECTION_CURSOR_IN_PROMPT, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_index(19, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_index(17, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(16, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(0, true, promptItems, selectionSize));
+
+    // WHEN / THEN empty selection
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(0, false, promptItems, 0));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(19, true, promptItems, 0));
+    printf("DONE\n");
+}
+
+// bug #470: navigation keys must keep the cursor on the selection rows
+void test_selection_cursor_move(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN 3 items on a 20 rows screen
+    const int promptItems=20, selectionSize=3, page=10;
+    const int inPrompt=SELECTION_CURSOR_IN_PROMPT;
+
+    // WHEN / THEN empty selection keeps the cursor in the prompt
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(inPrompt, 1, false, promptItems, 0));
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(5, -page, true, promptItems, 0));
+
+    // WHEN / THEN prompt at the top (rows 0..2)
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(inPrompt, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(inPrompt, -1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(1, hstr_selection_cursor_move(0, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(2, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(0, -1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(0, page, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(2, -page, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(7, 0, false, promptItems, selectionSize));
+
+    // WHEN / THEN prompt at the bottom (rows 17..19)
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(inPrompt, -1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(inPrompt, 1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(inPrompt, -page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(19, -page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(17, page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(17, -1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(19, 1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(0, 0, true, promptItems, selectionSize));
+
+    // WHEN / THEN more items than rows (e.g. right after a terminal resize)
+    TEST_ASSERT_EQUAL_INT(4, hstr_selection_cursor_move(inPrompt, -1, false, 5, 30));
+    TEST_ASSERT_EQUAL_INT(4, hstr_selection_cursor_move(0, page, true, 5, 30));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(4, -page, true, 5, 30));
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(inPrompt, 1, true, 0, 30));
+    printf("DONE\n");
+}
+
+void test_selection_cursor_step(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN navigation keys and keys which do not move the cursor
+    const int up[]={KEY_UP, K_CTRL_K, K_CTRL_P};
+    const int down[]={KEY_DOWN, K_CTRL_J, K_CTRL_N};
+    const int other[]={'a', K_CTRL_N+1, KEY_LEFT, KEY_RIGHT, 0, -1};
+
+    // WHEN / THEN line moves
+    unsigned i;
+    for(i=0; i<sizeof(up)/sizeof(up[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(-1, hstr_selection_cursor_step(up[i]));
+    }
+    for(i=0; i<sizeof(down)/sizeof(down[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(1, hstr_selection_cursor_step(down[i]));
+    }
+
+    // WHEN / THEN page moves
+    TEST_ASSERT_EQUAL_INT(-PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_PPAGE));
+    TEST_ASSERT_EQUAL_INT(PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_NPAGE));
+
+    // WHEN / THEN other keys do not move the cursor
+    for(i=0; i<sizeof(other)/sizeof(other[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_step(other[i]));
+    }
+    printf("DONE\n");
+}
+
+void test_selection_add(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN an empty selection with capacity for 3 items
+    char* selection[3]={NULL, NULL, NULL};
+    const unsigned capacity=sizeof(selection)/sizeof(selection[0]);
+    unsigned size=0;
+    char ls[]="ls", cd[]="cd", lsCopy[]="ls", pwd[]="pwd", git[]="git";
+
+    // WHEN items are added with duplicates filtering
+    bool lsAdded=hstr_selection_add(selection, capacity, &size, ls, true);
+    bool cdAdded=hstr_selection_add(selection, capacity, &size, cd, true);
+    bool lsCopyAdded=hstr_selection_add(selection, capacity, &size, lsCopy, true);
+
+    // THEN duplicate (by value, not by pointer) is skipped
+    TEST_ASSERT_TRUE(lsAdded);
+    TEST_ASSERT_TRUE(cdAdded);
+    TEST_ASSERT_FALSE(lsCopyAdded);
+    TEST_ASSERT_EQUAL_UINT(2, size);
+    TEST_ASSERT_EQUAL_PTR(ls, selection[0]);
+    TEST_ASSERT_EQUAL_PTR(cd, selection[1]);
+
+    // WHEN duplicate is added without duplicates filtering
+    bool lsCopyAddedRaw=hstr_selection_add(selection, capacity, &size, lsCopy, false);
+
+    // THEN it is appended
+    TEST_ASSERT_TRUE(lsCopyAddedRaw);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+    TEST_ASSERT_EQUAL_PTR(lsCopy, selection[2]);
+
+    // WHEN the selection is full
+    bool pwdAdded=hstr_selection_add(selection, capacity, &size, pwd, false);
+
+    // THEN nothing is written beyond capacity
+    TEST_ASSERT_FALSE(pwdAdded);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+
+    // WHEN invalid arguments are passed
+    unsigned emptySize=0;
+    bool nullSelection=hstr_selection_add(NULL, capacity, &emptySize, git, false);
+    bool nullSize=hstr_selection_add(selection, capacity, NULL, git, false);
+    bool nullLine=hstr_selection_add(selection, capacity, &emptySize, NULL, false);
+    bool zeroCapacity=hstr_selection_add(selection, 0, &emptySize, git, false);
+
+    // THEN they are rejected
+    TEST_ASSERT_FALSE(nullSelection);
+    TEST_ASSERT_FALSE(nullSize);
+    TEST_ASSERT_FALSE(nullLine);
+    TEST_ASSERT_FALSE(zeroCapacity);
+    TEST_ASSERT_EQUAL_UINT(0, emptySize);
+    printf("DONE\n");
+}
+
 void test_hashset_blacklist()
 {
     printf("\n= %s ========================================\n", __FUNCTION__);
@@ -360,6 +729,70 @@ void test_string_elide()
     hstr_strelide(buffer, "0123456789", 8);
     TEST_ASSERT_EQUAL_STRING("012...89", buffer);
     printf("%s\n", buffer);
+}
+
+// pattern typed on a terminal wider than the pattern buffer must not overflow it
+void test_strcat_char(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN a small buffer guarded by canary bytes
+    char memory[8];
+    memset(memory, '#', sizeof(memory));
+    char* buffer=memory+1;
+    const size_t size=sizeof(memory)-2;
+    buffer[0]=0;
+
+    // WHEN the buffer is filled beyond its capacity
+    unsigned i, appended=0;
+    for(i=0; i<2*size; i++) {
+        if(hstr_strcat_char(buffer, size, 'a'+i)) {
+            appended++;
+        }
+    }
+
+    // THEN only size-1 characters are appended, terminated and canaries are intact
+    TEST_ASSERT_EQUAL_UINT(size-1, appended);
+    TEST_ASSERT_EQUAL_STRING("abcde", buffer);
+    TEST_ASSERT_EQUAL_INT('#', memory[0]);
+    TEST_ASSERT_EQUAL_INT('#', memory[sizeof(memory)-1]);
+
+    // GIVEN an empty buffer
+    char pattern[8]={0};
+
+    // WHEN UTF-8 bytes, curses key codes and invalid values are appended
+    bool utf8First=hstr_strcat_char(pattern, sizeof(pattern), 0xC3);
+    bool utf8Second=hstr_strcat_char(pattern, sizeof(pattern), 0xA1);
+    bool keyCode=hstr_strcat_char(pattern, sizeof(pattern), KEY_LEFT);
+    bool zero=hstr_strcat_char(pattern, sizeof(pattern), 0);
+    bool negative=hstr_strcat_char(pattern, sizeof(pattern), -1);
+
+    // THEN only bytes are appended
+    TEST_ASSERT_TRUE(utf8First);
+    TEST_ASSERT_TRUE(utf8Second);
+    TEST_ASSERT_FALSE(keyCode);
+    TEST_ASSERT_FALSE(zero);
+    TEST_ASSERT_FALSE(negative);
+    TEST_ASSERT_EQUAL_STRING("\xC3\xA1", pattern);
+
+    // GIVEN invalid buffers
+    char unterminated[4]={'a', 'b', 'c', 'd'};
+    char empty[1]={0};
+
+    // WHEN a character is appended
+    bool nullAppended=hstr_strcat_char(NULL, 8, 'x');
+    bool unterminatedAppended=hstr_strcat_char(unterminated, sizeof(unterminated), 'x');
+    bool emptyAppended=hstr_strcat_char(empty, sizeof(empty), 'x');
+    bool zeroSizeAppended=hstr_strcat_char(pattern, 0, 'x');
+
+    // THEN nothing is written
+    TEST_ASSERT_FALSE(nullAppended);
+    TEST_ASSERT_FALSE(unterminatedAppended);
+    TEST_ASSERT_FALSE(emptyAppended);
+    TEST_ASSERT_FALSE(zeroSizeAppended);
+    TEST_ASSERT_EQUAL_MEMORY("abcd", unterminated, sizeof(unterminated));
+    TEST_ASSERT_EQUAL_INT(0, empty[0]);
+    printf("DONE\n");
 }
 
 void test_parse_history_line()
