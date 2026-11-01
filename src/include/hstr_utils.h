@@ -30,6 +30,7 @@
 #include <stdbool.h>
 #include <termios.h>
 #include <unistd.h>
+#include <wchar.h>
 
 #define ENV_VAR_HOME "HOME"
 
@@ -84,8 +85,9 @@ extern bool is_tiocsti;
 
 char* hstr_strdup(const char* s);
 char* hstr_getenv_strdup(const char* name);
-int hstr_strlen(const char* s);
-char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
+int hstr_strnwidth(const char* s, size_t n);
+int hstr_strwidth(const char* s);
+char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned maxWidth);
 void hstr_chop(char* s);
 bool hstr_strcat_char(char* s, size_t size, int c);
 bool is_tiocsti_supported(void);

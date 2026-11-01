@@ -16,6 +16,8 @@
  limitations under the License.
 */
 
+#define _GNU_SOURCE
+
 #include "include/hstr_utils.h"
 
 #define DEFAULT_COMMAND "pwd"
@@ -49,71 +51,130 @@ char* hstr_getenv_strdup(const char* name)
 }
 
 // wide char aware strlen()
-int hstr_strlen(const char *s)
+// UTF-8 continuation byte (10xxxxxx) and the first byte of a multibyte sequence (11xxxxxx)
+#define IS_UTF8_CONTINUATION(C) ((((unsigned char)(C))&0xC0)==0x80)
+#define IS_UTF8_LEAD(C) ((((unsigned char)(C))&0xC0)==0xC0)
+#define UTF8_MAX_BYTES 4
+
+// returns display width (terminal columns) of the first n bytes of s in the current locale:
+// incomplete trailing sequence is not counted (it is not displayed yet), invalid bytes
+// and non-printable characters count as 1 column
+int hstr_strnwidth(const char* s, size_t n)
 {
+    int width=0;
     if(s) {
-        int result=0;
-        bool isHighBitSet=false;
-        int i=0;
-        while(s[i]) {
-            if(1<<7 & s[i]) {
-                if(isHighBitSet) {
-                    isHighBitSet=false;
-                    result++;
-                } else {
-                    isHighBitSet=true;
-                }
-            } else {
-                result++;
+        mbstate_t state;
+        memset(&state, 0, sizeof(state));
+        size_t i=0;
+        while(i<n && s[i]) {
+            wchar_t wc;
+            size_t length=mbrtowc(&wc, s+i, n-i, &state);
+            if(length==(size_t)-2 || length==0) {
+                break;
             }
-            i++;
+            if(length==(size_t)-1) {
+                memset(&state, 0, sizeof(state));
+                width++;
+                i++;
+                continue;
+            }
+            int charWidth=wcwidth(wc);
+            width+=charWidth<0?1:charWidth;
+            i+=length;
         }
-        return result;
-    } else {
-        return 0;
     }
+    return width;
+}
+
+// returns display width (terminal columns) of s
+int hstr_strwidth(const char* s)
+{
+    return s?hstr_strnwidth(s, strlen(s)):0;
+}
+
+// returns length in bytes of the longest prefix of s which fits maxWidth columns (characters are not split)
+static size_t prefix_fitting_width(const char* s, int maxWidth)
+{
+    size_t length=strlen(s), end=0;
+    int width=0;
+    while(end<length) {
+        size_t next=end+1;
+        while(next<length && next-end<UTF8_MAX_BYTES && IS_UTF8_CONTINUATION(s[next])) {
+            next++;
+        }
+        int charWidth=hstr_strnwidth(s+end, next-end);
+        if(width+charWidth>maxWidth) {
+            break;
+        }
+        width+=charWidth;
+        end=next;
+    }
+    return end;
+}
+
+// returns length in bytes of the longest suffix of s which fits maxWidth columns (characters are not split)
+static size_t suffix_fitting_width(const char* s, int maxWidth)
+{
+    size_t length=strlen(s), start=length;
+    int width=0;
+    while(start>0) {
+        size_t charStart=start-1;
+        while(charStart>0 && start-charStart<UTF8_MAX_BYTES && IS_UTF8_CONTINUATION(s[charStart])) {
+            charStart--;
+        }
+        int charWidth=hstr_strnwidth(s+charStart, start-charStart);
+        if(width+charWidth>maxWidth) {
+            break;
+        }
+        width+=charWidth;
+        start=charStart;
+    }
+    return length-start;
 }
 
 // IMPROVE make this work w/ wide strings
-char* hstr_strelide(char* buffer, const char* s, unsigned maxlength)
+// writes s elided to maxWidth columns to buffer - middle of s is replaced by "...", strings
+// of up to 3 columns are never elided, characters are not split
+char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned maxWidth)
 {
-    if(s) {
-        if(strlen(s)>maxlength && strlen(s)>3) {
-            unsigned dotOffset = maxlength/2-1; // 4/2-1=1 ~ "a..."
-            strncpy(buffer, s, dotOffset);
-            unsigned i, offset = dotOffset;
-            for(i=0; i<3; i++) {
-                buffer[offset] = '.';
-                offset++;
-            }
-            // fill from the end
-            dotOffset=offset;
-            offset=maxlength-1;
-            i=strlen(s)-1;
-            while(i && offset>=dotOffset) {
-                buffer[offset--] = s[i--];
-            }
-            buffer[maxlength]=0;
-        } else {
-            strcpy(buffer, s);
-        }
-    } else {
-        buffer[0] = 0;
+    if(!buffer || !bufferSize) {
+        return buffer;
+    }
+    buffer[0]=0;
+    if(!s) {
+        return buffer;
     }
 
+    int width=hstr_strwidth(s);
+    int maxColumns=maxWidth>INT_MAX?INT_MAX:(int)maxWidth;
+    if(width<=maxColumns || width<=3) {
+        snprintf(buffer, bufferSize, "%s", s);
+    } else if(maxColumns<=3) {
+        // no space for "..."
+        snprintf(buffer, bufferSize, "%.*s", (int)prefix_fitting_width(s, maxColumns), s);
+    } else {
+        size_t prefixLength=prefix_fitting_width(s, maxColumns/2-1);
+        int prefixWidth=hstr_strnwidth(s, prefixLength);
+        size_t suffixLength=suffix_fitting_width(s, maxColumns-prefixWidth-3);
+        snprintf(buffer, bufferSize, "%.*s...%s", (int)prefixLength, s, s+strlen(s)-suffixLength);
+    }
     return buffer;
 }
 
+// removes the last (UTF-8 multibyte) character of s, invalid sequence is removed byte by byte
 void hstr_chop(char *s)
 {
     if(s) {
-        int i=strlen(s);
-        if(i) {
-            if(1<<7 & s[i-1]) {
-                s[i-2]=0;
-            } else {
-                s[i-1]=0;
+        size_t length=strlen(s);
+        if(length) {
+            size_t last=length-1;
+            while(last>0 && length-last<UTF8_MAX_BYTES && IS_UTF8_CONTINUATION(s[last])) {
+                last--;
             }
+            if(last!=length-1 && !IS_UTF8_LEAD(s[last])) {
+                last=length-1;
+            }
+            s[last]=0;
         }
     }
 }

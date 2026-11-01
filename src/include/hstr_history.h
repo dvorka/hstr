@@ -46,11 +46,16 @@ typedef struct {
     // raw history
     char** rawItems;
     unsigned rawCount;
+    // zsh history lines w/ multibyte characters are metafied - items point to their
+    // unmetafied copies which are owned here (readline history lines are not modified)
+    char** unmetafiedItems;
+    unsigned unmetafiedCount;
 } HistoryItems;
 
 char* get_shell_history_file_name(void);
 char* get_history_file_name(void);
 char* parse_history_line(char *l);
+bool history_line_equals(char* line, const char* cmd, bool isZsh);
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet* blacklist);
 void prioritized_history_destroy(HistoryItems* h);
 

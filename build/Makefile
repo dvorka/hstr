@@ -67,13 +67,30 @@ clean: ## clean build artifacts
 # BUILD
 #
 
-../src/hstr:
-	cd ./tarball && ./tarball-automake.sh && cd ../.. && ./configure && make all
+# sources - HSTR binary is rebuilt if any of them changes
+HSTR_SOURCES := $(wildcard ../src/*.c ../src/include/*.h)
+# automake/autoconf inputs - build is reconfigured if any of them changes
+HSTR_BUILD_CONFIG := ../configure.ac ../Makefile.am ../src/Makefile.am ../man/Makefile.am
 
-build-dev: clean ../src/hstr ## clean, configure, and build HSTR
+.PHONY: configure
+configure: ## generate build files and configure HSTR build
+	cd ./tarball && ./tarball-automake.sh && cd ../.. && ./configure
+
+../src/Makefile: $(HSTR_BUILD_CONFIG)
+	$(MAKE) configure
+
+../src/hstr: ../src/Makefile $(HSTR_SOURCES)
+	$(MAKE) -C .. all
+
+.PHONY: build-dev
+build-dev: ## clean, configure, and build HSTR
+	$(MAKE) clean
+	$(MAKE) configure
+	$(MAKE) ../src/hstr
 	@echo "HSTR $(HSTR_VERSION) built for development"
 
-build: ../src/hstr ## clean, configure, and build HSTR
+.PHONY: build
+build: ../src/hstr ## build HSTR
 	strip ../src/hstr
 
 #
