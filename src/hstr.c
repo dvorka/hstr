@@ -25,20 +25,12 @@
 #define CMDLINE_LNG 8192
 #define HOSTNAME_BUFFER 128
 
-#define PG_JUMP_SIZE 10
-
 #define K_CTRL_A 1
 #define K_CTRL_E 5
 #define K_CTRL_F 6
 #define K_CTRL_G 7
 #define K_CTRL_H 8
 #define K_CTRL_L 12
-#define K_CTRL_J 10
-#define K_CTRL_K 11
-
-#define K_CTRL_N 14
-#define K_CTRL_P 16
-
 #define K_CTRL_R 18
 #define K_CTRL_T 20
 #define K_CTRL_U 21
@@ -745,18 +737,9 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
-void add_to_selection(char* line, unsigned int* index)
+static void add_to_selection(char* line, unsigned* selectionCount, unsigned maxSelectionCount)
 {
-    if(hstr->noRawHistoryDuplicates) {
-        unsigned i;
-        for(i = 0; i < *index; i++) {
-            if (strcmp(hstr->selection[i], line) == 0) {
-                return;
-            }
-        }
-    }
-    hstr->selection[*index]=line;
-    (*index)++;
+    hstr_selection_add(hstr->selection, maxSelectionCount, selectionCount, line, hstr->noRawHistoryDuplicates);
 }
 
 void print_help_label(void)
@@ -957,19 +940,19 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
-                add_to_selection(source[i], &selectionCount);
+                add_to_selection(source[i], &selectionCount, maxSelectionCount);
             } else {
                 switch(hstr->matching) {
                 case HSTR_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HSTR_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount);
+                            add_to_selection(source[i], &selectionCount, maxSelectionCount);
                         }
                         break;
                     case HSTR_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount);
+                            add_to_selection(source[i], &selectionCount, maxSelectionCount);
                         }
                         break;
                     }
@@ -1012,7 +995,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                     }
                     if(keywordsAllMatch) {
-                        add_to_selection(source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
                     }
                     free(keywordsPointerToDelete);
                     break;
@@ -1030,13 +1013,13 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                 case HSTR_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
                     }
                     break;
                 case HSTR_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount);
+                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
                     }
                     break;
                 }
@@ -1351,27 +1334,6 @@ void hide_notification(void)
     }
 }
 
-// rows by which a navigation key moves the selection cursor
-static int cursor_step(int key)
-{
-    switch(key) {
-    case KEY_UP:
-    case K_CTRL_K:
-    case K_CTRL_P:
-        return -1;
-    case KEY_DOWN:
-    case K_CTRL_J:
-    case K_CTRL_N:
-        return 1;
-    case KEY_PPAGE:
-        return -PG_JUMP_SIZE;
-    case KEY_NPAGE:
-        return PG_JUMP_SIZE;
-    default:
-        return 0;
-    }
-}
-
 void loop_to_select(void)
 {
     signal(SIGINT, signal_callback_handler_ctrl_c);
@@ -1593,7 +1555,7 @@ void loop_to_select(void)
         case KEY_PPAGE:
         case KEY_NPAGE:
             previousSelectionCursorPosition=selectionCursorPosition;
-            selectionCursorPosition=selection_cursor_move(selectionCursorPosition, cursor_step(c));
+            selectionCursorPosition=selection_cursor_move(selectionCursorPosition, hstr_selection_cursor_step(c));
             highlight_selection(selectionCursorPosition, previousSelectionCursorPosition, pattern);
             move(hstr->promptY, basex+strlen(pattern));
             break;

@@ -496,6 +496,89 @@ void test_selection_cursor_move(void)
     printf("DONE\n");
 }
 
+void test_selection_cursor_step(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN navigation keys and keys which do not move the cursor
+    const int up[]={KEY_UP, K_CTRL_K, K_CTRL_P};
+    const int down[]={KEY_DOWN, K_CTRL_J, K_CTRL_N};
+    const int other[]={'a', K_CTRL_N+1, KEY_LEFT, KEY_RIGHT, 0, -1};
+
+    // WHEN / THEN line moves
+    unsigned i;
+    for(i=0; i<sizeof(up)/sizeof(up[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(-1, hstr_selection_cursor_step(up[i]));
+    }
+    for(i=0; i<sizeof(down)/sizeof(down[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(1, hstr_selection_cursor_step(down[i]));
+    }
+
+    // WHEN / THEN page moves
+    TEST_ASSERT_EQUAL_INT(-PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_PPAGE));
+    TEST_ASSERT_EQUAL_INT(PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_NPAGE));
+
+    // WHEN / THEN other keys do not move the cursor
+    for(i=0; i<sizeof(other)/sizeof(other[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_step(other[i]));
+    }
+    printf("DONE\n");
+}
+
+void test_selection_add(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN an empty selection with capacity for 3 items
+    char* selection[3]={NULL, NULL, NULL};
+    const unsigned capacity=sizeof(selection)/sizeof(selection[0]);
+    unsigned size=0;
+    char ls[]="ls", cd[]="cd", lsCopy[]="ls", pwd[]="pwd", git[]="git";
+
+    // WHEN items are added with duplicates filtering
+    bool lsAdded=hstr_selection_add(selection, capacity, &size, ls, true);
+    bool cdAdded=hstr_selection_add(selection, capacity, &size, cd, true);
+    bool lsCopyAdded=hstr_selection_add(selection, capacity, &size, lsCopy, true);
+
+    // THEN duplicate (by value, not by pointer) is skipped
+    TEST_ASSERT_TRUE(lsAdded);
+    TEST_ASSERT_TRUE(cdAdded);
+    TEST_ASSERT_FALSE(lsCopyAdded);
+    TEST_ASSERT_EQUAL_UINT(2, size);
+    TEST_ASSERT_EQUAL_PTR(ls, selection[0]);
+    TEST_ASSERT_EQUAL_PTR(cd, selection[1]);
+
+    // WHEN duplicate is added without duplicates filtering
+    bool lsCopyAddedRaw=hstr_selection_add(selection, capacity, &size, lsCopy, false);
+
+    // THEN it is appended
+    TEST_ASSERT_TRUE(lsCopyAddedRaw);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+    TEST_ASSERT_EQUAL_PTR(lsCopy, selection[2]);
+
+    // WHEN the selection is full
+    bool pwdAdded=hstr_selection_add(selection, capacity, &size, pwd, false);
+
+    // THEN nothing is written beyond capacity
+    TEST_ASSERT_FALSE(pwdAdded);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+
+    // WHEN invalid arguments are passed
+    unsigned emptySize=0;
+    bool nullSelection=hstr_selection_add(NULL, capacity, &emptySize, git, false);
+    bool nullSize=hstr_selection_add(selection, capacity, NULL, git, false);
+    bool nullLine=hstr_selection_add(selection, capacity, &emptySize, NULL, false);
+    bool zeroCapacity=hstr_selection_add(selection, 0, &emptySize, git, false);
+
+    // THEN they are rejected
+    TEST_ASSERT_FALSE(nullSelection);
+    TEST_ASSERT_FALSE(nullSize);
+    TEST_ASSERT_FALSE(nullLine);
+    TEST_ASSERT_FALSE(zeroCapacity);
+    TEST_ASSERT_EQUAL_UINT(0, emptySize);
+    printf("DONE\n");
+}
+
 void test_hashset_blacklist()
 {
     printf("\n= %s ========================================\n", __FUNCTION__);

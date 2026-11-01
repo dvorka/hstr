@@ -17,7 +17,49 @@
 */
 
 #include "include/hstr_selection.h"
+#include "include/hstr_curses.h"
 #include "include/hstr_utils.h"
+
+// appends line to the selection unless it is full or (if noDuplicates) already present,
+// returns true if the line was added
+bool hstr_selection_add(char** selection, unsigned capacity, unsigned* selectionSize, char* line, bool noDuplicates)
+{
+    if(!selection || !selectionSize || !line || *selectionSize>=capacity) {
+        return false;
+    }
+    if(noDuplicates) {
+        unsigned i;
+        for(i=0; i<*selectionSize; i++) {
+            if(selection[i] && !strcmp(selection[i], line)) {
+                return false;
+            }
+        }
+    }
+    selection[*selectionSize]=line;
+    (*selectionSize)++;
+    return true;
+}
+
+// returns rows by which a navigation key moves the selection cursor (0 for other keys)
+int hstr_selection_cursor_step(int key)
+{
+    switch(key) {
+    case KEY_UP:
+    case K_CTRL_K:
+    case K_CTRL_P:
+        return -1;
+    case KEY_DOWN:
+    case K_CTRL_J:
+    case K_CTRL_N:
+        return 1;
+    case KEY_PPAGE:
+        return -PG_JUMP_SIZE;
+    case KEY_NPAGE:
+        return PG_JUMP_SIZE;
+    default:
+        return 0;
+    }
+}
 
 int hstr_selection_index(int cursor, bool promptBottom, int promptItems, int selectionSize)
 {

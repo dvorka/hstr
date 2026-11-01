@@ -25,7 +25,35 @@
 // selection row) or SELECTION_CURSOR_IN_PROMPT if no item is selected
 #define SELECTION_CURSOR_IN_PROMPT -1
 
-int hstr_selection_index(int cursor, bool promptBottom, int promptItems, int selectionSize);
-int hstr_selection_cursor_move(int cursor, int step, bool promptBottom, int promptItems, int selectionSize);
+// rows by which page up/down moves the selection cursor
+#define PG_JUMP_SIZE 10
+
+// Ctrl keys which move the selection cursor (in addition to arrow keys)
+#define K_CTRL_J 10
+#define K_CTRL_K 11
+#define K_CTRL_N 14
+#define K_CTRL_P 16
+
+bool hstr_selection_add(
+   char** selection,
+   unsigned capacity,
+   unsigned* selectionSize,
+   char* line,
+   bool noDuplicates
+);
+int hstr_selection_cursor_step(int key);
+int hstr_selection_index(
+   int cursor,
+   bool promptBottom,
+   int promptItems,
+   int selectionSize
+);
+int hstr_selection_cursor_move(
+   int cursor,
+   int step,
+   bool promptBottom,
+   int promptItems,
+   int selectionSize
+);
 
 #endif
