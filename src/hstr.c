@@ -1056,12 +1056,20 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     return selectionCount;
 }
 
+// history rows are indented by one column to align with the prompt, except
+// when HSTR_PROMPT is set to empty string - rows then start at column 0
+const char* get_selection_row_indent(void)
+{
+    char* prompt = getenv(HSTR_ENV_VAR_PROMPT);
+    return (prompt && !strlen(prompt))?"":" ";
+}
+
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
-    int size = snprintf(screenLine, width, terminal_has_colors()?"%s":"  %s", buffer);
+    int size = snprintf(screenLine, width, "%s%s", get_selection_row_indent(), buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
@@ -1149,10 +1157,16 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     }
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
+    // without colors the indent is replaced by '>' marker (if there is an indent)
+    const char* indent = get_selection_row_indent();
+    const char* prefix = terminal_has_colors()?indent:(strlen(indent)?">":"");
+    // pad the row to the screen width so that the whole row is highlighted
+    int padding = getmaxx(stdscr)-strlen(prefix)-1;
+    if(padding < 0) padding = 0;
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
-            (terminal_has_colors()?"":"> "),
-            getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
+            prefix,
+            padding, padding, buffer);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
