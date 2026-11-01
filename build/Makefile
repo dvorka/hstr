@@ -1,13 +1,11 @@
-#  hstr.c     HSTR shell history completion utility
-
 #  Copyright (C) 2014-2026 Martin Dvorak <martin.dvorak@mindforger.com>
-
+#
 #  Licensed under the Apache License, Version 2.0 (the "License");
 #  you may not use this file except in compliance with the License.
 #  You may obtain a copy of the License at
-
+#
 #     http://www.apache.org/licenses/LICENSE-2.0
-
+#
 #  Unless required by applicable law or agreed to in writing, software
 #  distributed under the License is distributed on an "AS IS" BASIS,
 #  WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
@@ -22,6 +20,13 @@
 
 # HSTR version - extracted from src/hstr.c
 HSTR_VERSION := $(shell grep 'hstr version' ../src/hstr.c | sed 's/.*hstr version \\"\([^\\]*\)\\".*/\1/')
+
+#
+# CMD
+#
+
+DIFF := colordiff -u
+
 
 #
 # HELP
@@ -62,10 +67,13 @@ clean: ## clean build artifacts
 # BUILD
 #
 
-build-dev: clean ## clean, configure, and build HSTR
+../src/hstr:
 	cd ./tarball && ./tarball-automake.sh && cd ../.. && ./configure && make all
 
-build: build-dev ## clean, configure, and build HSTR
+build-dev: clean ../src/hstr ## clean, configure, and build HSTR
+	@echo "HSTR $(HSTR_VERSION) built for development"
+
+build: ../src/hstr ## clean, configure, and build HSTR
 	strip ../src/hstr
 
 #
@@ -73,8 +81,14 @@ build: build-dev ## clean, configure, and build HSTR
 #
 
 .PHONY: run-dev
-run-dev: ## run HSTR for development
-	cd .. && make clean all && cd build && ../src/hstr
+run-dev: build-dev ## run HSTR for development
+	../src/hstr
+
+run: ../src/hstr ## run HSTR
+	../src/hstr
+
+run-web: ## run HSTR web preview
+	cd ../web && python3 -m http.server 8000
 
 #
 # TEST
@@ -83,6 +97,10 @@ run-dev: ## run HSTR for development
 .PHONY: test
 test: ## run HSTR unit tests
 	cd ../test && qmake hstr-unit-tests.pro && make clean all && ./hstr-unit-tests
+
+.PHONY: test-memleaks
+test-memleaks: ## run HSTR memory leak tests with Valgrind
+	./test-memleaks.sh
 
 #
 # INSTALL
@@ -95,3 +113,14 @@ install-personal: build ## install HSTR for personal user
 	@cp -vf ../src/hstr $(HOME)/bin
 	@echo "HSTR $(HSTR_VERSION) installed to $(HOME)/bin"
 	hstr --version
+
+#
+# package
+#
+
+.PHONY: .
+releng-ubuntu: ## release launchpad package for Ubuntu
+	@echo "= Diff ============================"
+	$(DIFF) ./ubuntu/launchpad-make-all-releases.sh ~/p/hstr/launchpad/launchpad-make-all-releases.sh || true
+	@echo "= Script ============================"
+	cd ~/p/hstr/launchpad && ./launchpad-make-all-releases.sh

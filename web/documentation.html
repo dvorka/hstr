@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Documentation - HSTR</title>
+    <meta name="description" content="Complete documentation for HSTR - installation, configuration, and usage guide.">
+    <link rel="icon" href="./hstr-icon.svg" type="image/svg+xml">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ff00;
+            --secondary: #33ff33;
+            --accent: #66ff66;
+            --bg: #000000;
+            --card-bg: #111111;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-bracket {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .docs-header {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .docs-header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .docs-content {
+            display: grid;
+            grid-template-columns: 250px 1fr;
+            gap: 3rem;
+            padding: 3rem 0;
+        }
+
+        .sidebar {
+            position: sticky;
+            top: 100px;
+            height: fit-content;
+        }
+
+        .sidebar h3 {
+            color: var(--primary);
+            margin-bottom: 1rem;
+            font-size: 1.1rem;
+        }
+
+        .sidebar ul {
+            list-style: none;
+        }
+
+        .sidebar li {
+            margin-bottom: 0.75rem;
+        }
+
+        .sidebar a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .sidebar a:hover {
+            color: var(--primary);
+        }
+
+        .main-content {
+            max-width: 900px;
+        }
+
+        .main-content h2 {
+            color: white;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+            border-bottom: 2px solid rgba(0, 255, 0, 0.2);
+            padding-bottom: 0.5rem;
+        }
+
+        .main-content h3 {
+            color: white;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .main-content p {
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .main-content ul, .main-content ol {
+            color: #cbd5e1;
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .main-content li {
+            margin-bottom: 0.5rem;
+        }
+
+        .main-content code {
+            background: var(--card-bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        .main-content pre {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .main-content pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            display: block;
+        }
+
+        .note {
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+
+        .note p {
+            margin: 0;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .docs-content {
+                grid-template-columns: 1fr;
+            }
+
+            .sidebar {
+                position: relative;
+                top: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-bracket">[</span>HSTR<span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#installation">Install</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="documentation.html">Docs</a></li>
+                <li><a href="https://github.com/dvorka/hstr">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="docs-header">
+        <div class="container">
+            <h1>Documentation</h1>
+            <p style="color: #cbd5e1;">Everything you need to know about HSTR</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="docs-content">
+            <aside class="sidebar">
+                <h3>Contents</h3>
+                <ul>
+                    <li><a href="#installation">Installation</a></li>
+                    <li><a href="#configuration">Configuration</a></li>
+                    <li><a href="#usage">Usage</a></li>
+                    <li><a href="#keyboard">Keyboard Shortcuts</a></li>
+                    <li><a href="#environment">Environment Variables</a></li>
+                    <li><a href="#troubleshooting">Troubleshooting</a></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <h2 id="installation">Installation</h2>
+
+                <h3>Ubuntu</h3>
+                <p>HSTR is included in Ubuntu 21.10 and newer releases:</p>
+                <pre><code>sudo apt install hstr</code></pre>
+
+                <p>For Ubuntu 21.04 and older:</p>
+                <pre><code>sudo add-apt-repository ppa:ultradvorka/ppa
+sudo apt-get update
+sudo apt-get install hstr</code></pre>
+
+                <h3>Debian/Mint</h3>
+                <p>HSTR is included in Debian 11 and newer:</p>
+                <pre><code>sudo apt install hstr</code></pre>
+
+                <h3>Fedora/RHEL/CentOS</h3>
+                <pre><code>sudo dnf install hstr</code></pre>
+                <p>or</p>
+                <pre><code>sudo yum install hstr</code></pre>
+
+                <h3>macOS</h3>
+                <p>Install using Homebrew:</p>
+                <pre><code>brew install hstr</code></pre>
+                <p>Or using MacPorts:</p>
+                <pre><code>sudo port install hstr</code></pre>
+
+                <h3>Arch Linux</h3>
+                <pre><code>yaourt -S hstr-git</code></pre>
+
+                <h3>Build from Source</h3>
+                <pre><code>git clone https://github.com/dvorka/hstr.git
+cd hstr/build/tarball
+./tarball-automake.sh
+cd ../..
+./configure && make && sudo make install</code></pre>
+
+                <h2 id="configuration">Configuration</h2>
+
+                <p>Configure HSTR automatically by running:</p>
+                <pre><code># For Bash
+hstr --show-bash-configuration >> ~/.bashrc
+source ~/.bashrc
+
+# For Zsh
+hstr --show-zsh-configuration >> ~/.zshrc
+source ~/.zshrc</code></pre>
+
+                <h3>Bash Binding</h3>
+                <p>Bind HSTR to Ctrl-r for Bash Emacs keymap:</p>
+                <pre><code>bind '"\C-r": "\C-a hstr -- \C-j"'</code></pre>
+
+                <p>For Bash Vim keymap:</p>
+                <pre><code>bind '"\C-r": "\e^ihstr -- \n"'</code></pre>
+
+                <h3>Zsh Binding</h3>
+                <p>Bind HSTR to Ctrl-r for Zsh:</p>
+                <pre><code>bindkey -s "\C-r" "\C-a hstr -- \C-j"</code></pre>
+
+                <h3>HSTR Config Options</h3>
+                <p>Configure HSTR using the <code>HSTR_CONFIG</code> environment variable with comma-separated options:</p>
+
+                <h4>Colors</h4>
+                <pre><code>export HSTR_CONFIG=hicolor        # Use colors
+export HSTR_CONFIG=monochromatic  # Black and white</code></pre>
+
+                <h4>Positioning</h4>
+                <pre><code>export HSTR_CONFIG=prompt-bottom          # Prompt at bottom
+export HSTR_CONFIG=help-on-opposite-side  # Help on opposite side
+export HSTR_CONFIG=hide-basic-help        # Hide basic help
+export HSTR_CONFIG=hide-help              # Hide all help</code></pre>
+
+                <h4>Default View</h4>
+                <pre><code>export HSTR_CONFIG=raw-history-view  # Normal history
+export HSTR_CONFIG=favorites-view    # Favorites view</code></pre>
+
+                <h4>Filtering</h4>
+                <pre><code>export HSTR_CONFIG=regexp-matching     # Regex matching
+export HSTR_CONFIG=substring-matching  # Substring matching
+export HSTR_CONFIG=keywords-matching   # Keywords (default)
+export HSTR_CONFIG=case-sensitive      # Case sensitive</code></pre>
+
+                <h4>Other Options</h4>
+                <pre><code>export HSTR_CONFIG=static-favorites         # Static favorites
+export HSTR_CONFIG=skip-favorites-comments  # Skip comments
+export HSTR_CONFIG=blacklist                # Enable blacklist
+export HSTR_CONFIG=no-confirm               # No delete confirm
+export HSTR_CONFIG=verbose-kill             # Verbose delete
+export HSTR_CONFIG=duplicates               # Keep duplicates</code></pre>
+
+                <h4>Combining Options</h4>
+                <pre><code>export HSTR_CONFIG=hicolor,case-sensitive,prompt-bottom</code></pre>
+
+                <h2 id="usage">Usage</h2>
+
+                <h3>Invoking HSTR</h3>
+                <p>Press <code>Ctrl-r</code> to invoke HSTR (if configured). Or run <code>hstr</code> directly:</p>
+                <pre><code>hstr        # Standard mode
+hstr -k     # Kill last command
+hh          # If you created an alias</code></pre>
+
+                <h3>Searching History</h3>
+                <p>Start typing to filter your command history. HSTR supports multiple search modes:</p>
+                <ul>
+                    <li><strong>Keywords</strong> - Default mode, order doesn't matter</li>
+                    <li><strong>Substring</strong> - Match continuous strings</li>
+                    <li><strong>Regex</strong> - Regular expression matching</li>
+                </ul>
+
+                <h3>Managing Favorites</h3>
+                <ul>
+                    <li>Press <code>Ctrl-f</code> to add/remove favorites</li>
+                    <li>Press <code>Ctrl-/</code> to toggle between history and favorites</li>
+                    <li>Favorites are stored in <code>~/.hstr_favorites</code></li>
+                </ul>
+
+                <h3>Deleting History</h3>
+                <ul>
+                    <li>Navigate to a command and press <code>DEL</code> or <code>Ctrl-d</code></li>
+                    <li>Confirm deletion when prompted</li>
+                </ul>
+
+                <h2 id="keyboard">Keyboard Shortcuts</h2>
+
+                <table style="width: 100%; border-collapse: collapse; color: #cbd5e1;">
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.2);">
+                        <th style="text-align: left; padding: 0.75rem; color: var(--primary);">Key</th>
+                        <th style="text-align: left; padding: 0.75rem; color: var(--primary);">Action</th>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Ctrl-r</code></td>
+                        <td style="padding: 0.75rem;">Invoke HSTR</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Ctrl-/</code></td>
+                        <td style="padding: 0.75rem;">Toggle view (ranking/raw/favorites)</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Ctrl-f</code></td>
+                        <td style="padding: 0.75rem;">Add/remove favorite</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Ctrl-t</code></td>
+                        <td style="padding: 0.75rem;">Toggle case sensitivity</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Ctrl-e</code></td>
+                        <td style="padding: 0.75rem;">Edit command before running</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>DEL</code> or <code>Ctrl-d</code></td>
+                        <td style="padding: 0.75rem;">Delete from history</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Enter</code></td>
+                        <td style="padding: 0.75rem;">Run selected command</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>TAB</code></td>
+                        <td style="padding: 0.75rem;">Edit selected command</td>
+                    </tr>
+                    <tr style="border-bottom: 1px solid rgba(0, 255, 0, 0.1);">
+                        <td style="padding: 0.75rem;"><code>Esc</code></td>
+                        <td style="padding: 0.75rem;">Exit HSTR</td>
+                    </tr>
+                </table>
+
+                <h2 id="environment">Environment Variables</h2>
+
+                <h3>History Settings</h3>
+                <p>Increase history size for better results:</p>
+                <pre><code># Bash
+export HISTFILESIZE=10000
+export HISTSIZE=${HISTFILESIZE}
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+
+# Hide commands with leading space
+export HISTCONTROL=ignorespace</code></pre>
+
+                <pre><code># Zsh
+export HISTFILE=~/.zsh_history
+export HISTSIZE=10000
+export SAVEHIST=${HISTSIZE}
+setopt HIST_IGNORE_SPACE</code></pre>
+
+                <h3>HSTR Variables</h3>
+                <ul>
+                    <li><code>HISTFILE</code> - History file location</li>
+                    <li><code>HSTR_CONFIG</code> - HSTR configuration options</li>
+                    <li><code>HSTR_PROMPT</code> - Custom prompt (default: user@hostname$)</li>
+                    <li><code>HSTR_IS_SUBSHELL</code> - Set to 1 when in subshell</li>
+                </ul>
+
+                <h2 id="troubleshooting">Troubleshooting</h2>
+
+                <h3>Commands Not Inserted to Terminal</h3>
+                <p>This is a common issue with Linux kernel >= 6.2.0, WSL, and Cygwin due to TIOCSTI restrictions.</p>
+
+                <div class="note">
+                    <p><strong>Solution:</strong> Make sure to properly configure HSTR binding as shown in the configuration section. The binding ensures commands are inserted correctly.</p>
+                </div>
+
+                <h3>History Not Showing</h3>
+                <p>Check your history file:</p>
+                <pre><code>echo $HISTFILE
+cat $HISTFILE | wc -l</code></pre>
+
+                <p>Make sure history is being saved:</p>
+                <pre><code># For Bash
+shopt -s histappend
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"</code></pre>
+
+                <h3>HSTR Not Found After Installation</h3>
+                <p>Make sure the installation directory is in your PATH:</p>
+                <pre><code>which hstr
+echo $PATH</code></pre>
+
+                <h3>Colors Not Working</h3>
+                <p>Ensure your terminal supports colors and configure HSTR:</p>
+                <pre><code>export HSTR_CONFIG=hicolor</code></pre>
+
+                <div class="note">
+                    <p><strong>More Help:</strong> For additional support, check the <a href="https://github.com/dvorka/hstr/issues" style="color: var(--primary);">GitHub Issues</a> or consult the man page: <code>man hstr</code></p>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/dvorka/hstr">GitHub</a>
+                    <a href="https://github.com/dvorka/hstr/issues">Issues</a>
+                    <a href="https://github.com/dvorka/hstr/releases">Releases</a>
+                    <a href="documentation.html">Documentation</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="contributing.html">Contributing</a>
+                    <a href="https://pkgs.org/search/?q=hstr">Packages</a>
+                    <a href="https://repology.org/project/hstr/versions">Package Status</a>
+                </div>
+                <p style="margin-top: 1.5rem;">
+                    HSTR created with passion for <a href="https://github.com/dvorka" style="color: var(--primary);">my</a> personal pleasure.<br/>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

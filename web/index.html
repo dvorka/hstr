@@ -1,0 +1,837 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>HSTR - Bash and Zsh Shell History Suggest Box</title>
+    <meta name="description" content="Easily view, navigate and search your command history with shell history suggest box for bash and zsh. Make your command line more efficient than Ctrl-r.">
+    <link rel="icon" href="./hstr-icon.svg" type="image/svg+xml">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ff00;
+            --secondary: #33ff33;
+            --accent: #66ff66;
+            --dark: #000000;
+            --darker: #000000;
+            --gray: #00aa00;
+            --light-gray: #00cc00;
+            --bg: #000000;
+            --card-bg: #111111;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: #e2e8f0;
+            line-height: 1.6;
+            position: relative;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background:
+                radial-gradient(circle at 20% 50%, rgba(0, 255, 0, 0.08) 0%, transparent 50%),
+                radial-gradient(circle at 80% 80%, rgba(0, 200, 0, 0.08) 0%, transparent 50%);
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* Navigation */
+        nav {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo img {
+            width: 36px;
+            height: 36px;
+            filter: drop-shadow(0 0 8px rgba(0, 255, 0, 0.5));
+        }
+
+        .logo-bracket {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Hero Section */
+        .hero {
+            padding: 8rem 0 6rem;
+            text-align: center;
+            position: relative;
+        }
+
+        .hero-grid {
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background-image:
+                linear-gradient(rgba(0, 255, 0, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0, 255, 0, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            pointer-events: none;
+        }
+
+        .hero h1 {
+            font-size: 4.5rem;
+            font-weight: 700;
+            margin-bottom: 1.5rem;
+            line-height: 1.1;
+            color: var(--primary);
+            text-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .hero .subtitle {
+            font-size: 1.35rem;
+            color: #cbd5e1;
+            margin-bottom: 3rem;
+            max-width: 750px;
+            margin-left: auto;
+            margin-right: auto;
+            line-height: 1.8;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 1.5rem;
+            justify-content: center;
+            margin-bottom: 4rem;
+        }
+
+        .btn {
+            padding: 1rem 2rem;
+            border-radius: 0.5rem;
+            text-decoration: none;
+            font-weight: 600;
+            transition: all 0.3s;
+            border: 2px solid var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: #000;
+        }
+
+        .btn-primary:hover {
+            background: var(--accent);
+            box-shadow: 0 0 20px rgba(0, 255, 0, 0.5);
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: var(--primary);
+        }
+
+        .btn-secondary:hover {
+            background: rgba(0, 255, 0, 0.1);
+        }
+
+        .terminal-window {
+            max-width: 800px;
+            margin: 3rem auto 0;
+            background: var(--card-bg);
+            border-radius: 0.75rem;
+            overflow: hidden;
+            box-shadow: 0 25px 50px -12px rgba(0, 255, 0, 0.2);
+            border: 1px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .terminal-header {
+            background: rgba(0, 0, 0, 0.8);
+            padding: 0.75rem 1rem;
+            display: flex;
+            gap: 0.5rem;
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .terminal-dot {
+            width: 12px;
+            height: 12px;
+            border-radius: 50%;
+        }
+
+        .dot-red { background: #ff0000; }
+        .dot-yellow { background: #ffff00; }
+        .dot-green { background: #00ff00; }
+
+        .terminal-body {
+            padding: 1.5rem;
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            line-height: 1.8;
+        }
+
+        .terminal-line {
+            margin-bottom: 0.5rem;
+        }
+
+        .terminal-prompt {
+            color: var(--accent);
+        }
+
+        .terminal-command {
+            color: var(--primary);
+        }
+
+        .terminal-output {
+            color: #cbd5e1;
+        }
+
+        .terminal-comment {
+            color: #94a3b8;
+        }
+
+        /* Features Section */
+        .features {
+            padding: 6rem 0;
+            position: relative;
+        }
+
+        .section-label {
+            text-align: center;
+            color: var(--primary);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            font-size: 0.875rem;
+            margin-bottom: 1rem;
+        }
+
+        .section-title {
+            text-align: center;
+            font-size: 3rem;
+            font-weight: 700;
+            margin-bottom: 4rem;
+            color: white;
+            text-shadow: none;
+        }
+
+        .features-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 1.5rem;
+        }
+
+        .feature-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+            overflow: hidden;
+        }
+
+        .feature-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, var(--primary), var(--accent));
+            transform: scaleX(0);
+            transform-origin: left;
+            transition: transform 0.4s;
+        }
+
+        .feature-card:hover::before {
+            transform: scaleX(1);
+        }
+
+        .feature-card:hover {
+            transform: translateY(-8px);
+            border-color: rgba(0, 255, 0, 0.5);
+            box-shadow: 0 20px 40px rgba(0, 255, 0, 0.2);
+        }
+
+        .feature-number {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 2.5rem;
+            font-weight: 700;
+            color: rgba(0, 255, 0, 0.2);
+            margin-bottom: 1rem;
+        }
+
+        .feature-card h3 {
+            font-size: 1.35rem;
+            margin-bottom: 1rem;
+            font-weight: 600;
+            color: white;
+        }
+
+        .feature-card p {
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        /* Installation Section */
+        .installation {
+            padding: 6rem 0;
+            background: rgba(17, 17, 17, 0.5);
+        }
+
+        .install-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 1.5rem;
+            margin-top: 3rem;
+        }
+
+        .install-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 0.75rem;
+            padding: 1.5rem;
+            transition: all 0.3s;
+        }
+
+        .install-card:hover {
+            border-color: var(--primary);
+            box-shadow: 0 10px 30px rgba(0, 255, 0, 0.15);
+        }
+
+        .install-card h3 {
+            color: white;
+            margin-bottom: 1rem;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .install-card code {
+            display: block;
+            background: #000;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+            overflow-x: auto;
+            border: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        /* About Section */
+        .about {
+            padding: 6rem 0;
+        }
+
+        .about-content {
+            max-width: 900px;
+            margin: 0 auto;
+            text-align: center;
+        }
+
+        .about-content p {
+            font-size: 1.2rem;
+            color: #cbd5e1;
+            margin-bottom: 1.5rem;
+            line-height: 1.8;
+        }
+
+        .stats {
+            display: flex;
+            justify-content: center;
+            gap: 4rem;
+            margin-top: 4rem;
+            flex-wrap: wrap;
+        }
+
+        .stat {
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 3rem;
+            font-weight: 700;
+            color: var(--primary);
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .stat-label {
+            color: #94a3b8;
+            margin-top: 0.5rem;
+            text-transform: uppercase;
+            font-size: 0.875rem;
+            letter-spacing: 1px;
+        }
+
+        /* Tips Section */
+        .tips {
+            padding: 6rem 0;
+            background: rgba(17, 17, 17, 0.5);
+        }
+
+        .tips-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 2rem;
+            margin-top: 3rem;
+        }
+
+        .tip-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+        }
+
+        .tip-card h3 {
+            color: white;
+            margin-bottom: 1.5rem;
+            font-size: 1.5rem;
+        }
+
+        .tip-card pre {
+            background: #000;
+            padding: 1rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        .tip-card code {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.85rem;
+        }
+
+        .tip-card p {
+            color: #cbd5e1;
+            line-height: 1.7;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 2.5rem;
+            }
+
+            .section-title {
+                font-size: 2rem;
+            }
+
+            .features-grid,
+            .install-grid,
+            .tips-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .cta-buttons {
+                flex-direction: column;
+            }
+
+            .stats {
+                gap: 2rem;
+            }
+        }
+
+        .float-animation {
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0px); }
+            50% { transform: translateY(-20px); }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="#" class="logo">
+                <span class="logo-bracket">[</span>HSTR<span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="#features">Features</a></li>
+                <li><a href="#installation">Install</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="documentation.html">Docs</a></li>
+                <li><a href="https://github.com/dvorka/hstr">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <section class="hero">
+        <div class="hero-grid"></div>
+        <div class="container">
+            <h1>HSTR</h1>
+            <p class="subtitle">
+                Bash and Zsh shell history suggest box - easily view, navigate and search your command history
+                with shell history completion that's faster and more efficient than Ctrl-r.
+            </p>
+            <div class="cta-buttons">
+                <a href="#installation" class="btn btn-primary">Get Started</a>
+                <a href="https://github.com/dvorka/hstr" class="btn btn-secondary">View on GitHub</a>
+            </div>
+            <div class="terminal-window float-animation">
+                <div class="terminal-header">
+                    <div class="terminal-dot dot-red"></div>
+                    <div class="terminal-dot dot-yellow"></div>
+                    <div class="terminal-dot dot-green"></div>
+                </div>
+                <div class="terminal-body" style="padding: 10px;">
+                    <img src="hstr-stop-motion.gif" alt="HSTR Demo" style="width: 100%; display: block; border-radius: 0.5rem;">
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="features" class="features">
+        <div class="container">
+            <div class="section-label">Capabilities</div>
+            <h2 class="section-title">Why HSTR?</h2>
+            <div class="features-grid">
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Intelligent History Search</h3>
+                    <p>
+                        Search your command history with keywords, regular expressions, or substring matching.
+                        HSTR provides multiple search modes to find exactly what you need, when you need it.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Metrics-Based Ranking</h3>
+                    <p>
+                        HSTR automatically ranks commands based on usage frequency and recency.
+                        Your most important commands are always at your fingertips.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Favorite Commands</h3>
+                    <p>
+                        Bookmark your favorite commands for instant access. Perfect for complex commands
+                        you use regularly but can't quite remember.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>History Management</h3>
+                    <p>
+                        Delete obsolete commands or remove sensitive information from your history.
+                        Full control over your command history database.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Multiple Views</h3>
+                    <p>
+                        Switch between ranked history, raw chronological view, and favorites.
+                        Each view is optimized for different workflows.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Bash & Zsh Support</h3>
+                    <p>
+                        Works seamlessly with both bash and zsh. Easy configuration with
+                        automatic shell detection and setup scripts.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Case-Insensitive Search</h3>
+                    <p>
+                        Search without worrying about capitalization. HSTR's intelligent
+                        case-insensitive search finds what you need regardless of how you type it.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Customizable Interface</h3>
+                    <p>
+                        Configure colors, prompt position, help visibility, and more.
+                        Make HSTR look and behave exactly how you want it.
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <div class="feature-number">*</div>
+                    <h3>Cross-Platform</h3>
+                    <p>
+                        Available on Linux, macOS, BSD, and more. Install via package managers
+                        or build from source on virtually any Unix-like system.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="installation" class="installation">
+        <div class="container">
+            <div class="section-label">Quick Start</div>
+            <h2 class="section-title">Installation</h2>
+            <div class="install-grid">
+                <div class="install-card">
+                    <h3>Ubuntu/Debian</h3>
+                    <code>sudo apt install hstr</code>
+                </div>
+                <div class="install-card">
+                    <h3>Fedora/RHEL/CentOS</h3>
+                    <code>sudo dnf install hstr</code>
+                </div>
+                <div class="install-card">
+                    <h3>macOS (Homebrew)</h3>
+                    <code>brew install hstr</code>
+                </div>
+                <div class="install-card">
+                    <h3>Arch Linux</h3>
+                    <code>yaourt -S hstr-git</code>
+                </div>
+                <div class="install-card">
+                    <h3>Build from Source</h3>
+                    <code style="font-size: 0.7rem;">git clone https://github.com/dvorka/hstr.git<br>
+cd hstr/build/tarball<br>
+./tarball-automake.sh<br>
+cd ../..<br>
+./configure && make<br>
+sudo make install</code>
+                </div>
+                <div class="install-card">
+                    <h3>Configure</h3>
+                    <code># Bash<br>
+hstr --show-bash-configuration >> ~/.bashrc<br>
+source ~/.bashrc<br>
+<br>
+# Zsh<br>
+hstr --show-zsh-configuration >> ~/.zshrc<br>
+source ~/.zshrc</code>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="tips" class="tips">
+        <div class="container">
+            <div class="section-label">Pro Tips</div>
+            <h2 class="section-title">Get the Most Out of HSTR</h2>
+            <div class="tips-grid">
+                <div class="tip-card">
+                    <h3>Command Tagging</h3>
+                    <p>Add comments to commands for easy searching:</p>
+                    <pre><code>docker run -it ubuntu bash # DDD
+ssh -L 8080:localhost:3000 user@server # SSS
+git log --graph --oneline # GGG</code></pre>
+                    <p>Just type "DDD" in HSTR to find your Docker commands instantly!</p>
+                </div>
+                <div class="tip-card">
+                    <h3>Hide Sensitive Commands</h3>
+                    <p>Prevent commands from being saved to history:</p>
+                    <pre><code># Bash
+export HISTCONTROL=ignorespace
+
+# Zsh
+setopt HIST_IGNORE_SPACE
+
+# Now use a leading space:
+ secret-command --password=123</code></pre>
+                </div>
+                <div class="tip-card">
+                    <h3>Keyboard Shortcuts</h3>
+                    <p>Master HSTR with these shortcuts:</p>
+                    <pre><code>Ctrl-r     - Invoke HSTR
+Ctrl-/     - Toggle views
+Ctrl-f     - Add to favorites
+Ctrl-t     - Toggle case sensitivity
+Ctrl-e     - Edit command
+DEL        - Delete from history</code></pre>
+                </div>
+                <div class="tip-card">
+                    <h3>Customize Appearance</h3>
+                    <p>Configure HSTR to match your style:</p>
+                    <pre><code>export HSTR_CONFIG=hicolor,prompt-bottom
+
+# Options include:
+# - hicolor / monochromatic
+# - prompt-bottom
+# - hide-help
+# - raw-history-view
+# - favorites-view</code></pre>
+                </div>
+                <div class="tip-card">
+                    <h3>Increase History Size</h3>
+                    <p>Store more commands in your history:</p>
+                    <pre><code>export HISTFILESIZE=10000
+export HISTSIZE=${HISTFILESIZE}
+shopt -s histappend</code></pre>
+                </div>
+                <div class="tip-card">
+                    <h3>Blacklist Commands</h3>
+                    <p>Exclude commands from ranking view:</p>
+                    <pre><code>export HSTR_CONFIG=blacklist
+
+# Create ~/.hstr_blacklist:
+cd
+ls
+pwd
+exit</code></pre>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-label">About</div>
+            <h2 class="section-title">HSTR: History on Steroids</h2>
+            <div class="about-content">
+                <p>
+                    HSTR (HiSToRy) is a command line utility that brings improved bash/zsh command completion
+                    from the history. It aims to make completion easier and more efficient than the built-in Ctrl-r.
+                </p>
+                <p>
+                    Are you looking for a command that you used recently? Do you want to avoid the need to write
+                    long commands over and over again? Are you looking for a tool that is able to manage your
+                    favorite commands? HSTR is the answer.
+                </p>
+                <p>
+                    HSTR can also manage your command history - for instance you can remove commands that are
+                    obsolete or contain a piece of sensitive information, or bookmark your favorite commands.
+                </p>
+                <div class="stats">
+                    <div class="stat">
+                        <div class="stat-number">10+</div>
+                        <div class="stat-label">Years Active</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">4k+</div>
+                        <div class="stat-label">GitHub Stars</div>
+                    </div>
+                    <div class="stat">
+                        <div class="stat-number">15+</div>
+                        <div class="stat-label">Platforms</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/dvorka/hstr">GitHub</a>
+                    <a href="https://github.com/dvorka/hstr/issues">Issues</a>
+                    <a href="https://github.com/dvorka/hstr/releases">Releases</a>
+                    <a href="documentation.html">Documentation</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="contributing.html">Contributing</a>
+                    <a href="https://pkgs.org/search/?q=hstr">Packages</a>
+                    <a href="https://repology.org/project/hstr/versions">Package Status</a>
+                </div>
+                <p style="margin-top: 1.5rem;">
+                    HSTR created with passion for <a href="https://github.com/dvorka" style="color: var(--primary);">my</a> personal pleasure.<br/>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

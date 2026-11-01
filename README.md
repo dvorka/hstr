@@ -1,12 +1,15 @@
 # HSTR
 
-[![GitHub Actions CI for Ubuntu](https://github.com/dvorka/hstr/actions/workflows/build_ubuntu.yml/badge.svg)](https://github.com/dvorka/hstr/actions)
-[![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka/hstr/releases)
-[![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka/hstr/issues)
-[![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka/hstr/releases)
-[![License](https://img.shields.io/github/license/dvorka/hstr?color=%23fe0000)](https://github.com/dvorka/hstr/blob/master/LICENSE)
+[![Support on Open Collective](https://img.shields.io/badge/Sponsor-Open%20Collective-blue?style=for-the-badge&logo=open-collective)](https://opencollective.com/dvorka-floss-lab)
+[![GitHub Actions CI for Ubuntu](https://github.com/dvorka-oss/hstr/actions/workflows/build_ubuntu.yml/badge.svg)](https://github.com/dvorka-oss/hstr/actions)
+[![Current release](https://img.shields.io/github/release/dvorka/hstr.svg)](https://github.com/dvorka-oss/hstr/releases)
+[![GitHub issues](https://img.shields.io/github/issues/dvorka/hstr.svg?maxAge=360)](https://github.com/dvorka-oss/hstr/issues)
+[![All releases downloads](https://img.shields.io/github/downloads/dvorka/hstr/total.svg)](https://github.com/dvorka-oss/hstr/releases)
+<!--
+[![License](https://img.shields.io/github/license/dvorka/hstr?color=%23fe0000)](https://github.com/dvorka-oss/hstr/blob/master/LICENSE)
+-->
 
-Easily view, navigate and search your **command history** with shell history suggest box for 
+Easily view, navigate and search your **command history** with shell history TUI suggest box for
 [bash](https://www.gnu.org/software/bash/) and [zsh](CONFIGURATION.md#zsh-history-settings).
 
 [![Shell History Suggest Box](doc/hstr-v2.gif "Shell History Suggest Box @ YouTube")](http://www.youtube.com/watch?v=sPF29NyXe2U)
@@ -26,6 +29,16 @@ commands that are obsolete or contain a piece of sensitive information)
 or **bookmark** your favorite commands.
 
 <!-- Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial. -->
+
+<!--
+## Packages
+
+<table><tr><td>
+  <a href="https://repology.org/project/hstr/versions">
+    <img src="https://repology.org/badge/vertical-allrepos/hstr.svg?columns=4" alt="Packaging status" align="left">
+  </a>
+</td></tr></table>
+-->
 
 ## Installation
 
@@ -85,13 +98,22 @@ hstr --show-zsh-configuration >> ~/.zshrc
 For detailed HSTR configuration documentation please refer to [Configuration](CONFIGURATION.md).
 
 ## Tips
+Troubleshooting:
+
+* [Commands chosen in HSTR are not inserted to terminal](INSTALLATION.md#hstr-2x-to-3x-ioctl--tiocsti)
+
 Tips and tricks:
 
 * [How to hide commands from your history](./TIPS.md)
 * [How to use command tags for fast lookup](./TIPS.md)
-* [How to get suggestions from standard input](./TIPS.md)
 * [How to curate your favorite commands](./TIPS.md)
 
+## Perfect Software
+[Perfect software](https://outofdesk.netlify.app/perfect-software) is not necessarily the best software - it is perfect simply because it does exactly what you want, how do you want it and when you want it. The [YAGNI](https://martinfowler.com/bliki/Yagni.html) - You Aren't Gonna Need It - mantra protects software from wasting time and resources on implementing anything and everything.
+
+The **HSTR** project **is perfect to me**. Even if project's main branch does not receive updates frequently, be sure that I use it every day - many many times. I add a small feature here or there or fix a bug. In other words, the project is **not** and will **not** be dead.
+
+If you have any ideas, suggestions, news to share, or constructive criticism to share, **do not hesitate to contact me**! Please do not be offended if your GitHub issue or bug report is not implemeted - IAGNI.
 
 ## In the News
 
@@ -117,4 +139,4 @@ User videos: [Zack](https://www.youtube.com/watch?v=Qd75pIeQkH8), [Dvorka](https
 
 ## Bugs
 
-https://github.com/dvorka/hstr/issues
+https://github.com/dvorka-oss/hstr/issues

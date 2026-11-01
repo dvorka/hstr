@@ -1,18 +1,18 @@
 .TH HSTR 1
 .SH NAME
-\fBhstr\fR \-  easily view, navigate, sort and use your command history with shell history suggest box.
+\fBhstr\fR \-  easily view, navigate, sort and use your command history with a shell history suggest box.
 .SH SYNOPSIS
 .B hstr [option] [arg1] [arg2]...
 .SH DESCRIPTION
 .B hstr
 uses shell history to provide suggest box like functionality
-for commands used in the past. By default it parses .bash-history
+for commands used in the past. By default it parses the .bash-history
 file that is filtered as you type a command substring. Commands
 are not just filtered, but also ordered by a ranking algorithm
-that considers number of occurrences, length and timestamp.
+that considers the number of occurrences, length and timestamp.
 Favorite and frequently used commands can be bookmarked. In addition
 \fBhstr\fR allows removal of commands from history - for instance with a typo
-or with a sensitive content.
+or with sensitive content.
 .SH OPTIONS
 .TP
 \fB-h --help\fR
@@ -25,7 +25,7 @@ Print filtered history on standard output and exit
 Delete the last command from history and exit
 .TP
 \fB-i --insert-in-terminal=[command]\fR
-Insert custom command to terminal prompt and exit
+Insert custom command in terminal prompt and exit
 .TP
 \fB-f --favorites\fR
 Show favorites view immediately
@@ -68,10 +68,10 @@ Toggle search pattern case.
 Navigate in the history list.
 .TP
 \fBTAB\fR, \fBRIGHT\fR arrow
-Choose currently selected item for completion and let user to edit it on the command prompt.
+Choose currently selected item for completion and let user edit it on the command prompt.
 .TP
 \fBLEFT\fR arrow
-Choose currently selected item for completion and let user to edit it in editor (fix command).
+Choose currently selected item for completion and let user edit it in editor (fix command).
 .TP
 \fBENTER\fR
 Choose currently selected item for completion and execute it.
@@ -106,7 +106,7 @@ Configuration options:
         Show prompt at the bottom of the screen (default is prompt at the top).
 
 \fIhelp-on-opposite-side\fR
-        Show help label on the opposite site (default is next to the prompt).
+        Show help label on the opposite side (default is next to the prompt).
 
 \fIhide-basic-help\fR
         Hide the basic help label.
@@ -142,10 +142,10 @@ Configuration options:
         Skip comments (lines beginning with #) when loading ~/.hstr_favorites (all lines are loaded by default).
 
 \fIduplicates\fR
-        Show duplicates in rawhistory (duplicates are discarded by default).
+        Show duplicates in raw history (duplicates are discarded by default).
 
 \fIverbose-kill\fR
-        Print the last command command deleted from history (nothing is printed by default).
+        Print the last command deleted from history (nothing is printed by default).
 
 \fIblacklist\fR
         Load list of commands to skip when processing history from ~/.hstr_blacklist (built-in blacklist used otherwise).

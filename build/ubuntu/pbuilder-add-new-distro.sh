@@ -17,9 +17,9 @@
 # https://wiki.ubuntu.com/Releases
 
 # boostrap new OR refresh distribution base for pbuilder
-export DISTRO=impish
+export DISTRO=bionic
 
-sudo pbuilder --create $DISTRO
+sudo pbuilder --create --distribution ${DISTRO}
 rm -vf ~/pbuilder/${DISTRO}-base.tgz
 cp /var/cache/pbuilder/base.tgz ~/pbuilder/${DISTRO}-base.tgz
 

@@ -562,10 +562,12 @@ as if it had been typed by the user.
 * Cygwin
 * WSL
 
-HSTR uses `TIOCSTI` to insert a command chosen by the user in HSTR
+HSTR uses `TIOCSTI` to **insert a command chosen by the user** in HSTR
 to shell prompt - if `TIOCSTI` is available. Otherwise shell specific
 line editors features are used.
 
-**Therefore it is important to configure HSTR after the installation:**
+Therefore it is **very important** to configure HSTR after the installation:
 
 * [HSTR configuration](README.md#configuration)
+
+Without proper configuration HSTR will [not be able to insert commands to terminal](https://github.com/dvorka/hstr/issues/531).

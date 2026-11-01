@@ -17,10 +17,12 @@
 # https://wiki.ubuntu.com/Releases
 # obsolete: precise quantal saucy precise utopic vivid wily yakkety artful cosmic
 # current : (trusty) xenial bionic (cosmic disco eoan) focal (groovy) hirsute impish
-for DISTRO in xenial bionic focal hirsute impish
+for DISTRO in trusty xenial bionic focal jammy noble questing
 do
 
-sudo pbuilder --create ${DISTRO}
+sudo pbuilder --create --distribution ${DISTRO}
+rm -vf ~/pbuilder/${DISTRO}-base.tgz
+cp /var/cache/pbuilder/base.tgz ~/pbuilder/${DISTRO}-base.tgz
 
 done
 

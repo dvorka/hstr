@@ -1,162 +1,185 @@
-2026-01-24  Martin Dvorak  <martin.dvorak@mindforger.com>
+2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.2.0 - Minor release bringing STDIN handling and configuration
-    for TIOCSTI enforcement.
+  * Released v3.3.0 - Minor release bringing:
+    - Fixed leading space in case of empty HSTR prompt by @roshal
+
+2026-02-06  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v3.2.0 - Minor release bringing:
+    - Configuration for TIOCSTI enforcement
+    - Added SIGQUIT handling to cleanup terminal state on quit
+    - Fixed buffer overflow (window resize) and missing Bash autocomplete configuration
+    - Fixed undesired encapsulation of patterns with quotes in case they contain spaces
+    - Updated changelog layout
 
 2023-04-18  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.1.0 - Minor release fixing a Bash function that is used
-    when ioctl/TIOCSTI is not available.
+  * Released v3.1.0 - Minor release:
+    - Fixed Bash function used when ioctl/TIOCSTI is not available
 
 2023-04-15  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.0.0 - major release which adds ability of HSTR to work
-    on operating systems and Linux kernels without ioctl/TIOCSTI support.
+  * Released v3.0.0 - Major release:
+    - Added ability to work on operating systems and Linux kernels without
+      ioctl/TIOCSTI support
 
 2022-12-11  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.6.0 - fix release (several memory leak and overflow fixes,
-    MacPorts and Debian documentation, Snap script fix, GitHub Actions workflow).
+  * Released v2.6.0 - Fix release:
+    - Several memory leak and overflow fixes
+    - MacPorts and Debian documentation
+    - Snap script fix
+    - GitHub Actions workflow
 
 2021-12-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.5.0 - minor fix release to fix Arch build.
+  * Released v2.5.0 - Minor fix release:
+    - Fixed Arch build
 
 2021-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.4.0 - ability to insert custom command to terminal prompt,
-    minor fixes.
+  * Released v2.4.0 - Minor release:
+    - Ability to insert custom command to terminal prompt
+    - Minor fixes
 
 2020-11-19  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.3.0 - zsh timestamp extended history parsing and SEGFAULT fixes.
+  * Released v2.3.0:
+    - Zsh timestamp extended history parsing
+    - SEGFAULT fixes
 
 2019-12-21  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.2.0 - toggle visibility/move help lines (Fabian Saldias),
-    zsh support fixes, several memory leaks fixed.
+  * Released v2.2.0:
+    - Toggle visibility/move help lines (Fabian Saldias)
+    - Zsh support fixes
+    - Several memory leaks fixed
 
 2019-12-08  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.1.0 - significant zsh support improvements and stabilization.
+  * Released v2.1.0:
+    - Significant zsh support improvements and stabilization
 
 2018-08-28  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v2.0.0 - Major release which resolves confusing hstr/hh ambiguity by choosing
-    hstr to be the only name used. hh becomes just a shell alias. Therefore this release
-    introduces backward incompatible changes: all HH_ starting environment variables were
-    changed to HSTR_, similarly configuration file names starting with .hh_ were renamed
-    to start with .hstr_, identifiers used in HSTR_CONFIG were changed e.g. favorites to
-    favorites-view.
-  * Please check man page for details and update your 1.x.x configuration.
-  * Ubuntu package name was changed - use: apt install hstr. Tarball name has been changed
-    as well to have hstr prefix - please update your scripts.
-  * Additional improvements: all memory leaks fixed, long commands handling improved (...),
-    bash autocomplete added.
+  * Released v2.0.0 - Major release with backward incompatible changes:
+    - Resolved confusing hstr/hh ambiguity - hstr is now the only name, hh is just
+      a shell alias
+    - All HH_ environment variables changed to HSTR_
+    - Configuration files .hh_* renamed to .hstr_*
+    - HSTR_CONFIG identifiers changed (e.g., favorites to favorites-view)
+    - Ubuntu package name changed to hstr (use: apt install hstr)
+    - Tarball name changed to hstr prefix
+    - All memory leaks fixed
+    - Long commands handling improved (...)
+    - Bash autocomplete added
+    - Please check man page for details and update your 1.x.x configuration
 
 2018-08-13  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.27.0 - Long lines support, QtCreator IDE migration, all build scripts
-    rewritten, new distros (my Debian PPA, snap, ...), CI, unit test framework and tests,
-    various fixes.
+  * Released v1.27.0:
+    - Long lines support
+    - QtCreator IDE migration
+    - All build scripts rewritten
+    - New distros (Debian PPA, snap, ...)
+    - CI support
+    - Unit test framework and tests
+    - Various fixes
 
 2018-05-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.25 - Community contributed fixes and improvements. Keyword search is default.
+  * Released v1.25:
+    - Community contributed fixes and improvements
+    - Keyword search is default
 
 2018-01-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.24 - Reproducible build and stabilization.
+  * Released v1.24:
+    - Reproducible build and stabilization
 
 2017-09-30  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.23 - WSL (Bash on Ubuntu on Windows 10) support
+  * Released v1.23:
+    - WSL (Bash on Ubuntu on Windows 10) support
 
 2017-01-21  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.22 - zsh history mgmt improvements (delete).
+  * Released v1.22:
+    - Zsh history management improvements (delete)
 
 2016-11-22  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.21 - Ubuntu Yakkety Yak release.
+  * Released v1.21:
+    - Ubuntu Yakkety Yak release
 
 2016-04-27  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.20 - Bottom prompt
-  * This release rewrite of screen rendering allowing to
-    choose prompt and help location - top or bottom. In
-    addition Ubuntu 16.04 LST is supported.
+  * Released v1.20 - Bottom prompt:
+    - Rewrite of screen rendering allowing to choose prompt and help location
+      (top or bottom)
+    - Ubuntu 16.04 LTS support
 
 2015-11-25  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.19 - Stabilization release
-  * This minor release brings fixes of regexp mode.
+  * Released v1.19 - Stabilization release:
+    - Fixes of regexp mode
 
 2015-11-23  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.18 - Blacklists, Debian and Gentoo
-  * This minor release bring blacklist configurable from
-    a file (commands that are ignored). It also improves
-    Debian and Gentoo distribution builders.
+  * Released v1.18 - Blacklists, Debian and Gentoo:
+    - Blacklist configurable from a file (commands that are ignored)
+    - Improved Debian and Gentoo distribution builders
 
 2015-05-09  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.17 - History Management and Color Profiles
-  * This release brings improvements and stabilization
-    of the history management along with terminal
-    background agnostic color profiles.
+  * Released v1.17 - History Management and Color Profiles:
+    - Improvements and stabilization of history management
+    - Terminal background agnostic color profiles
 
 2015-01-08  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.15 - First Item Autoselect and Vim Binding
-  * Minor release that brings first history item
-    autoselect on empty prompt selection, Vim style
-    history navigation binding and several bug fixes.
+  * Released v1.15 - First Item Autoselect and Vim Binding:
+    - First history item autoselect on empty prompt selection
+    - Vim style history navigation binding
+    - Several bug fixes
 
 2014-10-29  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.14 - Keyboard Search and Improved Highlighting
-  * New release brings keyboard based search i.e. matching
-    of history entries by occurrence of words in arbitrary
-    order.
-  * In addition highlighting of matching segments in history
-    entries has been improved.
+  * Released v1.14 - Keyboard Search and Improved Highlighting:
+    - Keyboard based search (matching of history entries by occurrence of words
+      in arbitrary order)
+    - Improved highlighting of matching segments in history entries
 
 2014-09-11  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.13 - Transparent terminal and Internationalization
-  * New release brings support for transparent terminals.
-  * Internationalization problems were finally solved - use
-    of Czech, German, Chinese, ... special characters w/
-    and w/o diacritics should be smooth.
+  * Released v1.13 - Transparent terminal and Internationalization:
+    - Support for transparent terminals
+    - Internationalization problems solved (Czech, German, Chinese, ... special
+      characters with and without diacritics)
 
 2014-05-05  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.12 - Regexp
-  * New release brings regexp based filtering of command
-    history. In addition it is possible to use HSTR in
-    non-interactive mode i.e. filtered output is written
-    to standard output. openSUSE became newly supported
-    distribution.
+  * Released v1.12 - Regexp:
+    - Regexp based filtering of command history
+    - Non-interactive mode support (filtered output written to standard output)
+    - openSUSE became newly supported distribution
 
 2014-04-14  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.10 - Favorites.
-  * Major release that brings favorites - favorite
-    commands can be bookmarked for later use and managed
-    in a brand new view.
+  * Released v1.10 - Favorites:
+    - Favorite commands can be bookmarked for later use
+    - Managed in a brand new view
 
 2014-03-16  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.3 - Radix Sort Stabilization
-  * A stabilization release that enables loading of huge
-    history files and makes internal radix sort
-    implementation more efficient.
+  * Released v1.3 - Radix Sort Stabilization:
+    - Enabled loading of huge history files
+    - More efficient internal radix sort implementation
 
 2014-01-25  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v1.0 - The First Stable Release.
+  * Released v1.0 - The First Stable Release
 
 2013-12-03  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v0.2 - Initial Release.
+  * Released v0.2 - Initial Release

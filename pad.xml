@@ -51,10 +51,10 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>HSTR</Program_Name>
-		<Program_Version>3.1.0</Program_Version>
-		<Program_Release_Month>4</Program_Release_Month>
-		<Program_Release_Day>18</Program_Release_Day>
-		<Program_Release_Year>2023</Program_Release_Year>
+		<Program_Version>3.2.0</Program_Version>
+		<Program_Release_Month>1</Program_Release_Month>
+		<Program_Release_Day>28</Program_Release_Day>
+		<Program_Release_Year>2026</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code>USD</Program_Cost_Other_Code>
 		<Program_Cost_Other />
@@ -69,9 +69,9 @@
 		<Program_Categories />
 		<Program_System_Requirements />
 		<File_Info>
-			<File_Size_Bytes>39472</File_Size_Bytes>
-			<File_Size_K>38.55</File_Size_K>
-			<File_Size_MB>0.04</File_Size_MB>
+			<File_Size_Bytes>63704</File_Size_Bytes>
+			<File_Size_K>63.71</File_Size_K>
+			<File_Size_MB>0.06</File_Size_MB>
 		</File_Info>
 		<Expire_Info>
 			<Has_Expire_Info>N</Has_Expire_Info>
@@ -97,9 +97,9 @@
 		<Application_URLs>
 			<Application_Info_URL>https://github.com/dvorka/hstr</Application_Info_URL>
 			<Application_Order_URL />
-			<Application_Screenshot_URL>http://mindforger.com/projects/images/hh-1.jpg</Application_Screenshot_URL>
+			<Application_Screenshot_URL>https://me.mindforger.com/projects/images/hh-1.jpg</Application_Screenshot_URL>
 			<Application_Icon_URL />
-			<Application_XML_File_URL>http://mindforger.com/project/hstr/pad-hstr.xml</Application_XML_File_URL>
+			<Application_XML_File_URL>https://me.mindforger.com/project/hstr/pad-hstr.xml</Application_XML_File_URL>
 		</Application_URLs>
 		<Download_URLs>
 			<Primary_Download_URL>https://github.com/dvorka/hstr/releases</Primary_Download_URL>

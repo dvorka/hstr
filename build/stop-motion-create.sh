@@ -20,7 +20,7 @@ do
 done`
 
 # delay: 100 > 75
-export CCC="convert -loop 0 -delay 75 ${FFF} hstr-v2.gif"
+export CCC="convert -loop 0 -delay 75 ${FFF} hstr-stop-motion.gif"
 
 #echo ${CCC};
 ${CCC}

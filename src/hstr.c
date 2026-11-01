@@ -141,7 +141,7 @@
 
 // semantic versioning: major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.2.0\" (2026-01-26T08:09:00)"
+        "hstr version \"3.3.0\" (2026-10-31T07:57:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -1056,12 +1056,20 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     return selectionCount;
 }
 
+// history rows are indented by one column to align with the prompt, except
+// when HSTR_PROMPT is set to empty string - rows then start at column 0
+const char* get_selection_row_indent(void)
+{
+    char* prompt = getenv(HSTR_ENV_VAR_PROMPT);
+    return (prompt && !strlen(prompt))?"":" ";
+}
+
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
-    int size = snprintf(screenLine, width, " %s", buffer);
+    int size = snprintf(screenLine, width, "%s%s", get_selection_row_indent(), buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
@@ -1149,10 +1157,16 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     }
     char buffer[CMDLINE_LNG];
     hstr_strelide(buffer, text, width>2?width-2:0);
+    // without colors the indent is replaced by '>' marker (if there is an indent)
+    const char* indent = get_selection_row_indent();
+    const char* prefix = terminal_has_colors()?indent:(strlen(indent)?">":"");
+    // pad the row to the screen width so that the whole row is highlighted
+    int padding = getmaxx(stdscr)-strlen(prefix)-1;
+    if(padding < 0) padding = 0;
     char screenLine[CMDLINE_LNG];
     snprintf(screenLine, getmaxx(stdscr)+1, "%s%-*.*s ",
-            (terminal_has_colors()?" ":">"),
-            getmaxx(stdscr)-2, getmaxx(stdscr)-2, buffer);
+            prefix,
+            padding, padding, buffer);
     mvprintw(y, 0, "%s", screenLine);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
@@ -1214,8 +1228,6 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
             } else {
                 print_selection_row(hstr->selection[i], y, width, pattern);
             }
-        } else {
-            mvprintw(y, 0, " ");
         }
 
         if(hstr->promptBottom) {
@@ -1744,17 +1756,19 @@ void hstr_assemble_cmdline_pattern(int argc, char* argv[], int startIndex)
 {
     if(argc>0) {
         int i;
+        size_t cmdlineLen = strlen(hstr->cmdline);
         for(i=startIndex; i<argc; i++) {
-            if((strlen(hstr->cmdline)+strlen(argv[i])*2)>CMDLINE_LNG) break;
-            if(strstr(argv[i], " ")) {
-                strcat(hstr->cmdline, "\"");
-            }
-            strcat(hstr->cmdline, argv[i]);
-            if(strstr(argv[i], " ")) {
-                strcat(hstr->cmdline, "\"");
-            }
-            if((i+1<argc)) {
-                strcat(hstr->cmdline, " ");
+            size_t argLen = strlen(argv[i]);
+            // account for argv[i] + potential space + null terminator
+            size_t spaceNeeded = (i+1<argc) ? 1 : 0;
+            if(cmdlineLen + argLen + spaceNeeded + 1 > CMDLINE_LNG) break;
+
+            strcpy(hstr->cmdline + cmdlineLen, argv[i]);
+            cmdlineLen += argLen;
+
+            if(i+1<argc) {
+                hstr->cmdline[cmdlineLen++] = ' ';
+                hstr->cmdline[cmdlineLen] = '\0';
             }
         }
     }

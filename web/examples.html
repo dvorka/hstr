@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Examples - HSTR</title>
+    <meta name="description" content="Real-world examples and use cases for HSTR.">
+    <link rel="icon" href="./hstr-icon.svg" type="image/svg+xml">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ff00;
+            --secondary: #33ff33;
+            --accent: #66ff66;
+            --bg: #000000;
+            --card-bg: #111111;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-bracket {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .page-header {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        .examples-section {
+            padding: 3rem 0;
+        }
+
+        .example-card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .example-card h2 {
+            color: white;
+            margin-bottom: 1rem;
+            font-size: 1.75rem;
+        }
+
+        .example-card h3 {
+            color: white;
+            margin-top: 1.5rem;
+            margin-bottom: 1rem;
+            font-size: 1.25rem;
+        }
+
+        .example-card p {
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .example-card pre {
+            background: #000;
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1rem 0;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .example-card code {
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+        }
+
+        .demo-image {
+            width: 100%;
+            max-width: 800px;
+            margin: 2rem auto;
+            padding: 10px;
+            display: block;
+            border-radius: 0.5rem;
+            border: 2px solid rgba(0, 255, 0, 0.3);
+        }
+
+        .tip-box {
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-bracket">[</span>HSTR<span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#installation">Install</a></li>
+                <li><a href="documentation.html">Docs</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="https://github.com/dvorka/hstr">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Examples & Use Cases</h1>
+            <p>See HSTR in action with real-world scenarios</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="examples-section">
+
+            <div class="example-card">
+                <h2>Visual Demo</h2>
+                <p>Watch HSTR in action - see how easy it is to search and navigate your command history:</p>
+                <img src="hstr-stop-motion.gif" alt="HSTR Demo" class="demo-image">
+                <div class="tip-box">
+                    <p><strong>Tip:</strong> Press Ctrl-r to invoke HSTR anytime from your command line!</p>
+                </div>
+            </div>
+
+            <div class="example-card">
+                <h2>Finding Docker Commands</h2>
+                <p>If you work with Docker, you know how complex commands can get. HSTR makes it easy to find and reuse them.</p>
+
+                <h3>Scenario</h3>
+                <p>You need to find that Docker run command you used last week for your development environment.</p>
+
+                <h3>Solution</h3>
+                <pre><code># Press Ctrl-r and type: docker run
+# HSTR will show all your docker run commands:
+
+docker run -it --rm -v $(pwd):/app -w /app node:18 npm install
+docker run -d -p 5432:5432 -e POSTGRES_PASSWORD=dev postgres
+docker run --name redis -d -p 6379:6379 redis:alpine</code></pre>
+
+                <h3>Even Better: Use Tags</h3>
+                <pre><code>docker run -it --rm -v $(pwd):/app node:18 npm install # NODE
+docker run -d -p 5432:5432 postgres # PG
+docker run --name redis -d -p 6379:6379 redis # REDIS
+
+# Now just type "NODE" or "PG" to find them instantly!</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>SSH Tunnel Management</h2>
+                <p>SSH tunnels are powerful but the commands are hard to remember.</p>
+
+                <h3>Problem</h3>
+                <p>You have several SSH tunnels to different servers but can never remember the exact ports and parameters.</p>
+
+                <h3>HSTR Solution</h3>
+                <pre><code># Tag your SSH tunnels for easy finding:
+ssh -L 8080:localhost:3000 user@dev-server.com # SSH-DEV
+ssh -L 3306:localhost:3306 user@db-server.com # SSH-DB
+ssh -L 9200:localhost:9200 user@elastic.com # SSH-ELASTIC
+
+# Press Ctrl-r, type "SSH-" to see all your tunnels
+# Or just type "db" to find database related tunnels</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>Git Command Archaeology</h2>
+                <p>Find that perfect git command you used months ago.</p>
+
+                <h3>Use Case</h3>
+                <p>You need to find a specific git log format you created, or a complex git rebase command.</p>
+
+                <h3>With HSTR</h3>
+                <pre><code># Press Ctrl-r and search: git log
+
+# HSTR shows all variations you've used:
+git log --graph --oneline --all --decorate
+git log --pretty=format:'%h %s' --since='2 weeks ago'
+git log -p -- path/to/file.js
+git log --author="yourname" --grep="bug fix"</code></pre>
+
+                <div class="tip-box">
+                    <p><strong>Tip:</strong> Add these complex commands to favorites with Ctrl-f so you can access them even faster!</p>
+                </div>
+            </div>
+
+            <div class="example-card">
+                <h2>Database Query Templates</h2>
+                <p>Reuse your complex database queries without maintaining a separate file.</p>
+
+                <h3>Workflow</h3>
+                <pre><code># Run your queries and tag them:
+psql -h localhost -U postgres -d mydb -c "SELECT * FROM users WHERE created_at > NOW() - INTERVAL '7 days'" # RECENT-USERS
+
+mysql -u root -p mydb -e "SELECT table_name, table_rows FROM information_schema.tables WHERE table_schema = 'mydb'" # TABLE-STATS
+
+# Later, just press Ctrl-r and type the tag!</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>Network Debugging Commands</h2>
+                <p>Network troubleshooting involves many specialized commands.</p>
+
+                <h3>Common Network Commands</h3>
+                <pre><code># Check network connections
+netstat -tuln | grep LISTEN
+
+# DNS lookup with details
+dig example.com +trace
+
+# Test HTTP endpoint
+curl -I -X GET https://api.example.com/health
+
+# Check route to host
+traceroute example.com
+
+# All these get saved in your HSTR history for quick reuse!</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>System Administration Tasks</h2>
+                <p>System admin commands are often too complex to remember but too important to forget.</p>
+
+                <h3>Examples</h3>
+                <pre><code># Find large files
+find / -type f -size +100M -exec ls -lh {} \; 2>/dev/null # LARGE-FILES
+
+# Check disk usage by directory
+du -h --max-depth=1 /var | sort -hr # DISK-USAGE
+
+# Monitor system resources
+watch -n 1 'ps aux --sort=-%mem | head -20' # TOP-MEMORY
+
+# List open files by process
+lsof -p $(pgrep -f "process-name") # OPEN-FILES</code></pre>
+
+                <div class="tip-box">
+                    <p><strong>Best Practice:</strong> Tag system commands with clear identifiers. When an issue arises, you'll find the right diagnostic command immediately.</p>
+                </div>
+            </div>
+
+            <div class="example-card">
+                <h2>Build & Deploy Commands</h2>
+                <p>Complex build pipelines become simple with HSTR.</p>
+
+                <h3>CI/CD Workflow</h3>
+                <pre><code># Build commands with different options
+npm run build -- --production --verbose # BUILD-PROD
+npm run build:staging && npm run deploy:staging # DEPLOY-STAGE
+docker build -t myapp:latest . && docker push myapp:latest # DOCKER-BUILD
+
+# Test commands
+npm test -- --coverage --verbose # TEST-COVERAGE
+npm run test:e2e -- --headed # TEST-E2E
+
+# Just type "BUILD", "DEPLOY", or "TEST" to filter!</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>Data Processing Pipelines</h2>
+                <p>Complex data transformations are easy to retrieve with HSTR.</p>
+
+                <h3>Example Pipeline</h3>
+                <pre><code># CSV processing
+cat data.csv | cut -d',' -f1,3 | sort | uniq -c # CSV-UNIQUE
+
+# JSON processing
+cat data.json | jq '.[] | select(.status=="active")' # JQ-ACTIVE
+
+# Log analysis
+grep ERROR app.log | awk '{print $1, $2, $NF}' | sort | uniq -c | sort -rn # ERROR-STATS
+
+# All saved and searchable in HSTR!</code></pre>
+            </div>
+
+            <div class="example-card">
+                <h2>Productivity Tips</h2>
+
+                <h3>1. Create a Personal Command Library</h3>
+                <p>Use favorites to build your own command library:</p>
+                <pre><code># Add frequently used commands to favorites (Ctrl-f)
+# Organize them with tags
+# Access instantly when needed</code></pre>
+
+                <h3>2. Clean Your History</h3>
+                <p>Keep your history clean and relevant:</p>
+                <pre><code># Press Ctrl-r to open HSTR
+# Navigate to unwanted commands
+# Press DEL to remove them
+# Your history stays focused and useful</code></pre>
+
+                <h3>3. Different Views for Different Tasks</h3>
+                <p>Switch views based on what you need:</p>
+                <ul style="color: #cbd5e1; margin-left: 2rem;">
+                    <li><strong>Ranked View (default):</strong> Shows most used commands first</li>
+                    <li><strong>Raw History View (Ctrl-/):</strong> Chronological order</li>
+                    <li><strong>Favorites View (Ctrl-/):</strong> Only bookmarked commands</li>
+                </ul>
+
+                <h3>4. Search Modes</h3>
+                <p>Use different search modes for different scenarios:</p>
+                <ul style="color: #cbd5e1; margin-left: 2rem;">
+                    <li><strong>Keywords (default):</strong> Type multiple words in any order</li>
+                    <li><strong>Regex:</strong> For complex pattern matching</li>
+                    <li><strong>Substring:</strong> For exact phrase matching</li>
+                </ul>
+            </div>
+
+        </div>
+    </div>
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/dvorka/hstr">GitHub</a>
+                    <a href="https://github.com/dvorka/hstr/issues">Issues</a>
+                    <a href="https://github.com/dvorka/hstr/releases">Releases</a>
+                    <a href="documentation.html">Documentation</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="contributing.html">Contributing</a>
+                    <a href="https://pkgs.org/search/?q=hstr">Packages</a>
+                    <a href="https://repology.org/project/hstr/versions">Package Status</a>
+                </div>
+                <p style="margin-top: 1.5rem;">
+                    HSTR created with passion for <a href="https://github.com/dvorka" style="color: var(--primary);">my</a> personal pleasure.<br/>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

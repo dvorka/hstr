@@ -22,6 +22,11 @@ This document provides instructions to the copilot AI assistants and agents.
 - Application backend is written in C.
 - Always start comments you generate with lowercase letter.
 
+## Git instructions
+
+- NEVER commit, amend, rebase, merge or push - the maintainer does all Git commits and pushes.
+- Leave changes uncommitted in the working tree (staging is fine) for the maintainer to review.
+
 ## Security instructions
 
 - ALWAYS follow security best practices.
@@ -41,6 +46,7 @@ This document provides instructions to the copilot AI assistants and agents.
 ## Test instructions
 
 - Test code is stored in the `tests/src` directory.
+- Use `valgrind` to check for memory leaks and memory corruption issues after code changes.
 - Tests can be run with `cd build && make test`.
 - Write backend tests for all bugs being fixed.
 - Use https://github.com/ThrowTheSwitch/Unity framework for testing.
@@ -54,4 +60,4 @@ This document provides instructions to the copilot AI assistants and agents.
 
 ## Documentation instructions
 
-- ALWAY document new features in the man page located in the `man/` directory.
+- ALWAYS document new features in the man page located in the `man/` directory.

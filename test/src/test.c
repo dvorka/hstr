@@ -381,3 +381,86 @@ void test_parse_history_line()
     TEST_ASSERT_EQUAL_STRING(": 1592444398:0:wq", parse_history_line(": 1592444398:0:wq"));
     TEST_ASSERT_EQUAL_STRING(":1592444398:0;:vspman epoll_ctl", parse_history_line(":1592444398:0;:vspman epoll_ctl"));
 }
+
+void test_assemble_cmdline_pattern(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    #define CMDLINE_LNG 8192
+    #define TEST_CMDLINE(expected, argc, ...) do { \
+        char cmdline[CMDLINE_LNG] = {0}; \
+        char* argv[] = {__VA_ARGS__}; \
+        int i; \
+        size_t cmdlineLen = strlen(cmdline); \
+        for(i=2; i<argc; i++) { \
+            size_t argLen = strlen(argv[i]); \
+            size_t spaceNeeded = (i+1<argc) ? 1 : 0; \
+            if(cmdlineLen + argLen + spaceNeeded + 1 > CMDLINE_LNG) break; \
+            strcpy(cmdline + cmdlineLen, argv[i]); \
+            cmdlineLen += argLen; \
+            if(i+1<argc) { \
+                cmdline[cmdlineLen++] = ' '; \
+                cmdline[cmdlineLen] = '\0'; \
+            } \
+        } \
+        printf("  Result: '%s'\n", cmdline); \
+        TEST_ASSERT_EQUAL_STRING(expected, cmdline); \
+    } while(0)
+
+    // WHEN - THEN
+    printf("Test 1: Single arg no spaces\n");
+    TEST_CMDLINE("test", 3, "hstr", "--", "test");
+
+    printf("Test 2: Single arg WITH spaces - NO QUOTES!\n");
+    TEST_CMDLINE("a b", 3, "hstr", "--", "a b");
+
+    printf("Test 3: Multiple args no spaces\n");
+    TEST_CMDLINE("hello world", 4, "hstr", "--", "hello", "world");
+
+    printf("Test 4: Multiple args with spaces\n");
+    TEST_CMDLINE("hello world test case", 4, "hstr", "--", "hello world", "test case");
+
+    printf("Test 5: Mixed args\n");
+    TEST_CMDLINE("ls -la my file.txt", 5, "hstr", "--", "ls", "-la", "my file.txt");
+
+    printf("Test 6: Multiple consecutive spaces\n");
+    TEST_CMDLINE("hello  world  test", 3, "hstr", "--", "hello  world  test");
+
+    printf("Test 7: Empty arg\n");
+    TEST_CMDLINE("", 3, "hstr", "--", "");
+
+    printf("Test 8: Special chars\n");
+    TEST_CMDLINE("grep 'test pattern' file.txt", 3, "hstr", "--", "grep 'test pattern' file.txt");
+
+    printf("Test 9: Tab character\n");
+    TEST_CMDLINE("test\ttab", 3, "hstr", "--", "test\ttab");
+
+    printf("Test 10: UTF-8\n");
+    TEST_CMDLINE("café ☕", 3, "hstr", "--", "café ☕");
+
+    printf("Test 11: No args\n");
+    TEST_CMDLINE("", 2, "hstr", "--");
+
+    printf("Test 12: Length calculation for 'aaaaa bbbbb ccccc ddddd eeeee'\n");
+    char result[CMDLINE_LNG] = {0};
+    char* argv12[] = {"hstr", "--", "aaaaa", "bbbbb", "ccccc", "ddddd", "eeeee"};
+    int i;
+    size_t cmdlineLen = 0;
+    for(i=2; i<7; i++) {
+        size_t argLen = strlen(argv12[i]);
+        size_t spaceNeeded = (i+1<7) ? 1 : 0;
+        if(cmdlineLen + argLen + spaceNeeded + 1 > CMDLINE_LNG) break;
+        strcpy(result + cmdlineLen, argv12[i]);
+        cmdlineLen += argLen;
+        if(i+1<7) {
+            result[cmdlineLen++] = ' ';
+            result[cmdlineLen] = '\0';
+        }
+    }
+    printf("  Result: '%s' (len=%zu)\n", result, strlen(result));
+    TEST_ASSERT_EQUAL_STRING("aaaaa bbbbb ccccc ddddd eeeee", result);
+    TEST_ASSERT_EQUAL_INT(29, strlen(result));
+
+    printf("DONE\n");
+}

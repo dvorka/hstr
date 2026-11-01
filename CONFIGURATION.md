@@ -1,5 +1,5 @@
 # Configuration
-Get most of HSTR by configuring it with:
+Get the most out of HSTR by configuring it with:
 
 ```bash
 # bash
@@ -147,7 +147,7 @@ To show the prompt at the bottom of the screen (instead at the top) use:
 export HSTR_CONFIG=prompt-bottom
 ```
 
-To show the basic help and history help labels on the opposite site (instead of next to the prompt) use:
+To show the basic help and history help labels on the opposite side (instead of next to the prompt) use:
 
 ```bash
 export HSTR_CONFIG=help-on-opposite-side
@@ -213,8 +213,8 @@ export HSTR_CONFIG=duplicates
 ```
 
 ### Static favorites
-Last selected favorite command is put the head of favorite commands list
-by default. If you want to disable this behavior and make favorite
+Last selected favorite command is put at the head of the favorite commands list
+by default. If you want to disable this behavior and make the favorite
 commands list static, then use the following configuration:
 
 ```bash
@@ -238,7 +238,7 @@ to `HSTR_CONFIG` environment variable:
 export HSTR_CONFIG=blacklist
 ```
 
-Commands to be stored in `~/.hstr_blacklist` file with trailing empty line. For instance:
+Commands are to be stored in `~/.hstr_blacklist` file with a trailing empty line. For instance:
 
 ```
 cd
@@ -293,7 +293,7 @@ export HSTR_CONFIG=keywords-matching,hicolor,debug
 ```
 
 ## Bash History Settings
-Use the following `bash` settings to get most out of HSTR.
+Use the following `bash` settings to get the most out of HSTR.
 
 Increase the size of history maintained by `bash` - variables defined below 
 increase the number of history items and history file size (default value is 500):
@@ -331,4 +331,4 @@ If you use `zsh`, set `HISTFILE` environment variable in `~/.zshrc`:
 export HISTFILE=~/.zsh_history
 ```
 
-Please check your system configuration - history might be store in `~/.zsh_history`, `~/.zhistory` or other file.
+Please check your system configuration - history might be stored in `~/.zsh_history`, `~/.zhistory` or other file.

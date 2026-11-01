@@ -3,7 +3,6 @@ Tips:
 
 * [Hiding Commands from History](#hiding-commands-from-history)
 * [Commands Tagging](#commands-tagging)
-* [Standard Input Processing](#standard-input-processing)
 * [Favorite Commands](#favorite-commands)
 
 
@@ -65,41 +64,6 @@ git log --graph --pretty=format:'%Cred%h%Creset -%C(yellow)%d%Creset %s %Cgreen(
 
 Tags work because HSTR searches the entire command line, including comments. Choose short, memorable tags that are easy to type.
 
-
-## Standard Input Processing
-
-HSTR can process input from pipes, allowing you to interactively search and select from any list of items. This is useful for filtering output from various commands:
-
-```bash
-# Search through Git commit messages
-git log --pretty=format:%s | hstr
-
-# Find and select files
-find . -type f | hstr
-
-# Filter running processes
-ps aux | hstr
-
-# Search through log files
-cat /var/log/nginx/access.log | hstr
-
-# Filter grep results
-grep -r "phrase" . | hstr
-
-# Browse CSV data
-cat data.csv | hstr
-
-# Filter network connections
-netstat -tulpn | hstr
-
-# Search Kubernetes logs
-kubectl logs mypod | hstr
-
-# Browse command history with custom format
-history | cut -c 8- | hstr
-```
-
-When reading from standard input, HSTR provides the same interactive search capabilities as with command history, making it a versatile filtering tool.
 
 ## Favorite Commands
 

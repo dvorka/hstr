@@ -1,0 +1,468 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contributing - HSTR</title>
+    <meta name="description" content="Contribute to HSTR - bug reports, feature requests, and code contributions welcome.">
+    <link rel="icon" href="./hstr-icon.svg" type="image/svg+xml">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap');
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --primary: #00ff00;
+            --secondary: #33ff33;
+            --accent: #66ff66;
+            --bg: #000000;
+            --card-bg: #111111;
+        }
+
+        body {
+            font-family: 'Space Grotesk', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: var(--bg);
+            color: #e2e8f0;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1280px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        nav {
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(0, 255, 0, 0.2);
+            position: sticky;
+            top: 0;
+            z-index: 1000;
+        }
+
+        nav .container {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--primary);
+            text-decoration: none;
+            font-family: 'JetBrains Mono', monospace;
+        }
+
+        .logo-bracket {
+            color: var(--primary);
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2.5rem;
+            list-style: none;
+            align-items: center;
+        }
+
+        .nav-links a {
+            color: #cbd5e1;
+            text-decoration: none;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: white;
+        }
+
+        .page-header {
+            padding: 4rem 0 2rem;
+            text-align: center;
+        }
+
+        .page-header h1 {
+            font-size: 3rem;
+            color: white;
+            margin-bottom: 1rem;
+        }
+
+        .page-header p {
+            color: #cbd5e1;
+            font-size: 1.2rem;
+        }
+
+        .content-section {
+            max-width: 900px;
+            margin: 0 auto;
+            padding: 3rem 0;
+        }
+
+        .content-section h2 {
+            color: white;
+            margin-top: 3rem;
+            margin-bottom: 1.5rem;
+            font-size: 2rem;
+        }
+
+        .content-section h3 {
+            color: white;
+            margin-top: 2rem;
+            margin-bottom: 1rem;
+            font-size: 1.5rem;
+        }
+
+        .content-section p {
+            color: #cbd5e1;
+            margin-bottom: 1rem;
+            line-height: 1.8;
+        }
+
+        .content-section ul {
+            color: #cbd5e1;
+            margin-left: 2rem;
+            margin-bottom: 1rem;
+        }
+
+        .content-section li {
+            margin-bottom: 0.5rem;
+        }
+
+        .content-section code {
+            background: var(--card-bg);
+            padding: 0.2rem 0.5rem;
+            border-radius: 0.25rem;
+            color: var(--accent);
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 0.9rem;
+            border: 1px solid rgba(0, 255, 0, 0.1);
+        }
+
+        .content-section pre {
+            background: var(--card-bg);
+            padding: 1.5rem;
+            border-radius: 0.5rem;
+            overflow-x: auto;
+            margin: 1.5rem 0;
+            border: 1px solid rgba(0, 255, 0, 0.2);
+        }
+
+        .content-section pre code {
+            background: transparent;
+            padding: 0;
+            border: none;
+            display: block;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid rgba(0, 255, 0, 0.2);
+            border-radius: 0.75rem;
+            padding: 2rem;
+            margin: 2rem 0;
+        }
+
+        .card h3 {
+            color: white;
+            margin-top: 0;
+        }
+
+        .highlight-box {
+            background: rgba(0, 255, 0, 0.05);
+            border-left: 4px solid var(--primary);
+            padding: 1rem 1.5rem;
+            margin: 1.5rem 0;
+            border-radius: 0.25rem;
+        }
+
+        /* Footer */
+        footer {
+            padding: 3rem 0;
+            border-top: 1px solid rgba(0, 255, 0, 0.2);
+            text-align: center;
+        }
+
+        .footer-content {
+            color: #94a3b8;
+        }
+
+        .footer-links {
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+            margin-top: 1.5rem;
+            flex-wrap: wrap;
+        }
+
+        .footer-links a {
+            color: var(--primary);
+            text-decoration: none;
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--accent);
+        }
+
+        @media (max-width: 768px) {
+            .page-header h1 {
+                font-size: 2rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <nav>
+        <div class="container">
+            <a href="index.html" class="logo">
+                <span class="logo-bracket">[</span>HSTR<span class="logo-bracket">]</span>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html#features">Features</a></li>
+                <li><a href="index.html#installation">Install</a></li>
+                <li><a href="examples.html">Examples</a></li>
+                <li><a href="documentation.html">Docs</a></li>
+                <li><a href="https://github.com/dvorka/hstr">GitHub</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="page-header">
+        <div class="container">
+            <h1>Contributing to HSTR</h1>
+            <p>Help make HSTR better for everyone</p>
+        </div>
+    </div>
+
+    <div class="container">
+        <div class="content-section">
+
+            <p style="font-size: 1.2rem;">
+                HSTR is an open-source project and contributions from the community are welcome!
+                Whether you're fixing bugs, adding features, improving documentation, or helping
+                other users, your contribution matters.
+            </p>
+
+            <h2>Report Bugs</h2>
+            <p>
+                Found a bug? Please report it on GitHub Issues. When reporting bugs, please include:
+            </p>
+            <ul>
+                <li>Your operating system and version</li>
+                <li>HSTR version (<code>hstr --version</code>)</li>
+                <li>Shell type and version (bash/zsh)</li>
+                <li>Steps to reproduce the issue</li>
+                <li>Expected vs actual behavior</li>
+                <li>Any relevant configuration (<code>echo $HSTR_CONFIG</code>)</li>
+            </ul>
+
+            <div class="card">
+                <h3>Bug Report Template</h3>
+                <pre><code>**System Information:**
+- OS: Ubuntu 22.04
+- HSTR Version: 3.x
+- Shell: bash 5.1.16
+
+**Description:**
+[Clear description of the bug]
+
+**Steps to Reproduce:**
+1. Run hstr
+2. Type search query
+3. ...
+
+**Expected Behavior:**
+[What should happen]
+
+**Actual Behavior:**
+[What actually happens]
+
+**Configuration:**
+HSTR_CONFIG=hicolor,prompt-bottom</code></pre>
+            </div>
+
+            <h2>Feature Requests</h2>
+            <p>
+                Have an idea for a new feature? Open a GitHub Issue with the "enhancement" label.
+                Please describe:
+            </p>
+            <ul>
+                <li>The problem you're trying to solve</li>
+                <li>Your proposed solution</li>
+                <li>Alternative solutions you've considered</li>
+                <li>Any examples from other tools</li>
+            </ul>
+
+            <h2>Code Contributions</h2>
+
+            <h3>Setting Up Development Environment</h3>
+            <pre><code># Clone the repository
+git clone https://github.com/dvorka/hstr.git
+cd hstr
+
+# Install build dependencies (Ubuntu/Debian)
+sudo apt install automake gcc make libncursesw5-dev libreadline-dev
+
+# Build from source
+cd build/tarball
+./tarball-automake.sh
+cd ../..
+./configure && make
+
+# Run HSTR
+./hstr</code></pre>
+
+            <h3>Making Changes</h3>
+            <ol style="color: #cbd5e1; margin-left: 2rem;">
+                <li>Fork the repository on GitHub</li>
+                <li>Create a new branch for your feature or bugfix</li>
+                <li>Make your changes following the coding style</li>
+                <li>Test your changes thoroughly</li>
+                <li>Commit with clear, descriptive messages</li>
+                <li>Push to your fork</li>
+                <li>Create a Pull Request</li>
+            </ol>
+
+            <div class="highlight-box">
+                <p><strong>Coding Guidelines:</strong></p>
+                <ul>
+                    <li>Follow existing code style and conventions</li>
+                    <li>Write clean, readable code with appropriate comments</li>
+                    <li>Handle errors and edge cases properly</li>
+                    <li>Avoid memory leaks and buffer overflows</li>
+                    <li>Test with both bash and zsh if shell-related</li>
+                </ul>
+            </div>
+
+            <h3>Pull Request Process</h3>
+            <pre><code># Create a feature branch
+git checkout -b feature/my-awesome-feature
+
+# Make your changes
+# ... edit files ...
+
+# Commit your changes
+git add .
+git commit -m "Add awesome feature: description of changes"
+
+# Push to your fork
+git push origin feature/my-awesome-feature
+
+# Open a Pull Request on GitHub</code></pre>
+
+            <h2>Documentation</h2>
+            <p>
+                Documentation improvements are always welcome! You can help by:
+            </p>
+            <ul>
+                <li>Fixing typos or clarifying existing docs</li>
+                <li>Adding examples and use cases</li>
+                <li>Improving the man page (<code>man/hstr.1</code>)</li>
+                <li>Updating installation instructions</li>
+                <li>Translating documentation</li>
+            </ul>
+
+            <h2>Testing</h2>
+            <p>
+                Help ensure HSTR works correctly by:
+            </p>
+            <ul>
+                <li>Testing on different platforms and shells</li>
+                <li>Running with different configurations</li>
+                <li>Checking memory usage with valgrind</li>
+                <li>Verifying edge cases and error handling</li>
+            </ul>
+
+            <pre><code># Test for memory leaks
+valgrind --leak-check=full ./hstr
+
+# Test with different configs
+export HSTR_CONFIG=hicolor
+./hstr
+
+# Test with both bash and zsh
+bash -c "source ~/.bashrc && hstr"
+zsh -c "source ~/.zshrc && hstr"</code></pre>
+
+            <h2>Community Support</h2>
+            <p>
+                You can contribute without writing code by:
+            </p>
+            <ul>
+                <li>Answering questions in GitHub Issues</li>
+                <li>Helping other users troubleshoot problems</li>
+                <li>Sharing your HSTR setup and tips</li>
+                <li>Writing blog posts or tutorials</li>
+                <li>Spreading the word about HSTR</li>
+            </ul>
+
+            <h2>Good First Issues</h2>
+            <p>
+                New to the project? Look for issues labeled "good first issue" on GitHub.
+                These are beginner-friendly tasks that will help you get familiar with the codebase.
+            </p>
+
+            <h2>Code of Conduct</h2>
+            <p>
+                When contributing to HSTR, please:
+            </p>
+            <ul>
+                <li>Be respectful and inclusive</li>
+                <li>Welcome newcomers and help them learn</li>
+                <li>Focus on constructive feedback</li>
+                <li>Assume good intentions</li>
+                <li>Keep discussions professional and on-topic</li>
+            </ul>
+
+            <h2>Get in Touch</h2>
+            <div class="card">
+                <h3>Project Links</h3>
+                <ul>
+                    <li><strong>GitHub:</strong> <a href="https://github.com/dvorka/hstr" style="color: var(--primary);">github.com/dvorka/hstr</a></li>
+                    <li><strong>Issues:</strong> <a href="https://github.com/dvorka/hstr/issues" style="color: var(--primary);">Report bugs & request features</a></li>
+                    <li><strong>Pull Requests:</strong> <a href="https://github.com/dvorka/hstr/pulls" style="color: var(--primary);">Submit code contributions</a></li>
+                    <li><strong>Releases:</strong> <a href="https://github.com/dvorka/hstr/releases" style="color: var(--primary);">Download stable versions</a></li>
+                </ul>
+            </div>
+
+            <div class="highlight-box" style="margin-top: 3rem;">
+                <p style="font-size: 1.1rem;">
+                    <strong>Thank you for your interest in contributing to HSTR!</strong><br>
+                    Every contribution, no matter how small, helps make HSTR better for everyone.
+                </p>
+            </div>
+
+        </div>
+    </div>
+
+
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-links">
+                    <a href="https://github.com/dvorka/hstr">GitHub</a>
+                    <a href="https://github.com/dvorka/hstr/issues">Issues</a>
+                    <a href="https://github.com/dvorka/hstr/releases">Releases</a>
+                    <a href="documentation.html">Documentation</a>
+                    <a href="examples.html">Examples</a>
+                    <a href="contributing.html">Contributing</a>
+                    <a href="https://pkgs.org/search/?q=hstr">Packages</a>
+                    <a href="https://repology.org/project/hstr/versions">Package Status</a>
+                </div>
+                <p style="margin-top: 1.5rem;">
+                    HSTR created with passion for <a href="https://github.com/dvorka" style="color: var(--primary);">my</a> personal pleasure.<br/>
+                </p>
+            </div>
+        </div>
+    </footer>
+</body>
+</html>

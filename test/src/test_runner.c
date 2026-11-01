@@ -52,6 +52,7 @@ extern void test_help_long(void);
 extern void test_help_short(void);
 extern void test_string_elide();
 extern void test_parse_history_line();
+extern void test_assemble_cmdline_pattern(void);
 
 
 /*=======Suite Setup=====*/
@@ -97,6 +98,7 @@ int main(void)
   RUN_TEST(test_help_short, 292);
   RUN_TEST(test_string_elide, 308);
   RUN_TEST(test_parse_history_line, 340);
+  RUN_TEST(test_assemble_cmdline_pattern, 385);
 
   return suite_teardown(UnityEnd());
 }
