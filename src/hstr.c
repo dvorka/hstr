@@ -1029,9 +1029,10 @@ void print_selection_row(char* text, int y, int width, char* pattern)
 {
     char screenLine[CMDLINE_LNG];
     char buffer[CMDLINE_LNG];
-    hstr_strelide(buffer, sizeof(buffer), text, width>2?width-2:0);
-    // elided text fits the screen - the line is NOT truncated by bytes (it would split characters)
-    int size = snprintf(screenLine, sizeof(screenLine), "%s%s", get_selection_row_indent(), buffer);
+    const char* indent = get_selection_row_indent();
+    // indent bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
+    hstr_strelide(buffer, sizeof(buffer)-strlen(indent), text, width>2?width-2:0);
+    int size = snprintf(screenLine, sizeof(screenLine), "%s%s", indent, buffer);
     if(size < 0) screenLine[0]=0;
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
@@ -1117,11 +1118,12 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     } else {
         color_attr_on(A_REVERSE);
     }
-    char buffer[CMDLINE_LNG];
-    hstr_strelide(buffer, sizeof(buffer), text, width>2?width-2:0);
     // without colors the indent is replaced by '>' marker (if there is an indent)
     const char* indent = get_selection_row_indent();
     const char* prefix = terminal_has_colors()?indent:(strlen(indent)?">":"");
+    char buffer[CMDLINE_LNG];
+    // prefix bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
+    hstr_strelide(buffer, sizeof(buffer)-strlen(prefix), text, width>2?width-2:0);
     // pad the row to the screen width (in columns) so that the whole row is highlighted
     char screenLine[CMDLINE_LNG];
     int length = snprintf(screenLine, sizeof(screenLine), "%s%s", prefix, buffer);

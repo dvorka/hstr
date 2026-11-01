@@ -130,11 +130,11 @@ int main(void)
   RUN_TEST(test_history_file_name, 823);
   RUN_TEST(test_string_width, 907);
   RUN_TEST(test_string_elide_multibyte, 945);
-  RUN_TEST(test_chop, 1003);
-  RUN_TEST(test_history_line_equals, 1041);
-  RUN_TEST(test_remove_from_system_history, 1072);
-  RUN_TEST(test_parse_history_line, 1110);
-  RUN_TEST(test_assemble_cmdline_pattern, 1130);
+  RUN_TEST(test_chop, 1008);
+  RUN_TEST(test_history_line_equals, 1046);
+  RUN_TEST(test_remove_from_system_history, 1077);
+  RUN_TEST(test_parse_history_line, 1115);
+  RUN_TEST(test_assemble_cmdline_pattern, 1135);
 
   return suite_teardown(UnityEnd());
 }

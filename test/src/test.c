@@ -991,6 +991,11 @@ void test_string_elide_multibyte(void)
     TEST_ASSERT_EQUAL_STRING("\xCE\xB1", small);
     hstr_strelide(small, sizeof(small), "e\xCC\x81" "e\xCC\x81", 20);     // zero width combining accents
     TEST_ASSERT_EQUAL_STRING("e\xCC\x81", small);
+    // WHEN / THEN combining mark whose base character is omitted is not attached to "..."
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 6);
+    TEST_ASSERT_EQUAL_STRING("ab...f", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 7);
+    TEST_ASSERT_EQUAL_STRING("ab...e\xCC\x81" "f", buffer);
     char elided[6];
     hstr_strelide(elided, sizeof(elided), "0123456789", 6);
     TEST_ASSERT_EQUAL_STRING("01...", elided);

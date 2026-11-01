@@ -92,6 +92,16 @@ int hstr_strwidth(const char* s)
     return s?hstr_strnwidth(s, strlen(s)):0;
 }
 
+// calculate offset of the character which follows the (UTF-8) character at offset start
+static size_t next_char_offset(const char* s, size_t start, size_t length)
+{
+    size_t next=start+1;
+    while(next<length && next-start<UTF8_MAX_BYTES && IS_UTF8_CONTINUATION(s[next])) {
+        next++;
+    }
+    return next;
+}
+
 // calculate length in bytes of the longest prefix of s which fits maxWidth columns
 // and maxBytes bytes (characters are not split)
 static size_t prefix_fitting(const char* s, int maxWidth, size_t maxBytes)
@@ -99,10 +109,7 @@ static size_t prefix_fitting(const char* s, int maxWidth, size_t maxBytes)
     size_t length=strlen(s), end=0;
     int width=0;
     while(end<length) {
-        size_t next=end+1;
-        while(next<length && next-end<UTF8_MAX_BYTES && IS_UTF8_CONTINUATION(s[next])) {
-            next++;
-        }
+        size_t next=next_char_offset(s, end, length);
         int charWidth=hstr_strnwidth(s+end, next-end);
         if(width+charWidth>maxWidth || next>maxBytes) {
             break;
@@ -130,6 +137,15 @@ static size_t suffix_fitting(const char* s, int maxWidth, size_t maxBytes)
         }
         width+=charWidth;
         start=charStart;
+    }
+    // zero width characters (combining marks, joiners, ...) belong to the preceding
+    // character which was omitted - they would be attached to "..." otherwise
+    while(start<length) {
+        size_t next=next_char_offset(s, start, length);
+        if(hstr_strnwidth(s+start, next-start)) {
+            break;
+        }
+        start=next;
     }
     return length-start;
 }
