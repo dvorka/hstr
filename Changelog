@@ -1,3 +1,8 @@
+2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v3.3.0 - Minor release bringing:
+    - Fixed leading space in case of empty HSTR prompt by @roshal
+
 2026-02-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.2.0 - Minor release bringing:
