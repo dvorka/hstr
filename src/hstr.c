@@ -140,7 +140,7 @@
 
 // semantic versioning: major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.3.0\" (2026-10-31T07:57:00)"
+        "hstr version \"3.3.0\" (RC 2026-10-31T07:57:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
