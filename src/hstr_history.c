@@ -140,13 +140,24 @@ char* parse_history_line(char *l)
         }
     }
 
-#ifndef HSTR_TESTS_UNIT
-    if (isZsh) {
-        l = zsh_unmetafy(l, NULL);
-    }
-#endif
-
     return l;
+}
+
+// true if history line (w/ optional zsh extended history prefix) is the command cmd - zsh
+// metafied characters are unmetafied before comparison
+bool history_line_equals(char* line, const char* cmd, bool isZsh)
+{
+    char* command=parse_history_line(line);
+    if(!command || !cmd) {
+        return false;
+    }
+    if(isZsh && strchr(command, ZSH_META)) {
+        char* unmetafied=hstr_strdup(command);
+        bool equals=unmetafied && !strcmp(zsh_unmetafy(unmetafied, NULL), cmd);
+        free(unmetafied);
+        return equals;
+    }
+    return !strcmp(command, cmd);
 }
 
 bool history_mgmt_load_history_file(const char* historyFile)
@@ -184,6 +195,9 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         HIST_ENTRY **historyList=history_list();
         char **rawHistory=malloc(sizeof(char*) * historyState->length);
         int rawOffset=historyState->length-1, rawTimestamps=0;
+        bool isZsh=is_zsh_parent_shell();
+        char **unmetafiedHistory=NULL;
+        unsigned unmetafiedCount=0;
         char *line;
         int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
@@ -198,6 +212,16 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             }
 
             line=parse_history_line(historyList[i]->line);
+            if(isZsh && strchr(line, ZSH_META)) {
+                if(!unmetafiedHistory) {
+                    unmetafiedHistory=malloc(sizeof(char*) * historyState->length);
+                }
+                char* unmetafied=unmetafiedHistory ? hstr_strdup(line) : NULL;
+                if(unmetafied) {
+                    line=zsh_unmetafy(unmetafied, NULL);
+                    unmetafiedHistory[unmetafiedCount++]=line;
+                }
+            }
             rawHistory[rawOffset]=line;
             if(hashset_contains(blacklist, line)) {
                 continue;
@@ -247,6 +271,8 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         prioritizedHistory->rawCount=historyState->length-rawTimestamps;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
+        prioritizedHistory->unmetafiedItems=unmetafiedHistory;
+        prioritizedHistory->unmetafiedCount=unmetafiedCount;
         unsigned u;
         for(u=0; u<rs.size; u++) {
             if(prioritizedRadix[u]->data) {
@@ -289,6 +315,14 @@ void prioritized_history_destroy(HistoryItems* h)
             free(h->rawItems);
         }
 
+        if(h->unmetafiedItems) {
+            unsigned i;
+            for(i=0; i<h->unmetafiedCount; i++) {
+                free(h->unmetafiedItems[i]);
+            }
+            free(h->unmetafiedItems);
+        }
+
         free(h);
 
         // readline/history cleanup
@@ -309,36 +343,32 @@ void history_mgmt_clear_dirty(void)
 
 int history_mgmt_remove_from_system_history(char *cmd)
 {
-    int offset=history_search_pos(cmd, 0, 0), occurences=0;
-    char *l;
-    HISTORY_STATE *historyState=history_get_history_state();
-
-    regex_t zshRegexp;
-    const char *zshTimestamp = "^: [[:digit:]]\\{10,\\}:[[:digit:]];.*";
-    regexp_compile(&zshRegexp, zshTimestamp);
-
-    while(offset>=0) {
-        l=historyState->entries[offset]->line;
-        if(offset<historyState->length) {
-           if(!regexp_match(&zshRegexp, l)) {
-               l=l+15; //: 1485023566:0;whoami
-           }
-           if(!strcmp(cmd, l)) {
-               occurences++;
-               free_history_entry(remove_history(offset));
-               if(offset>0) {
-                   l=historyState->entries[offset-1]->line;
-                   if(l && strlen(l)) {
-                       if(is_hist_timestamp(l)) {
-                           // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
-                           free_history_entry(remove_history(offset-1));
-                       }
-                   }
-               }
-           }
-        }
-        offset=history_search_pos(cmd, 0, ++offset);
+    if(!cmd) {
+        return 0;
     }
+
+    bool isZsh=is_zsh_parent_shell();
+    int occurences=0;
+    HISTORY_STATE *historyState=history_get_history_state();
+    // iterate backwards - removal shifts only entries which were already checked
+    int offset;
+    for(offset=historyState->length-1; offset>=0; offset--) {
+        HIST_ENTRY **entries=history_list();
+        if(!entries || !entries[offset] || !entries[offset]->line) {
+            continue;
+        }
+        if(history_line_equals(entries[offset]->line, cmd, isZsh)) {
+            occurences++;
+            free_history_entry(remove_history(offset));
+            // remove Bash timestamp (HISTTIMEFORMAT) of the removed command
+            if(offset>0 && entries[offset-1] && entries[offset-1]->line && is_hist_timestamp(entries[offset-1]->line)) {
+                free_history_entry(remove_history(offset-1));
+                offset--;
+            }
+        }
+    }
+    free(historyState);
+
     if(occurences) {
         char* historyFile = get_history_file_name();
         write_history(historyFile);

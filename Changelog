@@ -18,6 +18,15 @@
     - Fixed memory leak on deletion of a command from history
     - Fixed search pattern buffer overflow on very wide terminals and garbage
       characters in the pattern after pressing unhandled special keys
+    - Fixed prompt and search pattern with multibyte/wide characters (e.g. "❯ "
+      in HSTR_PROMPT, UTF-8 or CJK pattern): cursor position, backspace,
+      elided history rows and highlighting of matches - thanks to
+      Lukáš Brabec (@lbrabec)
+    - Fixed memory corruption on backspace and history row eliding on very
+      narrow terminals
+    - Fixed Zsh history with non-ASCII characters (e.g. "čeština") which was
+      shown, searched and inserted to the prompt in Zsh metafied encoding,
+      and deletion of Zsh history entries with long command duration
     - Fixed build on Linux distributions without ncursesw/curses.h header
       (e.g. Arch Linux) - thanks to Kipras Melnikovas (@kiprasmel)
 

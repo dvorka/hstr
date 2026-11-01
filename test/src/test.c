@@ -26,6 +26,7 @@
 #include <stdlib.h>
 #include <unistd.h>
 #include <limits.h>
+#include <locale.h>
 
 // HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
 #include "unity/src/c/unity.h"
@@ -721,29 +722,29 @@ void test_string_elide()
     char buffer[1000];
 
     // do nothing - string fits to screen
-    hstr_strelide(buffer, "0123456789", 20);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 20);
     printf("%s\n", buffer);
     TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
 
-    // do nothing - string too short
-    hstr_strelide(buffer, "012", 1);
+    // no space for "..." - string is cut to fit the screen
+    hstr_strelide(buffer, sizeof(buffer), "012", 1);
     printf("%s\n", buffer);
-    TEST_ASSERT_EQUAL_STRING("012", buffer);
+    TEST_ASSERT_EQUAL_STRING("0", buffer);
 
-    hstr_strelide(buffer, "0123456789", 6);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 6);
     printf("%s\n", buffer);
     TEST_ASSERT_EQUAL_STRING("01...9", buffer);
 
 
-    hstr_strelide(buffer, "0123456789", 10);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 10);
     TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
     printf("%s\n", buffer);
 
-    hstr_strelide(buffer, "0123456789", 9);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 9);
     TEST_ASSERT_EQUAL_STRING("012...789", buffer);
     printf("%s\n", buffer);
 
-    hstr_strelide(buffer, "0123456789", 8);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 8);
     TEST_ASSERT_EQUAL_STRING("012...89", buffer);
     printf("%s\n", buffer);
 }
@@ -876,6 +877,289 @@ void test_history_file_name(void)
     TEST_ASSERT_TRUE(is_in_test_home(onlyHstrShellFile));
     free(onlyHstrFile);
     free(onlyHstrShellFile);
+    printf("DONE\n");
+}
+
+// switches to a UTF-8 locale (as HSTR does w/ setlocale(LC_ALL, "") in a UTF-8 terminal),
+// returns the original locale to be restored or NULL if no UTF-8 locale is available
+static char* utf8_locale_set(void)
+{
+    char* current=setlocale(LC_ALL, NULL);
+    char* original=current ? hstr_strdup(current) : NULL;
+    const char* locales[]={"C.UTF-8", "C.utf8", "en_US.UTF-8", "en_US.utf8"};
+    unsigned i;
+    for(i=0; i<sizeof(locales)/sizeof(locales[0]); i++) {
+        if(setlocale(LC_ALL, locales[i])) {
+            return original;
+        }
+    }
+    free(original);
+    return NULL;
+}
+
+static void utf8_locale_restore(char* original)
+{
+    setlocale(LC_ALL, original ? original : "C");
+    free(original);
+}
+
+// bug #533: prompt and pattern w/ multibyte characters must be measured in columns
+void test_string_width(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+
+    // WHEN
+    int ascii=hstr_strwidth("$ ");
+    int arrow=hstr_strwidth("\xE2\x9D\xAF ");             // "❯ " 3 byte character
+    int arrows=hstr_strwidth("\xE2\x9D\xAF\xE2\x9D\xAF ");  // "❯❯ "
+    int lambda=hstr_strwidth("\xCE\xBB ");               // "λ " 2 byte character
+    int cjk=hstr_strwidth("\xE4\xB8\xAD\xE6\x96\x87> ");     // "中文> " double width characters
+    int empty=hstr_strwidth("");
+    int null=hstr_strwidth(NULL);
+    int prefix=hstr_strnwidth("\xE2\x9D\xAF\xE2\x9D\xAF", 3);
+    int incomplete=hstr_strwidth("a\xE2\x9D");             // character being typed
+    int invalid=hstr_strwidth("a\xFF" "b");
+
+    // THEN
+    TEST_ASSERT_EQUAL_INT(2, ascii);
+    TEST_ASSERT_EQUAL_INT(2, arrow);
+    TEST_ASSERT_EQUAL_INT(3, arrows);
+    TEST_ASSERT_EQUAL_INT(2, lambda);
+    TEST_ASSERT_EQUAL_INT(6, cjk);
+    TEST_ASSERT_EQUAL_INT(0, empty);
+    TEST_ASSERT_EQUAL_INT(0, null);
+    TEST_ASSERT_EQUAL_INT(1, prefix);
+    TEST_ASSERT_EQUAL_INT(1, incomplete);
+    TEST_ASSERT_EQUAL_INT(3, invalid);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
+}
+
+void test_string_elide_multibyte(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale and strings w/ multibyte characters
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+    char buffer[100];
+    const char* greek="\xCE\xB1\xCE\xB2\xCE\xB3\xCE\xB4\xCE\xB5\xCE\xB6\xCE\xB7\xCE\xB8"; // "αβγδεζηθ"
+    const char* cjk="\xE4\xB8\x80\xE4\xBA\x8C\xE4\xB8\x89\xE5\x9B\x9B\xE4\xBA\x94";     // "一二三四五" (10 columns)
+
+    // WHEN / THEN fits - not elided
+    hstr_strelide(buffer, sizeof(buffer), greek, 8);
+    TEST_ASSERT_EQUAL_STRING(greek, buffer);
+
+    // WHEN / THEN elided by columns, not by bytes
+    hstr_strelide(buffer, sizeof(buffer), greek, 6);
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1\xCE\xB2...\xCE\xB8", buffer); // "αβ...θ"
+    TEST_ASSERT_EQUAL_INT(6, hstr_strwidth(buffer));
+
+    // WHEN / THEN double width characters are not split and the result fits
+    hstr_strelide(buffer, sizeof(buffer), cjk, 8);
+    TEST_ASSERT_EQUAL_STRING("\xE4\xB8\x80...\xE4\xBA\x94", buffer); // "一...五"
+    TEST_ASSERT_TRUE(hstr_strwidth(buffer)<=8);
+
+    // WHEN / THEN no space for "..." - prefix fitting the width (used to overflow the buffer)
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 0);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 3);
+    TEST_ASSERT_EQUAL_STRING("012", buffer);
+    hstr_strelide(buffer, sizeof(buffer), cjk, 3);
+    TEST_ASSERT_EQUAL_STRING("\xE4\xB8\x80", buffer);
+
+    // WHEN / THEN short strings are cut to the width too (used to wrap on narrow terminals)
+    hstr_strelide(buffer, sizeof(buffer), "012", 0);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "\xCE\xB1\xCE\xB2", 1);
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", buffer);
+
+    // WHEN / THEN small buffer is never overflowed and characters are not split
+    char small[4];
+    hstr_strelide(small, sizeof(small), "0123456789", 20);
+    TEST_ASSERT_EQUAL_STRING("012", small);
+    hstr_strelide(small, sizeof(small), "\xCE\xB1\xCE\xB2", 20);          // "αβ" - CE B1 CE would split β
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", small);
+    hstr_strelide(small, sizeof(small), "e\xCC\x81" "e\xCC\x81", 20);     // zero width combining accents
+    TEST_ASSERT_EQUAL_STRING("e\xCC\x81", small);
+    // WHEN / THEN combining mark whose base character is omitted is not attached to "..."
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 6);
+    TEST_ASSERT_EQUAL_STRING("ab...f", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 7);
+    TEST_ASSERT_EQUAL_STRING("ab...e\xCC\x81" "f", buffer);
+    char elided[6];
+    hstr_strelide(elided, sizeof(elided), "0123456789", 6);
+    TEST_ASSERT_EQUAL_STRING("01...", elided);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
+}
+
+// backspace must delete the whole multibyte character and never write before the string
+void test_chop(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN strings w/ 1, 2, 3 and 4 byte characters and invalid sequences
+    char ascii[]="ab";
+    char twoBytes[]="a\xCE\xBB";          // "aλ"
+    char threeBytes[]="a\xE2\x9D\xAF";    // "a❯"
+    char fourBytes[]="a\xF0\x9F\x98\x80"; // "a😀"
+    char incomplete[]="a\xE2\x9D";        // character being typed
+    char loneHighByte[]="\xE9";           // e.g. Latin-1 input
+    char loneContinuation[]="a\x80";
+    char empty[]="";
+
+    // WHEN
+    hstr_chop(ascii);
+    hstr_chop(twoBytes);
+    hstr_chop(threeBytes);
+    hstr_chop(fourBytes);
+    hstr_chop(incomplete);
+    hstr_chop(loneHighByte);
+    hstr_chop(loneContinuation);
+    hstr_chop(empty);
+    hstr_chop(NULL);
+
+    // THEN
+    TEST_ASSERT_EQUAL_STRING("a", ascii);
+    TEST_ASSERT_EQUAL_STRING("a", twoBytes);
+    TEST_ASSERT_EQUAL_STRING("a", threeBytes);
+    TEST_ASSERT_EQUAL_STRING("a", fourBytes);
+    TEST_ASSERT_EQUAL_STRING("a", incomplete);
+    TEST_ASSERT_EQUAL_STRING("", loneHighByte);
+    TEST_ASSERT_EQUAL_STRING("a", loneContinuation);
+    TEST_ASSERT_EQUAL_STRING("", empty);
+    printf("DONE\n");
+}
+
+// zsh metafies bytes 0x83-0xA2 of multibyte characters: "č" (C4 8D) is stored as C4 83 AD
+void test_history_line_equals(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN zsh history lines w/ metafied "čeština" w/ and w/o extended history prefix
+    char metafied[]="echo \xC4\x83\xAD" "e\xC5\x83\x81tina";
+    char extended[]=": 1730000000:6109;echo \xC4\x83\xAD" "e\xC5\x83\x81tina";
+    char plain[]="ls /tmp";
+    const char* command="echo \xC4\x8D" "e\xC5\xA1tina";
+
+    // WHEN
+    bool metafiedZsh=history_line_equals(metafied, command, true);
+    bool extendedZsh=history_line_equals(extended, command, true);
+    bool metafiedBash=history_line_equals(metafied, command, false);
+    bool plainEquals=history_line_equals(plain, "ls /tmp", true);
+    bool plainDiffers=history_line_equals(plain, "ls", true);
+    bool nullLine=history_line_equals(NULL, command, true);
+    bool nullCommand=history_line_equals(plain, NULL, true);
+
+    // THEN unmetafied only for zsh, history lines are NOT modified
+    TEST_ASSERT_TRUE(metafiedZsh);
+    TEST_ASSERT_TRUE(extendedZsh);
+    TEST_ASSERT_FALSE(metafiedBash);
+    TEST_ASSERT_TRUE(plainEquals);
+    TEST_ASSERT_FALSE(plainDiffers);
+    TEST_ASSERT_FALSE(nullLine);
+    TEST_ASSERT_FALSE(nullCommand);
+    TEST_ASSERT_EQUAL_STRING("echo \xC4\x83\xAD" "e\xC5\x83\x81tina", metafied);
+    printf("DONE\n");
+}
+
+void test_remove_from_system_history(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN history w/ Bash timestamp and zsh extended history entry (multi-digit duration)
+    char historyFile[PATH_MAX+16];
+    int length=snprintf(historyFile, sizeof(historyFile), "%s/history", testHome);
+    TEST_ASSERT_TRUE(length>0 && length<(int)sizeof(historyFile));
+    setenv(ENV_VAR_HSTR_HISTFILE, historyFile, 1);
+    using_history();
+    clear_history();
+    add_history("#1700000000");
+    add_history("ls");
+    add_history("pwd");
+    add_history(": 1596135828:6109;ls");
+    add_history("lsblk");
+
+    // WHEN
+    int removed=history_mgmt_remove_from_system_history("ls");
+    int missing=history_mgmt_remove_from_system_history("not in history");
+    int null=history_mgmt_remove_from_system_history(NULL);
+
+    // THEN both occurrences and the timestamp are removed, other entries are kept
+    TEST_ASSERT_EQUAL_INT(2, removed);
+    TEST_ASSERT_EQUAL_INT(0, missing);
+    TEST_ASSERT_EQUAL_INT(0, null);
+    HIST_ENTRY** entries=history_list();
+    TEST_ASSERT_NOT_NULL(entries);
+    TEST_ASSERT_EQUAL_STRING("pwd", entries[0]->line);
+    TEST_ASSERT_EQUAL_STRING("lsblk", entries[1]->line);
+    TEST_ASSERT_NULL(entries[2]);
+    TEST_ASSERT_EQUAL_INT(0, access(historyFile, F_OK));
+
+    clear_history();
+    unlink(historyFile);
+    printf("DONE\n");
+}
+
+// pattern typed byte by byte must not overflow the prompt row, combining marks are always accepted
+void test_strcat_char_fitting(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale and prompt row w/ 4 free columns
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+    const int columns=4;
+    const char* cafe="cafe\xCC\x81";   // decomposed "café" - e + combining acute accent
+    char pattern[32]={0};
+
+    // WHEN decomposed "café" is typed byte by byte
+    unsigned i, accepted=0;
+    for(i=0; cafe[i]; i++) {
+        if(hstr_strcat_char_fitting(pattern, sizeof(pattern), (unsigned char)cafe[i], columns)) {
+            accepted++;
+        }
+    }
+
+    // THEN the accent is kept although the pattern fills all columns
+    TEST_ASSERT_EQUAL_UINT(strlen(cafe), accepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // WHEN ASCII character is typed to the full row
+    bool asciiAccepted=hstr_strcat_char_fitting(pattern, sizeof(pattern), 'x', columns);
+
+    // THEN it is rejected
+    TEST_ASSERT_FALSE(asciiAccepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // GIVEN 3 columns used
+    char cjk[32]="abc";
+
+    // WHEN double width "中" is typed byte by byte to the last free column
+    bool first=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xE4, columns);
+    bool second=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xB8, columns);
+    bool third=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xAD, columns);
+
+    // THEN incomplete bytes are accepted, the completed character is removed as it does not fit
+    TEST_ASSERT_TRUE(first);
+    TEST_ASSERT_TRUE(second);
+    TEST_ASSERT_FALSE(third);
+    TEST_ASSERT_EQUAL_STRING("abc", cjk);
+
+    utf8_locale_restore(originalLocale);
     printf("DONE\n");
 }
 
