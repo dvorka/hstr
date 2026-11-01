@@ -143,9 +143,10 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         // therefore history sizes are ONLY ICNREASED - never shrunk - and unlimited
         // values (negative, empty, non-numeric) are kept
         // HISTFILESIZE is not set if unset - bash defaults it to HISTSIZE after startup files
+        // 10# forces decimal - bash [[ -lt ]] treats leading zeros as octal (020000 would be 8192)
         "\n# increase history size (default is 500) - never shrink existing or unlimited sizes"
-        "\nif [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && $HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi"
-        "\nif [[ $HISTFILESIZE =~ ^[0-9]+$ && $HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi"
+        "\nif [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi"
+        "\nif [[ $HISTFILESIZE =~ ^[0-9]+$ && 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi"
         // PROMPT_COMMAND considerations:
         //   history -a ... append NEW entries from memory to .bash_history (i.e. flush to file where HSTR reads commands)
         //   history -n ... append NEW entries from .bash_history to memory i.e. NOT entire history reload

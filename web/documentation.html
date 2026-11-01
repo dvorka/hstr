@@ -458,8 +458,8 @@ hh          # If you created an alias</code></pre>
                 <p>Increase history size for better results:</p>
                 <pre><code># Bash
 # increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; $HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; $HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
+if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
+if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
 shopt -s histappend
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 

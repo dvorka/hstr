@@ -760,8 +760,8 @@ DEL        - Delete from history</code></pre>
                     <h3>Increase History Size</h3>
                     <p>Store more commands in your history:</p>
                     <pre><code># increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; $HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; $HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
+if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
+if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
 shopt -s histappend</code></pre>
                 </div>
                 <div class="tip-card">
