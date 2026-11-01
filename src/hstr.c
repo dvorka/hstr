@@ -113,7 +113,7 @@
 
 // semantic versioning: major.minor.revision
 static const char* VERSION_STRING=
-        "hstr version \"3.3.0\" (2026-11-01T20:52:00)"
+        "hstr version \"3.3.0\" (2026-11-01T23:11:00)"
         "\n";
 
 static const char* HSTR_VIEW_LABELS[]={
@@ -1358,7 +1358,7 @@ void loop_to_select(void)
     bool done=FALSE, skip=TRUE, executeResult=FALSE, lowercase=TRUE;
     bool hideNotificationOnNextTick=TRUE, fixCommand=FALSE, editCommand=FALSE;
     unsigned basex=print_prompt();
-    int x=basex, c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
+    int c, cc, cursorX=0, cursorY=0, maxHistoryItems, deletedOccurences;
     int width=getmaxx(stdscr);
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
@@ -1520,7 +1520,6 @@ void loop_to_select(void)
         case KEY_BACKSPACE:
             if(pattern[0]) {
                 hstr_chop(pattern);
-                x--;
                 print_pattern(pattern, hstr->promptY, basex);
             }
 
