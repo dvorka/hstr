@@ -19,6 +19,7 @@
 #define _GNU_SOURCE
 
 #include "include/hstr.h"
+#include "include/hstr_selection.h"
 
 #define SELECTION_PREFIX_MAX_LNG 512
 #define CMDLINE_LNG 8192
@@ -1238,43 +1239,6 @@ char* hstr_print_selection(unsigned maxHistoryItems, char* pattern)
     refresh();
 
     return result;
-}
-
-int hstr_selection_index(int cursor, bool promptBottom, int promptItems, int selectionSize)
-{
-    if(cursor==SELECTION_CURSOR_IN_PROMPT) {
-        return -1;
-    }
-    // with the prompt at the bottom the first item is on the last row
-    int index=promptBottom ? promptItems-cursor-1 : cursor;
-    // the selection array may be larger than selectionSize (stale items)
-    return (index>=0 && index<selectionSize) ? index : -1;
-}
-
-int hstr_selection_cursor_move(int cursor, int step, bool promptBottom, int promptItems, int selectionSize)
-{
-    // rows occupied by the selection items - only these may be selected
-    int rows=MIN(selectionSize, promptItems);
-    if(rows<=0) {
-        return SELECTION_CURSOR_IN_PROMPT;
-    }
-    int first=promptBottom ? promptItems-rows : 0;
-    int last=first+rows-1;
-
-    if(cursor==SELECTION_CURSOR_IN_PROMPT) {
-        // moving up from the prompt enters at the last row, any other move at the first row
-        return step==-1 ? last : first;
-    }
-
-    int moved=cursor+step;
-    if(step==-1 || step==1) {
-        // line moves wrap around
-        if(moved<first) return last;
-        if(moved>last) return first;
-        return moved;
-    }
-    // page moves stop at the edges
-    return moved<first ? first : (moved>last ? last : moved);
 }
 
 static int selection_index(int cursor)

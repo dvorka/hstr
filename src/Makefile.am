@@ -29,6 +29,7 @@ hstr_SOURCES = 						\
 	hstr_favorites.c include/hstr_favorites.h	\
 	hstr_blacklist.c include/hstr_blacklist.h	\
 	hstr_regexp.c include/hstr_regexp.h		\
+	hstr_selection.c include/hstr_selection.h	\
 	radixsort.c include/radixsort.h 		\
 	hstr.c include/hstr.h                           \
 	main.c

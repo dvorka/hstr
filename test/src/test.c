@@ -34,6 +34,7 @@
 #include "../../src/include/hstr_utils.h"
 #include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
+#include "../../src/include/hstr_selection.h"
 #include "../../src/include/hstr.h"
 
 /*

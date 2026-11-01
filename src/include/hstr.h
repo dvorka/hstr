@@ -40,13 +40,6 @@
 #include "hstr_blacklist.h"
 #include "hstr_history.h"
 
-// selection cursor is the screen row of the selected item (relative to the first
-// selection row) or SELECTION_CURSOR_IN_PROMPT if no item is selected
-#define SELECTION_CURSOR_IN_PROMPT -1
-
-int hstr_selection_index(int cursor, bool promptBottom, int promptItems, int selectionSize);
-int hstr_selection_cursor_move(int cursor, int step, bool promptBottom, int promptItems, int selectionSize);
-
 int hstr_main(int argc, char* argv[]);
 
 #endif

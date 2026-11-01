@@ -33,6 +33,7 @@ SOURCES += \
     ../src/hstr_favorites.c \
     ../src/hstr_history.c \
     ../src/hstr_regexp.c \
+    ../src/hstr_selection.c \
     ../src/hstr_utils.c \
     ../src/hstr.c \
     ../src/radixsort.c \
@@ -47,6 +48,7 @@ HEADERS += \
     ../src/include/hstr_favorites.h \
     ../src/include/hstr_history.h \
     ../src/include/hstr_regexp.h \
+    ../src/include/hstr_selection.h \
     ../src/include/hstr_utils.h \
     ../src/include/radixsort.h \
     ../src/include/hstr.h \
