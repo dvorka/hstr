@@ -90,6 +90,7 @@ int hstr_strwidth(const char* s);
 char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned maxWidth);
 void hstr_chop(char* s);
 bool hstr_strcat_char(char* s, size_t size, int c);
+bool hstr_strcat_char_fitting(char* s, size_t size, int c, int maxWidth);
 bool is_tiocsti_supported(void);
 #if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti(void);

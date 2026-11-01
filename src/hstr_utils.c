@@ -233,6 +233,22 @@ bool hstr_strcat_char(char* s, size_t size, int c)
     return true;
 }
 
+// appends byte c to s (see hstr_strcat_char()) unless the completed character makes s wider than
+// maxWidth columns: bytes of an incomplete character have no width yet and are accepted, zero width
+// characters (e.g. combining marks) are accepted even if there is no free column, returns false
+// if s was not changed
+bool hstr_strcat_char_fitting(char* s, size_t size, int c, int maxWidth)
+{
+    if(!hstr_strcat_char(s, size, c)) {
+        return false;
+    }
+    if(hstr_strwidth(s)>maxWidth) {
+        hstr_chop(s);
+        return false;
+    }
+    return true;
+}
+
 bool is_tiocsti_supported(void)
 {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)

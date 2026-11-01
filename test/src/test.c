@@ -1112,6 +1112,57 @@ void test_remove_from_system_history(void)
     printf("DONE\n");
 }
 
+// pattern typed byte by byte must not overflow the prompt row, combining marks are always accepted
+void test_strcat_char_fitting(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale and prompt row w/ 4 free columns
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+    const int columns=4;
+    const char* cafe="cafe\xCC\x81";   // decomposed "café" - e + combining acute accent
+    char pattern[32]={0};
+
+    // WHEN decomposed "café" is typed byte by byte
+    unsigned i, accepted=0;
+    for(i=0; cafe[i]; i++) {
+        if(hstr_strcat_char_fitting(pattern, sizeof(pattern), (unsigned char)cafe[i], columns)) {
+            accepted++;
+        }
+    }
+
+    // THEN the accent is kept although the pattern fills all columns
+    TEST_ASSERT_EQUAL_UINT(strlen(cafe), accepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // WHEN ASCII character is typed to the full row
+    bool asciiAccepted=hstr_strcat_char_fitting(pattern, sizeof(pattern), 'x', columns);
+
+    // THEN it is rejected
+    TEST_ASSERT_FALSE(asciiAccepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // GIVEN 3 columns used
+    char cjk[32]="abc";
+
+    // WHEN double width "中" is typed byte by byte to the last free column
+    bool first=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xE4, columns);
+    bool second=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xB8, columns);
+    bool third=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xAD, columns);
+
+    // THEN incomplete bytes are accepted, the completed character is removed as it does not fit
+    TEST_ASSERT_TRUE(first);
+    TEST_ASSERT_TRUE(second);
+    TEST_ASSERT_FALSE(third);
+    TEST_ASSERT_EQUAL_STRING("abc", cjk);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
+}
+
 void test_parse_history_line()
 {
     printf("\n= %s ========================================\n", __FUNCTION__);

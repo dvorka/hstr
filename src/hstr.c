@@ -1590,11 +1590,8 @@ void loop_to_select(void)
             if(c>K_CTRL_Z) {
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-                if(pattern_free_columns(pattern, width, basex)>0 && hstr_strcat_char(pattern, sizeof(pattern), c)) {
-                    // double width character may not fit the last free column
-                    if(pattern_free_columns(pattern, width, basex)<0) {
-                        hstr_chop(pattern);
-                    }
+                // character which would overflow the prompt row is not appended
+                if(hstr_strcat_char_fitting(pattern, sizeof(pattern), c, width-(int)basex-1)) {
                     print_pattern(pattern, hstr->promptY, basex);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);

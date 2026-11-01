@@ -69,6 +69,7 @@ extern void test_string_elide_multibyte(void);
 extern void test_chop(void);
 extern void test_history_line_equals(void);
 extern void test_remove_from_system_history(void);
+extern void test_strcat_char_fitting(void);
 extern void test_parse_history_line();
 extern void test_assemble_cmdline_pattern(void);
 
@@ -133,8 +134,9 @@ int main(void)
   RUN_TEST(test_chop, 1008);
   RUN_TEST(test_history_line_equals, 1046);
   RUN_TEST(test_remove_from_system_history, 1077);
-  RUN_TEST(test_parse_history_line, 1115);
-  RUN_TEST(test_assemble_cmdline_pattern, 1135);
+  RUN_TEST(test_strcat_char_fitting, 1116);
+  RUN_TEST(test_parse_history_line, 1166);
+  RUN_TEST(test_assemble_cmdline_pattern, 1186);
 
   return suite_teardown(UnityEnd());
 }
