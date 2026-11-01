@@ -457,8 +457,9 @@ hh          # If you created an alias</code></pre>
                 <h3>History Settings</h3>
                 <p>Increase history size for better results:</p>
                 <pre><code># Bash
-export HISTFILESIZE=10000
-export HISTSIZE=${HISTFILESIZE}
+# increase history size (default is 500) - never shrink existing or unlimited sizes
+if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; $HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
+if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; $HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
 shopt -s histappend
 export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
 
@@ -467,8 +468,9 @@ export HISTCONTROL=ignorespace</code></pre>
 
                 <pre><code># Zsh
 export HISTFILE=~/.zsh_history
-export HISTSIZE=10000
-export SAVEHIST=${HISTSIZE}
+# increase history size (zsh default is 30/0) - never shrink existing sizes
+if (( ${HISTSIZE:-0} &lt; 10000 )); then HISTSIZE=10000; fi
+if (( ${SAVEHIST:-0} &lt; 10000 )); then SAVEHIST=10000; fi
 setopt HIST_IGNORE_SPACE</code></pre>
 
                 <h3>HSTR Variables</h3>

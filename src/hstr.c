@@ -139,8 +139,13 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         "\nexport HSTR_CONFIG=hicolor       # get more colors"
         "\nshopt -s histappend              # append new history items to .bash_history"
         "\nexport HISTCONTROL=ignorespace   # leading space hides commands from history"
-        "\nexport HISTFILESIZE=10000        # increase history file size (default is 500)"
-        "\nexport HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)"
+        // HISTFILESIZE assignment truncates the history file IMMEDIATELY,
+        // therefore history sizes are ONLY ICNREASED - never shrunk - and unlimited
+        // values (negative, empty, non-numeric) are kept
+        // HISTFILESIZE is not set if unset - bash defaults it to HISTSIZE after startup files
+        "\n# increase history size (default is 500) - never shrink existing or unlimited sizes"
+        "\nif [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && $HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi"
+        "\nif [[ $HISTFILESIZE =~ ^[0-9]+$ && $HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi"
         // PROMPT_COMMAND considerations:
         //   history -a ... append NEW entries from memory to .bash_history (i.e. flush to file where HSTR reads commands)
         //   history -n ... append NEW entries from .bash_history to memory i.e. NOT entire history reload
@@ -159,6 +164,11 @@ static const char* INSTALL_ZSH_CODE_PREFIX=
         "\n# HSTR configuration - add this to ~/.zshrc"
         "\nalias hh=hstr                    # hh to be alias for hstr"
         "\nsetopt histignorespace           # skip cmds w/ leading space from history"
+        // zsh truncates the history file to SAVEHIST on save
+        // therefore sizes are only increased
+        "\n# increase history size (zsh default is 30/0) - never shrink existing sizes"
+        "\nif (( ${HISTSIZE:-0} < 10000 )); then HISTSIZE=10000; fi"
+        "\nif (( ${SAVEHIST:-0} < 10000 )); then SAVEHIST=10000; fi"
         // HISTFILE should not be needed - HSTR must work on blank environment as well
         // "\nexport HISTFILE=~/.zsh_history   # ensure history file visibility"
         "\nexport HSTR_CONFIG=hicolor       # get more colors";
