@@ -19,12 +19,23 @@
 #ifndef HSTR_CURSES_H
 #define HSTR_CURSES_H
 
+// the only place where the curses header is chosen
 #ifdef __APPLE__
-#include <curses.h>
+  #include <curses.h>
 #elif defined(__FreeBSD__)
-#include <ncurses.h>
+  #include <ncurses.h>
 #else
-#include <ncursesw/curses.h>
+  // distributions w/o ncursesw/ directory (e.g. Arch Linux) ship wide-char capable curses.h
+  #if defined(__has_include)
+    // - it is used only if ncursesw/curses.h is not available
+    #if __has_include(<ncursesw/curses.h>)
+      #include <ncursesw/curses.h>
+    #else
+      #include <curses.h>
+    #endif
+  #else
+    #include <ncursesw/curses.h>
+  #endif
 #endif
 
 #define color_attr_on(C) if(terminal_has_colors()) { attron(C); }

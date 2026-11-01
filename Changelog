@@ -1,8 +1,8 @@
 2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release bringing:
-    - Fixed leading space in case of empty HSTR prompt by
-      (indent kept for non-empty prompts)
+    - Fixed leading space in case of empty HSTR prompt
+      (indent kept for non-empty prompts) - thanks to @roshal
     - Fixed favorites corruption and crash on empty selection
     - Fixed out of bounds selection access with prompt at the bottom
       (PgUp/PgDn, regexp highlighting) and stale cursor after backspace
@@ -10,6 +10,8 @@
     - Fixed memory leak and misleading deletion count on favorite removal
     - Fixed search pattern buffer overflow on very wide terminals and garbage
       characters in the pattern after pressing unhandled special keys
+    - Fixed build on Linux distributions without ncursesw/curses.h header
+      (e.g. Arch Linux) - thanks to Kipras Melnikovas (@kiprasmel)
 
 2026-02-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
