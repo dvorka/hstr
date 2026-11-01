@@ -21,8 +21,10 @@
 
 #include <stdbool.h>
 
-// selection cursor is the screen row of the selected item (relative to the first
-// selection row) or SELECTION_CURSOR_IN_PROMPT if no item is selected
+// selection cursor (e.g. selectionCursorPosition in loop_to_select()) is the
+// highlighted screen row relative to the first selection row - it is a row,
+// not an index into the selection (use hstr_selection_index() to convert),
+// or SELECTION_CURSOR_IN_PROMPT if no item is highlighted (user is typing)
 #define SELECTION_CURSOR_IN_PROMPT -1
 
 // rows by which page up/down moves the selection cursor
