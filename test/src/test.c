@@ -45,12 +45,33 @@
 static char testHome[PATH_MAX];
 static bool testHomeCreated=false;
 static char* originalHome=NULL;
+// history file variables are restored after each test as tests may change them
+static char* originalHistFile=NULL;
+static char* originalHstrHistFile=NULL;
+
+static char* env_save(const char* name)
+{
+    char* value=getenv(name);
+    return value ? hstr_strdup(value) : NULL;
+}
+
+static void env_restore(const char* name, char** value)
+{
+    if(*value) {
+        setenv(name, *value, 1);
+        free(*value);
+        *value=NULL;
+    } else {
+        unsetenv(name);
+    }
+}
 
 void setUp(void)
 {
     // code to be run before each test
-    char* home=getenv(ENV_VAR_HOME);
-    originalHome=home ? hstr_strdup(home) : NULL;
+    originalHome=env_save(ENV_VAR_HOME);
+    originalHistFile=env_save(ENV_VAR_HISTFILE);
+    originalHstrHistFile=env_save(ENV_VAR_HSTR_HISTFILE);
 
     const char* tmp=getenv("TMPDIR");
     snprintf(testHome, sizeof(testHome), "%s/hstr-unit-tests-XXXXXX", (tmp && *tmp) ? tmp : "/tmp");
@@ -72,13 +93,9 @@ void tearDown(void)
         testHomeCreated=false;
     }
 
-    if(originalHome) {
-        setenv(ENV_VAR_HOME, originalHome, 1);
-        free(originalHome);
-        originalHome=NULL;
-    } else {
-        unsetenv(ENV_VAR_HOME);
-    }
+    env_restore(ENV_VAR_HOME, &originalHome);
+    env_restore(ENV_VAR_HISTFILE, &originalHistFile);
+    env_restore(ENV_VAR_HSTR_HISTFILE, &originalHstrHistFile);
 }
 
 void test_args(void)
@@ -792,6 +809,73 @@ void test_strcat_char(void)
     TEST_ASSERT_FALSE(zeroSizeAppended);
     TEST_ASSERT_EQUAL_MEMORY("abcd", unterminated, sizeof(unterminated));
     TEST_ASSERT_EQUAL_INT(0, empty[0]);
+    printf("DONE\n");
+}
+
+static bool is_in_test_home(const char* fileName)
+{
+    size_t length=strlen(testHome);
+    return fileName && !strncmp(testHome, fileName, length) && fileName[length]=='/';
+}
+
+// HSTR_HISTFILE takes precedence over HISTFILE, shell history file ignores it
+void test_history_file_name(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN no history file variables
+    unsetenv(ENV_VAR_HSTR_HISTFILE);
+    unsetenv(ENV_VAR_HISTFILE);
+
+    // WHEN
+    char* defaultFile=get_history_file_name();
+    char* defaultShellFile=get_shell_history_file_name();
+
+    // THEN shell specific default in HOME is used (bash or zsh - depends on parent process)
+    TEST_ASSERT_TRUE(is_in_test_home(defaultFile));
+    TEST_ASSERT_EQUAL_STRING(defaultFile, defaultShellFile);
+    free(defaultFile);
+    free(defaultShellFile);
+
+    // GIVEN HISTFILE and empty HSTR_HISTFILE
+    setenv(ENV_VAR_HISTFILE, "/tmp/hstr-shell-history", 1);
+    setenv(ENV_VAR_HSTR_HISTFILE, "", 1);
+
+    // WHEN
+    char* histFile=get_history_file_name();
+    char* histShellFile=get_shell_history_file_name();
+
+    // THEN empty HSTR_HISTFILE is ignored
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", histFile);
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", histShellFile);
+    free(histFile);
+    free(histShellFile);
+
+    // GIVEN both HISTFILE and HSTR_HISTFILE
+    setenv(ENV_VAR_HSTR_HISTFILE, "/tmp/hstr-global-history", 1);
+
+    // WHEN
+    char* hstrFile=get_history_file_name();
+    char* hstrShellFile=get_shell_history_file_name();
+
+    // THEN HSTR uses HSTR_HISTFILE, shell history file is still HISTFILE
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-global-history", hstrFile);
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", hstrShellFile);
+    free(hstrFile);
+    free(hstrShellFile);
+
+    // GIVEN HSTR_HISTFILE without HISTFILE
+    unsetenv(ENV_VAR_HISTFILE);
+
+    // WHEN
+    char* onlyHstrFile=get_history_file_name();
+    char* onlyHstrShellFile=get_shell_history_file_name();
+
+    // THEN shell history file falls back to the default in HOME
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-global-history", onlyHstrFile);
+    TEST_ASSERT_TRUE(is_in_test_home(onlyHstrShellFile));
+    free(onlyHstrFile);
+    free(onlyHstrShellFile);
     printf("DONE\n");
 }
 

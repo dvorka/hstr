@@ -83,6 +83,7 @@
 extern bool is_tiocsti;
 
 char* hstr_strdup(const char* s);
+char* hstr_getenv_strdup(const char* name);
 int hstr_strlen(const char* s);
 char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);

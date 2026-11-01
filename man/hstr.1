@@ -22,7 +22,7 @@ Show help
 Print filtered history on standard output and exit
 .TP
 \fB-k --kill-last-command\fR
-Delete the last command from history and exit
+Delete the last command from the shell history file (\fBHISTFILE\fR) and exit
 .TP
 \fB-i --insert-in-terminal=[command]\fR
 Insert custom command in terminal prompt and exit
@@ -177,6 +177,23 @@ Change prompt string which is \fBuser@host$\fR by default.
 
 Example:
         \fBexport HSTR_PROMPT="$ "\fR
+
+.TP
+\fBHSTR_HISTFILE\fR
+History file to be shown and managed by \fBhstr\fR instead of the shell history file \fBHISTFILE\fR.
+It allows each shell to keep its own history (\fBHISTFILE\fR) for UP/DOWN arrows,
+while \fBhstr\fR searches a history shared by all shells (\fBHSTR_HISTFILE\fR).
+Shells are responsible for writing their commands to \fBHSTR_HISTFILE\fR.
+
+History file is chosen in the following order: \fBHSTR_HISTFILE\fR, \fBHISTFILE\fR,
+shell specific default (\fB~/.bash_history\fR, \fB~/.zsh_history\fR or \fB~/.zhistory\fR).
+
+\fBDEL\fR deletes commands from \fBHSTR_HISTFILE\fR only - shell history files
+are not modified. \fB--kill-last-command\fR deletes the last command of the current
+shell from \fBHISTFILE\fR (not from \fBHSTR_HISTFILE\fR).
+
+Example:
+        \fBexport HSTR_HISTFILE=~/.bash_history_global\fR
 
 .SH FILES
 .TP
