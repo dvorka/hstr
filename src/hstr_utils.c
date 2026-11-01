@@ -56,7 +56,7 @@ char* hstr_getenv_strdup(const char* name)
 #define IS_UTF8_LEAD(C) ((((unsigned char)(C))&0xC0)==0xC0)
 #define UTF8_MAX_BYTES 4
 
-// returns display width (terminal columns) of the first n bytes of s in the current locale:
+// calculate display width (terminal columns) of the first n bytes of s in the current locale:
 // incomplete trailing sequence is not counted (it is not displayed yet), invalid bytes
 // and non-printable characters count as 1 column
 int hstr_strnwidth(const char* s, size_t n)
@@ -92,8 +92,9 @@ int hstr_strwidth(const char* s)
     return s?hstr_strnwidth(s, strlen(s)):0;
 }
 
-// returns length in bytes of the longest prefix of s which fits maxWidth columns (characters are not split)
-static size_t prefix_fitting_width(const char* s, int maxWidth)
+// calculate length in bytes of the longest prefix of s which fits maxWidth columns
+// and maxBytes bytes (characters are not split)
+static size_t prefix_fitting(const char* s, int maxWidth, size_t maxBytes)
 {
     size_t length=strlen(s), end=0;
     int width=0;
@@ -103,7 +104,7 @@ static size_t prefix_fitting_width(const char* s, int maxWidth)
             next++;
         }
         int charWidth=hstr_strnwidth(s+end, next-end);
-        if(width+charWidth>maxWidth) {
+        if(width+charWidth>maxWidth || next>maxBytes) {
             break;
         }
         width+=charWidth;
@@ -112,8 +113,9 @@ static size_t prefix_fitting_width(const char* s, int maxWidth)
     return end;
 }
 
-// returns length in bytes of the longest suffix of s which fits maxWidth columns (characters are not split)
-static size_t suffix_fitting_width(const char* s, int maxWidth)
+// calculate length in bytes of the longest suffix of s which fits maxWidth columns
+// and maxBytes bytes (characters are not split)
+static size_t suffix_fitting(const char* s, int maxWidth, size_t maxBytes)
 {
     size_t length=strlen(s), start=length;
     int width=0;
@@ -123,7 +125,7 @@ static size_t suffix_fitting_width(const char* s, int maxWidth)
             charStart--;
         }
         int charWidth=hstr_strnwidth(s+charStart, start-charStart);
-        if(width+charWidth>maxWidth) {
+        if(width+charWidth>maxWidth || length-charStart>maxBytes) {
             break;
         }
         width+=charWidth;
@@ -133,8 +135,9 @@ static size_t suffix_fitting_width(const char* s, int maxWidth)
 }
 
 // IMPROVE make this work w/ wide strings
-// writes s elided to maxWidth columns to buffer - middle of s is replaced by "...", strings
-// of up to 3 columns are never elided, characters are not split
+// write s elided to maxWidth columns to buffer - middle of s is replaced by "..."
+// (if there are at least 4 columns), the result never exceeds maxWidth columns
+// nor bufferSize bytes (including the terminator) and characters are not split
 char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned maxWidth)
 {
     if(!buffer || !bufferSize) {
@@ -145,23 +148,34 @@ char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned max
         return buffer;
     }
 
-    int width=hstr_strwidth(s);
+    const char* dots="...";
+    const size_t dotsLength=strlen(dots);
+    size_t maxBytes=bufferSize-1;
     int maxColumns=maxWidth>INT_MAX?INT_MAX:(int)maxWidth;
-    if(width<=maxColumns || width<=3) {
-        snprintf(buffer, bufferSize, "%s", s);
-    } else if(maxColumns<=3) {
-        // no space for "..."
-        snprintf(buffer, bufferSize, "%.*s", (int)prefix_fitting_width(s, maxColumns), s);
-    } else {
-        size_t prefixLength=prefix_fitting_width(s, maxColumns/2-1);
+    size_t prefixLength, suffixLength=0;
+    bool elide=hstr_strwidth(s)>maxColumns && maxColumns>(int)dotsLength && maxBytes>=dotsLength;
+    if(elide) {
+        prefixLength=prefix_fitting(s, maxColumns/2-1, maxBytes-dotsLength);
         int prefixWidth=hstr_strnwidth(s, prefixLength);
-        size_t suffixLength=suffix_fitting_width(s, maxColumns-prefixWidth-3);
-        snprintf(buffer, bufferSize, "%.*s...%s", (int)prefixLength, s, s+strlen(s)-suffixLength);
+        suffixLength=suffix_fitting(s, maxColumns-prefixWidth-(int)dotsLength, maxBytes-dotsLength-prefixLength);
+    } else {
+        // fits or no space for "..." - the longest fitting prefix
+        prefixLength=prefix_fitting(s, maxColumns, maxBytes);
     }
+
+    memcpy(buffer, s, prefixLength);
+    size_t length=prefixLength;
+    if(elide) {
+        memcpy(buffer+length, dots, dotsLength);
+        length+=dotsLength;
+        memcpy(buffer+length, s+strlen(s)-suffixLength, suffixLength);
+        length+=suffixLength;
+    }
+    buffer[length]=0;
     return buffer;
 }
 
-// removes the last (UTF-8 multibyte) character of s, invalid sequence is removed byte by byte
+// remove the last (UTF-8 multibyte) character of s, invalid sequence is removed byte by byte
 void hstr_chop(char *s)
 {
     if(s) {
@@ -179,13 +193,12 @@ void hstr_chop(char *s)
     }
 }
 
+// append byte c to string s stored in buffer of the given size:
+// - c must be a byte (UTF-8 characters are appended byte by byte),
+//     other values (e.g. curses KEY_* codes) are rejected
+// - returns false if c was not appended (invalid or full buffer)
 bool hstr_strcat_char(char* s, size_t size, int c)
 {
-    // append byte c to string s stored in buffer of the given size:
-    // - c must be a byte (UTF-8 characters are appended byte by byte),
-    //     other values (e.g. curses KEY_* codes) are rejected
-    // - returns false if c was not appended (invalid or full buffer)
-
     if(!s || c<=0 || c>UCHAR_MAX) {
         return false;
     }

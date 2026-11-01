@@ -726,10 +726,10 @@ void test_string_elide()
     printf("%s\n", buffer);
     TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
 
-    // do nothing - string too short
+    // no space for "..." - string is cut to fit the screen
     hstr_strelide(buffer, sizeof(buffer), "012", 1);
     printf("%s\n", buffer);
-    TEST_ASSERT_EQUAL_STRING("012", buffer);
+    TEST_ASSERT_EQUAL_STRING("0", buffer);
 
     hstr_strelide(buffer, sizeof(buffer), "0123456789", 6);
     printf("%s\n", buffer);
@@ -977,10 +977,23 @@ void test_string_elide_multibyte(void)
     hstr_strelide(buffer, sizeof(buffer), cjk, 3);
     TEST_ASSERT_EQUAL_STRING("\xE4\xB8\x80", buffer);
 
-    // WHEN / THEN small buffer is never overflowed
+    // WHEN / THEN short strings are cut to the width too (used to wrap on narrow terminals)
+    hstr_strelide(buffer, sizeof(buffer), "012", 0);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "\xCE\xB1\xCE\xB2", 1);
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", buffer);
+
+    // WHEN / THEN small buffer is never overflowed and characters are not split
     char small[4];
     hstr_strelide(small, sizeof(small), "0123456789", 20);
     TEST_ASSERT_EQUAL_STRING("012", small);
+    hstr_strelide(small, sizeof(small), "\xCE\xB1\xCE\xB2", 20);          // "αβ" - CE B1 CE would split β
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", small);
+    hstr_strelide(small, sizeof(small), "e\xCC\x81" "e\xCC\x81", 20);     // zero width combining accents
+    TEST_ASSERT_EQUAL_STRING("e\xCC\x81", small);
+    char elided[6];
+    hstr_strelide(elided, sizeof(elided), "0123456789", 6);
+    TEST_ASSERT_EQUAL_STRING("01...", elided);
 
     utf8_locale_restore(originalLocale);
     printf("DONE\n");

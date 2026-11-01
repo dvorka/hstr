@@ -1283,13 +1283,13 @@ void stdout_history_and_return(void)
 char* getResultFromSelection(int selectionCursorPosition)
 {
     int index=selection_index(selectionCursorPosition);
-    // return NULL if the cursor doesn't point to a selection item
+    // NULL if the cursor doesn't point to a selection item
     return index>=0 ? hstr->selection[index] : NULL;
 }
 
 static char* choose_result(int selectionCursorPosition, char* fallback)
 {
-    // return command under the cursor (and promote it among favorites) or the fallback
+    // get command under the cursor (and promote it among favorites) or the fallback
 
     char* chosen=getResultFromSelection(selectionCursorPosition);
     if(!chosen) {
@@ -1315,10 +1315,10 @@ void hide_notification(void)
     }
 }
 
-// true if there is space for another character after the pattern on the prompt row
-static bool pattern_fits_screen(const char* pattern, int width, unsigned basex)
+// calculate columns left after the pattern on the prompt row (negative if the pattern overflows the row)
+static int pattern_free_columns(const char* pattern, int width, unsigned basex)
 {
-    return hstr_strwidth(pattern)<width-(int)basex-1;
+    return width-(int)basex-1-hstr_strwidth(pattern);
 }
 
 void loop_to_select(void)
@@ -1436,7 +1436,7 @@ void loop_to_select(void)
             result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(pattern_fits_screen(pattern, width, basex)) {
+            if(pattern_free_columns(pattern, width, basex)>0) {
                 print_pattern(pattern, hstr->promptY, basex);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
@@ -1448,7 +1448,7 @@ void loop_to_select(void)
             result=hstr_print_selection(maxHistoryItems, pattern);
             print_history_label();
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(pattern_fits_screen(pattern, width, basex)) {
+            if(pattern_free_columns(pattern, width, basex)>0) {
                 print_pattern(pattern, hstr->promptY, basex);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
@@ -1464,7 +1464,7 @@ void loop_to_select(void)
             print_history_label();
             // TODO function
             selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
-            if(pattern_fits_screen(pattern, width, basex)) {
+            if(pattern_free_columns(pattern, width, basex)>0) {
                 print_pattern(pattern, hstr->promptY, basex);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
@@ -1485,7 +1485,7 @@ void loop_to_select(void)
                     hideNotificationOnNextTick=TRUE;
                 }
                 // TODO code review
-                if(pattern_fits_screen(pattern, width, basex)) {
+                if(pattern_free_columns(pattern, width, basex)>0) {
                     print_pattern(pattern, hstr->promptY, basex);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);
@@ -1588,7 +1588,11 @@ void loop_to_select(void)
             if(c>K_CTRL_Z) {
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-                if(pattern_fits_screen(pattern, width, basex) && hstr_strcat_char(pattern, sizeof(pattern), c)) {
+                if(pattern_free_columns(pattern, width, basex)>0 && hstr_strcat_char(pattern, sizeof(pattern), c)) {
+                    // double width character may not fit the last free column
+                    if(pattern_free_columns(pattern, width, basex)<0) {
+                        hstr_chop(pattern);
+                    }
                     print_pattern(pattern, hstr->promptY, basex);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);
