@@ -20,10 +20,15 @@
 #include "include/hstr_curses.h"
 #include "include/hstr_utils.h"
 
-// appends line to the selection unless it is full or (if noDuplicates) already present,
-// returns true if the line was added
-bool hstr_selection_add(char** selection, unsigned capacity, unsigned* selectionSize, char* line, bool noDuplicates)
-{
+bool hstr_selection_add(
+    char** selection,
+    unsigned capacity,
+    unsigned* selectionSize,
+    char* line,
+    bool noDuplicates
+) {
+    // append line to the selection unless it is full or (if noDuplicates) already there,
+    // returns true if the line was added
     if(!selection || !selectionSize || !line || *selectionSize>=capacity) {
         return false;
     }
@@ -40,9 +45,9 @@ bool hstr_selection_add(char** selection, unsigned capacity, unsigned* selection
     return true;
 }
 
-// returns rows by which a navigation key moves the selection cursor (0 for other keys)
 int hstr_selection_cursor_step(int key)
 {
+   // return rows by which a navigation key moves the selection cursor (0 for other keys)
     switch(key) {
     case KEY_UP:
     case K_CTRL_K:

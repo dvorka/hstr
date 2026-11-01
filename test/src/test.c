@@ -731,6 +731,70 @@ void test_string_elide()
     printf("%s\n", buffer);
 }
 
+// pattern typed on a terminal wider than the pattern buffer must not overflow it
+void test_strcat_char(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN a small buffer guarded by canary bytes
+    char memory[8];
+    memset(memory, '#', sizeof(memory));
+    char* buffer=memory+1;
+    const size_t size=sizeof(memory)-2;
+    buffer[0]=0;
+
+    // WHEN the buffer is filled beyond its capacity
+    unsigned i, appended=0;
+    for(i=0; i<2*size; i++) {
+        if(hstr_strcat_char(buffer, size, 'a'+i)) {
+            appended++;
+        }
+    }
+
+    // THEN only size-1 characters are appended, terminated and canaries are intact
+    TEST_ASSERT_EQUAL_UINT(size-1, appended);
+    TEST_ASSERT_EQUAL_STRING("abcde", buffer);
+    TEST_ASSERT_EQUAL_INT('#', memory[0]);
+    TEST_ASSERT_EQUAL_INT('#', memory[sizeof(memory)-1]);
+
+    // GIVEN an empty buffer
+    char pattern[8]={0};
+
+    // WHEN UTF-8 bytes, curses key codes and invalid values are appended
+    bool utf8First=hstr_strcat_char(pattern, sizeof(pattern), 0xC3);
+    bool utf8Second=hstr_strcat_char(pattern, sizeof(pattern), 0xA1);
+    bool keyCode=hstr_strcat_char(pattern, sizeof(pattern), KEY_LEFT);
+    bool zero=hstr_strcat_char(pattern, sizeof(pattern), 0);
+    bool negative=hstr_strcat_char(pattern, sizeof(pattern), -1);
+
+    // THEN only bytes are appended
+    TEST_ASSERT_TRUE(utf8First);
+    TEST_ASSERT_TRUE(utf8Second);
+    TEST_ASSERT_FALSE(keyCode);
+    TEST_ASSERT_FALSE(zero);
+    TEST_ASSERT_FALSE(negative);
+    TEST_ASSERT_EQUAL_STRING("\xC3\xA1", pattern);
+
+    // GIVEN invalid buffers
+    char unterminated[4]={'a', 'b', 'c', 'd'};
+    char empty[1]={0};
+
+    // WHEN a character is appended
+    bool nullAppended=hstr_strcat_char(NULL, 8, 'x');
+    bool unterminatedAppended=hstr_strcat_char(unterminated, sizeof(unterminated), 'x');
+    bool emptyAppended=hstr_strcat_char(empty, sizeof(empty), 'x');
+    bool zeroSizeAppended=hstr_strcat_char(pattern, 0, 'x');
+
+    // THEN nothing is written
+    TEST_ASSERT_FALSE(nullAppended);
+    TEST_ASSERT_FALSE(unterminatedAppended);
+    TEST_ASSERT_FALSE(emptyAppended);
+    TEST_ASSERT_FALSE(zeroSizeAppended);
+    TEST_ASSERT_EQUAL_MEMORY("abcd", unterminated, sizeof(unterminated));
+    TEST_ASSERT_EQUAL_INT(0, empty[0]);
+    printf("DONE\n");
+}
+
 void test_parse_history_line()
 {
     printf("\n= %s ========================================\n", __FUNCTION__);

@@ -62,6 +62,7 @@ extern void test_regexp(void);
 extern void test_help_long(void);
 extern void test_help_short(void);
 extern void test_string_elide();
+extern void test_strcat_char(void);
 extern void test_parse_history_line();
 extern void test_assemble_cmdline_pattern(void);
 
@@ -119,8 +120,9 @@ int main(void)
   RUN_TEST(test_help_long, 664);
   RUN_TEST(test_help_short, 682);
   RUN_TEST(test_string_elide, 700);
-  RUN_TEST(test_parse_history_line, 734);
-  RUN_TEST(test_assemble_cmdline_pattern, 754);
+  RUN_TEST(test_strcat_char, 735);
+  RUN_TEST(test_parse_history_line, 798);
+  RUN_TEST(test_assemble_cmdline_pattern, 818);
 
   return suite_teardown(UnityEnd());
 }

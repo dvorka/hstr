@@ -21,29 +21,9 @@
 #include "include/hstr.h"
 #include "include/hstr_selection.h"
 
-#define SELECTION_PREFIX_MAX_LNG 512
+#define PATTERN_BUFFER_LNG 512
 #define CMDLINE_LNG 8192
 #define HOSTNAME_BUFFER 128
-
-#define K_CTRL_A 1
-#define K_CTRL_E 5
-#define K_CTRL_F 6
-#define K_CTRL_G 7
-#define K_CTRL_H 8
-#define K_CTRL_L 12
-#define K_CTRL_R 18
-#define K_CTRL_T 20
-#define K_CTRL_U 21
-#define K_CTRL_W 23
-#define K_CTRL_X 24
-#define K_CTRL_Z 26
-
-#define K_CTRL_SLASH 31
-
-#define K_ESC 27
-#define K_TAB 9
-#define K_BACKSPACE 127
-#define K_ENTER 13
 
 #define HSTR_THEME_MONO   0
 #define HSTR_THEME_COLOR  1<<7
@@ -272,7 +252,7 @@ static Hstr* hstr;
 
 bool show_tiocsti_configuration_warning(void)
 {
-    // If stdin or stderr is not a TTY, don't prompt interactively to avoid invisible hangs
+    // if stdin or stderr is not a TTY, don't prompt interactively to avoid invisible hangs
     if (!isatty(STDIN_FILENO) || !isatty(STDERR_FILENO)) {
         return false;
     }
@@ -737,11 +717,6 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
-static void add_to_selection(char* line, unsigned* selectionCount, unsigned maxSelectionCount)
-{
-    hstr_selection_add(hstr->selection, maxSelectionCount, selectionCount, line, hstr->noRawHistoryDuplicates);
-}
-
 void print_help_label(void)
 {
     if(hstr->hideBasicHelp)
@@ -908,6 +883,9 @@ void hstr_realloc_selection(unsigned size)
 unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSelectionCount)
 {
     hstr_realloc_selection(maxSelectionCount);
+    // must be read after the realloc as it may move the selection
+    char** selection=hstr->selection;
+    bool noDuplicates=hstr->noRawHistoryDuplicates;
 
     unsigned i, selectionCount=0;
     char **source;
@@ -940,26 +918,26 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
     for(i=0; i<count && selectionCount<maxSelectionCount; i++) {
         if(source[i]) {
             if(!prefix || !strlen(prefix)) {
-                add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
             } else {
                 switch(hstr->matching) {
                 case HSTR_MATCH_SUBSTRING:
                     switch(hstr->caseSensitive) {
                     case HSTR_CASE_SENSITIVE:
                         if(source[i]==strstr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                            hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
                         }
                         break;
                     case HSTR_CASE_INSENSITIVE:
                         if(source[i]==strcasestr(source[i], prefix)) {
-                            add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                            hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
                         }
                         break;
                     }
                     break;
                 case HSTR_MATCH_REGEXP:
                     if(hstr_regexp_match(&(hstr->regexp), prefix, source[i], &regexpMatch, regexpErrorMessage, CMDLINE_LNG)) {
-                        hstr->selection[selectionCount]=source[i];
+                        selection[selectionCount]=source[i];
                         hstr->selectionRegexpMatch[selectionCount].rm_so=regexpMatch.rm_so;
                         hstr->selectionRegexpMatch[selectionCount].rm_eo=regexpMatch.rm_eo;
                         selectionCount++;
@@ -995,7 +973,7 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                         }
                     }
                     if(keywordsAllMatch) {
-                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                        hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
                     }
                     free(keywordsPointerToDelete);
                     break;
@@ -1013,13 +991,13 @@ unsigned hstr_make_selection(char* prefix, HistoryItems* history, unsigned maxSe
                 case HSTR_CASE_SENSITIVE:
                     substring = strstr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                        hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
                     }
                     break;
                 case HSTR_CASE_INSENSITIVE:
                     substring = strcasestr(source[i], prefix);
                     if (substring != NULL && substring!=source[i]) {
-                        add_to_selection(source[i], &selectionCount, maxSelectionCount);
+                        hstr_selection_add(selection, maxSelectionCount, &selectionCount, source[i], noDuplicates);
                     }
                     break;
                 }
@@ -1374,11 +1352,11 @@ void loop_to_select(void)
     int selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     int previousSelectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
     char *result="", *msg, *almostDead, *favorite;
-    char pattern[SELECTION_PREFIX_MAX_LNG];
+    char pattern[PATTERN_BUFFER_LNG];
     pattern[0]=0;
     // TODO this is too late! > don't render twice
-    strncpy(pattern, hstr->cmdline, SELECTION_PREFIX_MAX_LNG-1);
-    pattern[SELECTION_PREFIX_MAX_LNG-1]=0;
+    strncpy(pattern, hstr->cmdline, PATTERN_BUFFER_LNG-1);
+    pattern[PATTERN_BUFFER_LNG-1]=0;
 
     while (!done) {
         maxHistoryItems=recalculate_max_history_items();
@@ -1601,8 +1579,7 @@ void loop_to_select(void)
             if(c>K_CTRL_Z) {
                 selectionCursorPosition=SELECTION_CURSOR_IN_PROMPT;
 
-                if(strlen(pattern)<(width-basex-1)) {
-                    strcat(pattern, (char*)(&c));
+                if(strlen(pattern)<(width-basex-1) && hstr_strcat_char(pattern, sizeof(pattern), c)) {
                     print_pattern(pattern, hstr->promptY, basex);
                     cursorX=getcurx(stdscr);
                     cursorY=getcury(stdscr);

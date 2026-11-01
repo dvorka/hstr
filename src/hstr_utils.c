@@ -111,6 +111,31 @@ void hstr_chop(char *s)
     }
 }
 
+bool hstr_strcat_char(char* s, size_t size, int c)
+{
+    // append byte c to string s stored in buffer of the given size:
+    // - c must be a byte (UTF-8 characters are appended byte by byte),
+    //     other values (e.g. curses KEY_* codes) are rejected
+    // - returns false if c was not appended (invalid or full buffer)
+
+    if(!s || c<=0 || c>UCHAR_MAX) {
+        return false;
+    }
+
+    // bounded search - s may be unterminated within size
+    const char* end=memchr(s, 0, size);
+    if(!end) {
+        return false;
+    }
+    size_t length=(size_t)(end-s);
+    if(length+1>=size) {
+        return false;
+    }
+    s[length]=(char)c;
+    s[length+1]=0;
+    return true;
+}
+
 bool is_tiocsti_supported(void)
 {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)

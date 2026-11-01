@@ -21,17 +21,17 @@ AM_LDFLAGS =
 # bin_ installs to bin; hstr_ is the binary name
 bin_PROGRAMS = hstr
 
-hstr_SOURCES = 						\
-	hashset.c include/hashset.h 			\
+hstr_SOURCES = 									\
+	hashset.c include/hashset.h 				\
 	hstr_curses.c include/hstr_curses.h 		\
 	hstr_history.c include/hstr_history.h 		\
-	hstr_utils.c include/hstr_utils.h 		\
+	hstr_utils.c include/hstr_utils.h 			\
 	hstr_favorites.c include/hstr_favorites.h	\
 	hstr_blacklist.c include/hstr_blacklist.h	\
-	hstr_regexp.c include/hstr_regexp.h		\
+	hstr_regexp.c include/hstr_regexp.h			\
 	hstr_selection.c include/hstr_selection.h	\
-	radixsort.c include/radixsort.h 		\
-	hstr.c include/hstr.h                           \
+	radixsort.c include/radixsort.h 			\
+	hstr.c include/hstr.h                       \
 	main.c
 
 # create hstr > hh hard link on installation

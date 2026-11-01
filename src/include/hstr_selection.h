@@ -30,11 +30,32 @@
 // rows by which page up/down moves the selection cursor
 #define PG_JUMP_SIZE 10
 
-// Ctrl keys which move the selection cursor (in addition to arrow keys)
+// key codes
+#define K_CTRL_A 1
+#define K_CTRL_E 5
+#define K_CTRL_F 6
+#define K_CTRL_G 7
+#define K_CTRL_H 8
+#define K_CTRL_L 12
 #define K_CTRL_J 10
 #define K_CTRL_K 11
+
 #define K_CTRL_N 14
 #define K_CTRL_P 16
+
+#define K_CTRL_R 18
+#define K_CTRL_T 20
+#define K_CTRL_U 21
+#define K_CTRL_W 23
+#define K_CTRL_X 24
+#define K_CTRL_Z 26
+
+#define K_CTRL_SLASH 31
+
+#define K_ESC 27
+#define K_TAB 9
+#define K_BACKSPACE 127
+#define K_ENTER 13
 
 bool hstr_selection_add(
    char** selection,

@@ -21,6 +21,7 @@
 
 #include <ctype.h>
 #include <fcntl.h>
+#include <limits.h>
 #include <sys/ioctl.h>
 #include <sys/types.h>
 #include <stdlib.h>
@@ -85,6 +86,7 @@ char* hstr_strdup(const char* s);
 int hstr_strlen(const char* s);
 char* hstr_strelide(char* buffer, const char* s, unsigned maxlength);
 void hstr_chop(char* s);
+bool hstr_strcat_char(char* s, size_t size, int c);
 bool is_tiocsti_supported(void);
 #if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti(void);
