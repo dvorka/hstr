@@ -1,7 +1,13 @@
 2026-10-31  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release bringing:
-    - Fixed leading space in case of empty HSTR prompt by @roshal
+    - Fixed leading space in case of empty HSTR prompt by @roshal (indent kept
+      for non-empty prompts)
+    - Fixed favorites corruption and crash on empty selection (#470)
+    - Fixed out of bounds selection access with prompt at the bottom
+      (PgUp/PgDn, regexp highlighting) and stale cursor after backspace
+    - Fixed duplicate favorites when adding an existing favorite
+    - Fixed memory leak and misleading deletion count on favorite removal
 
 2026-02-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
