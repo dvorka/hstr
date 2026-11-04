@@ -1,0 +1,146 @@
+name: Release assets build
+
+# build HSTR release assets which are attached to the GitHub release MANUALLY:
+#   - hstr-<version>-tarball.tgz ...... upstream tarball (w/ generated configure)
+#   - hstr-<version>-bin-64b.tgz ...... stripped binary (Ubuntu 24.04)
+#   - hstr_<version>-1_amd64.deb ...... Debian/Ubuntu binary package (Ubuntu 24.04)
+#   - hstr-<version>-1.fc<N>.*.rpm .... Fedora binary and source packages
+# triggers:
+#   - pull request w/ master target (base) branch ... check assets before the merge
+#   - push to master i.e. merged pull request ....... assets of the release
+#   - manual run (Actions > Run workflow) ........... assets of any branch or tag
+#                                                     e.g. of an older release
+# all assets are in the hstr-<version>-release-assets artifact of the workflow run
+on:
+  pull_request:
+    branches: [master]
+  push:
+    branches: [master]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  tarball:
+    runs-on: ubuntu-24.04
+    outputs:
+      version: ${{ steps.version.outputs.version }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y build-essential autoconf automake pkg-config bash-completion libncursesw5-dev libreadline-dev
+
+      - name: Get HSTR version
+        id: version
+        # version is parsed from hstr.c which is authoritative
+        run: |
+          VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' src/hstr.c)
+          if [ -z "${VERSION}" ]; then
+            echo "ERROR: unable to parse HSTR version from src/hstr.c"
+            exit 1
+          fi
+          echo "version=${VERSION}" >> "${GITHUB_OUTPUT}"
+
+      - name: Build tarball and binary
+        run: build/tarball/tarball-build.sh ci "${RUNNER_TEMP}/assets"
+
+      - name: Smoke test binary
+        run: |
+          mkdir -p "${RUNNER_TEMP}/smoke" && cd "${RUNNER_TEMP}/smoke"
+          tar xzf "${RUNNER_TEMP}/assets/hstr-${{ steps.version.outputs.version }}-bin-64b.tgz"
+          ./hstr --version | grep -F '"${{ steps.version.outputs.version }}"'
+
+      - name: Archive tarball and binary
+        uses: actions/upload-artifact@v4
+        with:
+          name: hstr-${{ steps.version.outputs.version }}-tarball
+          path: ${{ runner.temp }}/assets/hstr-*.tgz
+          if-no-files-found: error
+
+  deb:
+    needs: tarball
+    runs-on: ubuntu-24.04
+    env:
+      VERSION: ${{ needs.tarball.outputs.version }}
+    steps:
+      # Debian control files and build script are taken from the repository
+      - uses: actions/checkout@v4
+
+      - name: Install packages
+        run: sudo apt-get update && sudo apt-get install -y build-essential debhelper autotools-dev dpkg-dev pkg-config bash-completion libncursesw5-dev libreadline-dev
+
+      - name: Download tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: hstr-${{ needs.tarball.outputs.version }}-tarball
+          path: ${{ runner.temp }}/tarball
+
+      - name: Build .deb
+        run: build/debian/make-deb.sh ci "${RUNNER_TEMP}/tarball/hstr-${VERSION}-tarball.tgz" "${RUNNER_TEMP}/deb"
+
+      - name: Smoke test .deb
+        run: |
+          sudo apt-get install -y "${RUNNER_TEMP}/deb/hstr_${VERSION}-1_amd64.deb"
+          hstr --version | grep -F "\"${VERSION}\""
+          dpkg -L hstr | grep -q '/man1/hstr.1.gz$'
+
+      - name: Archive .deb
+        uses: actions/upload-artifact@v4
+        with:
+          name: hstr-${{ needs.tarball.outputs.version }}-deb
+          path: ${{ runner.temp }}/deb/hstr_*.deb
+          if-no-files-found: error
+
+  rpm:
+    needs: tarball
+    runs-on: ubuntu-24.04
+    strategy:
+      fail-fast: false
+      matrix:
+        # supported Fedora releases: https://fedorapeople.org/groups/schedule/
+        fedora: [44, 45]
+    container: fedora:${{ matrix.fedora }}
+    env:
+      VERSION: ${{ needs.tarball.outputs.version }}
+    # paths are relative to the workspace - runner.temp is a host path which
+    # differs from RUNNER_TEMP inside the container
+    steps:
+      # RPM spec and build script are taken from the repository
+      - uses: actions/checkout@v4
+
+      - name: Install packages
+        run: dnf install -y rpm-build gcc make ncurses-devel readline-devel 'pkgconfig(bash-completion)'
+
+      - name: Download tarball
+        uses: actions/download-artifact@v4
+        with:
+          name: hstr-${{ needs.tarball.outputs.version }}-tarball
+          path: dist/tarball
+
+      - name: Build .rpm
+        run: build/fedora/rpm-build.sh "dist/tarball/hstr-${VERSION}-tarball.tgz" dist/rpm
+
+      - name: Smoke test .rpm
+        run: |
+          dnf install -y "dist/rpm/hstr-${VERSION}-1.fc${{ matrix.fedora }}.x86_64.rpm"
+          hstr --version | grep -F "\"${VERSION}\""
+          hh --version | grep -F "\"${VERSION}\""
+
+      - name: Archive .rpm
+        uses: actions/upload-artifact@v4
+        with:
+          name: hstr-${{ needs.tarball.outputs.version }}-fedora-${{ matrix.fedora }}
+          path: dist/rpm/hstr-*.rpm
+          if-no-files-found: error
+
+  assets:
+    needs: [tarball, deb, rpm]
+    runs-on: ubuntu-24.04
+    steps:
+      - name: Merge all release assets to one artifact
+        uses: actions/upload-artifact/merge@v4
+        with:
+          name: hstr-${{ needs.tarball.outputs.version }}-release-assets
+          pattern: hstr-${{ needs.tarball.outputs.version }}-*

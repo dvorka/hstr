@@ -18,6 +18,14 @@
 # Method:
 #   upstream tarball > source deb > binary deb
 #
+# Usage:
+#   ./make-deb.sh                          ... maintainer build of source and binary deb:
+#                                              copy this script to ~/p/hstr/debian and run
+#                                              it from there (MUST NOT run from Git repository)
+#   ./make-deb.sh ci <tarball> <out-dir>   ... CI build (GitHub Actions) of UNSIGNED binary deb
+#                                              from the upstream tarball created by
+#                                              build/tarball/tarball-build.sh ci
+#
 # See:
 #   Beginners guide:
 #     https://wiki.debian.org/IntroDebianPackaging
@@ -134,8 +142,68 @@ function buildDebPackage() {
 }
 
 # ############################################################################
+# # Build binary deb package from upstream tarball (CI) #
+# ############################################################################
+
+function buildBinaryDebFromTarball() {
+    local tarball=$1
+    local outdir=$2
+    export HSTRVERSION=$3
+    export HSTRBZRMSG=$4
+    export HSTRFULLVERSION=${HSTRVERSION}-1    # mantainer upload
+    export HSTR=hstr_${HSTRVERSION}
+    export DEBIANVERSION=unstable
+
+    local work
+    work=$(mktemp -d "${TMPDIR:-/tmp}/hstr-deb.XXXXXX") || return 1
+
+    # upstream tarball root directory is hstr/ and it already contains configure
+    tar xzf "${tarball}" -C "${work}" || return 1
+    mv "${work}/hstr" "${work}/${HSTR}" || return 1
+    cd "${work}/${HSTR}" || return 1
+
+    cp -rf ${HSTRSRC}/build/debian/debian . || return 1
+    createChangelog ./debian/changelog
+
+    DEBEMAIL="martin.dvorak@mindforger.com"
+    DEBFULLNAME="Martin Dvorak"
+    export DEBEMAIL DEBFULLNAME
+
+    # UNSIGNED binary only build - no GPG key in CI
+    dpkg-buildpackage -us -uc -b || return 1
+
+    cp -vf ../*.deb "${outdir}" || return 1
+    cd / && rm -rf "${work}"
+}
+
+# ############################################################################
 # # Main #
 # ############################################################################
+
+if [ "${1}" = "ci" ]
+then
+    export HSTRSRC=$(cd "$(dirname "${0}")/../.." && pwd)
+    if [ ! -f "${2}" ] || [ -z "${3}" ]
+    then
+        echo "ERROR: usage: ${0} ci <upstream tarball> <out-dir>"
+        exit 1
+    fi
+    ARG_TARBALL=$(cd "$(dirname "${2}")" && pwd)/$(basename "${2}")
+    mkdir -p "${3}" && ARG_OUTDIR=$(cd "${3}" && pwd) || exit 1
+    ARG_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
+    if [ -z "${ARG_VERSION}" ]
+    then
+        echo "ERROR: unable to parse HSTR version from ${HSTRSRC}/src/hstr.c"
+        exit 1
+    fi
+    if ! buildBinaryDebFromTarball "${ARG_TARBALL}" "${ARG_OUTDIR}" "${ARG_VERSION}" "HSTR ${ARG_VERSION}"
+    then
+        echo "ERROR: binary deb build failed"
+        exit 1
+    fi
+    echo "DONE: HSTR ${ARG_VERSION} binary deb created in ${ARG_OUTDIR}"
+    exit 0
+fi
 
 echo "This script MUST run on Debian OS (or VM)"
 echo "This script is expected to be copied to and run from: ~/p/hstr/debian"
@@ -159,6 +227,6 @@ export ARG_BAZAAR_MSG="HSTR ${ARG_VERSION}"
 # Debian releases: https://www.debian.org/releases/
 #   6/7/8/9/10: squeeze wheezy jessie stretch buster
 
-buildDebPackage ${ARG_VERSION} ${ARG_BAZAAR_MSG}
+buildDebPackage "${ARG_VERSION}" "${ARG_BAZAAR_MSG}"
 
 # eof

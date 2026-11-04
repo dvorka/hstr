@@ -26,12 +26,16 @@
 #     https://www.debian.org/doc/debian-policy/
 #
 
-# This script cannot be run from Git repository. Launchpad release
-# directory must exist.
+# This script cannot be run from Git repository.
+# Launchpad release directory must exist.
 
 export HSTRSRC=/home/dvorka/p/hstr/github/hstr
 export HSTRRELEASEDIR=/home/dvorka/p/hstr/launchpad
 export SCRIPTHOME=`pwd`
+# Debian package maintainer - debian/changelog is signed w/ GPG key of this email
+# (it is independent of Bazaar identity configured by bzr whoami)
+export HSTRMAINTAINERNAME="Martin Dvorak (Dvorka)"
+export HSTRMAINTAINEREMAIL=martin.dvorak@mindforger.com
 
 # ############################################################################
 # # Check dependencies #
@@ -100,12 +104,10 @@ function checkDependencies() {
         exit 1
     fi
 
-    # check for GPG key matching the debian maintainer email
-    local bzr_email=$(bzr whoami 2>/dev/null | grep -oP '<\K[^>]+')
-    if [ -n "$bzr_email" ]; then
-        if ! gpg --list-secret-keys "$bzr_email" &> /dev/null; then
-            missing_config+=("gpg-key")
-        fi
+    # check for GPG key matching the Debian maintainer email - bzr builddeb signs
+    # the source package w/ the key of the maintainer from debian/changelog
+    if ! gpg --list-secret-keys "${HSTRMAINTAINEREMAIL}" &> /dev/null; then
+        missing_config+=("gpg-key")
     fi
 
     # report missing configuration (second check after GPG)
@@ -114,14 +116,14 @@ function checkDependencies() {
         for cfg in "${missing_config[@]}"; do
             case $cfg in
                 gpg-key)
-                    echo "  - No GPG key found for: $bzr_email"
+                    echo "  - No GPG key found for Debian maintainer: ${HSTRMAINTAINEREMAIL}"
                     echo ""
                     echo "    OPTION 1: Generate new GPG key:"
                     echo "      gpg --full-generate-key"
-                    echo "      (Use: Martin Dvorak <$bzr_email>)"
+                    echo "      (Use: ${HSTRMAINTAINERNAME} <${HSTRMAINTAINEREMAIL}>)"
                     echo ""
                     echo "    OPTION 2: Import key from old machine:"
-                    echo "      On old machine: gpg --export-secret-keys $bzr_email > ~/gpg-key.asc"
+                    echo "      On old machine: gpg --export-secret-keys ${HSTRMAINTAINEREMAIL} > ~/gpg-key.asc"
                     echo "      Transfer file securely, then: gpg --import ~/gpg-key.asc"
                     echo ""
                     echo "    After creating/importing key:"
@@ -177,7 +179,7 @@ function createChangelog() {
     echo -e "\n" >> $1
     echo -e "  * ${HSTRBZRMSG}" >> $1
     echo -e "\n" >> $1
-    echo -e " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
+    echo -e " -- ${HSTRMAINTAINERNAME} <${HSTRMAINTAINEREMAIL}>  ${MYTS} +0100" >> $1
     echo -e "\n" >> $1
 }
 
@@ -303,25 +305,64 @@ then
 fi
 export ARG_MAJOR_VERSION="${HSTR_VERSION%.*}."
 export ARG_BAZAAR_MSG="Release ${HSTR_VERSION%.*}"
-export ARG_MINOR_VERSION=10 # minor version is incremented for every Ubuntu version
+export ARG_FIRST_MINOR_VERSION=0
 
-# https://en.wikipedia.org/wiki/Ubuntu_version_history
-# https://wiki.ubuntu.com/Releases
-# obsolete:
-#   precise quantal saucy precise utopic vivid wily yakkety xenial artful cosmic disco eoan groovy hirsute impish oracular plucky
-# missed:
-#   oracular
-# current :
-#   trusty xenial bionic focal jammy noble . questing
-# future:
-#   resolute
-# command :
-#   trusty xenial bionic focal jammy noble questing
-for UBUNTU_VERSION in trusty xenial bionic focal jammy plucky questing
+# Ubuntu versions:
+# - https://en.wikipedia.org/wiki/Ubuntu_version_history
+#   https://wiki.ubuntu.com/Releases
+#   https://api.launchpad.net/devel/ubuntu/series ... status of all series
+#     (Launchpad rejects PPA uploads to Obsolete series)
+# - obsolete:
+#     precise quantal saucy utopic vivid wily yakkety zesty artful cosmic disco eoan
+#     groovy hirsute impish kinetic lunar mantic oracular plucky questing
+# - history (* LTS):
+#     trusty* xenial* bionic* (cosmic disco eoan) focal* (groovy hirsute impish)
+#     jammy* (kinetic lunar mantic) noble* (oracular plucky questing) resolute*
+# - NOT RELEASED (standard support ended, ESM only):
+#     trusty xenial bionic focal
+# - current ~ Bash tuple below || ./launchpad-make-all-releases.sh <DISTRO>:
+#     jammy noble resolute stonking
+#     ^ every distro needs pbuilder base tarball in ~/pbuilder/<DISTRO>-base.tgz
+# - future (Active Development):
+#     tenacious
+#
+# IMPORTANT: keep the order from the oldest to the newest Ubuntu version - minor
+# version is derived from the position in the list, therefore distro upgrade gets
+# a newer HSTR package version and a single distro release gets the same version
+# as in a release of all distros
+export UBUNTU_ALL_VERSIONS=(jammy noble resolute stonking)
+
+# minorVersion <distro> - prints minor version of HSTR package for the Ubuntu version
+function minorVersion() {
+    local i
+    for i in "${!UBUNTU_ALL_VERSIONS[@]}"
+    do
+        if [ "${UBUNTU_ALL_VERSIONS[$i]}" = "${1}" ]
+        then
+            echo $((ARG_FIRST_MINOR_VERSION + i))
+            return 0
+        fi
+    done
+    return 1
+}
+
+if [[ ${#} == 1 ]]
+then
+    if ! minorVersion "${1}" > /dev/null
+    then
+        echo "ERROR: unsupported Ubuntu version '${1}' - use one of: ${UBUNTU_ALL_VERSIONS[*]}"
+        exit 1
+    fi
+    export UBUNTU_VERSIONS=(${1})
+else
+    export UBUNTU_VERSIONS=(${UBUNTU_ALL_VERSIONS[@]})
+fi
+
+for UBUNTU_VERSION in ${UBUNTU_VERSIONS[@]}
 do
-    echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
+    ARG_MINOR_VERSION=$(minorVersion ${UBUNTU_VERSION})
+    echo "Releasing HSTR ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
-    ARG_MINOR_VERSION=`expr $ARG_MINOR_VERSION + 1`
 done
 
 # eof

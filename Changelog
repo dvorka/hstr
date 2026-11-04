@@ -35,6 +35,8 @@
     - Fixed Zsh history with non-ASCII characters (e.g. "čeština") which was
       shown, searched and inserted to the prompt in Zsh metafied encoding,
       and deletion of Zsh history entries with long command duration
+    - Added Stonking Stingray Ubuntu version support at Launchpad.
+    - Added GitHub actions workflows to build tarball, .deb, and .rpm distros.
     - Fixed build on Linux distributions without ncursesw/curses.h header
       (e.g. Arch Linux) - thanks to Kipras Melnikovas (@kiprasmel)
 
