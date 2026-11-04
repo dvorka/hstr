@@ -299,22 +299,24 @@ Increase the size of history maintained by `bash` - variables defined below
 increase the number of history items and history file size (default value is 500):
 
 ```bash
-if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0-9]+$ && 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
+if [[ -z ${HISTSIZE+x} || ${HISTSIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 ```
 
 The sizes are only increased, never decreased - existing larger or unlimited
 (negative or empty) values are kept. **Beware:** assignment of a smaller value
 to `HISTFILESIZE` immediately truncates your `.bash_history` (removes the oldest
 entries). `HISTFILESIZE` is intentionally not set if it is unset, because `bash`
-defaults it to `HISTSIZE` after reading startup files. The `10#` prefix forces
-decimal comparison (leading zeros would be interpreted as octal numbers otherwise).
+defaults it to `HISTSIZE` after reading startup files. Sizes are compared using
+a regular expression (a decimal number below `10000`) instead of arithmetic,
+which would interpret leading zeros as octal numbers and wrap very large values
+(`[[:digit:]]` matches ASCII digits only, unlike `[0-9]` in some UTF-8 locales).
 
 Ensure syncing (flushing and reloading) of `.bash_history` with 
 in-memory history:
 
 ```bash
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND-}"
 ```
 
 Force appending of in-memory history to `.bash_history` (instead 

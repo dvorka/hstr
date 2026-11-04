@@ -31,12 +31,20 @@
 #include "../../src/include/hstr_utils.h"
 #include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
+#include "../../src/include/hstr_selection.h"
 #include "../../src/include/hstr.h"
 #include <string.h>
 #include <regex.h>
 #include <stdio.h>
 #include <stdbool.h>
 #include <getopt.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+#include <locale.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 /*=======External Functions This Runner Calls=====*/
 extern void setUp(void);
@@ -72,6 +80,7 @@ extern void test_remove_from_system_history(void);
 extern void test_strcat_char_fitting(void);
 extern void test_parse_history_line();
 extern void test_assemble_cmdline_pattern(void);
+extern void test_is_tiocsti_supported_without_terminal(void);
 
 
 /*=======Suite Setup=====*/
@@ -106,37 +115,38 @@ int main(void)
 {
   suite_setup();
   UnityBegin("../test/src/test.c");
-  RUN_TEST(test_args, 102);
-  RUN_TEST(test_getopt, 140);
-  RUN_TEST(test_locate_char_in_string_overflow, 226);
-  RUN_TEST(test_favorites, 239);
-  RUN_TEST(test_favorites_choose_missing_choice, 313);
-  RUN_TEST(test_favorites_choose_moves_choice_to_head, 331);
-  RUN_TEST(test_favorites_add_new_to_head, 351);
-  RUN_TEST(test_favorites_add_existing_no_duplicate, 371);
-  RUN_TEST(test_favorites_remove, 390);
-  RUN_TEST(test_favorites_remove_missing, 410);
-  RUN_TEST(test_favorites_null_safety, 429);
-  RUN_TEST(test_selection_index, 450);
-  RUN_TEST(test_selection_cursor_move, 477);
-  RUN_TEST(test_selection_cursor_step, 517);
-  RUN_TEST(test_selection_add, 546);
-  RUN_TEST(test_hashset_blacklist, 600);
-  RUN_TEST(test_hashset_get_keys, 617);
-  RUN_TEST(test_regexp, 640);
-  RUN_TEST(test_help_long, 682);
-  RUN_TEST(test_help_short, 700);
-  RUN_TEST(test_string_elide, 718);
-  RUN_TEST(test_strcat_char, 753);
-  RUN_TEST(test_history_file_name, 823);
-  RUN_TEST(test_string_width, 907);
-  RUN_TEST(test_string_elide_multibyte, 945);
-  RUN_TEST(test_chop, 1008);
-  RUN_TEST(test_history_line_equals, 1046);
-  RUN_TEST(test_remove_from_system_history, 1077);
-  RUN_TEST(test_strcat_char_fitting, 1116);
-  RUN_TEST(test_parse_history_line, 1166);
-  RUN_TEST(test_assemble_cmdline_pattern, 1186);
+  RUN_TEST(test_args, 105);
+  RUN_TEST(test_getopt, 143);
+  RUN_TEST(test_locate_char_in_string_overflow, 229);
+  RUN_TEST(test_favorites, 242);
+  RUN_TEST(test_favorites_choose_missing_choice, 316);
+  RUN_TEST(test_favorites_choose_moves_choice_to_head, 334);
+  RUN_TEST(test_favorites_add_new_to_head, 354);
+  RUN_TEST(test_favorites_add_existing_no_duplicate, 374);
+  RUN_TEST(test_favorites_remove, 393);
+  RUN_TEST(test_favorites_remove_missing, 413);
+  RUN_TEST(test_favorites_null_safety, 432);
+  RUN_TEST(test_selection_index, 453);
+  RUN_TEST(test_selection_cursor_move, 480);
+  RUN_TEST(test_selection_cursor_step, 520);
+  RUN_TEST(test_selection_add, 549);
+  RUN_TEST(test_hashset_blacklist, 603);
+  RUN_TEST(test_hashset_get_keys, 620);
+  RUN_TEST(test_regexp, 643);
+  RUN_TEST(test_help_long, 685);
+  RUN_TEST(test_help_short, 703);
+  RUN_TEST(test_string_elide, 721);
+  RUN_TEST(test_strcat_char, 756);
+  RUN_TEST(test_history_file_name, 826);
+  RUN_TEST(test_string_width, 910);
+  RUN_TEST(test_string_elide_multibyte, 948);
+  RUN_TEST(test_chop, 1011);
+  RUN_TEST(test_history_line_equals, 1049);
+  RUN_TEST(test_remove_from_system_history, 1080);
+  RUN_TEST(test_strcat_char_fitting, 1119);
+  RUN_TEST(test_parse_history_line, 1169);
+  RUN_TEST(test_assemble_cmdline_pattern, 1189);
+  RUN_TEST(test_is_tiocsti_supported_without_terminal, 1298);
 
   return suite_teardown(UnityEnd());
 }

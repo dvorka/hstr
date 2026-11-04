@@ -27,6 +27,9 @@
 #include <unistd.h>
 #include <limits.h>
 #include <locale.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 // HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
 #include "unity/src/c/unity.h"
@@ -1264,4 +1267,92 @@ void test_assemble_cmdline_pattern(void)
     TEST_ASSERT_EQUAL_INT(29, strlen(result));
 
     printf("DONE\n");
+}
+
+// reads fd until EOF to NUL terminated buffer, data not fitting the buffer are drained, returns
+// the number of bytes read (incl. drained ones)
+static size_t read_all(int fd, char* buffer, size_t size)
+{
+    size_t length=0, total=0;
+    char chunk[256];
+    ssize_t n;
+    while((n=read(fd, chunk, sizeof(chunk)))!=0) {
+        if(n<0) {
+            if(errno==EINTR) {
+                continue;
+            }
+            break;
+        }
+        size_t copy=(size_t)n;
+        if(copy>size-1-length) {
+            copy=size-1-length;
+        }
+        memcpy(buffer+length, chunk, copy);
+        length+=copy;
+        total+=(size_t)n;
+    }
+    buffer[length]=0;
+    return total;
+}
+
+void test_is_tiocsti_supported_without_terminal(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
+    TEST_IGNORE_MESSAGE("TIOCSTI is not probed on this platform");
+#else
+    // GIVEN child process w/o controlling terminal (like scripts which append
+    // hstr --show-configuration to ~/.bashrc) w/ captured stdout and stderr - the result
+    // is sent using a pipe as exit code of the child may be changed by tools like Valgrind
+    int out[2], err[2], result[2];
+    TEST_ASSERT_EQUAL_INT(0, pipe(out));
+    TEST_ASSERT_EQUAL_INT(0, pipe(err));
+    TEST_ASSERT_EQUAL_INT(0, pipe(result));
+    fflush(stdout);
+    fflush(stderr);
+    pid_t pid=fork();
+    TEST_ASSERT_TRUE(pid>=0);
+    if(pid==0) {
+        // setsid() detaches the child from the controlling terminal - open("/dev/tty") fails
+        if(setsid()<0 || dup2(out[1], STDOUT_FILENO)<0 || dup2(err[1], STDERR_FILENO)<0) {
+            _exit(2);
+        }
+        close(out[0]);
+        close(out[1]);
+        close(err[0]);
+        close(err[1]);
+        close(result[0]);
+
+        // WHEN
+        char supported=is_tiocsti_supported() ? 'y' : 'n';
+
+        fflush(stdout);
+        fflush(stderr);
+        _exit(write(result[1], &supported, 1)==1 ? 0 : 3);
+    }
+    close(out[1]);
+    close(err[1]);
+    close(result[1]);
+    char outBuffer[512], errBuffer[512], resultBuffer[8];
+    size_t outLength=read_all(out[0], outBuffer, sizeof(outBuffer));
+    size_t errLength=read_all(err[0], errBuffer, sizeof(errBuffer));
+    size_t resultLength=read_all(result[0], resultBuffer, sizeof(resultBuffer));
+    close(out[0]);
+    close(err[0]);
+    close(result[0]);
+    int status=0;
+    TEST_ASSERT_EQUAL_INT(pid, waitpid(pid, &status, 0));
+
+    // THEN TIOCSTI is not supported and stdout is clean - diagnostics are on stderr only
+    printf("  stdout: '%s'\n  stderr: '%s'\n", outBuffer, errBuffer);
+    TEST_ASSERT_TRUE(WIFEXITED(status));
+    TEST_ASSERT_EQUAL_UINT(1, resultLength);
+    TEST_ASSERT_EQUAL_INT('n', resultBuffer[0]);
+    TEST_ASSERT_EQUAL_UINT(0, outLength);
+    TEST_ASSERT_TRUE(errLength>0);
+    TEST_ASSERT_NOT_NULL(strstr(errBuffer, "TIOCSTI"));
+
+    printf("DONE\n");
+#endif
 }

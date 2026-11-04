@@ -457,18 +457,18 @@ hh          # If you created an alias</code></pre>
                 <h3>History Settings</h3>
                 <p>Increase history size for better results:</p>
                 <pre><code># Bash
-# increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0-9]+$ &amp;&amp; 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
+# increase history size &amp; never shrink it
+if [[ -z ${HISTSIZE+x} || ${HISTSIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 shopt -s histappend
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND-}"
 
 # Hide commands with leading space
 export HISTCONTROL=ignorespace</code></pre>
 
                 <pre><code># Zsh
 export HISTFILE=~/.zsh_history
-# increase history size (zsh default is 30/0) - never shrink existing sizes
+# increase history size &amp; never shrink it
 if (( ${HISTSIZE:-0} &lt; 10000 )); then HISTSIZE=10000; fi
 if (( ${SAVEHIST:-0} &lt; 10000 )); then SAVEHIST=10000; fi
 setopt HIST_IGNORE_SPACE</code></pre>
@@ -498,7 +498,7 @@ cat $HISTFILE | wc -l</code></pre>
                 <p>Make sure history is being saved:</p>
                 <pre><code># For Bash
 shopt -s histappend
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"</code></pre>
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND-}"</code></pre>
 
                 <h3>HSTR Not Found After Installation</h3>
                 <p>Make sure the installation directory is in your PATH:</p>

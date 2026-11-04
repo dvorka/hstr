@@ -257,15 +257,16 @@ bool is_tiocsti_supported(void)
    int fd;
    struct termios t;
 
+   // diagnostics go to stderr only - stdout of e.g. --show-configuration
+   // is appended to ~/.bashrc and it is often run without terminal (scripts)
    fd = open("/dev/tty", O_RDWR);
    if (fd < 0) {
-      printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
-      perror("open /dev/tty");
+      perror("Error: unable to detect whether TIOCSTI is supported by the kernel - open /dev/tty");
       return false;
    }
    if (tcgetattr(fd, &t) < 0) {
-      printf("Error: unable to detect whether TIOCSTI is supported by the kernel");
-      perror("tcgetattr");
+      perror("Error: unable to detect whether TIOCSTI is supported by the kernel - tcgetattr");
+      close(fd);
       return false;
    }
 
@@ -273,7 +274,7 @@ bool is_tiocsti_supported(void)
    // probe TIOCSTI by sending (and clearing) the character
    if (!ioctl(fd, TIOCSTI, " ")) { // send probe character
       tcflush(fd, TCIOFLUSH); // flush probe character (avoid insert to prompt)
-      return true;
+      is_supported = true;
    }
    close(fd);
 

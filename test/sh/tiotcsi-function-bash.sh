@@ -182,11 +182,11 @@ alias hh=hstr                    # hh to be alias for hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
-# increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0-9]+$ && 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi
+# increase history size & never shrink it
+if [[ -z ${HISTSIZE+x} || ${HISTSIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 # ensure synchronization between bash memory and history file
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND-}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 function hstrnotiocsti {
     { HSTR_OUT="$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )"; } 3>&1;

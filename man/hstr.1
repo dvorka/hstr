@@ -211,17 +211,17 @@ alias hh=hstr                    # hh to be alias for hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
-# increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ \-z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0\-9]+$ && 10#$HISTSIZE \-lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0\-9]+$ && 10#$HISTFILESIZE \-lt 10000 ]]; then export HISTFILESIZE=10000; fi
+# increase history size & never shrink it
+if [[ \-z ${HISTSIZE+x} || ${HISTSIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 # ensure synchronization between bash memory and history file
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND\-}"
 function hstrnotiocsti {
-    { READLINE_LINE=\"$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;
+    { READLINE_LINE="$( { </dev/tty hstr \-\- ${READLINE_LINE}; } 2>&1 1>&3 3>&\- )"; } 3>&1;
     READLINE_POINT=${#READLINE_LINE}
 }
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
-if [[ $- =~ .*i.* ]]; then bind -x '"\C-r": "hstrnotiocsti"'; fi
+if [[ $\- =~ .*i.* ]]; then bind \-x '"\eC\-r": "hstrnotiocsti"'; fi
 export HSTR_TIOCSTI=n
 .sp
 .fi
@@ -232,11 +232,11 @@ alias hh=hstr                    # make hh alias of hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
-# increase history size (default is 500) - never shrink existing or unlimited sizes
-if [[ \-z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0\-9]+$ && 10#$HISTSIZE \-lt 10000 ) ]]; then export HISTSIZE=10000; fi
-if [[ $HISTFILESIZE =~ ^[0\-9]+$ && 10#$HISTFILESIZE \-lt 10000 ]]; then export HISTFILESIZE=10000; fi
+# increase history size & never shrink it
+if [[ \-z ${HISTSIZE+x} || ${HISTSIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 # ensure synchronization between bash memory and history file
-export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND\-}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
 .sp
@@ -247,7 +247,7 @@ Add the following lines to ~/zshrc if TIOCSTI is not supported by your OS:
 .sp
 alias hh=hstr                    # hh to be alias for hstr
 setopt histignorespace           # skip cmds w/ leading space from history
-# increase history size (zsh default is 30/0) - never shrink existing sizes
+# increase history size & never shrink it
 if (( ${HISTSIZE:-0} < 10000 )); then HISTSIZE=10000; fi
 if (( ${SAVEHIST:-0} < 10000 )); then SAVEHIST=10000; fi
 export HSTR_CONFIG=hicolor       # get more colors
@@ -259,7 +259,7 @@ hstr_no_tiocsti() {
     zle redisplay
 }
 zle -N hstr_no_tiocsti
-bindkey '\C-r' hstr_no_tiocsti
+bindkey '\eC\-r' hstr_no_tiocsti
 export HSTR_TIOCSTI=n
 .sp
 .fi

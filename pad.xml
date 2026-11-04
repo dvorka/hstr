@@ -51,19 +51,19 @@
 	</Company_Info>
 	<Program_Info>
 		<Program_Name>HSTR</Program_Name>
-		<Program_Version>3.2.0</Program_Version>
-		<Program_Release_Month>1</Program_Release_Month>
-		<Program_Release_Day>28</Program_Release_Day>
+		<Program_Version>3.3.0</Program_Version>
+		<Program_Release_Month>11</Program_Release_Month>
+		<Program_Release_Day>01</Program_Release_Day>
 		<Program_Release_Year>2026</Program_Release_Year>
 		<Program_Cost_Dollars />
 		<Program_Cost_Other_Code>USD</Program_Cost_Other_Code>
 		<Program_Cost_Other />
 		<Program_Type>Freeware</Program_Type>
-		<Program_Release_Status>Major Update</Program_Release_Status>
+		<Program_Release_Status>Minor Update</Program_Release_Status>
 		<Program_Install_Support>Install and Uninstall</Program_Install_Support>
 		<Program_OS_Support>Linux,Linux Console,Linux Open Source,Mac OS X,Windows WSL</Program_OS_Support>
 		<Program_Language>English</Program_Language>
-		<Program_Change_Info />
+		<Program_Change_Info>Fixed truncation of bash history file by HSTR configuration (--show-configuration) - history size (bash HISTSIZE and HISTFILESIZE, zsh HISTSIZE and SAVEHIST) is only increased, never decreased and unlimited sizes are kept, also for very large values and in UTF-8 locales - thanks to @awcator; Fixed HSTR bash configuration with set -u (nounset) - unset HISTFILESIZE and PROMPT_COMMAND no longer cause errors...</Program_Change_Info>
 		<Program_Specific_Category>Utilities</Program_Specific_Category>
 		<Program_Category_Class>System Utilities::Shell Tools</Program_Category_Class>
 		<Program_Categories />

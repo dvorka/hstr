@@ -1,10 +1,18 @@
 2026-11-01  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.3.0 - Minor release bringing:
+  * Released v3.3.0 - Minor release:
     - Fixed truncation of bash history file by HSTR configuration
       (--show-configuration) - history size (bash HISTSIZE and HISTFILESIZE,
       zsh HISTSIZE and SAVEHIST) is only increased, never decreased and
-      unlimited sizes are kept - thanks to @awcator
+      unlimited sizes are kept, also for very large values and in UTF-8
+      locales - thanks to @awcator
+    - Fixed HSTR bash configuration with set -u (nounset) - unset
+      HISTFILESIZE and PROMPT_COMMAND no longer cause errors
+    - Fixed TIOCSTI detection diagnostics printed to stdout - they were
+      appended to ~/.bashrc by --show-configuration run without a terminal
+      (scripts, containers) - and leaked /dev/tty file descriptor
+    - Fixed man page rendering of the bash and zsh configuration (missing
+      hstrnotiocsti function body and Ctrl-r key bindings)
     - Added HSTR_HISTFILE environment variable with history file to be used
       by HSTR instead of HISTFILE e.g. global history shared by shells with
       per-shell history files - thanks to @xobes
@@ -32,7 +40,7 @@
 
 2026-02-06  Martin Dvorak  <martin.dvorak@mindforger.com>
 
-  * Released v3.2.0 - Minor release bringing:
+  * Released v3.2.0 - Minor release:
     - Configuration for TIOCSTI enforcement
     - Added SIGQUIT handling to cleanup terminal state on quit
     - Fixed buffer overflow (window resize) and missing Bash autocomplete configuration

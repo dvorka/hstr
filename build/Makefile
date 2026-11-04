@@ -115,6 +115,10 @@ run-web: ## run HSTR web preview
 test: ## run HSTR unit tests
 	cd ../test && qmake hstr-unit-tests.pro && make clean all && ./hstr-unit-tests
 
+.PHONY: test-bash-configuration
+test-bash-configuration: ../src/hstr ## run HSTR bash configuration tests (history size guard, set -u)
+	cd ../test && ./test-bash-configuration.sh
+
 .PHONY: test-memleaks
 test-memleaks: ## run HSTR memory leak tests with Valgrind
 	./test-memleaks.sh
@@ -145,3 +149,7 @@ releng-ubuntu: ## release launchpad package for Ubuntu
 	$(DIFF) ./ubuntu/launchpad-make-all-releases.sh ~/p/hstr/launchpad/launchpad-make-all-releases.sh || true
 	@echo "= Script ============================"
 	cd ~/p/hstr/launchpad && ./launchpad-make-all-releases.sh
+
+.PHONY: releng-pad-refresh
+releng-pad-refresh: ## refresh pad.xml release fields (version, date, changelog, tarball size)
+	./pad-refresh.py

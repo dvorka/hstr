@@ -143,10 +143,13 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         // therefore history sizes are ONLY ICNREASED - never shrunk - and unlimited
         // values (negative, empty, non-numeric) are kept
         // HISTFILESIZE is not set if unset - bash defaults it to HISTSIZE after startup files
-        // 10# forces decimal - bash [[ -lt ]] treats leading zeros as octal (020000 would be 8192)
-        "\n# increase history size (default is 500) - never shrink existing or unlimited sizes"
-        "\nif [[ -z ${HISTSIZE+x} || ( $HISTSIZE =~ ^[0-9]+$ && 10#$HISTSIZE -lt 10000 ) ]]; then export HISTSIZE=10000; fi"
-        "\nif [[ $HISTFILESIZE =~ ^[0-9]+$ && 10#$HISTFILESIZE -lt 10000 ]]; then export HISTFILESIZE=10000; fi"
+        // sizes are compared by regex (decimal value below 10000, leading zeros allowed), not by arithmetic,
+        // which would treat leading zeros as octal and wrap huge values (2^64-1 would be -1);
+        // [[:digit:]] is used as [0-9] also matches non-ASCII digits (e.g. Arabic-Indic) in UTF-8 locales
+        // ${VAR-} keeps the configuration working with set -u (nounset) if a variable is unset
+        "\n# increase history size & never shrink it"
+        "\nif [[ -z ${HISTSIZE+x} || ${HISTSIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi"
+        "\nif [[ ${HISTFILESIZE-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi"
         // PROMPT_COMMAND considerations:
         //   history -a ... append NEW entries from memory to .bash_history (i.e. flush to file where HSTR reads commands)
         //   history -n ... append NEW entries from .bash_history to memory i.e. NOT entire history reload
@@ -158,7 +161,7 @@ static const char* INSTALL_BASH_CODE_PREFIX=
         //             across different bash sessions.
         //   -c -r ... Forces entire .bash_history to be reloaded (handles history deletes, synchronizes different bash sessions)
         "\n# ensure synchronization between bash memory and history file"
-        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND}\"";
+        "\nexport PROMPT_COMMAND=\"history -a; history -n; ${PROMPT_COMMAND-}\"";
 
 // zsh doc: http://zsh.sourceforge.net/Guide/zshguide.html
 static const char* INSTALL_ZSH_CODE_PREFIX=
@@ -167,7 +170,7 @@ static const char* INSTALL_ZSH_CODE_PREFIX=
         "\nsetopt histignorespace           # skip cmds w/ leading space from history"
         // zsh truncates the history file to SAVEHIST on save
         // therefore sizes are only increased
-        "\n# increase history size (zsh default is 30/0) - never shrink existing sizes"
+        "\n# increase history size & never shrink it"
         "\nif (( ${HISTSIZE:-0} < 10000 )); then HISTSIZE=10000; fi"
         "\nif (( ${SAVEHIST:-0} < 10000 )); then SAVEHIST=10000; fi"
         // HISTFILE should not be needed - HSTR must work on blank environment as well
