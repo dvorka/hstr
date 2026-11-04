@@ -24,19 +24,12 @@
 #include <locale.h>
 #include <sys/select.h>
 #include <unistd.h>
-#ifdef __APPLE__
-  #include <curses.h>
-#elif defined(__FreeBSD__)
-  #include <ncurses.h>
-#else
-  #include <ncursesw/curses.h>
-#endif
+#include "hstr_curses.h"
 #include <readline/chardefs.h>
 #include <signal.h>
 #include <termios.h>
 #include <wchar.h>
 
-#include "hstr_curses.h"
 #include "hstr_blacklist.h"
 #include "hstr_history.h"
 

@@ -67,13 +67,30 @@ clean: ## clean build artifacts
 # BUILD
 #
 
-../src/hstr:
-	cd ./tarball && ./tarball-automake.sh && cd ../.. && ./configure && make all
+# sources - HSTR binary is rebuilt if any of them changes
+HSTR_SOURCES := $(wildcard ../src/*.c ../src/include/*.h)
+# automake/autoconf inputs - build is reconfigured if any of them changes
+HSTR_BUILD_CONFIG := ../configure.ac ../Makefile.am ../src/Makefile.am ../man/Makefile.am
 
-build-dev: clean ../src/hstr ## clean, configure, and build HSTR
+.PHONY: configure
+configure: ## generate build files and configure HSTR build
+	cd ./tarball && ./tarball-automake.sh && cd ../.. && ./configure
+
+../src/Makefile: $(HSTR_BUILD_CONFIG)
+	$(MAKE) configure
+
+../src/hstr: ../src/Makefile $(HSTR_SOURCES)
+	$(MAKE) -C .. all
+
+.PHONY: build-dev
+build-dev: ## clean, configure, and build HSTR
+	$(MAKE) clean
+	$(MAKE) configure
+	$(MAKE) ../src/hstr
 	@echo "HSTR $(HSTR_VERSION) built for development"
 
-build: ../src/hstr ## clean, configure, and build HSTR
+.PHONY: build
+build: ../src/hstr ## build HSTR
 	strip ../src/hstr
 
 #
@@ -98,9 +115,17 @@ run-web: ## run HSTR web preview
 test: ## run HSTR unit tests
 	cd ../test && qmake hstr-unit-tests.pro && make clean all && ./hstr-unit-tests
 
+.PHONY: test-bash-configuration
+test-bash-configuration: ../src/hstr ## run HSTR bash configuration tests (history size guard, set -u)
+	cd ../test && ./test-bash-configuration.sh
+
 .PHONY: test-memleaks
 test-memleaks: ## run HSTR memory leak tests with Valgrind
 	./test-memleaks.sh
+
+.PHONY: test-memleaks-units
+test-memleaks-units: ## run HSTR unit tests with Valgrind
+	cd ../test && qmake hstr-unit-tests.pro && make clean all && valgrind --track-origins=yes --leak-check=full ./hstr-unit-tests
 
 #
 # INSTALL
@@ -124,3 +149,7 @@ releng-ubuntu: ## release launchpad package for Ubuntu
 	$(DIFF) ./ubuntu/launchpad-make-all-releases.sh ~/p/hstr/launchpad/launchpad-make-all-releases.sh || true
 	@echo "= Script ============================"
 	cd ~/p/hstr/launchpad && ./launchpad-make-all-releases.sh
+
+.PHONY: releng-pad-refresh
+releng-pad-refresh: ## refresh pad.xml release fields (version, date, changelog, tarball size)
+	./pad-refresh.py

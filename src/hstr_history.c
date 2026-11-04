@@ -45,10 +45,11 @@ unsigned history_ranking_function(unsigned rank, int newOccurenceOrder, size_t l
     return metrics;
 }
 
-char* get_history_file_name(void)
+char* get_shell_history_file_name(void)
 {
-    char* historyFile = getenv(ENV_VAR_HISTFILE);
-    if(!historyFile || strlen(historyFile)==0) {
+    // return allocated name of the shell history file: HISTFILE or shell specific default
+    char* historyFile = hstr_getenv_strdup(ENV_VAR_HISTFILE);
+    if(!historyFile) {
         if(is_zsh_parent_shell()) {
             historyFile = get_home_file_path(FILE_ZSH_HISTORY);
             if(access(historyFile, F_OK) == -1) {
@@ -59,12 +60,14 @@ char* get_history_file_name(void)
         } else {
             historyFile = get_home_file_path(FILE_DEFAULT_HISTORY);
         }
-    } else {
-        // allocate so that this function always returns string to be freed
-        // (getenv() returns pointer (no need to free), home is allocated (must be freed)
-        historyFile = hstr_strdup(historyFile);
     }
     return historyFile;
+}
+
+char* get_history_file_name(void)
+{
+    char* historyFile = hstr_getenv_strdup(ENV_VAR_HSTR_HISTFILE);
+    return historyFile ? historyFile : get_shell_history_file_name();
 }
 
 void dump_prioritized_history(HistoryItems *historyItems)
@@ -137,32 +140,43 @@ char* parse_history_line(char *l)
         }
     }
 
-#ifndef HSTR_TESTS_UNIT
-    if (isZsh) {
-        l = zsh_unmetafy(l, NULL);
-    }
-#endif
-
     return l;
 }
 
-bool history_mgmt_load_history_file(void)
+// true if history line (w/ optional zsh extended history prefix) is the command cmd - zsh
+// metafied characters are unmetafied before comparison
+bool history_line_equals(char* line, const char* cmd, bool isZsh)
 {
-    char *historyFile = get_history_file_name();
-    // TODO memleak in readline lib: read_history() > add_history()
-    if(read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
-        free(historyFile);
+    char* command=parse_history_line(line);
+    if(!command || !cmd) {
         return false;
     }
-    free(historyFile);
+    if(isZsh && strchr(command, ZSH_META)) {
+        char* unmetafied=hstr_strdup(command);
+        bool equals=unmetafied && !strcmp(zsh_unmetafy(unmetafied, NULL), cmd);
+        free(unmetafied);
+        return equals;
+    }
+    return !strcmp(command, cmd);
+}
+
+bool history_mgmt_load_history_file(const char* historyFile)
+{
+    // TODO memleak in readline lib: read_history() > add_history()
+    if(!historyFile || read_history(historyFile)!=0) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile ? historyFile : "");
+        return false;
+    }
     return true;
 }
 
 HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
 {
     using_history();
-    if(!history_mgmt_load_history_file()) {
+    char* historyFile = get_history_file_name();
+    bool loaded = history_mgmt_load_history_file(historyFile);
+    free(historyFile);
+    if(!loaded) {
         return NULL;
     }
     HISTORY_STATE* historyState=history_get_history_state();
@@ -181,6 +195,9 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         HIST_ENTRY **historyList=history_list();
         char **rawHistory=malloc(sizeof(char*) * historyState->length);
         int rawOffset=historyState->length-1, rawTimestamps=0;
+        bool isZsh=is_zsh_parent_shell();
+        char **unmetafiedHistory=NULL;
+        unsigned unmetafiedCount=0;
         char *line;
         int i;
         for(i=0; i<historyState->length; i++, rawOffset--) {
@@ -195,6 +212,16 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
             }
 
             line=parse_history_line(historyList[i]->line);
+            if(isZsh && strchr(line, ZSH_META)) {
+                if(!unmetafiedHistory) {
+                    unmetafiedHistory=malloc(sizeof(char*) * historyState->length);
+                }
+                char* unmetafied=unmetafiedHistory ? hstr_strdup(line) : NULL;
+                if(unmetafied) {
+                    line=zsh_unmetafy(unmetafied, NULL);
+                    unmetafiedHistory[unmetafiedCount++]=line;
+                }
+            }
             rawHistory[rawOffset]=line;
             if(hashset_contains(blacklist, line)) {
                 continue;
@@ -244,6 +271,8 @@ HistoryItems* prioritized_history_create(int optionBigKeys, HashSet *blacklist)
         prioritizedHistory->rawCount=historyState->length-rawTimestamps;
         prioritizedHistory->items=malloc(rs.size * sizeof(char*));
         prioritizedHistory->rawItems=rawHistory;
+        prioritizedHistory->unmetafiedItems=unmetafiedHistory;
+        prioritizedHistory->unmetafiedCount=unmetafiedCount;
         unsigned u;
         for(u=0; u<rs.size; u++) {
             if(prioritizedRadix[u]->data) {
@@ -286,6 +315,14 @@ void prioritized_history_destroy(HistoryItems* h)
             free(h->rawItems);
         }
 
+        if(h->unmetafiedItems) {
+            unsigned i;
+            for(i=0; i<h->unmetafiedCount; i++) {
+                free(h->unmetafiedItems[i]);
+            }
+            free(h->unmetafiedItems);
+        }
+
         free(h);
 
         // readline/history cleanup
@@ -306,38 +343,36 @@ void history_mgmt_clear_dirty(void)
 
 int history_mgmt_remove_from_system_history(char *cmd)
 {
-    int offset=history_search_pos(cmd, 0, 0), occurences=0;
-    char *l;
-    HISTORY_STATE *historyState=history_get_history_state();
-
-    regex_t zshRegexp;
-    const char *zshTimestamp = "^: [[:digit:]]\\{10,\\}:[[:digit:]];.*";
-    regexp_compile(&zshRegexp, zshTimestamp);
-
-    while(offset>=0) {
-        l=historyState->entries[offset]->line;
-        if(offset<historyState->length) {
-           if(!regexp_match(&zshRegexp, l)) {
-               l=l+15; //: 1485023566:0;whoami
-           }
-           if(!strcmp(cmd, l)) {
-               occurences++;
-               free_history_entry(remove_history(offset));
-               if(offset>0) {
-                   l=historyState->entries[offset-1]->line;
-                   if(l && strlen(l)) {
-                       if(is_hist_timestamp(l)) {
-                           // TODO check that this delete doesn't cause mismatch of searched cmd to be deleted
-                           free_history_entry(remove_history(offset-1));
-                       }
-                   }
-               }
-           }
-        }
-        offset=history_search_pos(cmd, 0, ++offset);
+    if(!cmd) {
+        return 0;
     }
+
+    bool isZsh=is_zsh_parent_shell();
+    int occurences=0;
+    HISTORY_STATE *historyState=history_get_history_state();
+    // iterate backwards - removal shifts only entries which were already checked
+    int offset;
+    for(offset=historyState->length-1; offset>=0; offset--) {
+        HIST_ENTRY **entries=history_list();
+        if(!entries || !entries[offset] || !entries[offset]->line) {
+            continue;
+        }
+        if(history_line_equals(entries[offset]->line, cmd, isZsh)) {
+            occurences++;
+            free_history_entry(remove_history(offset));
+            // remove Bash timestamp (HISTTIMEFORMAT) of the removed command
+            if(offset>0 && entries[offset-1] && entries[offset-1]->line && is_hist_timestamp(entries[offset-1]->line)) {
+                free_history_entry(remove_history(offset-1));
+                offset--;
+            }
+        }
+    }
+    free(historyState);
+
     if(occurences) {
-        write_history(get_history_file_name());
+        char* historyFile = get_history_file_name();
+        write_history(historyFile);
+        free(historyFile);
         dirty=true;
     }
     return occurences;
@@ -345,8 +380,12 @@ int history_mgmt_remove_from_system_history(char *cmd)
 
 bool history_mgmt_remove_last_history_entry(bool verbose)
 {
+    // the last command belongs to the current shell, therefore it is deleted
+    // from the shell history file (HISTFILE) - HSTR_HISTFILE may be shared by MULTIPLE shells
     using_history();
-    if(!history_mgmt_load_history_file()) {
+    char *historyFile = get_shell_history_file_name();
+    if(!history_mgmt_load_history_file(historyFile)) {
+        free(historyFile);
         return false;
     }
     HISTORY_STATE *historyState=history_get_history_state();
@@ -359,7 +398,6 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
         }
         free_history_entry(remove_history(historyState->length-1));
         free_history_entry(remove_history(historyState->length-2));
-        char *historyFile = get_history_file_name();
         write_history(historyFile);
         free(historyState);
         free(historyFile);
@@ -372,6 +410,7 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
     }
 
     free(historyState);
+    free(historyFile);
     return false;
 }
 

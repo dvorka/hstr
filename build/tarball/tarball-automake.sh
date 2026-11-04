@@ -36,9 +36,10 @@ function tarballClean() {
 }
 
 function tarballBuildUsingAutomake() {
-    aclocal
-    automake --force-missing --add-missing
-    autoconf
+    # stop on failure - e.g. autoconf fails if HSTR version cannot be read from src/hstr.c
+    aclocal || { echo "ERROR: aclocal failed"; exit 1; }
+    automake --force-missing --add-missing || { echo "ERROR: automake failed"; exit 1; }
+    autoconf || { echo "ERROR: autoconf failed"; exit 1; }
 
     rm -rvf autom*te.cache config.sub config.guess
 

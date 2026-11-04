@@ -26,12 +26,21 @@
 #     https://www.debian.org/doc/debian-policy/
 #
 
-# This script cannot be run from Git repository. Launchpad release
-# directory must exist.
+# This script cannot be run from Git repository.
+# Launchpad release directory must exist.
 
 export HSTRSRC=/home/dvorka/p/hstr/github/hstr
 export HSTRRELEASEDIR=/home/dvorka/p/hstr/launchpad
 export SCRIPTHOME=`pwd`
+# Debian package maintainer - debian/changelog is signed w/ GPG key of this email
+# (it is independent of Bazaar identity configured by bzr whoami)
+export HSTRMAINTAINERNAME="Martin Dvorak (Dvorka)"
+export HSTRMAINTAINEREMAIL=martin.dvorak@mindforger.com
+
+# MANUALLY set patch version of the HSTR package for the OLDEST Ubuntu codename,
+# every newer Ubuntu codename gets +1 (major and minor version are parsed from
+# src/hstr.c) - see the HSTR version section below for details
+export HSTR_FIRST_PATCH_VERSION=4
 
 # ############################################################################
 # # Check dependencies #
@@ -100,12 +109,10 @@ function checkDependencies() {
         exit 1
     fi
 
-    # check for GPG key matching the debian maintainer email
-    local bzr_email=$(bzr whoami 2>/dev/null | grep -oP '<\K[^>]+')
-    if [ -n "$bzr_email" ]; then
-        if ! gpg --list-secret-keys "$bzr_email" &> /dev/null; then
-            missing_config+=("gpg-key")
-        fi
+    # check for GPG key matching the Debian maintainer email - bzr builddeb signs
+    # the source package w/ the key of the maintainer from debian/changelog
+    if ! gpg --list-secret-keys "${HSTRMAINTAINEREMAIL}" &> /dev/null; then
+        missing_config+=("gpg-key")
     fi
 
     # report missing configuration (second check after GPG)
@@ -114,14 +121,14 @@ function checkDependencies() {
         for cfg in "${missing_config[@]}"; do
             case $cfg in
                 gpg-key)
-                    echo "  - No GPG key found for: $bzr_email"
+                    echo "  - No GPG key found for Debian maintainer: ${HSTRMAINTAINEREMAIL}"
                     echo ""
                     echo "    OPTION 1: Generate new GPG key:"
                     echo "      gpg --full-generate-key"
-                    echo "      (Use: Martin Dvorak <$bzr_email>)"
+                    echo "      (Use: ${HSTRMAINTAINERNAME} <${HSTRMAINTAINEREMAIL}>)"
                     echo ""
                     echo "    OPTION 2: Import key from old machine:"
-                    echo "      On old machine: gpg --export-secret-keys $bzr_email > ~/gpg-key.asc"
+                    echo "      On old machine: gpg --export-secret-keys ${HSTRMAINTAINEREMAIL} > ~/gpg-key.asc"
                     echo "      Transfer file securely, then: gpg --import ~/gpg-key.asc"
                     echo ""
                     echo "    After creating/importing key:"
@@ -157,8 +164,13 @@ function checkoutHstr() {
         exit 1
     fi
 
-    cd hstr-package && mv -v .bzr .. && rm -rvf *.* && mv -v ../.bzr .
-    cp -rvf ${HSTRSRC}/* ${HSTRSRC}/*.*  .
+    # remove ALL files of the previous release - only Bazaar metadata is kept - so
+    # that files which are no longer released are removed from the branch too
+    # (bzr commit removes missing files)
+    cd hstr-package || exit 1
+    find . -mindepth 1 -maxdepth 1 ! -name .bzr -exec rm -rf {} +
+    # copy Git tracked files only - no build outputs, backups, local experiments, ...
+    ${HSTRSRC}/build/copy-git-sources.sh "${HSTRSRC}" . || exit 1
     cd ..
 
     echo "Preparing *configure using Autotools"
@@ -173,11 +185,11 @@ function checkoutHstr() {
 function createChangelog() {
     export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
     echo "Changelog timestamp: ${MYTS}"
-    echo -e "hstr (${HSTRFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+    echo -e "hstr (${HSTR_DEBIAN_VERSION}) ${UBUNTU_CODENAME}; urgency=low" > $1
     echo -e "\n" >> $1
-    echo -e "  * ${HSTRBZRMSG}" >> $1
+    echo -e "  * ${HSTR_BAZAAR_MSG}" >> $1
     echo -e "\n" >> $1
-    echo -e " -- Martin Dvorak (Dvorka) <martin.dvorak@mindforger.com>  ${MYTS} +0100" >> $1
+    echo -e " -- ${HSTRMAINTAINERNAME} <${HSTRMAINTAINEREMAIL}>  ${MYTS} +0100" >> $1
     echo -e "\n" >> $1
 }
 
@@ -188,11 +200,11 @@ function createChangelog() {
 function createTarArchive() {
   cd ..
   mkdir work && cd work
-  cp -vrf ../${HSTR} .
-  rm -rvf ${HSTR}/.bzr
-  tar zcf ../${HSTR}.tgz ${HSTR}
-  cp -vf ../${HSTR}.tgz ../${HSTR}.orig.tar.gz
-  cd ../${HSTR}
+  cp -vrf ../${HSTR_SOURCE_NAME} .
+  rm -rvf ${HSTR_SOURCE_NAME}/.bzr
+  tar zcf ../${HSTR_SOURCE_NAME}.tgz ${HSTR_SOURCE_NAME}
+  cp -vf ../${HSTR_SOURCE_NAME}.tgz ../${HSTR_SOURCE_NAME}.orig.tar.gz
+  cd ../${HSTR_SOURCE_NAME}
   rm -vrf ../work
 }
 
@@ -200,14 +212,14 @@ function createTarArchive() {
 # # Release for *ONE* particular Ubuntu version #
 # ############################################################################
 
-function releaseForParticularUbuntuVersion() {
-    export UBUNTUVERSION=${1}
-    export HSTRVERSION=${2}
-    export HSTRBZRMSG=${3}
+function releaseForUbuntuCodename() {
+    export UBUNTU_CODENAME=${1}
+    export HSTR_PACKAGE_VERSION=${2}
+    export HSTR_BAZAAR_MSG=${3}
 
-    export HSTRFULLVERSION=${HSTRVERSION}-0ubuntu1
-    export HSTR=hstr_${HSTRVERSION}
-    export HSTRRELEASE=hstr_${HSTRFULLVERSION}
+    export HSTR_DEBIAN_VERSION=${HSTR_PACKAGE_VERSION}-0ubuntu1
+    export HSTR_SOURCE_NAME=hstr_${HSTR_PACKAGE_VERSION}
+    export HSTR_DEBIAN_NAME=hstr_${HSTR_DEBIAN_VERSION}
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
     export HSTRBUILD=hstr-${NOW}
 
@@ -219,9 +231,9 @@ function releaseForParticularUbuntuVersion() {
     cd hstr
     cp -rvf ${HSTRSRC}/build/ubuntu/debian .
     createChangelog ./debian/changelog
-    cd .. && mv hstr ${HSTR} && cd ${HSTR}
+    cd .. && mv hstr ${HSTR_SOURCE_NAME} && cd ${HSTR_SOURCE_NAME}
     bzr add .
-    bzr commit -m "Update for ${HSTR} at ${NOW}."
+    bzr commit -m "Update for ${HSTR_SOURCE_NAME} at ${NOW}."
 
     # create Tar archive
     createTarArchive
@@ -248,28 +260,28 @@ function releaseForParticularUbuntuVersion() {
     rm -rvf ${PBUILDFOLDER}
     mkdir -p ${PBUILDFOLDER}
     # copy pbuilder base tarball if it exists in ~/pbuilder/
-    if [ -f ~/pbuilder/${UBUNTUVERSION}-base.tgz ]; then
-        cp -v ~/pbuilder/${UBUNTUVERSION}-base.tgz ${PBUILDFOLDER}/
+    if [ -f ~/pbuilder/${UBUNTU_CODENAME}-base.tgz ]; then
+        cp -v ~/pbuilder/${UBUNTU_CODENAME}-base.tgz ${PBUILDFOLDER}/
     else
-        echo "ERROR: pbuilder base tarball not found: ~/pbuilder/${UBUNTUVERSION}-base.tgz"
+        echo "ERROR: pbuilder base tarball not found: ~/pbuilder/${UBUNTU_CODENAME}-base.tgz"
         echo "Please create it first by running:"
-        echo "  pbuilder-dist ${UBUNTUVERSION} create"
+        echo "  pbuilder-dist ${UBUNTU_CODENAME} create"
         echo "  mkdir -p ~/pbuilder"
-        echo "  sudo cp /var/cache/pbuilder/${UBUNTUVERSION}-base.tgz ~/pbuilder/"
+        echo "  sudo cp /var/cache/pbuilder/${UBUNTU_CODENAME}-base.tgz ~/pbuilder/"
         # NON critital error: exit 1
     fi
     # END
-    pbuilder-dist ${UBUNTUVERSION} build ${HSTRRELEASE}.dsc
+    pbuilder-dist ${UBUNTU_CODENAME} build ${HSTR_DEBIAN_NAME}.dsc
 
     # push .deb to Launchpad
-    cd ../${HSTR}
+    cd ../${HSTR_SOURCE_NAME}
     # push Bazaar changes and upload .deb to Launchpad
     echo "Before bzr push: " `pwd`
     bzr push lp:~ultradvorka/+junk/hstr-package
     cd ..
     echo "Before dput push: " `pwd`
     # recently added /ppa to fix the path and package rejections
-    dput ppa:ultradvorka/ppa ${HSTRRELEASE}_source.changes
+    dput ppa:ultradvorka/ppa ${HSTR_DEBIAN_NAME}_source.changes
 }
 
 # ############################################################################
@@ -294,27 +306,90 @@ fi
 # check all required dependencies
 checkDependencies
 
-export ARG_BAZAAR_MSG="Release 3.2"
-export ARG_MAJOR_VERSION=3.2.
-export ARG_MINOR_VERSION=10 # minor version is incremented for every Ubuntu version
+# HSTR version is major.minor.patch (semantic versioning):
+# - major and minor version are parsed from src/hstr.c which is authoritative
+# - patch version is set MANUALLY at the top of this script (HSTR_FIRST_PATCH_VERSION):
+#   Launchpad does not allow the same version in two Ubuntu series of the PPA,
+#   therefore every Ubuntu codename gets its own patch version - the oldest one
+#   HSTR_FIRST_PATCH_VERSION, every newer one +1
+# - a version which was ever accepted by Launchpad (even if deleted afterwards)
+#   cannot be uploaded again - increase HSTR_FIRST_PATCH_VERSION to skip it
+export HSTR_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
+if [[ ! "${HSTR_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]
+then
+    echo "ERROR: unable to parse HSTR version major.minor.patch from ${HSTRSRC}/src/hstr.c: '${HSTR_VERSION}'"
+    exit 1
+fi
+export HSTR_MAJOR_VERSION=${BASH_REMATCH[1]}
+export HSTR_MINOR_VERSION=${BASH_REMATCH[2]}
+if [[ ! "${HSTR_FIRST_PATCH_VERSION}" =~ ^[0-9]+$ ]]
+then
+    echo "ERROR: HSTR_FIRST_PATCH_VERSION must be a non-negative integer: '${HSTR_FIRST_PATCH_VERSION}'"
+    exit 1
+fi
+export HSTR_BAZAAR_MSG="Release ${HSTR_MAJOR_VERSION}.${HSTR_MINOR_VERSION}"
 
-# https://en.wikipedia.org/wiki/Ubuntu_version_history
-# https://wiki.ubuntu.com/Releases
-# obsolete:
-#   precise quantal saucy precise utopic vivid wily yakkety xenial artful cosmic disco eoan groovy hirsute impish oracular plucky
-# missed:
-#   oracular
-# current :
-#   trusty xenial bionic focal jammy noble . questing
-# future:
-#   resolute
-# command :
-#   trusty xenial bionic focal jammy noble questing
-for UBUNTU_VERSION in trusty xenial bionic focal jammy plucky questing
+# Ubuntu versions:
+# - https://en.wikipedia.org/wiki/Ubuntu_version_history
+#   https://wiki.ubuntu.com/Releases
+#   https://api.launchpad.net/devel/ubuntu/series ... status of all series
+#     (Launchpad rejects PPA uploads to Obsolete series)
+# - obsolete:
+#     precise quantal saucy utopic vivid wily yakkety zesty artful cosmic disco eoan
+#     groovy hirsute impish kinetic lunar mantic oracular plucky questing
+# - history (* LTS):
+#     trusty* xenial* bionic* (cosmic disco eoan) focal* (groovy hirsute impish)
+#     jammy* (kinetic lunar mantic) noble* (oracular plucky questing) resolute*
+# - NOT RELEASED (standard support ended, ESM only):
+#     trusty xenial bionic focal
+# - current ~ Bash tuple below || ./launchpad-make-all-releases.sh <DISTRO>:
+#     jammy noble resolute stonking
+#     ^ every distro needs pbuilder base tarball in ~/pbuilder/<DISTRO>-base.tgz
+# - future (Active Development):
+#     tenacious
+#
+# IMPORTANT: keep the order from the oldest to the newest Ubuntu version - patch
+# version is derived from the position in the list, therefore distro upgrade gets
+# a newer HSTR package version and a single distro release gets the same version
+# as in a release of all distros
+#export UBUNTU_ALL_CODENAMES=(jammy noble resolute stonking)
+export UBUNTU_ALL_CODENAMES=(noble)
+
+# patchVersion <codename> - prints patch version of HSTR package for the Ubuntu codename
+function patchVersion() {
+    local i
+    for i in "${!UBUNTU_ALL_CODENAMES[@]}"
+    do
+        if [ "${UBUNTU_ALL_CODENAMES[$i]}" = "${1}" ]
+        then
+            echo $((HSTR_FIRST_PATCH_VERSION + i))
+            return 0
+        fi
+    done
+    return 1
+}
+
+if [[ ${#} == 1 ]]
+then
+    if ! patchVersion "${1}" > /dev/null
+    then
+        echo "ERROR: unsupported Ubuntu codename '${1}' - use one of: ${UBUNTU_ALL_CODENAMES[*]}"
+        exit 1
+    fi
+    export UBUNTU_CODENAMES=(${1})
+else
+    export UBUNTU_CODENAMES=(${UBUNTU_ALL_CODENAMES[@]})
+fi
+
+for UBUNTU_CODENAME in ${UBUNTU_CODENAMES[@]}
 do
-    echo "Releasing HSTR for Ubuntu version: ${UBUNTU_VERSION}"
-    releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
-    ARG_MINOR_VERSION=`expr $ARG_MINOR_VERSION + 1`
+    # every Ubuntu version is released in its own directory in SCRIPTHOME (the
+    # release function changes the current directory)
+    cd "${SCRIPTHOME}" || exit 1
+    HSTR_PATCH_VERSION=$(patchVersion ${UBUNTU_CODENAME})
+    HSTR_PACKAGE_VERSION=${HSTR_MAJOR_VERSION}.${HSTR_MINOR_VERSION}.${HSTR_PATCH_VERSION}
+    echo "Releasing HSTR ${HSTR_PACKAGE_VERSION} for Ubuntu ${UBUNTU_CODENAME}"
+    releaseForUbuntuCodename ${UBUNTU_CODENAME} ${HSTR_PACKAGE_VERSION} "${HSTR_BAZAAR_MSG}"
 done
 
 # eof

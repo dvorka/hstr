@@ -39,7 +39,7 @@ if [ ${OPT_ALL_SCENARIOS} ]
 then
     echo "./hstr --help" > ${FILE_SCENARIOS}
     echo "./hstr --version" >> ${FILE_SCENARIOS}
-    echo "./hstr --kill-last-command" > ${FILE_SCENARIOS}
+    echo "./hstr --kill-last-command" >> ${FILE_SCENARIOS}
     echo "./hstr --show-configuration" >> ${FILE_SCENARIOS}
     echo "./hstr --show-zsh-configuration" >> ${FILE_SCENARIOS}
     echo "./hstr --show-blacklist" >> ${FILE_SCENARIOS}

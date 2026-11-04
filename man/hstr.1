@@ -22,7 +22,7 @@ Show help
 Print filtered history on standard output and exit
 .TP
 \fB-k --kill-last-command\fR
-Delete the last command from history and exit
+Delete the last command from the shell history file (\fBHISTFILE\fR) and exit
 .TP
 \fB-i --insert-in-terminal=[command]\fR
 Insert custom command in terminal prompt and exit
@@ -178,6 +178,23 @@ Change prompt string which is \fBuser@host$\fR by default.
 Example:
         \fBexport HSTR_PROMPT="$ "\fR
 
+.TP
+\fBHSTR_HISTFILE\fR
+History file to be shown and managed by \fBhstr\fR instead of the shell history file \fBHISTFILE\fR.
+It allows each shell to keep its own history (\fBHISTFILE\fR) for UP/DOWN arrows,
+while \fBhstr\fR searches a history shared by all shells (\fBHSTR_HISTFILE\fR).
+Shells are responsible for writing their commands to \fBHSTR_HISTFILE\fR.
+
+History file is chosen in the following order: \fBHSTR_HISTFILE\fR, \fBHISTFILE\fR,
+shell specific default (\fB~/.bash_history\fR, \fB~/.zsh_history\fR or \fB~/.zhistory\fR).
+
+\fBDEL\fR deletes commands from \fBHSTR_HISTFILE\fR only - shell history files
+are not modified. \fB--kill-last-command\fR deletes the last command of the current
+shell from \fBHISTFILE\fR (not from \fBHSTR_HISTFILE\fR).
+
+Example:
+        \fBexport HSTR_HISTFILE=~/.bash_history_global\fR
+
 .SH FILES
 .TP
 \fB~/.hstr_favorites\fR
@@ -194,16 +211,17 @@ alias hh=hstr                    # hh to be alias for hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
-export HISTFILESIZE=10000        # increase history file size (default is 500)
-export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+# increase history size & never shrink it
+if [[ \-z ${HISTSIZE+x} || ${HISTSIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 # ensure synchronization between bash memory and history file
-export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history -a; history -n; ${PROMPT_COMMAND\-}"
 function hstrnotiocsti {
-    { READLINE_LINE=\"$( { </dev/tty hstr -- ${READLINE_LINE}; } 2>&1 1>&3 3>&- )\"; } 3>&1;
+    { READLINE_LINE="$( { </dev/tty hstr \-\- ${READLINE_LINE}; } 2>&1 1>&3 3>&\- )"; } 3>&1;
     READLINE_POINT=${#READLINE_LINE}
 }
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
-if [[ $- =~ .*i.* ]]; then bind -x '"\C-r": "hstrnotiocsti"'; fi
+if [[ $\- =~ .*i.* ]]; then bind \-x '"\eC\-r": "hstrnotiocsti"'; fi
 export HSTR_TIOCSTI=n
 .sp
 .fi
@@ -214,10 +232,11 @@ alias hh=hstr                    # make hh alias of hstr
 export HSTR_CONFIG=hicolor       # get more colors
 shopt -s histappend              # append new history items to .bash_history
 export HISTCONTROL=ignorespace   # leading space hides commands from history
-export HISTFILESIZE=10000        # increase history file size (default is 500)
-export HISTSIZE=${HISTFILESIZE}  # increase history size (default is 500)
+# increase history size & never shrink it
+if [[ \-z ${HISTSIZE+x} || ${HISTSIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTSIZE=10000; fi
+if [[ ${HISTFILESIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=10000; fi
 # ensure synchronization between bash memory and history file
-export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND}"
+export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND\-}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
 .sp
@@ -228,6 +247,9 @@ Add the following lines to ~/zshrc if TIOCSTI is not supported by your OS:
 .sp
 alias hh=hstr                    # hh to be alias for hstr
 setopt histignorespace           # skip cmds w/ leading space from history
+# increase history size & never shrink it
+if (( ${HISTSIZE:-0} < 10000 )); then HISTSIZE=10000; fi
+if (( ${SAVEHIST:-0} < 10000 )); then SAVEHIST=10000; fi
 export HSTR_CONFIG=hicolor       # get more colors
 hstr_no_tiocsti() {
     zle -I
@@ -237,7 +259,7 @@ hstr_no_tiocsti() {
     zle redisplay
 }
 zle -N hstr_no_tiocsti
-bindkey '\C-r' hstr_no_tiocsti
+bindkey '\eC\-r' hstr_no_tiocsti
 export HSTR_TIOCSTI=n
 .sp
 .fi

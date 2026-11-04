@@ -108,12 +108,15 @@ Tips and tricks:
 * [How to use command tags for fast lookup](./TIPS.md)
 * [How to curate your favorite commands](./TIPS.md)
 
-## Perfect Software
+<!--
+Perfect Software
+
 [Perfect software](https://outofdesk.netlify.app/perfect-software) is not necessarily the best software - it is perfect simply because it does exactly what you want, how do you want it and when you want it. The [YAGNI](https://martinfowler.com/bliki/Yagni.html) - You Aren't Gonna Need It - mantra protects software from wasting time and resources on implementing anything and everything.
 
 The **HSTR** project **is perfect to me**. Even if project's main branch does not receive updates frequently, be sure that I use it every day - many many times. I add a small feature here or there or fix a bug. In other words, the project is **not** and will **not** be dead.
 
 If you have any ideas, suggestions, news to share, or constructive criticism to share, **do not hesitate to contact me**! Please do not be offended if your GitHub issue or bug report is not implemeted - IAGNI.
+-->
 
 ## In the News
 
@@ -136,6 +139,12 @@ man hstr
 ```
 
 User videos: [Zack](https://www.youtube.com/watch?v=Qd75pIeQkH8), [Dvorka](https://www.youtube.com/watch?v=sPF29NyXe2U), [Yayuuu](https://www.reddit.com/r/commandline/comments/1lo5up5/hstr_tiny_bash_script_that_helps_you_browse_and/), and [Yu-Jie Lin](https://www.youtube.com/watch?v=Qx5n_5B5xUw).
+
+## Contributors
+<a href="https://github.com/dvorka/hstr/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dvorka/hstr" />
+</a>
+
 
 ## Bugs
 

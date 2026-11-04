@@ -14,62 +14,100 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-# Script used to create TARBALL and to build HSTR using autotools:
-#  - run this script from Git repository.
-#  - it copies repository content and result to given release directory
+# Script used to create TARBALL and to build HSTR binary using autotools:
+#  - it copies repository content and result to the release directory
+#
+# Usage:
+#   ./tarball-build.sh               ... maintainer build: run FROM Git repository
+#                                        ~/p/hstr/github/hstr/build/tarball, assets are
+#                                        created in ~/p/hstr/release/release-<timestamp>/
+#   ./tarball-build.sh ci <out-dir>  ... CI build (GitHub Actions): sources are the Git
+#                                        repository this script belongs to, assets are
+#                                        created in <out-dir> (must be outside of sources)
+#
+# Assets:
+#   hstr-<version>-tarball.tgz ... upstream tarball w/ generated configure
+#   hstr-<version>-bin-64b.tgz ... stripped hstr binary
 
 export SCRIPT_HOME=`pwd`
-
-export HSTR_VERSION="3.2.0"
-
 export NOW=`date +%Y-%m-%d--%H-%M-%S`
-export GH_RELEASE_DIR=~/p/hstr/release
-export GH_SRC_DIR=~/p/hstr/github/hstr
-export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
+
+function fail() {
+    echo "ERROR: ${1}"
+    exit 1
+}
+
+if [ "${1}" = "ci" ]
+then
+    export HSTR_CI_BUILD=ci
+    export GH_SRC_DIR=$(cd "$(dirname "${0}")/../.." && pwd)
+    [ -n "${2}" ] || fail "output directory must be specified: ${0} ci <out-dir>"
+    # output directory is checked BEFORE it is created
+    export GH_RELEASE_DIR=$(realpath -m "${2}")
+    case "${GH_RELEASE_DIR}/" in
+        "${GH_SRC_DIR}/"*) fail "output directory must be outside of sources: ${GH_RELEASE_DIR}" ;;
+    esac
+    mkdir -p "${GH_RELEASE_DIR}" || fail "unable to create output directory: ${GH_RELEASE_DIR}"
+    export GH_DISTRO_DIR=${GH_RELEASE_DIR}
+else
+    export HSTR_CI_BUILD=
+    export GH_RELEASE_DIR=~/p/hstr/release
+    export GH_SRC_DIR=~/p/hstr/github/hstr
+    export GH_DISTRO_DIR=${GH_RELEASE_DIR}/release-${NOW}
+fi
+
+# version is parsed from hstr.c which is authoritative
+export HSTR_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${GH_SRC_DIR}/src/hstr.c)
+if [ -z "${HSTR_VERSION}" ]
+then
+    fail "unable to parse HSTR version from ${GH_SRC_DIR}/src/hstr.c"
+fi
 
 function makeTarballRelease() {
-    cp -vrf ${GH_SRC_DIR} .
-    mv `basename ${GH_SRC_DIR}` hstr
+    # sources are copied to hstr/ - the directory name of the tarball root - only
+    # files tracked by Git are copied (see copy-git-sources.sh)
+    ${GH_SRC_DIR}/build/copy-git-sources.sh "${GH_SRC_DIR}" hstr \
+        || fail "unable to copy sources from ${GH_SRC_DIR}"
 
     cd hstr && \
     rm -vrf debian doc test hstr .git .vscode .github .*~ web && \
     cd build/tarball && \
-    ./tarball-automake.sh --purge
-
-    if [ ${?} -ne 0 ]
-    then
-        echo "ERROR: automake prepare phase failed"
-        exit 1;
-    fi
+    ./tarball-automake.sh --purge || fail "automake prepare phase failed"
     cd ../../..
-    tar zcfv hstr-${HSTR_VERSION}-tarball.tgz hstr
-    cd hstr && ./configure && make && cd src
-    strip hstr
-    tar zcfv ../../hstr-${HSTR_VERSION}-bin-64b.tgz hstr
+
+    tar zcfv hstr-${HSTR_VERSION}-tarball.tgz hstr || fail "unable to create tarball"
+    cd hstr && ./configure && make || fail "HSTR build failed"
+    cd src && strip hstr || fail "unable to strip HSTR binary"
+    tar zcfv ../../hstr-${HSTR_VERSION}-bin-64b.tgz hstr || fail "unable to create binary tarball"
+    cd ../..
+    # CI: build directory is not an asset (it is kept for maintainer builds)
+    if [ -n "${HSTR_CI_BUILD}" ]
+    then
+        rm -rf hstr
+    fi
 }
 
 # ############################################################################
 # # Main #
 # ############################################################################
 
-echo "HSTR tarball and binary builder"
-if [ ! -e "../../.git" ]
+echo "HSTR ${HSTR_VERSION} tarball and binary builder"
+if [ -z "${HSTR_CI_BUILD}" ] && [ ! -e "../../.git" ]
 then
-    echo "ERROR: this script must be run FROM Git repository"
-    exit 1
+    fail "this script must be run FROM Git repository"
 fi
-if [ ! -e "${GH_SRC_DIR}" ]
+if [ ! -e "${GH_SRC_DIR}/.git" ]
 then
-    echo "ERROR: HSTR sources directory must exist: ${GH_SRC_DIR}"
-    exit 1
+    fail "HSTR Git repository must exist: ${GH_SRC_DIR}"
 fi
 if [ ! -e "${GH_RELEASE_DIR}" ]
 then
-    echo "ERROR: release directory must exist: ${GH_RELEASE_DIR}"
-    exit 1
+    fail "release directory must exist: ${GH_RELEASE_DIR}"
 fi
 
-mkdir -v ${GH_DISTRO_DIR}
+mkdir -pv ${GH_DISTRO_DIR} || fail "unable to create ${GH_DISTRO_DIR}"
 cd ${GH_DISTRO_DIR} && makeTarballRelease
+echo "DONE: HSTR ${HSTR_VERSION} assets created in ${GH_DISTRO_DIR}:"
+ls -l ${GH_DISTRO_DIR}/hstr-${HSTR_VERSION}-*.tgz
 
 # eof

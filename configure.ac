@@ -20,7 +20,12 @@
 
 AC_PREREQ([2.69])
 
-AC_INIT(hstr, 3.0.0, martin.dvorak@mindforger.com)
+# version is read from src/hstr.c which is authoritative (autoconf runs in the top
+# source directory) - the sed expression avoids [] as they are m4 quotes
+m4_define([HSTR_VERSION],
+    m4_esyscmd_s([sed -n 's/.*hstr version \\"\(.*\)\\" (.*/\1/p' src/hstr.c]))
+m4_if(HSTR_VERSION, [], [m4_fatal([unable to read HSTR version from src/hstr.c])])
+AC_INIT([hstr], HSTR_VERSION, [martin.dvorak@mindforger.com])
 AC_CONFIG_FILES([Makefile src/Makefile man/Makefile])
 
 # Check src dir existence.

@@ -35,6 +35,7 @@ typedef struct {
 } FavoriteItems;
 
 void favorites_init(FavoriteItems* favorites);
+char* favorites_get_filename(void);
 void favorites_get(FavoriteItems* favorites);
 void favorites_add(FavoriteItems* favorites, char* favorite);
 void favorites_choose(FavoriteItems* favorites, char* choice);

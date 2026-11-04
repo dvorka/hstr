@@ -23,6 +23,13 @@
 #include <stdio.h>
 #include <stdbool.h>
 #include <getopt.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <limits.h>
+#include <locale.h>
+#include <errno.h>
+#include <sys/types.h>
+#include <sys/wait.h>
 
 // HSTR uses Unity C test framework: https://github.com/ThrowTheSwitch/Unity
 #include "unity/src/c/unity.h"
@@ -31,20 +38,68 @@
 #include "../../src/include/hstr_utils.h"
 #include "../../src/include/hstr_history.h"
 #include "../../src/include/hstr_favorites.h"
+#include "../../src/include/hstr_selection.h"
 #include "../../src/include/hstr.h"
 
 /*
  * IMPORTANT: make sure to run TEST RUNNER GENERATOR script after any change to this file!
  */
 
+// tests run with a temporary HOME so that files like favorites of the user are never touched
+static char testHome[PATH_MAX];
+static bool testHomeCreated=false;
+static char* originalHome=NULL;
+// history file variables are restored after each test as tests may change them
+static char* originalHistFile=NULL;
+static char* originalHstrHistFile=NULL;
+
+static char* env_save(const char* name)
+{
+    char* value=getenv(name);
+    return value ? hstr_strdup(value) : NULL;
+}
+
+static void env_restore(const char* name, char** value)
+{
+    if(*value) {
+        setenv(name, *value, 1);
+        free(*value);
+        *value=NULL;
+    } else {
+        unsetenv(name);
+    }
+}
+
 void setUp(void)
 {
-    // code to be run before this test suite
+    // code to be run before each test
+    originalHome=env_save(ENV_VAR_HOME);
+    originalHistFile=env_save(ENV_VAR_HISTFILE);
+    originalHstrHistFile=env_save(ENV_VAR_HSTR_HISTFILE);
+
+    const char* tmp=getenv("TMPDIR");
+    snprintf(testHome, sizeof(testHome), "%s/hstr-unit-tests-XXXXXX", (tmp && *tmp) ? tmp : "/tmp");
+    testHomeCreated=mkdtemp(testHome)!=NULL;
+    TEST_ASSERT_TRUE_MESSAGE(testHomeCreated, "unable to create temporary HOME");
+    setenv(ENV_VAR_HOME, testHome, 1);
 }
 
 void tearDown(void)
 {
-    // code to be after this test suite
+    // code to be run after each test - also after a failed one
+    if(testHomeCreated) {
+        char fileName[PATH_MAX];
+        int length=snprintf(fileName, sizeof(fileName), "%s/%s", testHome, FILE_HSTR_FAVORITES);
+        if(length>0 && length<(int)sizeof(fileName)) {
+            unlink(fileName);
+        }
+        rmdir(testHome);
+        testHomeCreated=false;
+    }
+
+    env_restore(ENV_VAR_HOME, &originalHome);
+    env_restore(ENV_VAR_HISTFILE, &originalHistFile);
+    env_restore(ENV_VAR_HSTR_HISTFILE, &originalHstrHistFile);
 }
 
 void test_args(void)
@@ -210,6 +265,341 @@ void test_favorites(void)
     TEST_ASSERT_NOT_EQUAL(favorite, favoriteItems.items[0]);
 }
 
+static FavoriteItems* favorites_test_create(const char** items, unsigned count)
+{
+    FavoriteItems* favorites=malloc(sizeof(FavoriteItems));
+    TEST_ASSERT_NOT_NULL(favorites);
+    favorites_init(favorites);
+    favorites->items=malloc(sizeof(char*) * count);
+    TEST_ASSERT_NOT_NULL(favorites->items);
+    unsigned i;
+    for(i=0; i<count; i++) {
+        favorites->items[i]=hstr_strdup(items[i]);
+    }
+    favorites->count=count;
+    favorites->loaded=true;
+    return favorites;
+}
+
+static void favorites_test_assert_items(FavoriteItems* favorites, const char** expected, unsigned count)
+{
+    TEST_ASSERT_EQUAL_UINT(count, favorites->count);
+    unsigned i;
+    for(i=0; i<count; i++) {
+        TEST_ASSERT_NOT_NULL(favorites->items[i]);
+        TEST_ASSERT_EQUAL_STRING(expected[i], favorites->items[i]);
+    }
+}
+
+static bool favorites_test_file_exists(void)
+{
+    char* fileName=favorites_get_filename();
+    bool exists=access(fileName, F_OK)==0;
+    free(fileName);
+    return exists;
+}
+
+static void favorites_test_assert_file(const char* expected)
+{
+    char* fileName=favorites_get_filename();
+    FILE* file=fopen(fileName, "rb");
+    free(fileName);
+    TEST_ASSERT_NOT_NULL(file);
+    char content[512]={0};
+    size_t size=fread(content, sizeof(char), sizeof(content)-1, file);
+    fclose(file);
+    content[size]=0;
+    TEST_ASSERT_EQUAL_STRING(expected, content);
+}
+
+// bug #470: choosing a command which is not a favorite corrupted favorites
+void test_favorites_choose_missing_choice(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_choose(favorites, "not a favorite");
+
+    // THEN
+    favorites_test_assert_items(favorites, items, 3);
+    TEST_ASSERT_FALSE(favorites_test_file_exists());
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_choose_moves_choice_to_head(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_choose(favorites, "echo fav");
+    favorites_choose(favorites, "echo fav");
+
+    // THEN
+    const char* expected[]={"echo fav", "ls -la", "git status"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("echo fav\nls -la\ngit status\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_add_new_to_head(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    favorites_add(favorites, "echo new");
+
+    // THEN
+    const char* expected[]={"echo new", "ls -la", "git status"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("echo new\nls -la\ngit status\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+// adding a command which already is a favorite must not create a duplicate
+void test_favorites_add_existing_no_duplicate(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    favorites_add(favorites, "git status");
+
+    // THEN
+    const char* expected[]={"git status", "ls -la", "echo fav"};
+    favorites_test_assert_items(favorites, expected, 3);
+    favorites_test_assert_file("git status\nls -la\necho fav\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_remove(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status", "echo fav"};
+    FavoriteItems* favorites=favorites_test_create(items, 3);
+
+    // WHEN
+    bool removed=favorites_remove(favorites, "git status");
+
+    // THEN (removed item is freed - checked by valgrind)
+    TEST_ASSERT_TRUE(removed);
+    const char* expected[]={"ls -la", "echo fav"};
+    favorites_test_assert_items(favorites, expected, 2);
+    favorites_test_assert_file("ls -la\necho fav\n");
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_remove_missing(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    bool removed=favorites_remove(favorites, "not a favorite");
+
+    // THEN
+    TEST_ASSERT_FALSE(removed);
+    favorites_test_assert_items(favorites, items, 2);
+    TEST_ASSERT_FALSE(favorites_test_file_exists());
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+void test_favorites_null_safety(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN
+    const char* items[]={"ls -la", "git status"};
+    FavoriteItems* favorites=favorites_test_create(items, 2);
+
+    // WHEN
+    favorites_choose(favorites, NULL);
+    favorites_add(favorites, NULL);
+    bool removed=favorites_remove(favorites, NULL);
+
+    // THEN
+    TEST_ASSERT_FALSE(removed);
+    favorites_test_assert_items(favorites, items, 2);
+    favorites_destroy(favorites);
+    printf("DONE\n");
+}
+
+// bug #470: cursor must never point beyond the selection (stale items)
+void test_selection_index(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN 3 items on a 20 rows screen
+    const int promptItems=20, selectionSize=3;
+
+    // WHEN / THEN prompt at the top: rows 0..2 are items
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(SELECTION_CURSOR_IN_PROMPT, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_index(0, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_index(2, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(3, false, promptItems, selectionSize));
+
+    // WHEN / THEN prompt at the bottom: rows 17..19 are items, the first item is on the last row
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(SELECTION_CURSOR_IN_PROMPT, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_index(19, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_index(17, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(16, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(0, true, promptItems, selectionSize));
+
+    // WHEN / THEN empty selection
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(0, false, promptItems, 0));
+    TEST_ASSERT_EQUAL_INT(-1, hstr_selection_index(19, true, promptItems, 0));
+    printf("DONE\n");
+}
+
+// bug #470: navigation keys must keep the cursor on the selection rows
+void test_selection_cursor_move(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN 3 items on a 20 rows screen
+    const int promptItems=20, selectionSize=3, page=10;
+    const int inPrompt=SELECTION_CURSOR_IN_PROMPT;
+
+    // WHEN / THEN empty selection keeps the cursor in the prompt
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(inPrompt, 1, false, promptItems, 0));
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(5, -page, true, promptItems, 0));
+
+    // WHEN / THEN prompt at the top (rows 0..2)
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(inPrompt, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(inPrompt, -1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(1, hstr_selection_cursor_move(0, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(2, 1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(0, -1, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(0, page, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(2, -page, false, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(2, hstr_selection_cursor_move(7, 0, false, promptItems, selectionSize));
+
+    // WHEN / THEN prompt at the bottom (rows 17..19)
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(inPrompt, -1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(inPrompt, 1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(inPrompt, -page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(19, -page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(17, page, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(19, hstr_selection_cursor_move(17, -1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(19, 1, true, promptItems, selectionSize));
+    TEST_ASSERT_EQUAL_INT(17, hstr_selection_cursor_move(0, 0, true, promptItems, selectionSize));
+
+    // WHEN / THEN more items than rows (e.g. right after a terminal resize)
+    TEST_ASSERT_EQUAL_INT(4, hstr_selection_cursor_move(inPrompt, -1, false, 5, 30));
+    TEST_ASSERT_EQUAL_INT(4, hstr_selection_cursor_move(0, page, true, 5, 30));
+    TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_move(4, -page, true, 5, 30));
+    TEST_ASSERT_EQUAL_INT(inPrompt, hstr_selection_cursor_move(inPrompt, 1, true, 0, 30));
+    printf("DONE\n");
+}
+
+void test_selection_cursor_step(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN navigation keys and keys which do not move the cursor
+    const int up[]={KEY_UP, K_CTRL_K, K_CTRL_P};
+    const int down[]={KEY_DOWN, K_CTRL_J, K_CTRL_N};
+    const int other[]={'a', K_CTRL_N+1, KEY_LEFT, KEY_RIGHT, 0, -1};
+
+    // WHEN / THEN line moves
+    unsigned i;
+    for(i=0; i<sizeof(up)/sizeof(up[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(-1, hstr_selection_cursor_step(up[i]));
+    }
+    for(i=0; i<sizeof(down)/sizeof(down[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(1, hstr_selection_cursor_step(down[i]));
+    }
+
+    // WHEN / THEN page moves
+    TEST_ASSERT_EQUAL_INT(-PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_PPAGE));
+    TEST_ASSERT_EQUAL_INT(PG_JUMP_SIZE, hstr_selection_cursor_step(KEY_NPAGE));
+
+    // WHEN / THEN other keys do not move the cursor
+    for(i=0; i<sizeof(other)/sizeof(other[0]); i++) {
+        TEST_ASSERT_EQUAL_INT(0, hstr_selection_cursor_step(other[i]));
+    }
+    printf("DONE\n");
+}
+
+void test_selection_add(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN an empty selection with capacity for 3 items
+    char* selection[3]={NULL, NULL, NULL};
+    const unsigned capacity=sizeof(selection)/sizeof(selection[0]);
+    unsigned size=0;
+    char ls[]="ls", cd[]="cd", lsCopy[]="ls", pwd[]="pwd", git[]="git";
+
+    // WHEN items are added with duplicates filtering
+    bool lsAdded=hstr_selection_add(selection, capacity, &size, ls, true);
+    bool cdAdded=hstr_selection_add(selection, capacity, &size, cd, true);
+    bool lsCopyAdded=hstr_selection_add(selection, capacity, &size, lsCopy, true);
+
+    // THEN duplicate (by value, not by pointer) is skipped
+    TEST_ASSERT_TRUE(lsAdded);
+    TEST_ASSERT_TRUE(cdAdded);
+    TEST_ASSERT_FALSE(lsCopyAdded);
+    TEST_ASSERT_EQUAL_UINT(2, size);
+    TEST_ASSERT_EQUAL_PTR(ls, selection[0]);
+    TEST_ASSERT_EQUAL_PTR(cd, selection[1]);
+
+    // WHEN duplicate is added without duplicates filtering
+    bool lsCopyAddedRaw=hstr_selection_add(selection, capacity, &size, lsCopy, false);
+
+    // THEN it is appended
+    TEST_ASSERT_TRUE(lsCopyAddedRaw);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+    TEST_ASSERT_EQUAL_PTR(lsCopy, selection[2]);
+
+    // WHEN the selection is full
+    bool pwdAdded=hstr_selection_add(selection, capacity, &size, pwd, false);
+
+    // THEN nothing is written beyond capacity
+    TEST_ASSERT_FALSE(pwdAdded);
+    TEST_ASSERT_EQUAL_UINT(3, size);
+
+    // WHEN invalid arguments are passed
+    unsigned emptySize=0;
+    bool nullSelection=hstr_selection_add(NULL, capacity, &emptySize, git, false);
+    bool nullSize=hstr_selection_add(selection, capacity, NULL, git, false);
+    bool nullLine=hstr_selection_add(selection, capacity, &emptySize, NULL, false);
+    bool zeroCapacity=hstr_selection_add(selection, 0, &emptySize, git, false);
+
+    // THEN they are rejected
+    TEST_ASSERT_FALSE(nullSelection);
+    TEST_ASSERT_FALSE(nullSize);
+    TEST_ASSERT_FALSE(nullLine);
+    TEST_ASSERT_FALSE(zeroCapacity);
+    TEST_ASSERT_EQUAL_UINT(0, emptySize);
+    printf("DONE\n");
+}
+
 void test_hashset_blacklist()
 {
     printf("\n= %s ========================================\n", __FUNCTION__);
@@ -335,31 +725,445 @@ void test_string_elide()
     char buffer[1000];
 
     // do nothing - string fits to screen
-    hstr_strelide(buffer, "0123456789", 20);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 20);
     printf("%s\n", buffer);
     TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
 
-    // do nothing - string too short
-    hstr_strelide(buffer, "012", 1);
+    // no space for "..." - string is cut to fit the screen
+    hstr_strelide(buffer, sizeof(buffer), "012", 1);
     printf("%s\n", buffer);
-    TEST_ASSERT_EQUAL_STRING("012", buffer);
+    TEST_ASSERT_EQUAL_STRING("0", buffer);
 
-    hstr_strelide(buffer, "0123456789", 6);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 6);
     printf("%s\n", buffer);
     TEST_ASSERT_EQUAL_STRING("01...9", buffer);
 
 
-    hstr_strelide(buffer, "0123456789", 10);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 10);
     TEST_ASSERT_EQUAL_STRING("0123456789", buffer);
     printf("%s\n", buffer);
 
-    hstr_strelide(buffer, "0123456789", 9);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 9);
     TEST_ASSERT_EQUAL_STRING("012...789", buffer);
     printf("%s\n", buffer);
 
-    hstr_strelide(buffer, "0123456789", 8);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 8);
     TEST_ASSERT_EQUAL_STRING("012...89", buffer);
     printf("%s\n", buffer);
+}
+
+// pattern typed on a terminal wider than the pattern buffer must not overflow it
+void test_strcat_char(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN a small buffer guarded by canary bytes
+    char memory[8];
+    memset(memory, '#', sizeof(memory));
+    char* buffer=memory+1;
+    const size_t size=sizeof(memory)-2;
+    buffer[0]=0;
+
+    // WHEN the buffer is filled beyond its capacity
+    unsigned i, appended=0;
+    for(i=0; i<2*size; i++) {
+        if(hstr_strcat_char(buffer, size, 'a'+i)) {
+            appended++;
+        }
+    }
+
+    // THEN only size-1 characters are appended, terminated and canaries are intact
+    TEST_ASSERT_EQUAL_UINT(size-1, appended);
+    TEST_ASSERT_EQUAL_STRING("abcde", buffer);
+    TEST_ASSERT_EQUAL_INT('#', memory[0]);
+    TEST_ASSERT_EQUAL_INT('#', memory[sizeof(memory)-1]);
+
+    // GIVEN an empty buffer
+    char pattern[8]={0};
+
+    // WHEN UTF-8 bytes, curses key codes and invalid values are appended
+    bool utf8First=hstr_strcat_char(pattern, sizeof(pattern), 0xC3);
+    bool utf8Second=hstr_strcat_char(pattern, sizeof(pattern), 0xA1);
+    bool keyCode=hstr_strcat_char(pattern, sizeof(pattern), KEY_LEFT);
+    bool zero=hstr_strcat_char(pattern, sizeof(pattern), 0);
+    bool negative=hstr_strcat_char(pattern, sizeof(pattern), -1);
+
+    // THEN only bytes are appended
+    TEST_ASSERT_TRUE(utf8First);
+    TEST_ASSERT_TRUE(utf8Second);
+    TEST_ASSERT_FALSE(keyCode);
+    TEST_ASSERT_FALSE(zero);
+    TEST_ASSERT_FALSE(negative);
+    TEST_ASSERT_EQUAL_STRING("\xC3\xA1", pattern);
+
+    // GIVEN invalid buffers
+    char unterminated[4]={'a', 'b', 'c', 'd'};
+    char empty[1]={0};
+
+    // WHEN a character is appended
+    bool nullAppended=hstr_strcat_char(NULL, 8, 'x');
+    bool unterminatedAppended=hstr_strcat_char(unterminated, sizeof(unterminated), 'x');
+    bool emptyAppended=hstr_strcat_char(empty, sizeof(empty), 'x');
+    bool zeroSizeAppended=hstr_strcat_char(pattern, 0, 'x');
+
+    // THEN nothing is written
+    TEST_ASSERT_FALSE(nullAppended);
+    TEST_ASSERT_FALSE(unterminatedAppended);
+    TEST_ASSERT_FALSE(emptyAppended);
+    TEST_ASSERT_FALSE(zeroSizeAppended);
+    TEST_ASSERT_EQUAL_MEMORY("abcd", unterminated, sizeof(unterminated));
+    TEST_ASSERT_EQUAL_INT(0, empty[0]);
+    printf("DONE\n");
+}
+
+static bool is_in_test_home(const char* fileName)
+{
+    size_t length=strlen(testHome);
+    return fileName && !strncmp(testHome, fileName, length) && fileName[length]=='/';
+}
+
+// HSTR_HISTFILE takes precedence over HISTFILE, shell history file ignores it
+void test_history_file_name(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN no history file variables
+    unsetenv(ENV_VAR_HSTR_HISTFILE);
+    unsetenv(ENV_VAR_HISTFILE);
+
+    // WHEN
+    char* defaultFile=get_history_file_name();
+    char* defaultShellFile=get_shell_history_file_name();
+
+    // THEN shell specific default in HOME is used (bash or zsh - depends on parent process)
+    TEST_ASSERT_TRUE(is_in_test_home(defaultFile));
+    TEST_ASSERT_EQUAL_STRING(defaultFile, defaultShellFile);
+    free(defaultFile);
+    free(defaultShellFile);
+
+    // GIVEN HISTFILE and empty HSTR_HISTFILE
+    setenv(ENV_VAR_HISTFILE, "/tmp/hstr-shell-history", 1);
+    setenv(ENV_VAR_HSTR_HISTFILE, "", 1);
+
+    // WHEN
+    char* histFile=get_history_file_name();
+    char* histShellFile=get_shell_history_file_name();
+
+    // THEN empty HSTR_HISTFILE is ignored
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", histFile);
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", histShellFile);
+    free(histFile);
+    free(histShellFile);
+
+    // GIVEN both HISTFILE and HSTR_HISTFILE
+    setenv(ENV_VAR_HSTR_HISTFILE, "/tmp/hstr-global-history", 1);
+
+    // WHEN
+    char* hstrFile=get_history_file_name();
+    char* hstrShellFile=get_shell_history_file_name();
+
+    // THEN HSTR uses HSTR_HISTFILE, shell history file is still HISTFILE
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-global-history", hstrFile);
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-shell-history", hstrShellFile);
+    free(hstrFile);
+    free(hstrShellFile);
+
+    // GIVEN HSTR_HISTFILE without HISTFILE
+    unsetenv(ENV_VAR_HISTFILE);
+
+    // WHEN
+    char* onlyHstrFile=get_history_file_name();
+    char* onlyHstrShellFile=get_shell_history_file_name();
+
+    // THEN shell history file falls back to the default in HOME
+    TEST_ASSERT_EQUAL_STRING("/tmp/hstr-global-history", onlyHstrFile);
+    TEST_ASSERT_TRUE(is_in_test_home(onlyHstrShellFile));
+    free(onlyHstrFile);
+    free(onlyHstrShellFile);
+    printf("DONE\n");
+}
+
+// switches to a UTF-8 locale (as HSTR does w/ setlocale(LC_ALL, "") in a UTF-8 terminal),
+// returns the original locale to be restored or NULL if no UTF-8 locale is available
+static char* utf8_locale_set(void)
+{
+    char* current=setlocale(LC_ALL, NULL);
+    char* original=current ? hstr_strdup(current) : NULL;
+    const char* locales[]={"C.UTF-8", "C.utf8", "en_US.UTF-8", "en_US.utf8"};
+    unsigned i;
+    for(i=0; i<sizeof(locales)/sizeof(locales[0]); i++) {
+        if(setlocale(LC_ALL, locales[i])) {
+            return original;
+        }
+    }
+    free(original);
+    return NULL;
+}
+
+static void utf8_locale_restore(char* original)
+{
+    setlocale(LC_ALL, original ? original : "C");
+    free(original);
+}
+
+// bug #533: prompt and pattern w/ multibyte characters must be measured in columns
+void test_string_width(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+
+    // WHEN
+    int ascii=hstr_strwidth("$ ");
+    int arrow=hstr_strwidth("\xE2\x9D\xAF ");             // "❯ " 3 byte character
+    int arrows=hstr_strwidth("\xE2\x9D\xAF\xE2\x9D\xAF ");  // "❯❯ "
+    int lambda=hstr_strwidth("\xCE\xBB ");               // "λ " 2 byte character
+    int cjk=hstr_strwidth("\xE4\xB8\xAD\xE6\x96\x87> ");     // "中文> " double width characters
+    int empty=hstr_strwidth("");
+    int null=hstr_strwidth(NULL);
+    int prefix=hstr_strnwidth("\xE2\x9D\xAF\xE2\x9D\xAF", 3);
+    int incomplete=hstr_strwidth("a\xE2\x9D");             // character being typed
+    int invalid=hstr_strwidth("a\xFF" "b");
+
+    // THEN
+    TEST_ASSERT_EQUAL_INT(2, ascii);
+    TEST_ASSERT_EQUAL_INT(2, arrow);
+    TEST_ASSERT_EQUAL_INT(3, arrows);
+    TEST_ASSERT_EQUAL_INT(2, lambda);
+    TEST_ASSERT_EQUAL_INT(6, cjk);
+    TEST_ASSERT_EQUAL_INT(0, empty);
+    TEST_ASSERT_EQUAL_INT(0, null);
+    TEST_ASSERT_EQUAL_INT(1, prefix);
+    TEST_ASSERT_EQUAL_INT(1, incomplete);
+    TEST_ASSERT_EQUAL_INT(3, invalid);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
+}
+
+void test_string_elide_multibyte(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale and strings w/ multibyte characters
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+    char buffer[100];
+    const char* greek="\xCE\xB1\xCE\xB2\xCE\xB3\xCE\xB4\xCE\xB5\xCE\xB6\xCE\xB7\xCE\xB8"; // "αβγδεζηθ"
+    const char* cjk="\xE4\xB8\x80\xE4\xBA\x8C\xE4\xB8\x89\xE5\x9B\x9B\xE4\xBA\x94";     // "一二三四五" (10 columns)
+
+    // WHEN / THEN fits - not elided
+    hstr_strelide(buffer, sizeof(buffer), greek, 8);
+    TEST_ASSERT_EQUAL_STRING(greek, buffer);
+
+    // WHEN / THEN elided by columns, not by bytes
+    hstr_strelide(buffer, sizeof(buffer), greek, 6);
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1\xCE\xB2...\xCE\xB8", buffer); // "αβ...θ"
+    TEST_ASSERT_EQUAL_INT(6, hstr_strwidth(buffer));
+
+    // WHEN / THEN double width characters are not split and the result fits
+    hstr_strelide(buffer, sizeof(buffer), cjk, 8);
+    TEST_ASSERT_EQUAL_STRING("\xE4\xB8\x80...\xE4\xBA\x94", buffer); // "一...五"
+    TEST_ASSERT_TRUE(hstr_strwidth(buffer)<=8);
+
+    // WHEN / THEN no space for "..." - prefix fitting the width (used to overflow the buffer)
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 0);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "0123456789", 3);
+    TEST_ASSERT_EQUAL_STRING("012", buffer);
+    hstr_strelide(buffer, sizeof(buffer), cjk, 3);
+    TEST_ASSERT_EQUAL_STRING("\xE4\xB8\x80", buffer);
+
+    // WHEN / THEN short strings are cut to the width too (used to wrap on narrow terminals)
+    hstr_strelide(buffer, sizeof(buffer), "012", 0);
+    TEST_ASSERT_EQUAL_STRING("", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "\xCE\xB1\xCE\xB2", 1);
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", buffer);
+
+    // WHEN / THEN small buffer is never overflowed and characters are not split
+    char small[4];
+    hstr_strelide(small, sizeof(small), "0123456789", 20);
+    TEST_ASSERT_EQUAL_STRING("012", small);
+    hstr_strelide(small, sizeof(small), "\xCE\xB1\xCE\xB2", 20);          // "αβ" - CE B1 CE would split β
+    TEST_ASSERT_EQUAL_STRING("\xCE\xB1", small);
+    hstr_strelide(small, sizeof(small), "e\xCC\x81" "e\xCC\x81", 20);     // zero width combining accents
+    TEST_ASSERT_EQUAL_STRING("e\xCC\x81", small);
+    // WHEN / THEN combining mark whose base character is omitted is not attached to "..."
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 6);
+    TEST_ASSERT_EQUAL_STRING("ab...f", buffer);
+    hstr_strelide(buffer, sizeof(buffer), "abcdefghie\xCC\x81" "f", 7);
+    TEST_ASSERT_EQUAL_STRING("ab...e\xCC\x81" "f", buffer);
+    char elided[6];
+    hstr_strelide(elided, sizeof(elided), "0123456789", 6);
+    TEST_ASSERT_EQUAL_STRING("01...", elided);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
+}
+
+// backspace must delete the whole multibyte character and never write before the string
+void test_chop(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN strings w/ 1, 2, 3 and 4 byte characters and invalid sequences
+    char ascii[]="ab";
+    char twoBytes[]="a\xCE\xBB";          // "aλ"
+    char threeBytes[]="a\xE2\x9D\xAF";    // "a❯"
+    char fourBytes[]="a\xF0\x9F\x98\x80"; // "a😀"
+    char incomplete[]="a\xE2\x9D";        // character being typed
+    char loneHighByte[]="\xE9";           // e.g. Latin-1 input
+    char loneContinuation[]="a\x80";
+    char empty[]="";
+
+    // WHEN
+    hstr_chop(ascii);
+    hstr_chop(twoBytes);
+    hstr_chop(threeBytes);
+    hstr_chop(fourBytes);
+    hstr_chop(incomplete);
+    hstr_chop(loneHighByte);
+    hstr_chop(loneContinuation);
+    hstr_chop(empty);
+    hstr_chop(NULL);
+
+    // THEN
+    TEST_ASSERT_EQUAL_STRING("a", ascii);
+    TEST_ASSERT_EQUAL_STRING("a", twoBytes);
+    TEST_ASSERT_EQUAL_STRING("a", threeBytes);
+    TEST_ASSERT_EQUAL_STRING("a", fourBytes);
+    TEST_ASSERT_EQUAL_STRING("a", incomplete);
+    TEST_ASSERT_EQUAL_STRING("", loneHighByte);
+    TEST_ASSERT_EQUAL_STRING("a", loneContinuation);
+    TEST_ASSERT_EQUAL_STRING("", empty);
+    printf("DONE\n");
+}
+
+// zsh metafies bytes 0x83-0xA2 of multibyte characters: "č" (C4 8D) is stored as C4 83 AD
+void test_history_line_equals(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN zsh history lines w/ metafied "čeština" w/ and w/o extended history prefix
+    char metafied[]="echo \xC4\x83\xAD" "e\xC5\x83\x81tina";
+    char extended[]=": 1730000000:6109;echo \xC4\x83\xAD" "e\xC5\x83\x81tina";
+    char plain[]="ls /tmp";
+    const char* command="echo \xC4\x8D" "e\xC5\xA1tina";
+
+    // WHEN
+    bool metafiedZsh=history_line_equals(metafied, command, true);
+    bool extendedZsh=history_line_equals(extended, command, true);
+    bool metafiedBash=history_line_equals(metafied, command, false);
+    bool plainEquals=history_line_equals(plain, "ls /tmp", true);
+    bool plainDiffers=history_line_equals(plain, "ls", true);
+    bool nullLine=history_line_equals(NULL, command, true);
+    bool nullCommand=history_line_equals(plain, NULL, true);
+
+    // THEN unmetafied only for zsh, history lines are NOT modified
+    TEST_ASSERT_TRUE(metafiedZsh);
+    TEST_ASSERT_TRUE(extendedZsh);
+    TEST_ASSERT_FALSE(metafiedBash);
+    TEST_ASSERT_TRUE(plainEquals);
+    TEST_ASSERT_FALSE(plainDiffers);
+    TEST_ASSERT_FALSE(nullLine);
+    TEST_ASSERT_FALSE(nullCommand);
+    TEST_ASSERT_EQUAL_STRING("echo \xC4\x83\xAD" "e\xC5\x83\x81tina", metafied);
+    printf("DONE\n");
+}
+
+void test_remove_from_system_history(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN history w/ Bash timestamp and zsh extended history entry (multi-digit duration)
+    char historyFile[PATH_MAX+16];
+    int length=snprintf(historyFile, sizeof(historyFile), "%s/history", testHome);
+    TEST_ASSERT_TRUE(length>0 && length<(int)sizeof(historyFile));
+    setenv(ENV_VAR_HSTR_HISTFILE, historyFile, 1);
+    using_history();
+    clear_history();
+    add_history("#1700000000");
+    add_history("ls");
+    add_history("pwd");
+    add_history(": 1596135828:6109;ls");
+    add_history("lsblk");
+
+    // WHEN
+    int removed=history_mgmt_remove_from_system_history("ls");
+    int missing=history_mgmt_remove_from_system_history("not in history");
+    int null=history_mgmt_remove_from_system_history(NULL);
+
+    // THEN both occurrences and the timestamp are removed, other entries are kept
+    TEST_ASSERT_EQUAL_INT(2, removed);
+    TEST_ASSERT_EQUAL_INT(0, missing);
+    TEST_ASSERT_EQUAL_INT(0, null);
+    HIST_ENTRY** entries=history_list();
+    TEST_ASSERT_NOT_NULL(entries);
+    TEST_ASSERT_EQUAL_STRING("pwd", entries[0]->line);
+    TEST_ASSERT_EQUAL_STRING("lsblk", entries[1]->line);
+    TEST_ASSERT_NULL(entries[2]);
+    TEST_ASSERT_EQUAL_INT(0, access(historyFile, F_OK));
+
+    clear_history();
+    unlink(historyFile);
+    printf("DONE\n");
+}
+
+// pattern typed byte by byte must not overflow the prompt row, combining marks are always accepted
+void test_strcat_char_fitting(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+    // GIVEN UTF-8 locale and prompt row w/ 4 free columns
+    char* originalLocale=utf8_locale_set();
+    if(!originalLocale) {
+        TEST_IGNORE_MESSAGE("UTF-8 locale is not available");
+    }
+    const int columns=4;
+    const char* cafe="cafe\xCC\x81";   // decomposed "café" - e + combining acute accent
+    char pattern[32]={0};
+
+    // WHEN decomposed "café" is typed byte by byte
+    unsigned i, accepted=0;
+    for(i=0; cafe[i]; i++) {
+        if(hstr_strcat_char_fitting(pattern, sizeof(pattern), (unsigned char)cafe[i], columns)) {
+            accepted++;
+        }
+    }
+
+    // THEN the accent is kept although the pattern fills all columns
+    TEST_ASSERT_EQUAL_UINT(strlen(cafe), accepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // WHEN ASCII character is typed to the full row
+    bool asciiAccepted=hstr_strcat_char_fitting(pattern, sizeof(pattern), 'x', columns);
+
+    // THEN it is rejected
+    TEST_ASSERT_FALSE(asciiAccepted);
+    TEST_ASSERT_EQUAL_STRING(cafe, pattern);
+
+    // GIVEN 3 columns used
+    char cjk[32]="abc";
+
+    // WHEN double width "中" is typed byte by byte to the last free column
+    bool first=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xE4, columns);
+    bool second=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xB8, columns);
+    bool third=hstr_strcat_char_fitting(cjk, sizeof(cjk), 0xAD, columns);
+
+    // THEN incomplete bytes are accepted, the completed character is removed as it does not fit
+    TEST_ASSERT_TRUE(first);
+    TEST_ASSERT_TRUE(second);
+    TEST_ASSERT_FALSE(third);
+    TEST_ASSERT_EQUAL_STRING("abc", cjk);
+
+    utf8_locale_restore(originalLocale);
+    printf("DONE\n");
 }
 
 void test_parse_history_line()
@@ -463,4 +1267,92 @@ void test_assemble_cmdline_pattern(void)
     TEST_ASSERT_EQUAL_INT(29, strlen(result));
 
     printf("DONE\n");
+}
+
+// reads fd until EOF to NUL terminated buffer, data not fitting the buffer are drained, returns
+// the number of bytes read (incl. drained ones)
+static size_t read_all(int fd, char* buffer, size_t size)
+{
+    size_t length=0, total=0;
+    char chunk[256];
+    ssize_t n;
+    while((n=read(fd, chunk, sizeof(chunk)))!=0) {
+        if(n<0) {
+            if(errno==EINTR) {
+                continue;
+            }
+            break;
+        }
+        size_t copy=(size_t)n;
+        if(copy>size-1-length) {
+            copy=size-1-length;
+        }
+        memcpy(buffer+length, chunk, copy);
+        length+=copy;
+        total+=(size_t)n;
+    }
+    buffer[length]=0;
+    return total;
+}
+
+void test_is_tiocsti_supported_without_terminal(void)
+{
+    printf("\n= %s ========================================\n", __FUNCTION__);
+
+#if defined(__MS_WSL__) || defined(__CYGWIN__)
+    TEST_IGNORE_MESSAGE("TIOCSTI is not probed on this platform");
+#else
+    // GIVEN child process w/o controlling terminal (like scripts which append
+    // hstr --show-configuration to ~/.bashrc) w/ captured stdout and stderr - the result
+    // is sent using a pipe as exit code of the child may be changed by tools like Valgrind
+    int out[2], err[2], result[2];
+    TEST_ASSERT_EQUAL_INT(0, pipe(out));
+    TEST_ASSERT_EQUAL_INT(0, pipe(err));
+    TEST_ASSERT_EQUAL_INT(0, pipe(result));
+    fflush(stdout);
+    fflush(stderr);
+    pid_t pid=fork();
+    TEST_ASSERT_TRUE(pid>=0);
+    if(pid==0) {
+        // setsid() detaches the child from the controlling terminal - open("/dev/tty") fails
+        if(setsid()<0 || dup2(out[1], STDOUT_FILENO)<0 || dup2(err[1], STDERR_FILENO)<0) {
+            _exit(2);
+        }
+        close(out[0]);
+        close(out[1]);
+        close(err[0]);
+        close(err[1]);
+        close(result[0]);
+
+        // WHEN
+        char supported=is_tiocsti_supported() ? 'y' : 'n';
+
+        fflush(stdout);
+        fflush(stderr);
+        _exit(write(result[1], &supported, 1)==1 ? 0 : 3);
+    }
+    close(out[1]);
+    close(err[1]);
+    close(result[1]);
+    char outBuffer[512], errBuffer[512], resultBuffer[8];
+    size_t outLength=read_all(out[0], outBuffer, sizeof(outBuffer));
+    size_t errLength=read_all(err[0], errBuffer, sizeof(errBuffer));
+    size_t resultLength=read_all(result[0], resultBuffer, sizeof(resultBuffer));
+    close(out[0]);
+    close(err[0]);
+    close(result[0]);
+    int status=0;
+    TEST_ASSERT_EQUAL_INT(pid, waitpid(pid, &status, 0));
+
+    // THEN TIOCSTI is not supported and stdout is clean - diagnostics are on stderr only
+    printf("  stdout: '%s'\n  stderr: '%s'\n", outBuffer, errBuffer);
+    TEST_ASSERT_TRUE(WIFEXITED(status));
+    TEST_ASSERT_EQUAL_UINT(1, resultLength);
+    TEST_ASSERT_EQUAL_INT('n', resultBuffer[0]);
+    TEST_ASSERT_EQUAL_UINT(0, outLength);
+    TEST_ASSERT_TRUE(errLength>0);
+    TEST_ASSERT_NOT_NULL(strstr(errBuffer, "TIOCSTI"));
+
+    printf("DONE\n");
+#endif
 }
