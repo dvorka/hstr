@@ -159,8 +159,13 @@ function checkoutHstr() {
         exit 1
     fi
 
-    cd hstr-package && mv -v .bzr .. && rm -rvf *.* && mv -v ../.bzr .
-    cp -rvf ${HSTRSRC}/* ${HSTRSRC}/*.*  .
+    # remove ALL files of the previous release - only Bazaar metadata is kept - so
+    # that files which are no longer released are removed from the branch too
+    # (bzr commit removes missing files)
+    cd hstr-package || exit 1
+    find . -mindepth 1 -maxdepth 1 ! -name .bzr -exec rm -rf {} +
+    # copy Git tracked files only - no build outputs, backups, local experiments, ...
+    ${HSTRSRC}/build/copy-git-sources.sh "${HSTRSRC}" . || exit 1
     cd ..
 
     echo "Preparing *configure using Autotools"
@@ -360,6 +365,9 @@ fi
 
 for UBUNTU_VERSION in ${UBUNTU_VERSIONS[@]}
 do
+    # every Ubuntu version is released in its own directory in SCRIPTHOME (the
+    # release function changes the current directory)
+    cd "${SCRIPTHOME}" || exit 1
     ARG_MINOR_VERSION=$(minorVersion ${UBUNTU_VERSION})
     echo "Releasing HSTR ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} for Ubuntu version: ${UBUNTU_VERSION}"
     releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"

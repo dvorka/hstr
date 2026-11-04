@@ -65,12 +65,8 @@ fi
 
 function makeTarballRelease() {
     # sources are copied to hstr/ - the directory name of the tarball root - only
-    # files tracked by Git (w/ working tree changes) are copied, so that ignored
-    # and untracked files (build outputs, IDE and agent files, ...) are not released
-    mkdir hstr || fail "unable to create hstr/ in `pwd`"
-    git -C "${GH_SRC_DIR}" ls-files -z \
-        | (cd "${GH_SRC_DIR}" && tar --null --ignore-failed-read -T - -cf -) \
-        | tar -xf - -C hstr \
+    # files tracked by Git are copied (see copy-git-sources.sh)
+    ${GH_SRC_DIR}/build/copy-git-sources.sh "${GH_SRC_DIR}" hstr \
         || fail "unable to copy sources from ${GH_SRC_DIR}"
 
     cd hstr && \

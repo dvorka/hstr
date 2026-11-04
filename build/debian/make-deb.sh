@@ -93,8 +93,8 @@ function buildDebPackage() {
     echo -e "\n# Get HSTR project files ############################"
     mkdir -p ${HSTRBUILD}/${HSTR}
     cd ${HSTRBUILD}/${HSTR}
-    # copy  project files to current directory
-    cp -rvf ${HSTRSRC}/* ${HSTRSRC}/*.*  .
+    # copy project files to current directory - Git tracked files only
+    ${HSTRSRC}/build/copy-git-sources.sh "${HSTRSRC}" . || exit 1
 
     # 1.x) generate makefiles
     cd build/tarball && ./tarball-automake.sh && cd ../.. && ./configure
