@@ -37,6 +37,11 @@ export SCRIPTHOME=`pwd`
 export HSTRMAINTAINERNAME="Martin Dvorak (Dvorka)"
 export HSTRMAINTAINEREMAIL=martin.dvorak@mindforger.com
 
+# MANUALLY set patch version of the HSTR package for the OLDEST Ubuntu codename,
+# every newer Ubuntu codename gets +1 (major and minor version are parsed from
+# src/hstr.c) - see the HSTR version section below for details
+export HSTR_FIRST_PATCH_VERSION=4
+
 # ############################################################################
 # # Check dependencies #
 # ############################################################################
@@ -180,9 +185,9 @@ function checkoutHstr() {
 function createChangelog() {
     export MYTS=`date "+%a, %d %b %Y %H:%M:%S"`
     echo "Changelog timestamp: ${MYTS}"
-    echo -e "hstr (${HSTRFULLVERSION}) ${UBUNTUVERSION}; urgency=low" > $1
+    echo -e "hstr (${HSTR_DEBIAN_VERSION}) ${UBUNTU_CODENAME}; urgency=low" > $1
     echo -e "\n" >> $1
-    echo -e "  * ${HSTRBZRMSG}" >> $1
+    echo -e "  * ${HSTR_BAZAAR_MSG}" >> $1
     echo -e "\n" >> $1
     echo -e " -- ${HSTRMAINTAINERNAME} <${HSTRMAINTAINEREMAIL}>  ${MYTS} +0100" >> $1
     echo -e "\n" >> $1
@@ -195,11 +200,11 @@ function createChangelog() {
 function createTarArchive() {
   cd ..
   mkdir work && cd work
-  cp -vrf ../${HSTR} .
-  rm -rvf ${HSTR}/.bzr
-  tar zcf ../${HSTR}.tgz ${HSTR}
-  cp -vf ../${HSTR}.tgz ../${HSTR}.orig.tar.gz
-  cd ../${HSTR}
+  cp -vrf ../${HSTR_SOURCE_NAME} .
+  rm -rvf ${HSTR_SOURCE_NAME}/.bzr
+  tar zcf ../${HSTR_SOURCE_NAME}.tgz ${HSTR_SOURCE_NAME}
+  cp -vf ../${HSTR_SOURCE_NAME}.tgz ../${HSTR_SOURCE_NAME}.orig.tar.gz
+  cd ../${HSTR_SOURCE_NAME}
   rm -vrf ../work
 }
 
@@ -207,14 +212,14 @@ function createTarArchive() {
 # # Release for *ONE* particular Ubuntu version #
 # ############################################################################
 
-function releaseForParticularUbuntuVersion() {
-    export UBUNTUVERSION=${1}
-    export HSTRVERSION=${2}
-    export HSTRBZRMSG=${3}
+function releaseForUbuntuCodename() {
+    export UBUNTU_CODENAME=${1}
+    export HSTR_PACKAGE_VERSION=${2}
+    export HSTR_BAZAAR_MSG=${3}
 
-    export HSTRFULLVERSION=${HSTRVERSION}-0ubuntu1
-    export HSTR=hstr_${HSTRVERSION}
-    export HSTRRELEASE=hstr_${HSTRFULLVERSION}
+    export HSTR_DEBIAN_VERSION=${HSTR_PACKAGE_VERSION}-0ubuntu1
+    export HSTR_SOURCE_NAME=hstr_${HSTR_PACKAGE_VERSION}
+    export HSTR_DEBIAN_NAME=hstr_${HSTR_DEBIAN_VERSION}
     export NOW=`date +%Y-%m-%d--%H-%M-%S`
     export HSTRBUILD=hstr-${NOW}
 
@@ -226,9 +231,9 @@ function releaseForParticularUbuntuVersion() {
     cd hstr
     cp -rvf ${HSTRSRC}/build/ubuntu/debian .
     createChangelog ./debian/changelog
-    cd .. && mv hstr ${HSTR} && cd ${HSTR}
+    cd .. && mv hstr ${HSTR_SOURCE_NAME} && cd ${HSTR_SOURCE_NAME}
     bzr add .
-    bzr commit -m "Update for ${HSTR} at ${NOW}."
+    bzr commit -m "Update for ${HSTR_SOURCE_NAME} at ${NOW}."
 
     # create Tar archive
     createTarArchive
@@ -255,28 +260,28 @@ function releaseForParticularUbuntuVersion() {
     rm -rvf ${PBUILDFOLDER}
     mkdir -p ${PBUILDFOLDER}
     # copy pbuilder base tarball if it exists in ~/pbuilder/
-    if [ -f ~/pbuilder/${UBUNTUVERSION}-base.tgz ]; then
-        cp -v ~/pbuilder/${UBUNTUVERSION}-base.tgz ${PBUILDFOLDER}/
+    if [ -f ~/pbuilder/${UBUNTU_CODENAME}-base.tgz ]; then
+        cp -v ~/pbuilder/${UBUNTU_CODENAME}-base.tgz ${PBUILDFOLDER}/
     else
-        echo "ERROR: pbuilder base tarball not found: ~/pbuilder/${UBUNTUVERSION}-base.tgz"
+        echo "ERROR: pbuilder base tarball not found: ~/pbuilder/${UBUNTU_CODENAME}-base.tgz"
         echo "Please create it first by running:"
-        echo "  pbuilder-dist ${UBUNTUVERSION} create"
+        echo "  pbuilder-dist ${UBUNTU_CODENAME} create"
         echo "  mkdir -p ~/pbuilder"
-        echo "  sudo cp /var/cache/pbuilder/${UBUNTUVERSION}-base.tgz ~/pbuilder/"
+        echo "  sudo cp /var/cache/pbuilder/${UBUNTU_CODENAME}-base.tgz ~/pbuilder/"
         # NON critital error: exit 1
     fi
     # END
-    pbuilder-dist ${UBUNTUVERSION} build ${HSTRRELEASE}.dsc
+    pbuilder-dist ${UBUNTU_CODENAME} build ${HSTR_DEBIAN_NAME}.dsc
 
     # push .deb to Launchpad
-    cd ../${HSTR}
+    cd ../${HSTR_SOURCE_NAME}
     # push Bazaar changes and upload .deb to Launchpad
     echo "Before bzr push: " `pwd`
     bzr push lp:~ultradvorka/+junk/hstr-package
     cd ..
     echo "Before dput push: " `pwd`
     # recently added /ppa to fix the path and package rejections
-    dput ppa:ultradvorka/ppa ${HSTRRELEASE}_source.changes
+    dput ppa:ultradvorka/ppa ${HSTR_DEBIAN_NAME}_source.changes
 }
 
 # ############################################################################
@@ -301,16 +306,28 @@ fi
 # check all required dependencies
 checkDependencies
 
-# version is parsed from hstr.c which is authoritative
+# HSTR version is major.minor.patch (semantic versioning):
+# - major and minor version are parsed from src/hstr.c which is authoritative
+# - patch version is set MANUALLY at the top of this script (HSTR_FIRST_PATCH_VERSION):
+#   Launchpad does not allow the same version in two Ubuntu series of the PPA,
+#   therefore every Ubuntu codename gets its own patch version - the oldest one
+#   HSTR_FIRST_PATCH_VERSION, every newer one +1
+# - a version which was ever accepted by Launchpad (even if deleted afterwards)
+#   cannot be uploaded again - increase HSTR_FIRST_PATCH_VERSION to skip it
 export HSTR_VERSION=$(sed -n 's/.*hstr version \\"\([0-9][0-9.]*\)\\".*/\1/p' ${HSTRSRC}/src/hstr.c)
-if [ -z "${HSTR_VERSION}" ]
+if [[ ! "${HSTR_VERSION}" =~ ^([0-9]+)\.([0-9]+)\.([0-9]+)$ ]]
 then
-    echo "ERROR: unable to parse HSTR version from ${HSTRSRC}/src/hstr.c"
+    echo "ERROR: unable to parse HSTR version major.minor.patch from ${HSTRSRC}/src/hstr.c: '${HSTR_VERSION}'"
     exit 1
 fi
-export ARG_MAJOR_VERSION="${HSTR_VERSION%.*}."
-export ARG_BAZAAR_MSG="Release ${HSTR_VERSION%.*}"
-export ARG_FIRST_MINOR_VERSION=0
+export HSTR_MAJOR_VERSION=${BASH_REMATCH[1]}
+export HSTR_MINOR_VERSION=${BASH_REMATCH[2]}
+if [[ ! "${HSTR_FIRST_PATCH_VERSION}" =~ ^[0-9]+$ ]]
+then
+    echo "ERROR: HSTR_FIRST_PATCH_VERSION must be a non-negative integer: '${HSTR_FIRST_PATCH_VERSION}'"
+    exit 1
+fi
+export HSTR_BAZAAR_MSG="Release ${HSTR_MAJOR_VERSION}.${HSTR_MINOR_VERSION}"
 
 # Ubuntu versions:
 # - https://en.wikipedia.org/wiki/Ubuntu_version_history
@@ -331,20 +348,21 @@ export ARG_FIRST_MINOR_VERSION=0
 # - future (Active Development):
 #     tenacious
 #
-# IMPORTANT: keep the order from the oldest to the newest Ubuntu version - minor
+# IMPORTANT: keep the order from the oldest to the newest Ubuntu version - patch
 # version is derived from the position in the list, therefore distro upgrade gets
 # a newer HSTR package version and a single distro release gets the same version
 # as in a release of all distros
-export UBUNTU_ALL_VERSIONS=(jammy noble resolute stonking)
+#export UBUNTU_ALL_CODENAMES=(jammy noble resolute stonking)
+export UBUNTU_ALL_CODENAMES=(noble)
 
-# minorVersion <distro> - prints minor version of HSTR package for the Ubuntu version
-function minorVersion() {
+# patchVersion <codename> - prints patch version of HSTR package for the Ubuntu codename
+function patchVersion() {
     local i
-    for i in "${!UBUNTU_ALL_VERSIONS[@]}"
+    for i in "${!UBUNTU_ALL_CODENAMES[@]}"
     do
-        if [ "${UBUNTU_ALL_VERSIONS[$i]}" = "${1}" ]
+        if [ "${UBUNTU_ALL_CODENAMES[$i]}" = "${1}" ]
         then
-            echo $((ARG_FIRST_MINOR_VERSION + i))
+            echo $((HSTR_FIRST_PATCH_VERSION + i))
             return 0
         fi
     done
@@ -353,24 +371,25 @@ function minorVersion() {
 
 if [[ ${#} == 1 ]]
 then
-    if ! minorVersion "${1}" > /dev/null
+    if ! patchVersion "${1}" > /dev/null
     then
-        echo "ERROR: unsupported Ubuntu version '${1}' - use one of: ${UBUNTU_ALL_VERSIONS[*]}"
+        echo "ERROR: unsupported Ubuntu codename '${1}' - use one of: ${UBUNTU_ALL_CODENAMES[*]}"
         exit 1
     fi
-    export UBUNTU_VERSIONS=(${1})
+    export UBUNTU_CODENAMES=(${1})
 else
-    export UBUNTU_VERSIONS=(${UBUNTU_ALL_VERSIONS[@]})
+    export UBUNTU_CODENAMES=(${UBUNTU_ALL_CODENAMES[@]})
 fi
 
-for UBUNTU_VERSION in ${UBUNTU_VERSIONS[@]}
+for UBUNTU_CODENAME in ${UBUNTU_CODENAMES[@]}
 do
     # every Ubuntu version is released in its own directory in SCRIPTHOME (the
     # release function changes the current directory)
     cd "${SCRIPTHOME}" || exit 1
-    ARG_MINOR_VERSION=$(minorVersion ${UBUNTU_VERSION})
-    echo "Releasing HSTR ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} for Ubuntu version: ${UBUNTU_VERSION}"
-    releaseForParticularUbuntuVersion ${UBUNTU_VERSION} ${ARG_MAJOR_VERSION}${ARG_MINOR_VERSION} "${ARG_BAZAAR_MSG}"
+    HSTR_PATCH_VERSION=$(patchVersion ${UBUNTU_CODENAME})
+    HSTR_PACKAGE_VERSION=${HSTR_MAJOR_VERSION}.${HSTR_MINOR_VERSION}.${HSTR_PATCH_VERSION}
+    echo "Releasing HSTR ${HSTR_PACKAGE_VERSION} for Ubuntu ${UBUNTU_CODENAME}"
+    releaseForUbuntuCodename ${UBUNTU_CODENAME} ${HSTR_PACKAGE_VERSION} "${HSTR_BAZAAR_MSG}"
 done
 
 # eof
