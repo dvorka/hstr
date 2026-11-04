@@ -140,6 +140,12 @@ man hstr
 
 User videos: [Zack](https://www.youtube.com/watch?v=Qd75pIeQkH8), [Dvorka](https://www.youtube.com/watch?v=sPF29NyXe2U), [Yayuuu](https://www.reddit.com/r/commandline/comments/1lo5up5/hstr_tiny_bash_script_that_helps_you_browse_and/), and [Yu-Jie Lin](https://www.youtube.com/watch?v=Qx5n_5B5xUw).
 
+## Contributors
+<a href="https://github.com/dvorka/hstr/graphs/contributors">
+  <img src="https://contrib.rocks/image?repo=dvorka/hstr" />
+</a>
+
+
 ## Bugs
 
 https://github.com/dvorka-oss/hstr/issues
