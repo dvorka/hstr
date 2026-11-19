@@ -317,6 +317,52 @@ void fill_terminal_input(char* cmd, bool padding)
     }
 }
 
+void fill_terminal_input_literal(char* cmd, bool padding)
+{
+    if(!cmd || !*cmd) {
+        return;
+    }
+    if(!is_tiocsti) {
+        fill_terminal_input(cmd, padding);
+        return;
+    }
+
+    bool hasControlChars = false;
+    for(const char* p = cmd; *p; p++) {
+        if((unsigned char)*p < 32 || (unsigned char)*p == 127) {
+            hasControlChars = true;
+            break;
+        }
+    }
+    if(!hasControlChars) {
+        fill_terminal_input(cmd, padding);
+        return;
+    }
+
+    struct termios orig;
+    bool haveTermios = (tcgetattr(0, &orig) == 0);
+    if(haveTermios) {
+        struct termios raw = orig;
+        raw.c_lflag &= ~(ICANON | ECHO | IEXTEN | ISIG);
+        tcsetattr(0, TCSANOW, &raw);
+    }
+
+    char quote = 0x16;
+    for(char* p = cmd; *p; p++) {
+        if((unsigned char)*p < 32 || (unsigned char)*p == 127) {
+            ioctl(0, TIOCSTI, &quote);
+        }
+        ioctl(0, TIOCSTI, p);
+    }
+
+    if(haveTermios) {
+        tcsetattr(0, TCSANOW, &orig);
+    }
+    if(padding) {
+        printf("\n");
+    }
+}
+
 void reverse_char_pointer_array(char **array, unsigned length)
 {
     char *temp;

@@ -29,6 +29,7 @@
 #include <signal.h>
 #include <termios.h>
 #include <wchar.h>
+#include <wctype.h>
 
 #include "hstr_blacklist.h"
 #include "hstr_history.h"

@@ -19,6 +19,75 @@
 #include "include/hstr_favorites.h"
 
 #define FAVORITE_SEGMENT_SIZE 10
+#define FAVORITE_MULTILINE_PREFIX '\x1e'
+
+static bool favorites_needs_encoding(const char* s)
+{
+    return s[0] == FAVORITE_MULTILINE_PREFIX || strchr(s, '\n') != NULL || strchr(s, '\r') != NULL;
+}
+
+static char* favorites_decode_line(const char* line)
+{
+    if(line[0] != FAVORITE_MULTILINE_PREFIX) {
+        return hstr_strdup(line);
+    }
+    char* decoded = malloc(strlen(line));
+    if(!decoded) {
+        return NULL;
+    }
+    const char* p = line + 1;
+    size_t w = 0;
+    while(*p) {
+        if(*p == '\\') {
+            p++;
+            if(*p == '\\') {
+                decoded[w++] = '\\';
+                p++;
+            } else if(*p == 'n') {
+                decoded[w++] = '\n';
+                p++;
+            } else if(*p == 'r') {
+                decoded[w++] = '\r';
+                p++;
+            } else if(*p) {
+                decoded[w++] = *p++;
+            } else {
+                decoded[w++] = '\\';
+            }
+        } else {
+            decoded[w++] = *p++;
+        }
+    }
+    decoded[w] = '\0';
+    return decoded;
+}
+
+static void favorites_write_bytes(FILE* outputFile, const char* data, size_t len)
+{
+    if(len > 0 && fwrite(data, sizeof(char), len, outputFile) != len) {
+        if(ferror(outputFile)) {
+            exit(EXIT_FAILURE);
+        }
+    }
+}
+
+static void favorites_write_encoded(FILE* outputFile, const char* s)
+{
+    char prefix = FAVORITE_MULTILINE_PREFIX;
+    favorites_write_bytes(outputFile, &prefix, 1);
+    for(const char* p = s; *p; p++) {
+        if(*p == '\\') {
+            favorites_write_bytes(outputFile, "\\\\", 2);
+        } else if(*p == '\n') {
+            favorites_write_bytes(outputFile, "\\n", 2);
+        } else if(*p == '\r') {
+            favorites_write_bytes(outputFile, "\\r", 2);
+        } else {
+            favorites_write_bytes(outputFile, p, 1);
+        }
+    }
+    favorites_write_bytes(outputFile, "\n", 1);
+}
 
 void favorites_init(FavoriteItems* favorites)
 {
@@ -81,6 +150,9 @@ void favorites_get(FavoriteItems* favorites)
                     favorites->count++;
                     p=strchr(p+1,'\n');
                 }
+                if(inputFileSize > 0 && fileContent[inputFileSize - 1] != '\n') {
+                    favorites->count++;
+                }
 
                 favorites->items = malloc(sizeof(char*) * favorites->count);
                 favorites->count = 0;
@@ -88,18 +160,40 @@ void favorites_get(FavoriteItems* favorites)
                 pe=strchr(fileContent, '\n');
                 while(pe!=NULL) {
                     *pe=0;
-                    if(!hashset_contains(favorites->set,pb)) {
-                        if(!favorites->skipComments || !(strlen(pb) && pb[0]=='#')) {
-                            s=hstr_strdup(pb);
+                    bool isRawComment = (pb[0] != FAVORITE_MULTILINE_PREFIX && strlen(pb) && pb[0] == '#');
+                    if(!favorites->skipComments || !isRawComment) {
+                        s=favorites_decode_line(pb);
+                        if(s && !hashset_contains(favorites->set, s)) {
                             favorites->items[favorites->count++]=s;
-                            hashset_add(favorites->set,s);
+                            hashset_add(favorites->set, s);
+                        } else {
+                            free(s);
                         }
                     }
                     pb=pe+1;
                     pe=strchr(pb, '\n');
                 }
+                if(*pb) {
+                    bool isRawComment = (pb[0] != FAVORITE_MULTILINE_PREFIX && pb[0] == '#');
+                    if(!favorites->skipComments || !isRawComment) {
+                        s=favorites_decode_line(pb);
+                        if(s && !hashset_contains(favorites->set, s)) {
+                            favorites->items[favorites->count++]=s;
+                            hashset_add(favorites->set, s);
+                        } else {
+                            free(s);
+                        }
+                    }
+                }
+                if(favorites->count == 0) {
+                    free(favorites->items);
+                    favorites->items = NULL;
+                }
+            }
+            if(fileContent) {
                 free(fileContent);
             }
+            favorites->loaded=true;
         } else {
             // favorites file not found > favorites don't exist yet
             favorites->loaded=true;
@@ -117,15 +211,11 @@ void favorites_save(FavoriteItems* favorites)
         rewind(outputFile);
         unsigned i;
         for(i=0; i<favorites->count; i++) {
-            if(!fwrite(favorites->items[i], sizeof(char), strlen(favorites->items[i]), outputFile)) {
-                if(ferror(outputFile)) {
-                    exit(EXIT_FAILURE);
-                }
-            }
-            if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
-                if(ferror(outputFile)) {
-                    exit(EXIT_FAILURE);
-                }
+            if(favorites_needs_encoding(favorites->items[i])) {
+                favorites_write_encoded(outputFile, favorites->items[i]);
+            } else {
+                favorites_write_bytes(outputFile, favorites->items[i], strlen(favorites->items[i]));
+                favorites_write_bytes(outputFile, "\n", 1);
             }
         }
         fclose(outputFile);

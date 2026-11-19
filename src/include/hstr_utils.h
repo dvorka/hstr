@@ -96,6 +96,7 @@ bool is_tiocsti_supported(void);
 void tiocsti(void);
 #endif
 void fill_terminal_input(char* cmd, bool padding);
+void fill_terminal_input_literal(char* cmd, bool padding);
 void reverse_char_pointer_array(char** array, unsigned length);
 void get_hostname(int bufferSize, char* buffer);
 char* get_home_file_path(char* filename);
