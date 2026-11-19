@@ -236,6 +236,9 @@ def test_multiline_edge_cases():
         ui.send(DOWN)
         ui.expect(1)
         ui.send(DELETE)
+        ui.wait_for(lambda: any("#123" in line and any(cell.reverse for cell in ui.screen.buffer[y].values())
+                                for y, line in enumerate(ui.screen.display)))
+        ui.send(DOWN)
         ui.expect(0)
         ui.finish(b"\x18")
         assert ui.history.read_text() == "#1 note\nentry-000\n#123\n"
