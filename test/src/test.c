@@ -1431,3 +1431,214 @@ void test_raw_history_only_empty_entries(void)
     TEST_ASSERT_EQUAL_UINT(0, items->count);
     prioritized_history_destroy(items);
 }
+
+static char* read_entire_file(const char* path)
+{
+    FILE* f = fopen(path, "rb");
+    TEST_ASSERT_NOT_NULL(f);
+    TEST_ASSERT_EQUAL_INT(0, fseek(f, 0, SEEK_END));
+    long size = ftell(f);
+    TEST_ASSERT_TRUE(size >= 0);
+    rewind(f);
+    char* buf = malloc((size_t)size + 1);
+    TEST_ASSERT_NOT_NULL(buf);
+    size_t n = fread(buf, 1, (size_t)size, f);
+    TEST_ASSERT_EQUAL_UINT((size_t)size, n);
+    buf[size] = '\0';
+    fclose(f);
+    return buf;
+}
+
+static char* create_temp_history_file(const char* content)
+{
+    char* path = strdup("/tmp/hstr-history-test-XXXXXX");
+    TEST_ASSERT_NOT_NULL(path);
+    int fd = mkstemp(path);
+    TEST_ASSERT_TRUE(fd >= 0);
+    size_t len = strlen(content);
+    size_t written = 0;
+    while(written < len) {
+        ssize_t n = write(fd, content + written, len - written);
+        TEST_ASSERT_TRUE(n > 0);
+        written += (size_t)n;
+    }
+    close(fd);
+    return path;
+}
+
+void test_mixed_history_preserves_plain_and_timestamps(void)
+{
+    char* path = create_temp_history_file(
+        "old1\nold2\n#1700000000\necho multi1\necho multi2\n#1700000001\necho last\n");
+    const char* previous = getenv("HISTFILE");
+    char* saved = previous ? strdup(previous) : NULL;
+    setenv("HISTFILE", path, 1);
+    unsetenv(ENV_VAR_HSTR_HISTFILE);
+
+    clear_history();
+    HashSet blacklist;
+    hashset_init(&blacklist);
+    HistoryItems* items = prioritized_history_create(0, &blacklist);
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(4, items->rawCount);
+    TEST_ASSERT_EQUAL_STRING("echo last", items->rawItems[0]);
+    TEST_ASSERT_EQUAL_STRING("echo multi1\necho multi2", items->rawItems[1]);
+    TEST_ASSERT_EQUAL_STRING("old2", items->rawItems[2]);
+    TEST_ASSERT_EQUAL_STRING("old1", items->rawItems[3]);
+
+    TEST_ASSERT_EQUAL_INT(1, history_mgmt_remove_from_system_history("echo last"));
+    prioritized_history_destroy(items);
+    hashset_destroy(&blacklist, false);
+
+    char* remaining = read_entire_file(path);
+    TEST_ASSERT_EQUAL_STRING("old1\nold2\n#1700000000\necho multi1\necho multi2\n", remaining);
+    free(remaining);
+
+    if(saved) {
+        setenv("HISTFILE", saved, 1);
+        free(saved);
+    } else {
+        unsetenv("HISTFILE");
+    }
+    unlink(path);
+    free(path);
+}
+
+void test_plain_history_with_hash_digit_comments(void)
+{
+    char* path = create_temp_history_file("#1 todo\nls\n#2026-10-11 backup\npwd\n");
+    const char* previous = getenv("HISTFILE");
+    char* saved = previous ? strdup(previous) : NULL;
+    setenv("HISTFILE", path, 1);
+    unsetenv(ENV_VAR_HSTR_HISTFILE);
+
+    clear_history();
+    HashSet blacklist;
+    hashset_init(&blacklist);
+    HistoryItems* items = prioritized_history_create(0, &blacklist);
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(4, items->rawCount);
+    TEST_ASSERT_EQUAL_STRING("pwd", items->rawItems[0]);
+    TEST_ASSERT_EQUAL_STRING("#2026-10-11 backup", items->rawItems[1]);
+    TEST_ASSERT_EQUAL_STRING("ls", items->rawItems[2]);
+    TEST_ASSERT_EQUAL_STRING("#1 todo", items->rawItems[3]);
+
+    TEST_ASSERT_EQUAL_INT(1, history_mgmt_remove_from_system_history("ls"));
+    prioritized_history_destroy(items);
+    hashset_destroy(&blacklist, false);
+
+    char* remaining = read_entire_file(path);
+    TEST_ASSERT_EQUAL_STRING("#1 todo\n#2026-10-11 backup\npwd\n", remaining);
+    free(remaining);
+
+    if(saved) {
+        setenv("HISTFILE", saved, 1);
+        free(saved);
+    } else {
+        unsetenv("HISTFILE");
+    }
+    unlink(path);
+    free(path);
+}
+
+void test_delete_consecutive_duplicate_multiline(void)
+{
+    char* path = create_temp_history_file(
+        "#1700000000\necho a\necho b\n#1700000001\necho a\necho b\n#1700000002\necho c\n");
+    const char* previous = getenv("HISTFILE");
+    char* saved = previous ? strdup(previous) : NULL;
+    setenv("HISTFILE", path, 1);
+    unsetenv(ENV_VAR_HSTR_HISTFILE);
+
+    clear_history();
+    HashSet blacklist;
+    hashset_init(&blacklist);
+    HistoryItems* items = prioritized_history_create(0, &blacklist);
+    TEST_ASSERT_NOT_NULL(items);
+    TEST_ASSERT_EQUAL_UINT(3, items->rawCount);
+
+    TEST_ASSERT_EQUAL_INT(2, history_mgmt_remove_from_system_history("echo a\necho b"));
+    prioritized_history_destroy(items);
+    hashset_destroy(&blacklist, false);
+
+    char* remaining = read_entire_file(path);
+    TEST_ASSERT_EQUAL_STRING("#1700000002\necho c\n", remaining);
+    free(remaining);
+
+    if(saved) {
+        setenv("HISTFILE", saved, 1);
+        free(saved);
+    } else {
+        unsetenv("HISTFILE");
+    }
+    unlink(path);
+    free(path);
+}
+
+void test_favorites_multiline_roundtrip(void)
+{
+    char dir[] = "/tmp/hstr-fav-test-XXXXXX";
+    TEST_ASSERT_NOT_NULL(mkdtemp(dir));
+    const char* previousHome = getenv("HOME");
+    char* savedHome = previousHome ? strdup(previousHome) : NULL;
+    setenv("HOME", dir, 1);
+
+    FavoriteItems* favs = malloc(sizeof(FavoriteItems));
+    TEST_ASSERT_NOT_NULL(favs);
+    favorites_init(favs);
+    favorites_get(favs);
+    favorites_add(favs, "printf 'a\\nb'");
+    favorites_add(favs, "#comment single");
+    favorites_add(favs, "echo line1\n\nline2\tline3");
+    favorites_add(favs, "#comment line1\nline2\\nraw");
+    favorites_destroy(favs);
+
+    char favPath[512];
+    snprintf(favPath, sizeof(favPath), "%s/%s", dir, FILE_HSTR_FAVORITES);
+    char* rawFavs = read_entire_file(favPath);
+    TEST_ASSERT_NOT_NULL(strstr(rawFavs, "\nprintf 'a\\nb'\n"));
+    free(rawFavs);
+
+    FavoriteItems* reloaded = malloc(sizeof(FavoriteItems));
+    TEST_ASSERT_NOT_NULL(reloaded);
+    favorites_init(reloaded);
+    favorites_get(reloaded);
+    TEST_ASSERT_EQUAL_UINT(4, reloaded->count);
+    TEST_ASSERT_EQUAL_STRING("#comment line1\nline2\\nraw", reloaded->items[0]);
+    TEST_ASSERT_EQUAL_STRING("echo line1\n\nline2\tline3", reloaded->items[1]);
+    TEST_ASSERT_EQUAL_STRING("#comment single", reloaded->items[2]);
+    TEST_ASSERT_EQUAL_STRING("printf 'a\\nb'", reloaded->items[3]);
+    favorites_destroy(reloaded);
+
+    FavoriteItems* skip = malloc(sizeof(FavoriteItems));
+    TEST_ASSERT_NOT_NULL(skip);
+    favorites_init(skip);
+    skip->skipComments = true;
+    favorites_get(skip);
+    TEST_ASSERT_EQUAL_UINT(3, skip->count);
+    TEST_ASSERT_EQUAL_STRING("#comment line1\nline2\\nraw", skip->items[0]);
+    TEST_ASSERT_EQUAL_STRING("echo line1\n\nline2\tline3", skip->items[1]);
+    TEST_ASSERT_EQUAL_STRING("printf 'a\\nb'", skip->items[2]);
+    favorites_destroy(skip);
+
+    unlink(favPath);
+    rmdir(dir);
+    if(savedHome) {
+        setenv("HOME", savedHome, 1);
+        free(savedHome);
+    } else {
+        unsetenv("HOME");
+    }
+}
+
+void test_regexp_init_case_sensitive(void)
+{
+    HstrRegexp re;
+    memset(&re, 0xbe, sizeof(re));
+    hstr_regexp_init(&re);
+    TEST_ASSERT_FALSE(re.caseSensitive);
+    regmatch_t match;
+    char err[128];
+    TEST_ASSERT_TRUE(hstr_regexp_match(&re, "foo", "FOO", &match, err, sizeof(err)));
+    hstr_regexp_destroy(&re);
+}

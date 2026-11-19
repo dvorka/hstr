@@ -24,10 +24,13 @@ PAGE_UP, PAGE_DOWN, DELETE = b"\x1b[5~", b"\x1b[6~", b"\x1b[3~"
 
 class Terminal:
     def __init__(self, directory, options="", count=120, entries=None,
-                 history_text=None, confirm=False):
+                 history_text=None, confirm=False, args=None, env_extra=None):
         self.history = Path(directory) / ".bash_history"
         if history_text is not None:
-            self.history.write_text(history_text)
+            if isinstance(history_text, bytes):
+                self.history.write_bytes(history_text)
+            else:
+                self.history.write_text(history_text)
         elif entries is None:
             self.history.write_text("".join(f"entry-{i:03d}\n" for i in range(count)))
         else:
@@ -44,13 +47,18 @@ class Terminal:
             os.setsid()
             fcntl.ioctl(slave, termios.TIOCSCTTY, 0)
 
+        env = {**os.environ, "HOME": directory, "HISTFILE": str(self.history),
+               "SHELL": "/bin/bash", "TERM": "xterm", "HSTR_TIOCSTI": "n",
+               "HSTR_CONFIG": "raw-history-view,monochromatic,"
+               + ("" if confirm else "no-confirm,") + options}
+        env.pop("HSTR_HISTFILE", None)
+        if env_extra:
+            env.update(env_extra)
+
         self.process = subprocess.Popen(
-            [sys.argv[1]], stdin=slave, stdout=slave, stderr=subprocess.PIPE,
+            [sys.argv[1]] + (args or []), stdin=slave, stdout=slave, stderr=subprocess.PIPE,
             preexec_fn=session,
-            env={**os.environ, "HOME": directory, "HISTFILE": str(self.history),
-                 "TERM": "xterm", "HSTR_TIOCSTI": "n",
-                 "HSTR_CONFIG": "raw-history-view,monochromatic,"
-                 + ("" if confirm else "no-confirm,") + options},
+            env=env,
         )
         os.close(slave)
         if count:
@@ -119,9 +127,9 @@ class Terminal:
 
 
 @contextlib.contextmanager
-def terminal(options="", count=120, entries=None, history_text=None, confirm=False):
+def terminal(options="", count=120, entries=None, history_text=None, confirm=False, args=None, env_extra=None):
     with tempfile.TemporaryDirectory() as directory:
-        ui = Terminal(directory, options, count, entries, history_text, confirm)
+        ui = Terminal(directory, options, count, entries, history_text, confirm, args, env_extra)
         try:
             yield ui
         finally:
@@ -192,6 +200,127 @@ def test_multiline(options, bottom=False):
         ui.send(b"n")
         assert ui.finish(b"\t") == entries[14] + "\n"
 
+    # Long multiline confirmation keeps '? y/n' and deletion notification stays visible.
+    long_entries = [f"entry-{i:03d} " + "word " * 10 + f"\nline2-{i:03d}" for i in range(5)]
+    with terminal(options, entries=long_entries, confirm=True) as ui:
+        ui.send(older * 3)
+        ui.expect(2)
+        ui.send(DELETE)
+        ui.wait_for(lambda: any("Do you want to delete" in line for line in ui.screen.display))
+        confirm_line = next(line for line in ui.screen.display if "Do you want to delete" in line)
+        assert "? y/n" in confirm_line, confirm_line
+        ui.send(b"y")
+        ui.wait_for(lambda: any("deleted (1 occurrence)" in line for line in ui.screen.display))
+        ui.expect(1)
+        ui.finish(b"\x18")
+
+
+def test_multiline_edge_cases():
+    # Mixed history (plain lines followed by timestamped multiline entries).
+    mixed = (
+        "old-plain-1\nold-plain-2\n"
+        "#1700000000\nentry-000\nline2-000\n"
+        "#1700000001\nentry-001\n"
+    )
+    with terminal(history_text=mixed) as ui:
+        ui.send(DOWN)
+        ui.expect(1)
+        ui.send(DELETE)
+        ui.expect(0)
+        ui.finish(b"\x18")
+        assert ui.history.read_text() == "old-plain-1\nold-plain-2\n#1700000000\nentry-000\nline2-000\n"
+
+    # Plain history starting with '#<digits>' comments must not collapse into one entry.
+    plain_comments = "#1 note\nentry-000\n#123\nentry-001\n"
+    with terminal(history_text=plain_comments) as ui:
+        ui.send(DOWN)
+        ui.expect(1)
+        ui.send(DELETE)
+        ui.expect(0)
+        ui.finish(b"\x18")
+        assert ui.history.read_text() == "#1 note\nentry-000\n#123\n"
+
+    # Consecutive duplicate multiline entries must all be removed.
+    dups = (
+        "#1700000000\nentry-000\nline2\n"
+        "#1700000001\nentry-000\nline2\n"
+        "#1700000002\nentry-001\n"
+    )
+    with terminal(history_text=dups) as ui:
+        ui.send(DOWN * 2)
+        ui.expect(0)
+        ui.send(DELETE)
+        ui.expect(1)
+        ui.finish(b"\x18")
+        assert ui.history.read_text() == "#1700000002\nentry-001\n"
+
+    # Favorites save and reload multiline entries losslessly.
+    entries = ["entry-000\n\nnext-000\tend-000", "entry-001"]
+    with tempfile.TemporaryDirectory() as directory:
+        ui = Terminal(directory, entries=entries)
+        try:
+            ui.send(DOWN * 2)
+            ui.expect(0)
+            ui.send(b"\x06")  # C-f add favorite
+            ui.wait_for(lambda: any("added to favorites" in line for line in ui.screen.display))
+            ui.finish(b"\x18")
+        finally:
+            ui.close()
+        ui2 = Terminal(directory, entries=["entry-999"], args=["-f"])
+        try:
+            ui2.wait_for(lambda: any("view:favorites" in line for line in ui2.screen.display))
+            ui2.send(DOWN)
+            ui2.expect(0)
+            assert ui2.finish(b"\t") == entries[0] + "\n"
+        finally:
+            ui2.close()
+
+    # CLI multiline initial pattern must stay on the prompt line without overwriting help.
+    cli_entries = ["entry-000\nnext-000", "entry-001"]
+    with terminal(entries=cli_entries, args=["--", "entry-000\nnext-000"]) as ui:
+        ui.wait_for(lambda: any("Type to filter" in line for line in ui.screen.display))
+        assert any("entry-000 next-000" in line for line in ui.screen.display)
+        ui.finish(b"\x18")
+
+    # UTF-8 Czech multiline elision in narrow terminal stays on one row.
+    cz_entries = [
+        "entry-000 bottom",
+        "entry-001 příliš žluťoučký\nkůň úpěl ďábelské ódy",
+        "entry-002 top",
+    ]
+    with terminal(entries=cz_entries, env_extra={"LC_ALL": "C.UTF-8"}) as ui:
+        ui.resize(8, 30)
+        ui.send(DOWN * 2)
+        ui.expect(1)
+        row = ui.selected_row()
+        highlighted = [y for y, line in enumerate(ui.screen.display)
+                       if "entry-" in line
+                       and any(cell.reverse for cell in ui.screen.buffer[y].values())]
+        assert highlighted == [row], ui.screen.display
+        assert any("entry-000 bottom" in line for line in ui.screen.display)
+        assert any("entry-002 top" in line for line in ui.screen.display)
+        ui.finish(b"\x18")
+
+    # Raw 0x80..0xFF bytes in both C and C.UTF-8 locales must not spill rows.
+    raw_bytes = (
+        b"#1700000000\nentry-000 bottom\n"
+        b"#1700000001\nentry-001 " + b"\xe8\xf8\xbe\x9b" * 8 + b"\nnext-001\n"
+        b"#1700000002\nentry-002 top\n"
+    )
+    for loc in ("C", "C.UTF-8"):
+        with terminal(history_text=raw_bytes, env_extra={"LC_ALL": loc}) as ui:
+            ui.resize(8, 30)
+            ui.send(DOWN * 2)
+            ui.expect(1)
+            row = ui.selected_row()
+            highlighted = [y for y, line in enumerate(ui.screen.display)
+                           if "entry-" in line
+                           and any(cell.reverse for cell in ui.screen.buffer[y].values())]
+            assert highlighted == [row], (loc, ui.screen.display)
+            assert any("entry-000 bottom" in line for line in ui.screen.display)
+            assert any("entry-002 top" in line for line in ui.screen.display)
+            ui.finish(b"\x18")
+
 
 def test_layout(options, bottom=False):
     older, newer = (UP, DOWN) if bottom else (DOWN, UP)
@@ -243,6 +372,8 @@ for options, bottom in [("", False), ("prompt-bottom", True),
                         ("prompt-bottom,help-on-opposite-side", True)]:
     test_multiline(options, bottom)
     test_layout(options, bottom)
+
+test_multiline_edge_cases()
 
 with terminal() as ui:
     ui.send(DOWN * 30)

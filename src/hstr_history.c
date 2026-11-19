@@ -18,6 +18,8 @@
 
 #include "include/hstr_history.h"
 
+#include <errno.h>
+
 #define NDEBUG
 #include <assert.h>
 
@@ -94,12 +96,216 @@ bool is_hist_timestamp(const char* line)
 
     int i;
     for(i = 1; line[i] != '\0'; ++i) {
-        if(!isdigit(line[i])) {
+        if(!isdigit((unsigned char)line[i])) {
             return false;
         }
     }
 
     return (i >= 11);
+}
+
+static void history_mgmt_clear_history(void)
+{
+    HIST_ENTRY** list = history_list();
+    if(list) {
+        for(int i = 0; i < history_length; i++) {
+            if(list[i] && list[i]->data) {
+                free(list[i]->data);
+                list[i]->data = NULL;
+            }
+        }
+    }
+    clear_history();
+}
+
+static void history_entry_set_timestamp(const char* timestamp)
+{
+    if(!timestamp) {
+        return;
+    }
+    HIST_ENTRY** list = history_list();
+    if(list && history_length > 0 && list[history_length - 1]) {
+        list[history_length - 1]->data = hstr_strdup(timestamp);
+    }
+}
+
+static bool append_entry_line(char** buf, size_t* len, size_t* cap, const char* line, size_t lineLen, bool hasLines)
+{
+    size_t needed = *len + (hasLines ? 1 : 0) + lineLen + 1;
+    if(*cap < needed) {
+        size_t newCap = (*cap > 0) ? *cap : 256;
+        while(newCap < needed) {
+            newCap *= 2;
+        }
+        char* grown = realloc(*buf, newCap);
+        if(!grown) {
+            return false;
+        }
+        *buf = grown;
+        *cap = newCap;
+    }
+    if(hasLines) {
+        (*buf)[(*len)++] = '\n';
+    }
+    if(lineLen > 0) {
+        memcpy(*buf + *len, line, lineLen);
+        *len += lineLen;
+    }
+    (*buf)[*len] = '\0';
+    return true;
+}
+
+static bool load_bash_history_file(const char* historyFile)
+{
+    FILE* f = fopen(historyFile, "rb");
+    if(!f) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
+        return false;
+    }
+
+    size_t cap = 4096;
+    size_t totalLen = 0;
+    char* buf = malloc(cap);
+    if(!buf) {
+        fclose(f);
+        return false;
+    }
+
+    for(;;) {
+        if(totalLen + 4096 + 1 > cap) {
+            size_t newCap = cap * 2;
+            char* grown = realloc(buf, newCap);
+            if(!grown) {
+                free(buf);
+                fclose(f);
+                return false;
+            }
+            buf = grown;
+            cap = newCap;
+        }
+        size_t n = fread(buf + totalLen, 1, cap - totalLen - 1, f);
+        totalLen += n;
+        if(n == 0) {
+            if(ferror(f)) {
+                free(buf);
+                fclose(f);
+                return false;
+            }
+            break;
+        }
+    }
+    fclose(f);
+    buf[totalLen] = '\0';
+
+    if(totalLen == 0) {
+        free(buf);
+        return true;
+    }
+
+    bool inTimestamped = false;
+    const char* pendingTimestamp = NULL;
+    char* entryBuf = NULL;
+    size_t entryLen = 0;
+    size_t entryCap = 0;
+    bool hasEntryLines = false;
+
+    size_t pos = 0;
+    while(pos < totalLen) {
+        char* nl = memchr(buf + pos, '\n', totalLen - pos);
+        char* lineStart = buf + pos;
+        size_t lineLen = nl ? (size_t)(nl - lineStart) : (totalLen - pos);
+        pos = nl ? (size_t)(nl - buf) + 1 : totalLen;
+
+        if(lineLen > 0 && lineStart[lineLen - 1] == '\r') {
+            lineLen--;
+        }
+        lineStart[lineLen] = '\0';
+
+        if(is_hist_timestamp(lineStart)) {
+            if(inTimestamped && hasEntryLines && entryLen > 0) {
+                add_history(entryBuf);
+                history_entry_set_timestamp(pendingTimestamp);
+            }
+            entryLen = 0;
+            hasEntryLines = false;
+            inTimestamped = true;
+            pendingTimestamp = lineStart;
+        } else if(inTimestamped) {
+            if(!append_entry_line(&entryBuf, &entryLen, &entryCap, lineStart, lineLen, hasEntryLines)) {
+                free(entryBuf);
+                free(buf);
+                return false;
+            }
+            hasEntryLines = true;
+        } else {
+            if(lineLen > 0) {
+                add_history(lineStart);
+            }
+        }
+    }
+
+    if(inTimestamped && hasEntryLines && entryLen > 0) {
+        add_history(entryBuf);
+        history_entry_set_timestamp(pendingTimestamp);
+    }
+
+    free(entryBuf);
+    free(buf);
+    return true;
+}
+
+static bool write_all(int fd, const char* buf, size_t len)
+{
+    size_t written = 0;
+    while(written < len) {
+        ssize_t n = write(fd, buf + written, len - written);
+        if(n < 0) {
+            if(errno == EINTR) {
+                continue;
+            }
+            return false;
+        }
+        written += (size_t)n;
+    }
+    return true;
+}
+
+static bool history_mgmt_write_history_file(const char* historyFile)
+{
+    if(is_zsh_parent_shell()) {
+        return write_history(historyFile) == 0;
+    }
+
+    int fd = open(historyFile, O_WRONLY | O_CREAT | O_TRUNC, 0600);
+    if(fd < 0) {
+        return false;
+    }
+
+    bool ok = true;
+    HIST_ENTRY** list = history_list();
+    if(list) {
+        for(int i = 0; i < history_length; i++) {
+            if(!list[i] || !list[i]->line) {
+                continue;
+            }
+            if(list[i]->data) {
+                const char* ts = (const char*)list[i]->data;
+                if(!write_all(fd, ts, strlen(ts)) || !write_all(fd, "\n", 1)) {
+                    ok = false;
+                    break;
+                }
+            }
+            if(!write_all(fd, list[i]->line, strlen(list[i]->line)) || !write_all(fd, "\n", 1)) {
+                ok = false;
+                break;
+            }
+        }
+    }
+
+    if(close(fd) != 0) {
+        ok = false;
+    }
+    return ok;
 }
 
 char* parse_history_line(char *l)
@@ -162,21 +368,18 @@ bool history_line_equals(char* line, const char* cmd, bool isZsh)
 
 bool history_mgmt_load_history_file(const char* historyFile)
 {
-    // Readline needs Bash's timestamp marker to recognize multiline entries.
-    // Keep the delimiters when rewriting history after deletion as well.
-    if(!is_zsh_parent_shell()) {
-        history_comment_char = '#';
-        history_multiline_entries = 0;
-        history_write_timestamps = 1;
-    }
-    // TODO memleak in readline lib: read_history() > add_history()
-    if(!historyFile || read_history(historyFile)!=0) {
-        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile ? historyFile : "");
+    if(!historyFile) {
+        fprintf(stderr, "\nUnable to read history file from ''!\n");
         return false;
     }
-    // read_history enables multiline entries for timestamp-delimited files.
-    // Preserve that format, without adding timestamps to plain history files.
-    history_write_timestamps = history_multiline_entries != 0;
+    if(!is_zsh_parent_shell()) {
+        return load_bash_history_file(historyFile);
+    }
+    // TODO memleak in readline lib: read_history() > add_history()
+    if(read_history(historyFile) != 0) {
+        fprintf(stderr, "\nUnable to read history file from '%s'!\n", historyFile);
+        return false;
+    }
     return true;
 }
 
@@ -338,7 +541,7 @@ void prioritized_history_destroy(HistoryItems* h)
         // readline/history cleanup
         free(history_get_history_state());
     }
-    clear_history();
+    history_mgmt_clear_history();
 }
 
 void history_mgmt_open(void)
@@ -357,33 +560,43 @@ int history_mgmt_remove_from_system_history(char *cmd)
         return 0;
     }
 
-    bool isZsh=is_zsh_parent_shell();
-    int occurences=0;
-    HISTORY_STATE *historyState=history_get_history_state();
+    bool isZsh = is_zsh_parent_shell();
+    int occurences = 0;
+    HISTORY_STATE *historyState = history_get_history_state();
     // iterate backwards - removal shifts only entries which were already checked
-    int offset;
-    for(offset=historyState->length-1; offset>=0; offset--) {
-        HIST_ENTRY **entries=history_list();
-        if(!entries || !entries[offset] || !entries[offset]->line) {
-            continue;
-        }
-        if(history_line_equals(entries[offset]->line, cmd, isZsh)) {
-            occurences++;
-            free_history_entry(remove_history(offset));
-            // remove Bash timestamp (HISTTIMEFORMAT) of the removed command
-            if(offset>0 && entries[offset-1] && entries[offset-1]->line && is_hist_timestamp(entries[offset-1]->line)) {
-                free_history_entry(remove_history(offset-1));
-                offset--;
+    if(historyState) {
+        for(int offset = historyState->length - 1; offset >= 0; offset--) {
+            HIST_ENTRY **entries = history_list();
+            if(!entries || !entries[offset] || !entries[offset]->line) {
+                continue;
+            }
+            if(history_line_equals(entries[offset]->line, cmd, isZsh)) {
+                occurences++;
+                bool hasStandalonePrevTs = (offset > 0 && entries[offset - 1]
+                    && !entries[offset - 1]->data && entries[offset - 1]->line
+                    && is_hist_timestamp(entries[offset - 1]->line));
+                HIST_ENTRY *removed = remove_history(offset);
+                if(removed) {
+                    free(free_history_entry(removed));
+                }
+                // remove standalone Bash timestamp entry if present in memory (e.g. unit tests)
+                if(hasStandalonePrevTs) {
+                    HIST_ENTRY *ts = remove_history(offset - 1);
+                    if(ts) {
+                        free(free_history_entry(ts));
+                    }
+                    offset--;
+                }
             }
         }
     }
     free(historyState);
 
     if(occurences) {
-        char* historyFile = get_history_file_name();
-        write_history(historyFile);
+        char *historyFile = get_history_file_name();
+        history_mgmt_write_history_file(historyFile);
         free(historyFile);
-        dirty=true;
+        dirty = true;
     }
     return occurences;
 }
@@ -406,13 +619,20 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
         if(verbose) {
             fprintf(stdout, "Deleting command '%s' from history\n", historyState->entries[historyState->length-2]->line);
         }
-        free_history_entry(remove_history(historyState->length-1));
-        free_history_entry(remove_history(historyState->length-2));
-        write_history(historyFile);
+        HIST_ENTRY *last = remove_history(historyState->length-1);
+        if(last) {
+            free(free_history_entry(last));
+        }
+        HIST_ENTRY *prev = remove_history(historyState->length-2);
+        if(prev) {
+            free(free_history_entry(prev));
+        }
+        bool ok = history_mgmt_write_history_file(historyFile);
         free(historyState);
         free(historyFile);
+        history_mgmt_clear_history();
 
-        return true;
+        return ok;
     }
 
     if(verbose) {
@@ -421,6 +641,7 @@ bool history_mgmt_remove_last_history_entry(bool verbose)
 
     free(historyState);
     free(historyFile);
+    history_mgmt_clear_history();
     return false;
 }
 

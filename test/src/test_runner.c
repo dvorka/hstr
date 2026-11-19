@@ -84,6 +84,11 @@ extern void test_is_tiocsti_supported_without_terminal(void);
 extern void test_raw_history_skips_empty_entries(void);
 extern void test_raw_history_skips_empty_entries_and_timestamps(void);
 extern void test_raw_history_only_empty_entries(void);
+extern void test_mixed_history_preserves_plain_and_timestamps(void);
+extern void test_plain_history_with_hash_digit_comments(void);
+extern void test_delete_consecutive_duplicate_multiline(void);
+extern void test_favorites_multiline_roundtrip(void);
+extern void test_regexp_init_case_sensitive(void);
 
 
 /*=======Suite Setup=====*/
@@ -153,6 +158,11 @@ int main(void)
   RUN_TEST(test_raw_history_skips_empty_entries, 1392);
   RUN_TEST(test_raw_history_skips_empty_entries_and_timestamps, 1407);
   RUN_TEST(test_raw_history_only_empty_entries, 1422);
+  RUN_TEST(test_mixed_history_preserves_plain_and_timestamps, 1469);
+  RUN_TEST(test_plain_history_with_hash_digit_comments, 1507);
+  RUN_TEST(test_delete_consecutive_duplicate_multiline, 1544);
+  RUN_TEST(test_favorites_multiline_roundtrip, 1578);
+  RUN_TEST(test_regexp_init_case_sensitive, 1634);
 
   return suite_teardown(UnityEnd());
 }

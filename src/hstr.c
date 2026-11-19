@@ -617,6 +617,7 @@ void hstr_get_env_configuration()
         }
         if(strstr(hstr_config,HSTR_CONFIG_CASE)) {
             hstr->caseSensitive=HSTR_CASE_SENSITIVE;
+            hstr->regexp.caseSensitive=true;
         }
         if(strstr(hstr_config,HSTR_CONFIG_REGEXP)) {
             hstr->matching=HSTR_MATCH_REGEXP;
@@ -734,13 +735,203 @@ unsigned print_prompt(void)
     return promptLength;
 }
 
-static void make_single_line(char* text)
+static void decode_display_char(const char* s, size_t* byteLen, unsigned* colWidth, bool* replaceWithSpace, mbstate_t* st)
 {
-    for(char* p=text; *p; ++p) {
-        if((unsigned char)*p<32 || (unsigned char)*p==127) {
-            *p=' ';
+    wchar_t wc = 0;
+    size_t r = mbrtowc(&wc, s, MB_CUR_MAX, st);
+    if(r == (size_t)-1 || r == (size_t)-2) {
+        memset(st, 0, sizeof(*st));
+        *byteLen = 1;
+        *colWidth = 1;
+        *replaceWithSpace = true;
+        return;
+    }
+    if(r == 0) {
+        *byteLen = 0;
+        *colWidth = 0;
+        *replaceWithSpace = false;
+        return;
+    }
+    if(wc < 32 || wc == 127 || iswcntrl(wc)) {
+        *byteLen = r;
+        *colWidth = 1;
+        *replaceWithSpace = true;
+        return;
+    }
+    int w = wcwidth(wc);
+    if(w < 0) {
+        *byteLen = r;
+        *colWidth = 1;
+        *replaceWithSpace = true;
+        return;
+    }
+    *byteLen = r;
+    *colWidth = (unsigned)w;
+    *replaceWithSpace = false;
+}
+
+static void sanitize_single_line(char* dst, size_t dstSize, const char* src, unsigned maxCols, unsigned* outCols)
+{
+    if(dstSize == 0) {
+        if(outCols) *outCols = 0;
+        return;
+    }
+    if(!src) {
+        dst[0] = '\0';
+        if(outCols) *outCols = 0;
+        return;
+    }
+
+    mbstate_t st;
+    memset(&st, 0, sizeof(st));
+    size_t outLen = 0;
+    unsigned cols = 0;
+    const char* p = src;
+
+    while(*p) {
+        size_t byteLen = 0;
+        unsigned w = 0;
+        bool replaceWithSpace = false;
+        decode_display_char(p, &byteLen, &w, &replaceWithSpace, &st);
+        if(byteLen == 0) {
+            break;
+        }
+        if(outLen == 0 && !replaceWithSpace && w == 0) {
+            p += byteLen;
+            continue;
+        }
+        if(cols + w > maxCols) {
+            break;
+        }
+        size_t emitLen = replaceWithSpace ? 1 : byteLen;
+        if(outLen + emitLen >= dstSize) {
+            break;
+        }
+        if(replaceWithSpace) {
+            dst[outLen++] = ' ';
+        } else {
+            memcpy(dst + outLen, p, byteLen);
+            outLen += byteLen;
+        }
+        cols += w;
+        p += byteLen;
+    }
+    dst[outLen] = '\0';
+    if(outCols) *outCols = cols;
+}
+
+static void format_selection_text(char* buffer, size_t bufSize, const char* text, unsigned maxCols, unsigned* outCols)
+{
+    // One history entry occupies one screen row. Never pass embedded terminal
+    // controls or invalid multibyte sequences to curses; keep the original entry
+    // for matching and selection.
+    if(bufSize == 0) {
+        if(outCols) *outCols = 0;
+        return;
+    }
+    if(!text || maxCols == 0) {
+        buffer[0] = '\0';
+        if(outCols) *outCols = 0;
+        return;
+    }
+
+    mbstate_t st;
+    memset(&st, 0, sizeof(st));
+    const unsigned leftTarget = (maxCols >= 3) ? (maxCols / 2 - 1) : maxCols;
+    size_t outLen = 0;
+    size_t leftByteEnd = 0;
+    unsigned totalCols = 0;
+    unsigned leftCols = 0;
+    const char* p = text;
+
+    while(*p) {
+        size_t byteLen = 0;
+        unsigned w = 0;
+        bool replaceWithSpace = false;
+        decode_display_char(p, &byteLen, &w, &replaceWithSpace, &st);
+        if(byteLen == 0) {
+            break;
+        }
+        if(outLen == 0 && !replaceWithSpace && w == 0) {
+            p += byteLen;
+            continue;
+        }
+        if(totalCols + w > maxCols) {
+            break;
+        }
+        size_t emitLen = replaceWithSpace ? 1 : byteLen;
+        if(outLen + emitLen >= bufSize) {
+            break;
+        }
+        if(replaceWithSpace) {
+            buffer[outLen++] = ' ';
+        } else {
+            memcpy(buffer + outLen, p, byteLen);
+            outLen += byteLen;
+        }
+        totalCols += w;
+        p += byteLen;
+        if(totalCols <= leftTarget) {
+            leftByteEnd = outLen;
+            leftCols = totalCols;
         }
     }
+
+    if(!*p || maxCols < 3 || leftByteEnd + 3 >= bufSize) {
+        buffer[outLen] = '\0';
+        if(outCols) *outCols = totalCols;
+        return;
+    }
+
+    unsigned rightTarget = maxCols - 3 - leftCols;
+    mbstate_t scanSt, tailSt;
+    memset(&scanSt, 0, sizeof(scanSt));
+    memset(&tailSt, 0, sizeof(tailSt));
+    const char* scanPtr = text;
+    const char* tailPtr = text;
+    unsigned windowCols = 0;
+
+    while(*scanPtr) {
+        size_t byteLen = 0;
+        unsigned w = 0;
+        bool replaceWithSpace = false;
+        decode_display_char(scanPtr, &byteLen, &w, &replaceWithSpace, &scanSt);
+        if(byteLen == 0) {
+            break;
+        }
+        windowCols += w;
+        scanPtr += byteLen;
+
+        while(windowCols > rightTarget && tailPtr < scanPtr) {
+            size_t tByteLen = 0;
+            unsigned tw = 0;
+            bool tReplace = false;
+            decode_display_char(tailPtr, &tByteLen, &tw, &tReplace, &tailSt);
+            if(tByteLen == 0) {
+                break;
+            }
+            windowCols -= tw;
+            tailPtr += tByteLen;
+        }
+    }
+
+    while(*tailPtr) {
+        mbstate_t peekSt = tailSt;
+        size_t tByteLen = 0;
+        unsigned tw = 0;
+        bool tReplace = false;
+        decode_display_char(tailPtr, &tByteLen, &tw, &tReplace, &peekSt);
+        if(tByteLen == 0 || tReplace || tw > 0) {
+            break;
+        }
+        tailSt = peekSt;
+        tailPtr += tByteLen;
+    }
+
+    memcpy(buffer + leftByteEnd, "...", 3);
+    unsigned rightCols = 0;
+    sanitize_single_line(buffer + leftByteEnd + 3, bufSize - leftByteEnd - 3, tailPtr, rightTarget, &rightCols);
+    if(outCols) *outCols = leftCols + 3 + rightCols;
 }
 
 void print_help_label(void)
@@ -759,15 +950,32 @@ void print_help_label(void)
     move(cursorY, cursorX);
 }
 
+static void format_cmd_notification(char* screenLine, size_t screenLineSize, const char* prefix, const char* cmd, const char* suffix, unsigned maxCols)
+{
+    size_t fixedLen = strlen(prefix) + strlen(suffix);
+    char cmdDisplay[CMDLINE_LNG];
+    if(maxCols > fixedLen) {
+        format_selection_text(cmdDisplay, sizeof(cmdDisplay), cmd, maxCols - (unsigned)fixedLen, NULL);
+    } else {
+        cmdDisplay[0] = '\0';
+    }
+    char rawLine[CMDLINE_LNG + 128];
+    snprintf(rawLine, sizeof(rawLine), "%s%s%s", prefix, cmdDisplay, suffix);
+    sanitize_single_line(screenLine, screenLineSize, rawLine, maxCols, NULL);
+}
+
 void print_confirm_delete(const char* cmd)
 {
-    char screenLine[CMDLINE_LNG];
-    if(hstr->view==HSTR_VIEW_FAVORITES) {
-        snprintf(screenLine, getmaxx(stdscr), "Do you want to delete favorites item '%s'? y/n", cmd);
-    } else {
-        snprintf(screenLine, getmaxx(stdscr), "Do you want to delete all occurrences of '%s'? y/n", cmd);
+    int width = getmaxx(stdscr);
+    if(width <= 1) {
+        return;
     }
-    make_single_line(screenLine);
+    unsigned maxCols = (unsigned)MIN(width - 1, CMDLINE_LNG - 1);
+    const char* prefix = (hstr->view==HSTR_VIEW_FAVORITES)
+        ? "Do you want to delete favorites item '"
+        : "Do you want to delete all occurrences of '";
+    char screenLine[CMDLINE_LNG];
+    format_cmd_notification(screenLine, sizeof(screenLine), prefix, cmd, "'? y/n", maxCols);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -784,13 +992,19 @@ void print_confirm_delete(const char* cmd)
 
 void print_cmd_deleted_label(const char* cmd, int occurences)
 {
+    int width = getmaxx(stdscr);
+    if(width <= 1) {
+        return;
+    }
+    unsigned maxCols = (unsigned)MIN(width - 1, CMDLINE_LNG - 1);
     char screenLine[CMDLINE_LNG];
     if(hstr->view==HSTR_VIEW_FAVORITES) {
-        snprintf(screenLine, getmaxx(stdscr), "Favorites item '%s' deleted", cmd);
+        format_cmd_notification(screenLine, sizeof(screenLine), "Favorites item '", cmd, "' deleted", maxCols);
     } else {
-        snprintf(screenLine, getmaxx(stdscr), "History item '%s' deleted (%d occurrence%s)", cmd, occurences, (occurences==1?"":"s"));
+        char suffix[64];
+        snprintf(suffix, sizeof(suffix), "' deleted (%d occurrence%s)", occurences, (occurences==1?"":"s"));
+        format_cmd_notification(screenLine, sizeof(screenLine), "History item '", cmd, suffix, maxCols);
     }
-    make_single_line(screenLine);
     // TODO make this function
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_DELETE));
@@ -824,9 +1038,13 @@ void print_regexp_error(const char* errorMessage)
 
 void print_cmd_added_favorite_label(const char* cmd)
 {
+    int width = getmaxx(stdscr);
+    if(width <= 1) {
+        return;
+    }
+    unsigned maxCols = (unsigned)MIN(width - 1, CMDLINE_LNG - 1);
     char screenLine[CMDLINE_LNG];
-    snprintf(screenLine, getmaxx(stdscr), "Command '%s' added to favorites (C-/ to show favorites)", cmd);
-    make_single_line(screenLine);
+    format_cmd_notification(screenLine, sizeof(screenLine), "Command '", cmd, "' added to favorites (C-/ to show favorites)", maxCols);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_INFO));
         color_attr_on(A_BOLD);
@@ -879,8 +1097,12 @@ void print_history_label(void)
 void print_pattern(char* pattern, int y, int x)
 {
     if(pattern) {
+        int width = getmaxx(stdscr);
+        unsigned maxCols = (width > x + 1) ? (unsigned)MIN(width - x - 1, CMDLINE_LNG - 1) : 0;
+        char displayPattern[CMDLINE_LNG];
+        sanitize_single_line(displayPattern, sizeof(displayPattern), pattern, maxCols, NULL);
         color_attr_on(A_BOLD);
-        mvprintw(y, x, "%s", pattern);
+        mvprintw(y, x, "%s", displayPattern);
         color_attr_off(A_BOLD);
         clrtoeol();
     }
@@ -1057,28 +1279,28 @@ const char* get_selection_row_indent(void)
     return (prompt && !strlen(prompt))?"":" ";
 }
 
-static void format_selection_text(char* buffer, size_t bufferSize, const char* text, unsigned width)
-{
-    // One history entry occupies one screen row. Never pass embedded terminal
-    // controls to curses; keep the original entry for matching and selection.
-    hstr_strelide(buffer, bufferSize, text, width);
-    make_single_line(buffer);
-}
-
 void print_selection_row(char* text, int y, int width, char* pattern)
 {
-    char screenLine[CMDLINE_LNG];
+    if(width <= 0) {
+        return;
+    }
+    char screenLine[CMDLINE_LNG + 2];
     char buffer[CMDLINE_LNG];
     char displayPattern[CMDLINE_LNG];
     const char* indent = get_selection_row_indent();
-    // indent bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
-    format_selection_text(buffer, sizeof(buffer)-strlen(indent), text, width>2?width-2:0);
+    unsigned indentWidth = (unsigned)strlen(indent);
+    unsigned maxWidth = (unsigned)MIN(width, CMDLINE_LNG);
+    unsigned contentWidth = (maxWidth > indentWidth + 1) ? maxWidth - indentWidth - 1 : 0;
+    format_selection_text(buffer, sizeof(buffer), text, contentWidth, NULL);
     if(pattern) {
-        format_selection_text(displayPattern, sizeof(displayPattern), pattern, CMDLINE_LNG-1);
+        sanitize_single_line(displayPattern, sizeof(displayPattern), pattern, CMDLINE_LNG - 1, NULL);
         pattern=displayPattern;
     }
-    int size = snprintf(screenLine, sizeof(screenLine), "%s%s", indent, buffer);
-    if(size < 0) screenLine[0]=0;
+    if(maxWidth > indentWidth) {
+        snprintf(screenLine, sizeof(screenLine), "%s%s", indent, buffer);
+    } else {
+        screenLine[0] = '\0';
+    }
     mvprintw(y, 0, "%s", screenLine); clrtoeol();
 
     if(pattern && strlen(pattern)) {
@@ -1157,6 +1379,9 @@ void print_selection_row(char* text, int y, int width, char* pattern)
 
 void hstr_print_highlighted_selection_row(char* text, int y, int width)
 {
+    if(width <= 0) {
+        return;
+    }
     color_attr_on(A_BOLD);
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_HIROW));
@@ -1166,18 +1391,16 @@ void hstr_print_highlighted_selection_row(char* text, int y, int width)
     // without colors the indent is replaced by '>' marker (if there is an indent)
     const char* indent = get_selection_row_indent();
     const char* prefix = terminal_has_colors()?indent:(strlen(indent)?">":"");
+    unsigned prefixWidth = (unsigned)strlen(prefix);
     char buffer[CMDLINE_LNG];
-    // prefix bytes are reserved so that the line is NOT truncated by bytes (it would split characters)
-    format_selection_text(buffer, sizeof(buffer)-strlen(prefix), text, width>2?width-2:0);
-    // pad the row to the screen width (in columns) so that the whole row is highlighted
-    char screenLine[CMDLINE_LNG];
-    int length = snprintf(screenLine, sizeof(screenLine), "%s%s", prefix, buffer);
-    length = MAX(0, MIN(length, (int)sizeof(screenLine)-1));
-    int padding = getmaxx(stdscr)-hstr_strwidth(screenLine);
-    padding = MAX(0, MIN(padding, (int)sizeof(screenLine)-1-length));
-    memset(screenLine+length, ' ', padding);
-    screenLine[length+padding]=0;
-    mvprintw(y, 0, "%s", screenLine);
+    unsigned maxWidth = (unsigned)MIN(width, CMDLINE_LNG - 1);
+    unsigned contentWidth = (maxWidth > prefixWidth + 1) ? maxWidth - prefixWidth - 1 : 0;
+    unsigned textCols = 0;
+    format_selection_text(buffer, sizeof(buffer), text, contentWidth, &textCols);
+    mvprintw(y, 0, "%s%s", prefix, buffer);
+    for(unsigned col = prefixWidth + textCols; col < maxWidth; col++) {
+        addch(' ');
+    }
     if(hstr->theme & HSTR_THEME_COLOR) {
         color_attr_on(COLOR_PAIR(HSTR_COLOR_NORMAL));
     } else {
@@ -1407,9 +1630,7 @@ void loop_to_select(void)
             c = wgetch(stdscr);
         } else {
             if(strlen(pattern)) {
-                color_attr_on(A_BOLD);
-                mvprintw(hstr->promptY, basex, "%s", pattern);
-                color_attr_off(A_BOLD);
+                print_pattern(pattern, hstr->promptY, basex);
                 cursorX=getcurx(stdscr);
                 cursorY=getcury(stdscr);
                 result=hstr_print_selection(pattern);
@@ -1441,6 +1662,7 @@ void loop_to_select(void)
                 msg=malloc(strlen(almostDead)+1);
                 strcpy(msg, almostDead);
 
+                bool deleted=FALSE;
                 if(!hstr->noConfirm) {
                     print_confirm_delete(msg);
                     cc = wgetch(stdscr);
@@ -1450,11 +1672,10 @@ void loop_to_select(void)
                     // keep the viewport: the next match takes the deleted row.
                     // highlight_selection below clamps it at the end of the list.
                     result=hstr_update_selection(pattern);
-                    print_cmd_deleted_label(msg, deletedOccurences);
+                    deleted=TRUE;
                 } else {
                     hide_notification();
                 }
-                free(msg);
                 hideNotificationOnNextTick=TRUE;
                 print_history_label();  // TODO: Why is this necessary? Add comment!
 
@@ -1464,6 +1685,10 @@ void loop_to_select(void)
                     selectionCursorPosition=hstr->selectionSize-1;
                 }
                 highlight_selection(selectionCursorPosition, pattern);
+                if(deleted) {
+                    print_cmd_deleted_label(msg, deletedOccurences);
+                }
+                free(msg);
                 move(hstr->promptY, basex+hstr_strwidth(pattern));
             }
             break;
@@ -1658,7 +1883,7 @@ void loop_to_select(void)
         if(fixCommand) {
             fill_terminal_input("fc \"", FALSE);
         }
-        fill_terminal_input(result, editCommand);
+        fill_terminal_input_literal(result, editCommand);
         if(fixCommand) {
             fill_terminal_input("\"", FALSE);
         }

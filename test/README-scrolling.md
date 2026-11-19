@@ -18,7 +18,9 @@ expressions, empty results, and all prompt/help placements.
 Timestamp-delimited Bash multiline entries are checked for one-row rendering,
 scrolling, paging, resizing, regex and substring filtering, ranked view, exact
 selection output, deletion confirmation, and preservation after deletion and
-reopening the history file.
+reopening the history file. Additional coverage checks mixed plain/timestamped
+histories, plain `#<digits>` comments, consecutive duplicate multiline deletion,
+favorites round-tripping, multiline CLI patterns, and UTF-8 / raw-byte elision.
 
 These are terminal integration tests; the existing Unity backend tests can be
 run separately as documented in the build scripts.

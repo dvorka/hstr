@@ -22,6 +22,7 @@
 
 void hstr_regexp_init(HstrRegexp *hstrRegexp)
 {
+    hstrRegexp->caseSensitive = false;
     hashset_init(&hstrRegexp->cache);
 }
 
