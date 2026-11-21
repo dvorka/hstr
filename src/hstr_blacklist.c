@@ -17,6 +17,7 @@
 */
 
 #include "include/hstr_blacklist.h"
+#include "include/hstr_utils.h"
 
 static const char *defaultCommandBlacklist[] = {
         "ls", "pwd", "cd", "cd ..", "hstr", "hh", "mc",
@@ -34,12 +35,7 @@ void blacklist_init(Blacklist *blacklist)
 
 char* blacklist_get_filename()
 {
-    char *home = getenv(ENV_VAR_HOME);
-    char *fileName = (char*) malloc(strlen(home) + 1 + strlen(FILE_HSTR_BLACKLIST) + 1);
-    strcpy(fileName, home);
-    strcat(fileName, "/");
-    strcat(fileName, FILE_HSTR_BLACKLIST);
-    return fileName;
+    return get_hstr_configuration_file_path(FILE_HSTR_BLACKLIST, "blacklist");
 }
 
 void blacklist_load_default(Blacklist* blacklist) {
@@ -132,28 +128,38 @@ void blacklist_destroy(Blacklist *blacklist, bool freeBlacklist)
             int size=hashset_size(blacklist->set);
             if(size) {
                 FILE *outputFile = fopen(fileName, "wb");
-                rewind(outputFile);
-                int i;
-                char **keys=hashset_keys(blacklist->set);
-                for(i=0; i<size; i++) {
-                    if(!fwrite(keys[i], sizeof(char), strlen(keys[i]), outputFile)) {
-                        if(ferror(outputFile)) {
-                            exit(EXIT_FAILURE);
+                if (outputFile) {
+                    rewind(outputFile);
+                    int i;
+                    char **keys=hashset_keys(blacklist->set);
+                    for(i=0; i<size; i++) {
+                        if(!fwrite(keys[i], sizeof(char), strlen(keys[i]), outputFile)) {
+                            if(ferror(outputFile)) {
+                                exit(EXIT_FAILURE);
+                            }
                         }
-                    }
-                    if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
-                        if(ferror(outputFile)) {
-                            exit(EXIT_FAILURE);
+                        if(!fwrite("\n", sizeof(char), strlen("\n"), outputFile)) {
+                            if(ferror(outputFile)) {
+                                exit(EXIT_FAILURE);
+                            }
                         }
+                        free(keys[i]);
                     }
-                    free(keys[i]);
+                    fclose(outputFile);
+                    free(keys);
+                } else {
+                    // Failed to open file, but we must still free keys
+                    int i;
+                    char **keys=hashset_keys(blacklist->set);
+                    for(i=0; i<size; i++) {
+                        free(keys[i]);
+                    }
+                    free(keys);
                 }
-                fclose(outputFile);
-                free(keys);
             } else {
                 if(access(fileName, F_OK) != -1) {
                     FILE *outputFile = fopen(fileName, "wb");
-                    fclose(outputFile);
+                    if (outputFile) fclose(outputFile);
                 }
             }
             free(fileName);
