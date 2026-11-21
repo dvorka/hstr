@@ -28,6 +28,8 @@ HSTR can also **manage** your command history (for instance you can remove
 commands that are obsolete or contain a piece of sensitive information)
 or **bookmark** your favorite commands.
 
+[Change history editor](#change-history-editor)
+
 <!-- Check [video](http://www.youtube.com/watch?v=sPF29NyXe2U) tutorial. -->
 
 <!--
@@ -117,6 +119,30 @@ The **HSTR** project **is perfect to me**. Even if project's main branch does no
 
 If you have any ideas, suggestions, news to share, or constructive criticism to share, **do not hesitate to contact me**! Please do not be offended if your GitHub issue or bug report is not implemeted - IAGNI.
 -->
+
+## Change history editor
+
+> _To update a history, use the left key <kbd>⇐</kbd> in a history line._
+> 
+> _This tutorial is useful if you want to change the default editor._
+
+For **zsh** edit `~/.zshrc`
+
+For **bash** edit `~/.bashrc`
+
+```bash
+# Nano editor
+export FCEDIT=nano
+
+# Vi editor
+export FCEDIT=vi
+
+# VSCode Editor
+export FCEDIT='code -w'
+```
+
+<sub>_For detailed about `fc` command, please refer to [here](https://shapeshed.com/unix-fc/)_</sub>
+
 
 ## In the News
 
