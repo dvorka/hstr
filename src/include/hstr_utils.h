@@ -20,6 +20,7 @@
 #define HSTR_UTILS_H
 
 #include <ctype.h>
+#include <errno.h>
 #include <fcntl.h>
 #include <limits.h>
 #include <sys/ioctl.h>
@@ -46,42 +47,81 @@
 // as if it had been typed by the user.
 //
 // TIOCSTI is NOT available on:
-//  - Linux kernel >=6.2.0
+//  - Linux kernel >=6.2.0 (unless enabled by dev.tty.legacy_tiocsti sysctl)
 //  - Cygwin
 //  - WSL
 //
 // HSTR uses TIOCSTI to insert a command chosen by the user in HSTR
 // to shell prompt - if TIOCSTI is available. Otherwise shell features
-// must be used.
+// must be used: shell function, which reads the command from HSTR's stderr.
 //
 // HSTR modus operandi:
 //
+// - `HSTR_TIOCSTI` environment variable tells HSTR which shell configuration
+//   is installed (`--show-configuration` emits `y` or `n` based on detection):
+//     - `y` ... key binding which relies on TIOCSTI is configured
+//     - `n` ... shell function which replaces TIOCSTI is configured
+//               (reads the command from HSTR's stderr, works on any kernel)
+//     - `force` ... never emitted, set manually by the user: use TIOCSTI
+//                   even if it is NOT detected (detection does not work
+//                   on the platform e.g. some Android/Termux setups)
+//
 // - user runs `hstr` command
-//   - `hstr` checks whether TIOCSTI is supported by the kernel or not
+//   - `hstr` checks whether TIOCSTI is supported by the kernel or not:
+//     it probes TIOCSTI on stdin (on /dev/tty if stdin is not a TTY) i.e. on
+//     the same terminal where the command is to be inserted
 //      - if TIOCSTI SUPPORTED, then HSTR continues as it is able to insert
-//        any chosen command into Bash/Zsh prompt
+//        any chosen command into Bash/Zsh prompt using TIOCSTI - regardless
+//        of `HSTR_TIOCSTI` value:
+//          - if `HSTR_TIOCSTI` is NOT defined, then key binding is presumed
+//            (or HSTR is run from the command line) > TIOCSTI > DONE
+//          - if `HSTR_TIOCSTI` is `y`, then key binding is configured
+//            > TIOCSTI > DONE
+//          - if `HSTR_TIOCSTI` is `n`, then shell function is configured,
+//            TIOCSTI inserts the command into the terminal input (stderr
+//            is empty) and the shell reads it once the function returns
+//            > TIOCSTI > DONE (ENTER executes the command)
+//          - if `HSTR_TIOCSTI` is `force`, then it is no-op > TIOCSTI > DONE
 //      - if TIOCSTI NOT supported, then:
 //        - HSTR checks for `HSTR_TIOCSTI` environment variable:
-//          - if `HSTR_TIOCSTI` is NOT defined, then it prints an error and asks
+//          - if `HSTR_TIOCSTI` is NOT defined, then it prints a warning and asks
 //            user to configure HSTR (--show-configuration >> .*rc)
 //          - if `HSTR_TIOCSTI` is DEFINED, then:
 //            - if it is SET to `n`, then HSTR presumes that it has
 //              been configured and that the shell function (which replaces TIOCSTI)
-//              is defined > HSTR uses the function to insert command > DONE
-//            - OTHERWISE HSTR prints and error and ask user to configure HSTR
-//              with --show-configuration >> .*rc
+//              is defined > HSTR prints the command to stderr and the function
+//              inserts it into the prompt > DONE
+//            - if it is SET to `force`, then HSTR uses TIOCSTI anyway (no warning):
+//              - if TIOCSTI works (detection was wrong), then > DONE
+//              - if TIOCSTI fails, then HSTR falls back to stderr (for the
+//                rest of the command) and prints a hint to configure HSTR
+//                with --show-configuration >> .*rc (hint only if stderr is a
+//                terminal, so that it is not captured by the shell function)
+//            - OTHERWISE (`y` e.g. config from an older kernel/other machine,
+//              or any other value) HSTR prints a warning and asks user to
+//              configure HSTR with --show-configuration >> .*rc
+//          - the warning is NOT shown if HSTR_SUPPRESS_TIOCSTI_WARNING is set,
+//            for non-interactive options (--show-configuration, --is-tiocsti,
+//            --non-interactive, ...) and if stdin is not a terminal
+//            > HSTR continues and prints the command to stderr
+//          - the user may continue anyway (command printed to stderr) or exit
+//            with HSTR_EXIT_CONFIG_REQUIRED exit code
 //
 // HSTR features related to TIOCSTI
 //
 // - HSTR can detect whether TIOCSTI is supported by the kernel:
 //     hstr --is-tiocsti
-//   the command returns "y" or "n" (and exit code: 0 or 1)
-// - HSTR checks for the following env variable if TIOCSTI is not detected
-//     HSTR_TIOCSTI=y or HSTR_TIOCSTI=n
+//   the command prints "y" or "n" (exit code is always 0) - it reports the
+//   probe result i.e. it is NOT affected by HSTR_TIOCSTI=force
+// - --show-configuration is based on the probe result as well, so that
+//   forced TIOCSTI never makes HSTR emit configuration which does not work
 //
 
-// global TIOCSTI indicator declaration
+// global TIOCSTI indicator declaration: TIOCSTI used to insert commands
+// (detected or forced by HSTR_TIOCSTI=force)
 extern bool is_tiocsti;
+// global TIOCSTI indicator declaration: TIOCSTI detected by the probe
+extern bool is_tiocsti_detected;
 
 char* hstr_strdup(const char* s);
 char* hstr_getenv_strdup(const char* name);
@@ -91,7 +131,7 @@ char* hstr_strelide(char* buffer, size_t bufferSize, const char* s, unsigned max
 void hstr_chop(char* s);
 bool hstr_strcat_char(char* s, size_t size, int c);
 bool hstr_strcat_char_fitting(char* s, size_t size, int c, int maxWidth);
-bool is_tiocsti_supported(void);
+bool is_tiocsti_supported(bool verbose);
 #if !defined(__MS_WSL__) && !defined(__CYGWIN__)
 void tiocsti(void);
 #endif

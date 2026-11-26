@@ -42,6 +42,8 @@
 #define HSTR_ENV_VAR_IS_SUBSHELL           "HSTR_IS_SUBSHELL"
 #define HSTR_ENV_VAR_TIOCSTI               "HSTR_TIOCSTI"
 #define HSTR_ENV_VAR_SUPPRESS_WARNING      "HSTR_SUPPRESS_TIOCSTI_WARNING"
+#define HSTR_TIOCSTI_NO                    "n"
+#define HSTR_TIOCSTI_FORCE                 "force"
 
 #define HSTR_CONFIG_THEME_MONOCHROMATIC     "monochromatic"
 #define HSTR_CONFIG_THEME_HICOLOR           "hicolor"
@@ -282,7 +284,7 @@ bool show_tiocsti_configuration_warning(void)
         "=== HSTR CONFIGURATION REQUIRED ===\n"
         "\n"
         "HSTR cannot inject commands into your shell because:\n"
-        "  - Your Linux kernel >= 6.2.0 has TIOCSTI disabled\n"
+        "  - TIOCSTI is not available (e.g. disabled in Linux kernel >= 6.2.0)\n"
         "  - Your %s config is missing required HSTR function\n"
         "To fix this, run:\n"
         "\n"
@@ -293,6 +295,7 @@ bool show_tiocsti_configuration_warning(void)
         "  [c] continue anyway\n"
         "\n"
         "To suppress this warning: export HSTR_SUPPRESS_TIOCSTI_WARNING=1\n"
+        "If TIOCSTI works on your system, but it is not detected: export HSTR_TIOCSTI=force\n"
         "\n"
         "Your choice [E/c]: ",
         shell_name, config_cmd
@@ -416,7 +419,7 @@ void print_bash_install_code(void)
 {
     printf("%s", INSTALL_BASH_CODE_PREFIX);
 
-    if(is_tiocsti) {
+    if(is_tiocsti_detected) {
         printf(
             "\nif [[ $- =~ .*i.* ]]; then bind '\"\\C-r\": \"\\C-a hstr -- \\C-j\"'; fi"
             "\n# if this is interactive shell, then bind 'kill last command' to Ctrl-x k"
@@ -455,7 +458,7 @@ void print_zsh_install_code(void)
 {
     printf("%s", INSTALL_ZSH_CODE_PREFIX);
 
-    if(is_tiocsti) {
+    if(is_tiocsti_detected) {
         printf(
             "\nbindkey -s \"\\C-r\" \"\\C-a hstr -- \\C-j\"     # bind hstr to Ctrl-r (for Vi mode check doc)"
             "\nexport HSTR_TIOCSTI=y"
@@ -1707,7 +1710,8 @@ void hstr_getopt(int argc, char **argv)
             hstr_exit(EXIT_SUCCESS);
             break;
         case 't':
-            if(is_tiocsti) {
+            // probe result - not affected by HSTR_TIOCSTI=force
+            if(is_tiocsti_detected) {
                 printf("y\n");
             } else {
                 printf("n\n");
@@ -1751,21 +1755,31 @@ int hstr_main(int argc, char* argv[])
 {
     setlocale(LC_ALL, "");
 
-    // initialize global TIOCSTI indicator
+    // initialize global TIOCSTI indicators
+    char *tiocsti_env = getenv(HSTR_ENV_VAR_TIOCSTI);
+    // probe diagnostics only on request - HSTR_CONFIG is parsed later
+    char *config_env = getenv(HSTR_ENV_VAR_CONFIG);
+    bool tiocsti_verbose = config_env &&
+        (strstr(config_env, HSTR_CONFIG_DEBUG) || strstr(config_env, HSTR_CONFIG_WARN));
 #ifdef DEBUG_NO_TIOCSTI
-    is_tiocsti = false;
+    (void)tiocsti_verbose;
+    is_tiocsti_detected = false;
 #else
-    is_tiocsti = is_tiocsti_supported();
+    is_tiocsti_detected = is_tiocsti_supported(tiocsti_verbose);
 #endif
+    // HSTR_TIOCSTI=force ... use TIOCSTI even if the probe failed
+    // (detection does not work on the platform), y and n describe which
+    // shell configuration is installed and do NOT force anything
+    is_tiocsti = is_tiocsti_detected ||
+        (tiocsti_env && strcmp(tiocsti_env, HSTR_TIOCSTI_FORCE) == 0);
 
     // check if configuration warning is needed
     if (!is_tiocsti) {
-        char *tiocsti_env = getenv(HSTR_ENV_VAR_TIOCSTI);
         char *suppress_warning = getenv(HSTR_ENV_VAR_SUPPRESS_WARNING);
 
         // IF env var is not set, or is set to anything other than "n",
         // THEN show warning unless suppression flag is set
-        if ((!tiocsti_env || strcmp(tiocsti_env, "n") != 0) && !suppress_warning) {
+        if ((!tiocsti_env || strcmp(tiocsti_env, HSTR_TIOCSTI_NO) != 0) && !suppress_warning) {
             bool skip_check = false;
             int i;
             for (i = 1; i < argc; i++) {

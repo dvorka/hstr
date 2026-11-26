@@ -571,3 +571,18 @@ Therefore it is **very important** to configure HSTR after the installation:
 * [HSTR configuration](README.md#configuration)
 
 Without proper configuration HSTR will [not be able to insert commands to terminal](https://github.com/dvorka/hstr/issues/531).
+
+`hstr --show-configuration` writes `export HSTR_TIOCSTI=y` (key binding which
+relies on `TIOCSTI`) or `export HSTR_TIOCSTI=n` (shell function which works
+on any kernel) to your shell configuration. Run `hstr --is-tiocsti` to check
+whether HSTR detects `TIOCSTI` on your system.
+
+If `TIOCSTI` works on your system, but HSTR does not detect it (for instance
+on some Android/Termux setups), you can force it:
+
+```bash
+export HSTR_TIOCSTI=force
+```
+
+If `TIOCSTI` fails anyway, HSTR prints the command and a hint instead of
+inserting it - configure HSTR using `hstr --show-configuration` in that case.
