@@ -42,6 +42,10 @@ Show Zsh configuration to be added to ~/.zshrc
 \fB-b --show-blacklist\fR
 Show blacklist of commands to be filtered out before history processing
 .TP
+\fB-t --is-tiocsti\fR
+Detect whether TIOCSTI is supported and print \fBy\fR or \fBn\fR (exit code is always 0).
+The result of the detection is printed - it is not affected by \fBHSTR_TIOCSTI=force\fR.
+.TP
 \fB-V --version\fR
 Show version information
 .SH KEYS
@@ -195,6 +199,42 @@ shell from \fBHISTFILE\fR (not from \fBHSTR_HISTFILE\fR).
 Example:
         \fBexport HSTR_HISTFILE=~/.bash_history_global\fR
 
+.TP
+\fBHSTR_TIOCSTI\fR
+\fBhstr\fR inserts the chosen command into the shell prompt using TIOCSTI
+ioctl if it is supported - TIOCSTI is not available on Linux kernel >= 6.2.0
+(unless enabled by \fBdev.tty.legacy_tiocsti\fR sysctl), Cygwin and WSL.
+Otherwise the command is printed to the standard error and inserted into
+the prompt by a shell function. \fB--show-configuration\fR detects TIOCSTI
+and emits the shell configuration with this variable:
+
+\fIy\fR
+        Key binding which relies on TIOCSTI is configured.
+
+\fIn\fR
+        Shell function which replaces TIOCSTI is configured (works on any kernel).
+
+\fIforce\fR
+        Use TIOCSTI even if it is not detected - for platforms where the
+        detection does not work (e.g. some Android/Termux setups). It is
+        never emitted by \fB--show-configuration\fR, which (like \fB--is-tiocsti\fR)
+        is based on the detection only.
+
+If TIOCSTI is not detected and the variable is not set to \fIn\fR,
+\fBhstr\fR shows a warning and asks you to configure it (see BASH CONFIGURATION
+and ZSH CONFIGURATION). If TIOCSTI fails (e.g. when forced), \fBhstr\fR prints
+the command and a hint instead of inserting it.
+
+Example:
+        \fBexport HSTR_TIOCSTI=force\fR
+
+.TP
+\fBHSTR_SUPPRESS_TIOCSTI_WARNING\fR
+Do not show the warning on missing configuration if TIOCSTI is not detected.
+
+Example:
+        \fBexport HSTR_SUPPRESS_TIOCSTI_WARNING=1\fR
+
 .SH FILES
 .TP
 \fB~/.hstr_favorites\fR
@@ -239,6 +279,7 @@ if [[ ${HISTFILESIZE\-} =~ ^0*[[:digit:]]{1,4}$ ]]; then export HISTFILESIZE=100
 export PROMPT_COMMAND="history \-a; history \-n; ${PROMPT_COMMAND\-}"
 # if this is interactive shell, then bind hstr to Ctrl-r (for Vi mode check doc)
 if [[ $\- =~ .*i.* ]]; then bind '"\eC\-r": "\eC\-a hstr -- \eC-j"'; fi
+export HSTR_TIOCSTI=y
 .sp
 .fi
 .SH ZSH CONFIGURATION
@@ -269,6 +310,7 @@ Optionally add the following lines to ~/.zshrc if TIOCSTI is supported by your O
 export HSTR_CONFIG=hicolor            # get more colors
 setopt histignorespace                # skip cmds w/ leading space from history
 bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode check doc)
+export HSTR_TIOCSTI=y
 .sp
 .fi
 .SH EXAMPLES
@@ -293,6 +335,17 @@ bindkey -s "\eC\-r" "\eC\-a hstr \-\- \eC\-j" # bind hstr to Ctrl-r (for Vi mode
 .TP
 \fBhstr --insert-in-terminal="git add . && git diff --cached"\fR
  Insert command in terminal prompt and exit.
+.SH EXIT STATUS
+.TP
+\fB0\fR
+Success.
+.TP
+\fB1\fR
+Failure.
+.TP
+\fB2\fR
+Configuration required - TIOCSTI is not detected, \fBhstr\fR is not configured
+and the user chose to exit (see \fBHSTR_TIOCSTI\fR).
 .SH AUTHOR
 Written by Martin Dvorak <martin.dvorak@mindforger.com>
 .SH BUGS

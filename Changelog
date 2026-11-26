@@ -1,3 +1,19 @@
+2026-11-26  Martin Dvorak  <martin.dvorak@mindforger.com>
+
+  * Released v3.4.0 - Minor release:
+    - Fixed TIOCSTI detection on Android/Termux (#574) - TIOCSTI is probed
+      on stdin i.e. on the terminal where the command is inserted (/dev/tty
+      is probed only if stdin is not a terminal)
+    - Added HSTR_TIOCSTI=force to use TIOCSTI even if it is not detected,
+      y and n keep their meaning (which shell configuration is installed)
+      and --show-configuration and --is-tiocsti are not affected by force
+    - Fixed silent loss of the chosen command if TIOCSTI fails - the command
+      is printed with a hint instead
+    - TIOCSTI detection diagnostics are printed only with HSTR_CONFIG debug
+      or warning option
+    - Documented HSTR_TIOCSTI, HSTR_SUPPRESS_TIOCSTI_WARNING, --is-tiocsti
+      and exit status in the man page
+
 2026-11-01  Martin Dvorak  <martin.dvorak@mindforger.com>
 
   * Released v3.3.0 - Minor release:

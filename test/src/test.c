@@ -1314,22 +1314,31 @@ void test_is_tiocsti_supported_without_terminal(void)
     pid_t pid=fork();
     TEST_ASSERT_TRUE(pid>=0);
     if(pid==0) {
-        // setsid() detaches the child from the controlling terminal - open("/dev/tty") fails
-        if(setsid()<0 || dup2(out[1], STDOUT_FILENO)<0 || dup2(err[1], STDERR_FILENO)<0) {
+        // setsid() detaches the child from the controlling terminal - open("/dev/tty") fails,
+        // stdin is not a terminal (script) - /dev/tty is probed instead of stdin
+        int devnull=open("/dev/null", O_RDONLY);
+        if(devnull<0 || dup2(devnull, STDIN_FILENO)<0
+           || setsid()<0 || dup2(out[1], STDOUT_FILENO)<0 || dup2(err[1], STDERR_FILENO)<0) {
             _exit(2);
         }
+        close(devnull);
         close(out[0]);
         close(out[1]);
         close(err[0]);
         close(err[1]);
         close(result[0]);
 
-        // WHEN
-        char supported=is_tiocsti_supported() ? 'y' : 'n';
+        // WHEN probed quietly and then verbosely (separated by | on stderr)
+        char supported[2];
+        supported[0]=is_tiocsti_supported(false) ? 'y' : 'n';
+        if(write(STDERR_FILENO, "|", 1)!=1) {
+            _exit(4);
+        }
+        supported[1]=is_tiocsti_supported(true) ? 'y' : 'n';
 
         fflush(stdout);
         fflush(stderr);
-        _exit(write(result[1], &supported, 1)==1 ? 0 : 3);
+        _exit(write(result[1], supported, 2)==2 ? 0 : 3);
     }
     close(out[1]);
     close(err[1]);
@@ -1345,12 +1354,15 @@ void test_is_tiocsti_supported_without_terminal(void)
     TEST_ASSERT_EQUAL_INT(pid, waitpid(pid, &status, 0));
 
     // THEN TIOCSTI is not supported and stdout is clean - diagnostics are on stderr only
+    // and only if verbose (quiet probe prints nothing before |)
     printf("  stdout: '%s'\n  stderr: '%s'\n", outBuffer, errBuffer);
     TEST_ASSERT_TRUE(WIFEXITED(status));
-    TEST_ASSERT_EQUAL_UINT(1, resultLength);
+    TEST_ASSERT_EQUAL_UINT(2, resultLength);
     TEST_ASSERT_EQUAL_INT('n', resultBuffer[0]);
+    TEST_ASSERT_EQUAL_INT('n', resultBuffer[1]);
     TEST_ASSERT_EQUAL_UINT(0, outLength);
-    TEST_ASSERT_TRUE(errLength>0);
+    TEST_ASSERT_TRUE(errLength>1);
+    TEST_ASSERT_EQUAL_INT('|', errBuffer[0]);
     TEST_ASSERT_NOT_NULL(strstr(errBuffer, "TIOCSTI"));
 
     printf("DONE\n");

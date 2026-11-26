@@ -30,6 +30,7 @@
  */
 
 bool is_tiocsti = false;
+bool is_tiocsti_detected = false;
 
 /*
  * functions
@@ -249,36 +250,55 @@ bool hstr_strcat_char_fitting(char* s, size_t size, int c, int maxWidth)
     return true;
 }
 
-bool is_tiocsti_supported(void)
+bool is_tiocsti_supported(bool verbose)
 {
 #if defined(__MS_WSL__) || defined(__CYGWIN__)
+    (void)verbose;
     return false;
 #else
-   int fd;
-   struct termios t;
+    int fd;
+    bool is_own_fd = false;
+    struct termios t;
 
-   // diagnostics go to stderr only - stdout of e.g. --show-configuration
-   // is appended to ~/.bashrc and it is often run without terminal (scripts)
-   fd = open("/dev/tty", O_RDWR);
-   if (fd < 0) {
-      perror("Error: unable to detect whether TIOCSTI is supported by the kernel - open /dev/tty");
-      return false;
-   }
-   if (tcgetattr(fd, &t) < 0) {
-      perror("Error: unable to detect whether TIOCSTI is supported by the kernel - tcgetattr");
-      close(fd);
-      return false;
-   }
+    // probe the same file descriptor which is used to insert the command
+    // (stdin) - TIOCSTI may be permitted on the terminal device behind
+    // stdin, while denied (or not openable) via /dev/tty e.g. by SELinux
+    // policy on Android/Termux; /dev/tty is used only if stdin is not a TTY
+    if (isatty(STDIN_FILENO)) {
+        fd = STDIN_FILENO;
+    } else {
+        // diagnostics go to stderr only - stdout of e.g. --show-configuration
+        // is appended to ~/.bashrc and it is often run without terminal (scripts)
+        fd = open("/dev/tty", O_RDWR);
+        if (fd < 0) {
+            if (verbose) {
+                perror("Error: unable to detect whether TIOCSTI is supported by the kernel - open /dev/tty");
+            }
+            return false;
+        }
+        is_own_fd = true;
+        if (tcgetattr(fd, &t) < 0) {
+            if (verbose) {
+                perror("Error: unable to detect whether TIOCSTI is supported by the kernel - tcgetattr");
+            }
+            close(fd);
+            return false;
+        }
+    }
 
-   bool is_supported = false;
-   // probe TIOCSTI by sending (and clearing) the character
-   if (!ioctl(fd, TIOCSTI, " ")) { // send probe character
-      tcflush(fd, TCIOFLUSH); // flush probe character (avoid insert to prompt)
-      is_supported = true;
-   }
-   close(fd);
+    bool is_supported = false;
+    // probe TIOCSTI by sending (and clearing) the character
+    if (!ioctl(fd, TIOCSTI, " ")) { // send probe character
+        tcflush(fd, TCIOFLUSH); // flush probe character (avoid insert to prompt)
+        is_supported = true;
+    } else if (verbose) {
+        perror("Warning: TIOCSTI is not supported - ioctl");
+    }
+    if (is_own_fd) {
+        close(fd);
+    }
 
-   return is_supported;
+    return is_supported;
 #endif
 }
 
@@ -299,17 +319,38 @@ void tiocsti(void)
 void fill_terminal_input(char* cmd, bool padding)
 {
     if(cmd && strlen(cmd)>0) {
-            if(is_tiocsti) {
+        if(is_tiocsti) {
             size_t size = strlen(cmd);
-            unsigned i;
-            char *c;
+            size_t i;
             for (i = 0; i < size; i++) {
                 // terminal I/O control, simulate terminal input
-                c=(cmd+i);
-                ioctl(0, TIOCSTI, c);
+                if (ioctl(STDIN_FILENO, TIOCSTI, cmd+i) < 0) {
+                    break;
+                }
             }
-            // echo, but don't flush to terminal
-            if(padding) printf("\n");
+            if (i == size) {
+                // echo, but don't flush to terminal
+                if(padding) printf("\n");
+                return;
+            }
+
+            // TIOCSTI failed (e.g. HSTR_TIOCSTI=force on a kernel w/o TIOCSTI)
+            // > don't lose the command silently: fall back to stderr, which
+            // is used by the shell function configuration, for the rest
+            // of the command and all subsequent inserts
+            int ioctl_errno = errno;
+            is_tiocsti = false;
+            cmd += i;
+            fprintf(stderr, "%s", cmd);
+            if(padding) fprintf(stderr, "%s", "\n");
+            // hint only if stderr is a terminal - if it is captured by the
+            // shell function, then it would be inserted to the prompt
+            if (isatty(STDERR_FILENO)) {
+                fprintf(stderr,
+                    "\nhstr: unable to insert the command into the prompt using TIOCSTI (%s)"
+                    "\nhstr: configure HSTR using --show-configuration (see HSTR_TIOCSTI in man hstr)\n",
+                    strerror(ioctl_errno));
+            }
         } else {
             fprintf(stderr, "%s", cmd);
             if(padding) fprintf(stderr, "%s", "\n");
